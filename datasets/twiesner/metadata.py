@@ -63,9 +63,10 @@ def main():
                 metadata[PROTEIN].append(meta)
             else:
                 metadata[PROTEIN][current.index(image_id)] = meta
-        
+    
     for key, values in metadata.items():
         print(key, len(values))
+    print("total", sum([len(value) for value in metadata.values()]))
     json.dump(metadata, open("../metadata.json", "w"), indent=4, sort_keys=True)
 
 if __name__ == "__main__":
