@@ -1,0 +1,7 @@
+# Exclude tiffs that are within MASK and CROPS folders
+- Small Dataset - Dendrites/**
+# Include all tiffs
++ *merged.tif
++ *merged.tiff
+# Exclude everything else
+- *

@@ -1,0 +1,8 @@
+# Exclude tiffs that are within MASK and CROPS folders
+- perforated_temporary/**
+- *copy.tif
+# Include all tiffs
++ *.tif
++ *.tiff
+# Exclude everything else
+- *
