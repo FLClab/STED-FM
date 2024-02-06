@@ -1,0 +1,11 @@
+Vimentin in glial cells:
+mouse anti Vimentin 1:100
+Goat anti mouse STAR Orange 1:250
+Conf_561 {12}
+STED_561 {12}
+
+valeria-s3 flclab-abberior-sted:\adeschenes\2023-12-04\MsVimentin_1to100_GAM_STOrange_1to250_Culture80K_FixPFA20min_DIV8_cs1_c1.msr
+valeria-s3 flclab-abberior-sted:\adeschenes\2023-12-04\MsVimentin_1to100_GAM_STOrange_1to250_Culture80K_FixPFA20min_DIV8_cs1_c2.msr
+valeria-s3 flclab-abberior-sted:\adeschenes\2023-12-04\MsVimentin_1to100_GAM_STOrange_1to250_Culture80K_FixPFA20min_DIV8_cs1_c3.msr
+valeria-s3 flclab-abberior-sted:\adeschenes\2023-11-28_TestAnticorpsVimentin_CultureGlie\MsVimentin_1to100_GAM_STOrange_1to250_Culture80K_FixPFA20min_DIV8_cs1_c1.msr
+valeria-s3 flclab-abberior-sted:\adeschenes\2023-11-28_TestAnticorpsVimentin_CultureGlie\MsVimentin_1to100_GAM_STOrange_1to250_Culture80K_FixPFA20min_DIV8_cs1_c2.msr

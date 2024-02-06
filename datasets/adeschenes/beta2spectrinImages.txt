@@ -1,0 +1,11 @@
+beta2-Spectrin in neurons
+mouse anti beta2-Spectrin
+Goat anti mouse Alexa Fluor 594
+
+STED_594 {2}
+Conf_ 594 {2}
+
+
+valeria-s3 flclab-abberior-sted:\adeschenes\2023-04-25_CalgarySampleTests\UnmixingControl_msB2Spectrin_AF594_1.msr
+valeria-s3 flclab-abberior-sted:\adeschenes\2023-04-25_CalgarySampleTests\UnmixingControl_msB2Spectrin_AF594_2.msr
+valeria-s3 flclab-abberior-sted:\adeschenes\2023-04-25_CalgarySampleTests\UnmixingControl_msB2Spectrin_AF594_3.msr
