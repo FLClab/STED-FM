@@ -30,13 +30,16 @@ def main():
     files = get_files("flclab-private/FLCDataset/oferguson")
     for file in files:
         image_id = file["Path"]
+        meta = {
+            "image-id" : image_id,
+            "image-type" : "msr" if image_id.endswith("msr") else "tif",
+            "chan-id" : 1,
+            "user-id" : "oferguson",
+        }
         if not image_id in current:
-            metadata["tom20"].append({
-                "image-id" : image_id,
-                "image-type" : "msr" if image_id.endswith("msr") else "tif",
-                "chan-id" : 1
-            })
-    
+            metadata["tom20"].append(meta)
+        else:
+            metadata["tom20"][current.index(image_id)] = meta
     json.dump(metadata, open("../metadata.json", "w"), indent=4, sort_keys=True)
 
 if __name__ == "__main__":

@@ -3,581 +3,696 @@
         {
             "chan-id": "STED_594 {2}",
             "image-id": "adeschenes/2023-04-25_CalgarySampleTests/UnmixingControl_msB2Spectrin_AF594_1.msr",
-            "image-type": "msr"
+            "image-type": "msr",
+            "user-id": "adeschenes"
         },
         {
             "chan-id": "STED_594 {2}",
             "image-id": "adeschenes/2023-04-25_CalgarySampleTests/UnmixingControl_msB2Spectrin_AF594_2.msr",
-            "image-type": "msr"
+            "image-type": "msr",
+            "user-id": "adeschenes"
         },
         {
             "chan-id": "STED_594 {2}",
             "image-id": "adeschenes/2023-04-25_CalgarySampleTests/UnmixingControl_msB2Spectrin_AF594_3.msr",
-            "image-type": "msr"
+            "image-type": "msr",
+            "user-id": "adeschenes"
         }
     ],
     "tom20": [
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L18_2KO_3x_DIV88/INPUT/2KO/L18_DIV88_2KO_msTH488_RbTom20_635_Insert_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L18_2KO_3x_DIV88/INPUT/2KO/L18_DIV88_2KO_msTH488_RbTom20_635_Insert_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L18_2KO_3x_DIV88/INPUT/2KO/L18_DIV88_2KO_msTH488_RbTom20_635_Insert_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L18_2KO_3x_DIV88/INPUT/2KO/L18_DIV88_2KO_msTH488_RbTom20_635_Insert_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L18_2KO_3x_DIV88/INPUT/3x/L18_DIV88_3X_msTH488_RbTom20_635_Insert_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L18_2KO_3x_DIV88/INPUT/3x/L18_DIV88_3X_msTH488_RbTom20_635_Insert_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L18_2KO_3x_DIV88/INPUT/3x/L18_DIV88_3X_msTH488_RbTom20_635_Insert_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L18_2KO_3x_DIV88/INPUT/3x/L18_DIV88_3X_msTH488_RbTom20_635_Insert_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/A53T/L25_A53T_msTH488_RbTom20_635_Insert_01_to_segment.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/A53T/L25_A53T_msTH488_RbTom20_635_Insert_02_to_segment.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/A53T/L25_A53T_msTH488_RbTom20_635_Insert_03_to_segment.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/A53T/L25_A53T_msTH488_RbTom20_635_Insert_04_to_segment.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/A53T/L25_A53T_msTH488_RbTom20_635_Insert_05_to_segment.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/A53T_PFF/L25_A53T_PFF_msTH488_RbTom20_635_Insert_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/A53T_PFF/L25_A53T_PFF_msTH488_RbTom20_635_Insert_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/A53T_PFF/L25_A53T_PFF_msTH488_RbTom20_635_Insert_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/A53T_PFF/L25_A53T_PFF_msTH488_RbTom20_635_Insert_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/A53T_PFF/L25_A53T_PFF_msTH488_RbTom20_635_Insert_06_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/AIW/L25_AIW_msTH488_RbTom20_635_Insert_01_to_segment.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/AIW/L25_AIW_msTH488_RbTom20_635_Insert_02_to_segment.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/AIW/L25_AIW_msTH488_RbTom20_635_Insert_03_to_segment.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/AIW/L25_AIW_msTH488_RbTom20_635_Insert_04_to_segment.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/AIW/L25_AIW_msTH488_RbTom20_635_Insert_05_to_segment.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/AIW_PFF/L25_AIW_PFF_msTH488_RbTom20_635_Insert_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/AIW_PFF/L25_AIW_PFF_msTH488_RbTom20_635_Insert_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/AIW_PFF/L25_AIW_PFF_msTH488_RbTom20_635_Insert_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/AIW_PFF/L25_AIW_PFF_msTH488_RbTom20_635_Insert_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L25_AIW_A53T_PFF/INPUT/AIW_PFF/L25_AIW_PFF_msTH488_RbTom20_635_Insert_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/2KO/L26_2KO_msTH488_RbTom20_635_Insert_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/2KO/L26_2KO_msTH488_RbTom20_635_Insert_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/2KO/L26_2KO_msTH488_RbTom20_635_Insert_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/2KO/L26_2KO_msTH488_RbTom20_635_Insert_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/2KO/L26_2KO_msTH488_RbTom20_635_Insert_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/2KO_PFF/L26_2KO_PFF_msTH488_RbTom20_635_Insert_01_JG.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/2KO_PFF/L26_2KO_PFF_msTH488_RbTom20_635_Insert_02_JG.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/2KO_PFF/L26_2KO_PFF_msTH488_RbTom20_635_Insert_04_JG.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/2KO_PFF/L26_2KO_PFF_msTH488_RbTom20_635_Insert_05_JG.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/2KO_PFF/L26_2KO_PFF_msTH488_RbTom20_635_Insert_06_JG.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/3x/L26_3x_msTH488_RbTom20_635_Insert_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/3x/L26_3x_msTH488_RbTom20_635_Insert_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/3x/L26_3x_msTH488_RbTom20_635_Insert_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/3x/L26_3x_msTH488_RbTom20_635_Insert_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/3x/L26_3x_msTH488_RbTom20_635_Insert_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/3x_PFF/L26_3X_PFF_msTH488_RbTom20_635_Insert_02_JG.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/3x_PFF/L26_3X_PFF_msTH488_RbTom20_635_Insert_03_JG.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/3x_PFF/L26_3X_PFF_msTH488_RbTom20_635_Insert_04_JG.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/3x_PFF/L26_3X_PFF_msTH488_RbTom20_635_Insert_05_JG.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L26_2KO_3x_PFF/INPUT/3x_PFF/L26_3X_PFF_msTH488_RbTom20_635_Insert_06_JG.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L30_AIW_A53T/INPUT/A53T/L30_A53T_msTH488_RbTom20_635_Insert_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L30_AIW_A53T/INPUT/A53T/L30_A53T_msTH488_RbTom20_635_Insert_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L30_AIW_A53T/INPUT/A53T/L30_A53T_msTH488_RbTom20_635_Insert_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L30_AIW_A53T/INPUT/A53T/L30_A53T_msTH488_RbTom20_635_Insert_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L30_AIW_A53T/INPUT/A53T/L30_A53T_msTH488_RbTom20_635_Insert_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L30_AIW_A53T/INPUT/AIW/L30_AIW_msTH488_RbTom20_635_Insert_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L30_AIW_A53T/INPUT/AIW/L30_AIW_msTH488_RbTom20_635_Insert_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L30_AIW_A53T/INPUT/AIW/L30_AIW_msTH488_RbTom20_635_Insert_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L30_AIW_A53T/INPUT/AIW/L30_AIW_msTH488_RbTom20_635_Insert_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L30_AIW_A53T/INPUT/AIW/L30_AIW_msTH488_RbTom20_635_Insert_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L31_2KO_3x/INPUT/2KO/L31_2KO_msTH488_RbTom20_635_Insert_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L31_2KO_3x/INPUT/2KO/L31_2KO_msTH488_RbTom20_635_Insert_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L31_2KO_3x/INPUT/2KO/L31_2KO_msTH488_RbTom20_635_Insert_03_FIXED_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L31_2KO_3x/INPUT/2KO/L31_2KO_msTH488_RbTom20_635_Insert_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L31_2KO_3x/INPUT/2KO/L31_2KO_msTH488_RbTom20_635_Insert_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L31_2KO_3x/INPUT/3x/L31_3x_msTH488_RbTom20_635_Insert_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L31_2KO_3x/INPUT/3x/L31_3x_msTH488_RbTom20_635_Insert_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L31_2KO_3x/INPUT/3x/L31_3x_msTH488_RbTom20_635_Insert_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L31_2KO_3x/INPUT/3x/L31_3x_msTH488_RbTom20_635_Insert_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L31_2KO_3x/INPUT/3x/L31_3x_msTH488_RbTom20_635_Insert_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_2KO_3x/INPUT/2KO/L32_2KO_msTH488_RbTom20_635_Insert_cs1_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_2KO_3x/INPUT/2KO/L32_2KO_msTH488_RbTom20_635_Insert_cs1_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_2KO_3x/INPUT/2KO/L32_2KO_msTH488_RbTom20_635_Insert_cs1_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_2KO_3x/INPUT/2KO/L32_2KO_msTH488_RbTom20_635_Insert_cs1_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_2KO_3x/INPUT/2KO/L32_2KO_msTH488_RbTom20_635_Insert_cs1_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_2KO_3x/INPUT/3x/L32_3x_msTH488_RbTom20_635_Insert_cs1_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_2KO_3x/INPUT/3x/L32_3x_msTH488_RbTom20_635_Insert_cs1_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_2KO_3x/INPUT/3x/L32_3x_msTH488_RbTom20_635_Insert_cs1_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_2KO_3x/INPUT/3x/L32_3x_msTH488_RbTom20_635_Insert_cs1_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_2KO_3x/INPUT/3x/L32_3x_msTH488_RbTom20_635_Insert_cs1_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_AIW_A53T/INPUT/A53T/L32_A53T_msTH488_RbTom20_635_Insert_cs1_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_AIW_A53T/INPUT/A53T/L32_A53T_msTH488_RbTom20_635_Insert_cs1_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_AIW_A53T/INPUT/A53T/L32_A53T_msTH488_RbTom20_635_Insert_cs1_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_AIW_A53T/INPUT/A53T/L32_A53T_msTH488_RbTom20_635_Insert_cs1_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_AIW_A53T/INPUT/A53T/L32_A53T_msTH488_RbTom20_635_Insert_cs1_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_AIW_A53T/INPUT/AIW/L32_AIW_msTH488_RbTom20_635_Insert_cs1_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_AIW_A53T/INPUT/AIW/L32_AIW_msTH488_RbTom20_635_Insert_cs1_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_AIW_A53T/INPUT/AIW/L32_AIW_msTH488_RbTom20_635_Insert_cs1_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_AIW_A53T/INPUT/AIW/L32_AIW_msTH488_RbTom20_635_Insert_cs1_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L32_AIW_A53T/INPUT/AIW/L32_AIW_msTH488_RbTom20_635_Insert_cs1_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_2KO_3x/INPUT/2KO/L33_2KO_msTH488_RbTom20_635_Insert_cs1_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_2KO_3x/INPUT/2KO/L33_2KO_msTH488_RbTom20_635_Insert_cs1_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_2KO_3x/INPUT/2KO/L33_2KO_msTH488_RbTom20_635_Insert_cs1_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_2KO_3x/INPUT/2KO/L33_2KO_msTH488_RbTom20_635_Insert_cs1_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_2KO_3x/INPUT/2KO/L33_2KO_msTH488_RbTom20_635_Insert_cs1_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_2KO_3x/INPUT/3x/L33_3x_msTH488_RbTom20_635_Insert_cs1_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_2KO_3x/INPUT/3x/L33_3x_msTH488_RbTom20_635_Insert_cs1_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_2KO_3x/INPUT/3x/L33_3x_msTH488_RbTom20_635_Insert_cs1_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_2KO_3x/INPUT/3x/L33_3x_msTH488_RbTom20_635_Insert_cs1_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_2KO_3x/INPUT/3x/L33_3x_msTH488_RbTom20_635_Insert_cs1_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_AIW_A53T/INPUT/A53T/L33_A53T_msTH488_RbTom20_635_Insert_cs1_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_AIW_A53T/INPUT/A53T/L33_A53T_msTH488_RbTom20_635_Insert_cs1_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_AIW_A53T/INPUT/A53T/L33_A53T_msTH488_RbTom20_635_Insert_cs1_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_AIW_A53T/INPUT/A53T/L33_A53T_msTH488_RbTom20_635_Insert_cs1_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_AIW_A53T/INPUT/AIW/L33_AIW_msTH488_RbTom20_635_Insert_cs2_01_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_AIW_A53T/INPUT/AIW/L33_AIW_msTH488_RbTom20_635_Insert_cs2_02_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_AIW_A53T/INPUT/AIW/L33_AIW_msTH488_RbTom20_635_Insert_cs2_03_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_AIW_A53T/INPUT/AIW/L33_AIW_msTH488_RbTom20_635_Insert_cs2_04_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         },
         {
             "chan-id": 1,
             "image-id": "Inserts_Images_and_Masks/L33_AIW_A53T/INPUT/AIW/L33_AIW_msTH488_RbTom20_635_Insert_cs2_05_.tif",
-            "image-type": "tif"
+            "image-type": "tif",
+            "user-id": "oferguson"
         }
     ],
     "vimentin": [
         {
             "chan-id": "STED_561 {12}",
             "image-id": "adeschenes/2023-12-04/MsVimentin_1to100_GAM_STOrange_1to250_Culture80K_FixPFA20min_DIV8_cs1_c1.msr",
-            "image-type": "msr"
+            "image-type": "msr",
+            "user-id": "adeschenes"
         },
         {
             "chan-id": "STED_561 {12}",
             "image-id": "adeschenes/2023-12-04/MsVimentin_1to100_GAM_STOrange_1to250_Culture80K_FixPFA20min_DIV8_cs1_c2.msr",
-            "image-type": "msr"
+            "image-type": "msr",
+            "user-id": "adeschenes"
         },
         {
             "chan-id": "STED_561 {12}",
             "image-id": "adeschenes/2023-12-04/MsVimentin_1to100_GAM_STOrange_1to250_Culture80K_FixPFA20min_DIV8_cs1_c3.msr",
-            "image-type": "msr"
+            "image-type": "msr",
+            "user-id": "adeschenes"
         },
         {
             "chan-id": "STED_561 {12}",
             "image-id": "adeschenes/2023-11-28_TestAnticorpsVimentin_CultureGlie/MsVimentin_1to100_GAM_STOrange_1to250_Culture80K_FixPFA20min_DIV8_cs1_c1.msr",
-            "image-type": "msr"
+            "image-type": "msr",
+            "user-id": "adeschenes"
         },
         {
             "chan-id": "STED_561 {12}",
             "image-id": "adeschenes/2023-11-28_TestAnticorpsVimentin_CultureGlie/MsVimentin_1to100_GAM_STOrange_1to250_Culture80K_FixPFA20min_DIV8_cs1_c2.msr",
-            "image-type": "msr"
+            "image-type": "msr",
+            "user-id": "adeschenes"
         }
     ]
 }
