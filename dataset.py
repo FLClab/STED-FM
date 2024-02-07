@@ -35,39 +35,40 @@ def main():
             image_ids = ["-".join(member.name.split("-")[:-2]) for member in members]
     
     for protein_name, protein_images in tqdm(metadata.items(), desc="Proteins"):
-        for info in tqdm(protein_images, desc="Images", leave=False):
-            if info["image-id"] in image_ids:
-                continue
-            
-            # Updates metadata if needed
-            info["protein-id"] = protein_name
+        with tarfile.open(OUTPATH, "a") as tf:
+            for info in tqdm(protein_images, desc="Images", leave=False):
+                if info["image-id"] in image_ids:
+                    continue
+                
+                # Updates metadata if needed
+                info["protein-id"] = protein_name
 
-            # Reads image
-            if info["image-type"] == "msr":
-                with MSRReader() as msrreader:
-                    image = msrreader.read(os.path.join(BASEPATH, info["image-id"]))
-            elif info["image-type"] == "npz":
-                image = numpy.load(os.path.join(BASEPATH, info["image-id"]))
-            else:
-                image = tifffile.imread(os.path.join(BASEPATH, info["image-id"]))
+                # Reads image
+                if info["image-type"] == "msr":
+                    with MSRReader() as msrreader:
+                        image = msrreader.read(os.path.join(BASEPATH, info["image-id"]))
+                elif info["image-type"] == "npz":
+                    image = numpy.load(os.path.join(BASEPATH, info["image-id"]))
+                else:
+                    image = tifffile.imread(os.path.join(BASEPATH, info["image-id"]))
 
-            # Indexes image
-            if not isinstance(info["chan-id"], type(None)):
-                image = image[info["chan-id"]]
+                # Indexes image
+                if not isinstance(info["chan-id"], type(None)):
+                    image = image[info["chan-id"]]
 
-            # If a side of image is smaller than CROP_SIZE we remove
-            if (image.shape[-2] < CROP_SIZE) or (image.shape[-1] < CROP_SIZE):
-                continue
-            
-            # Min-Max normalization
-            m, M = numpy.quantile(image, [0.01, 0.99])
-            image = (image - m) / (M - m) * 255
-            image = image.astype(numpy.uint8)
+                # If a side of image is smaller than CROP_SIZE we remove
+                if (image.shape[-2] < CROP_SIZE) or (image.shape[-1] < CROP_SIZE):
+                    continue
+                
+                # Min-Max normalization
+                m, M = numpy.quantile(image, [0.01, 0.99])
+                image = (image - m) / (M - m) * 255
+                image = image.astype(numpy.uint8)
 
-            # Calculates forrground from Otsu
-            threshold = filters.threshold_otsu(image)
-            foreground = image > threshold
-            with tarfile.open(OUTPATH, "a") as tf:
+                # Calculates forrground from Otsu
+                threshold = filters.threshold_otsu(image)
+                foreground = image > threshold
+
                 # NOTE. + 1 is important in cases where image.shape == CROP_SIZE
                 for j in range(0, image.shape[-2] - CROP_SIZE + 1, CROP_SIZE):
                     for i in range(0, image.shape[-1] - CROP_SIZE + 1, CROP_SIZE):

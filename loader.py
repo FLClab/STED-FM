@@ -14,8 +14,9 @@ class TarFLCDataset(Dataset):
         self.__cache = {}
         self.tar_path = tar_path
         self.image_channels = image_channels
+        self.transform = transform
         with tarfile.open(tar_path) as archive:
-            self.length = sum(1 for member in archive if member.isreg())
+            self.members = archive.getmembers()
 
         if use_cache:
             self.__fill_cache()
@@ -25,7 +26,7 @@ class TarFLCDataset(Dataset):
             buffer = io.BytesIO()
             buffer.write(archive.extractfile(fname).read())
             buffer.seek(0)
-            data = numpy.load(buffer)
+            data = numpy.load(buffer, allow_pickle=True)
             # TODO
             # data will be a npz with image and metadata
             # We should decide if we return the full npz file here or only select elements
@@ -36,40 +37,24 @@ class TarFLCDataset(Dataset):
         pass
 
     def __len__(self):
-        return self.length
-    
+        return len(self.members)
 
     def __getitem__(self, idx: int) -> torch.Tensor:
         if idx in self.__cache.keys():
             data = self.__cache[idx]
         else:
-            data = self.__get_item_from_tar(fname="temp") # will have to be a link between the idx and the fname here
-            img = data["img"] # assuming 'img' key
-            label = data["label"]
-            if self.image_channels == 3:
-                img = Image.fromarray((img * 255).astype('uint8')).convert("RGB")
-            if self.transform is not None:
-                img = self.transform(img)
-            return img, # and whatever other metadata we like
+            data = self.__get_item_from_tar(self.members[idx].name) # will have to be a link between the idx and the fname here
+        
+        img = data["image"] # assuming 'img' key
+        metadata = data["metadata"]
+        
+        if self.transform is not None:
+            img = self.transform(img)
+        return img # and whatever other metadata we like
             
+if __name__ == "__main__":
 
-
-
-
-
-with tarfile.open("test.tar", "w") as tf:
-    buffer = io.BytesIO()
-    numpy.save(buffer, numpy.random.rand(128, 128).astype(numpy.float32))
-    buffer.seek(0)
-
-    info = tarfile.TarInfo(name="image1")
-    info.size = len(buffer.getbuffer())
-    tf.addfile(tarinfo=info, fileobj=buffer)
-
-with tarfile.open("test.tar", "r") as tf:
-    print(tf.getnames())
-    buffer = io.BytesIO()
-    buffer.write(tf.extractfile("image1").read())
-    buffer.seek(0)
-    img = numpy.load(buffer)
-    print(img.shape)
+    path = "/home-local2/projects/FLCDataset/dataset.tar"
+    dataset = TarFLCDataset(path)
+    for i in range(10):
+        print(dataset[i])
