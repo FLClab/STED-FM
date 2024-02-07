@@ -40,7 +40,7 @@ def get_protein_images(files : list[dict], protein : str) -> list[dict]:
             chan_id = proteins.index(CONVERSION[protein])
             images.append({
                 "chan-id" : chan_id, 
-                "image-id" : file["Path"],
+                "image-id" : os.path.join("twiesner/synaptic-protein-paper", file["Path"]),
                 "image-type" : "msr" if file["Path"].endswith("msr") else "tif",
             })
     return images
@@ -48,6 +48,14 @@ def get_protein_images(files : list[dict], protein : str) -> list[dict]:
 def main():
 
     metadata = json.load(open("../metadata.json", "r"))
+    for key, values in metadata.items():
+        deletevalues = []
+        for i, value in enumerate(values):
+            if value["user-id"] == "twiesner":
+                deletevalues.append(i)
+        for i in reversed(deletevalues):
+            del metadata[key][i]
+
     files = get_files("flclab-private/FLCDataset/twiesner/synaptic-protein-paper")    
 
     for PROTEIN in CONVERSION.keys():

@@ -22,6 +22,15 @@ def get_files(src):
 
 def main():
     metadata = json.load(open("../metadata.json", "r"))
+
+    for key, values in metadata.items():
+        deletevalues = []
+        for i, value in enumerate(values):
+            if value["user-id"] == "oferguson":
+                deletevalues.append(i)
+        for i in reversed(deletevalues):
+            del metadata[key][i]
+
     if not "tom20" in metadata:
         metadata["tom20"] = []
 
@@ -31,7 +40,7 @@ def main():
     for file in files:
         image_id = file["Path"]
         meta = {
-            "image-id" : image_id,
+            "image-id" : os.path.join("oferguson", image_id),
             "image-type" : "msr" if image_id.endswith("msr") else "tif",
             "chan-id" : 1,
             "user-id" : "oferguson",
@@ -40,6 +49,10 @@ def main():
             metadata["tom20"].append(meta)
         else:
             metadata["tom20"][current.index(image_id)] = meta
+            
+    for key, values in metadata.items():
+        print(key, len(values))
+    print("total", sum([len(value) for value in metadata.values()]))
     json.dump(metadata, open("../metadata.json", "w"), indent=4, sort_keys=True)
 
 if __name__ == "__main__":

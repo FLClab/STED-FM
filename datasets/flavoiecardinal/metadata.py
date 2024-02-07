@@ -27,13 +27,21 @@ def main():
     if not PROTEIN in metadata:
         metadata[PROTEIN] = []
 
+    for key, values in metadata.items():
+        deletevalues = []
+        for i, value in enumerate(values):
+            if value["user-id"] == "flavoiecardinal":
+                deletevalues.append(i)
+        for i in reversed(deletevalues):
+            del metadata[key][i]        
+
     current = [m["image-id"] for m in metadata[PROTEIN]]
 
     files = get_files("flclab-private/FLCDataset/flavoiecardinal")
     for file in files:
         image_id = file["Path"]
         meta = {
-            "image-id" : image_id,
+            "image-id" : os.path.join("flavoiecardinal", image_id),
             "image-type" : "msr" if image_id.endswith("msr") else "tif",
             "chan-id" : 0,
             "user-id" : "flavoiecardinal",
@@ -45,6 +53,7 @@ def main():
     
     for key, values in metadata.items():
         print(key, len(values))
+    print("total", sum([len(value) for value in metadata.values()]))
     json.dump(metadata, open("../metadata.json", "w"), indent=4, sort_keys=True)
 
 if __name__ == "__main__":
