@@ -1,0 +1,7 @@
+# Exclude
+- **/test/**
+- widefield/**
+# Include
++ *.npz
+# Exclude everything else
+- *

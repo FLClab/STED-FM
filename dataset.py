@@ -6,50 +6,79 @@ import numpy
 import io
 import javabridge
 import tifffile
+import argparse 
 
 from tqdm.auto import tqdm
+from skimage import filters
 
 from utils.msrreader import MSRReader
 
 BASEPATH = "/home-local2/projects/FLCDataset"
 OUTPATH = "/home-local2/projects/FLCDataset/dataset.tar"
 CROP_SIZE = 224
-MINIMUM_FOREGROUND = 0.01
+MINIMUM_FOREGROUND = 0.001
 
 def main():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--overwrite", action="store_true", help="Overwrites the tar file")
+    args = parser.parse_args()
+
     metadata = json.load(open("./datasets/metadata.json", "r"))
 
-    with tarfile.open(OUTPATH, "w") as tf:
-        pass
+    if args.overwrite:
+        with tarfile.open(OUTPATH, "w") as tf:
+            image_ids = []
+    else:
+        with tarfile.open(OUTPATH, "r") as tf:
+            members = tf.getmembers()
+            image_ids = ["-".join(member.name.split("-")[:-2]) for member in members]
     
     for protein_name, protein_images in tqdm(metadata.items(), desc="Proteins"):
         for info in tqdm(protein_images, desc="Images", leave=False):
+            if info["image-id"] in image_ids:
+                continue
+            
+            # Updates metadata if needed
+            info["protein-id"] = protein_name
+
+            # Reads image
             if info["image-type"] == "msr":
                 with MSRReader() as msrreader:
-                    out = msrreader.read(os.path.join(BASEPATH, info["image-id"]))
-                    image = out[info["chan-id"]]
-                break
+                    image = msrreader.read(os.path.join(BASEPATH, info["image-id"]))
+            elif info["image-type"] == "npz":
+                image = numpy.load(os.path.join(BASEPATH, info["image-id"]))
             else:
                 image = tifffile.imread(os.path.join(BASEPATH, info["image-id"]))
+
+            # Indexes image
+            if not isinstance(info["chan-id"], type(None)):
                 image = image[info["chan-id"]]
 
+            # If a side of image is smaller than CROP_SIZE we remove
+            if (image.shape[-2] < CROP_SIZE) or (image.shape[-1] < CROP_SIZE):
+                continue
+            
+            # Min-Max normalization
             m, M = numpy.quantile(image, [0.01, 0.99])
-            image = (image - m) / (M - m)
-            image = image.astype(numpy.float32)
+            image = (image - m) / (M - m) * 255
+            image = image.astype(numpy.uint8)
 
-            threshold = numpy.quantile(image, 0.75)
+            # Calculates forrground from Otsu
+            threshold = filters.threshold_otsu(image)
             foreground = image > threshold
-            for j in range(0, image.shape[-2] - CROP_SIZE, CROP_SIZE):
-                for i in range(0, image.shape[-1] - CROP_SIZE, CROP_SIZE):
-                    slc = (
-                        slice(j, j + CROP_SIZE),
-                        slice(i,  i + CROP_SIZE)
-                    )
-                    foreground_crop = foreground[slc]
-                    if foreground_crop.sum() > MINIMUM_FOREGROUND * CROP_SIZE ** 2:
-                        image_crop = image[slc]
+            with tarfile.open(OUTPATH, "a") as tf:
+                # NOTE. + 1 is important in cases where image.shape == CROP_SIZE
+                for j in range(0, image.shape[-2] - CROP_SIZE + 1, CROP_SIZE):
+                    for i in range(0, image.shape[-1] - CROP_SIZE + 1, CROP_SIZE):
+                        slc = (
+                            slice(j, j + CROP_SIZE),
+                            slice(i,  i + CROP_SIZE)
+                        )
+                        foreground_crop = foreground[slc]
+                        if foreground_crop.sum() > MINIMUM_FOREGROUND * CROP_SIZE ** 2:
+                            image_crop = image[slc]
 
-                        with tarfile.open(OUTPATH, "a") as tf:
                             buffer = io.BytesIO()
                             numpy.savez(buffer, image=image_crop, metadata=info)
                             buffer.seek(0)
@@ -57,9 +86,6 @@ def main():
                             tarinfo = tarfile.TarInfo(name=f'{info["image-id"]}-{j}-{i}')
                             tarinfo.size = len(buffer.getbuffer())
                             tf.addfile(tarinfo=tarinfo, fileobj=buffer)
-
-            break
-        
             
 if __name__ == "__main__":
     
