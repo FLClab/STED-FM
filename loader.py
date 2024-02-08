@@ -1,16 +1,11 @@
 
-import os 
-import time
-import json
 import tarfile
 import numpy 
 import io
-from torch.utils.data import Dataset, DataLoader, get_worker_info
 import torch
-from PIL import Image
-from typing import Any
 
-from tqdm.auto import tqdm
+from typing import Any
+from torch.utils.data import Dataset, DataLoader, get_worker_info
 
 class TarFLCDataset(Dataset):
     def __init__(self, tar_path: str, use_cache: bool = False, max_cache_size: int = 16e9, image_channels: int = 3, transform: Any = None) -> None:
@@ -87,6 +82,8 @@ class TarFLCDataset(Dataset):
         return state
 
 if __name__ == "__main__":
+
+    from tqdm.auto import tqdm
 
     path = "/home-local2/projects/FLCDataset/dataset.tar"
     dataset = TarFLCDataset(path)
