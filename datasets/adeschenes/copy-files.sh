@@ -8,7 +8,7 @@ FILES=(
 for file in "${FILES[@]}"
 do
     bname=$(dirname ${file})
-    rclone copy --progress "valeria-s3:flclab-abberior-sted/${file}" "valeria-s3:flclab-private/FLCDataset/${bname}"
+    rclone copyto --progress "valeria-s3:flclab-abberior-sted/${file}" "valeria-s3:flclab-private/FLCDataset/${file}"
 done
 
 # Vimentin
@@ -22,5 +22,5 @@ FILES=(
 for file in "${FILES[@]}"
 do
     bname=$(dirname ${file})
-    rclone copy --progress "valeria-s3:flclab-abberior-sted/${file}" "valeria-s3:flclab-private/FLCDataset/${bname}"
+    rclone copyto --progress "valeria-s3:flclab-abberior-sted/${file}" "valeria-s3:flclab-private/FLCDataset/${file}"
 done
