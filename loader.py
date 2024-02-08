@@ -54,7 +54,7 @@ class TarFLCDataset(Dataset):
         if idx in self.__cache:
             data = self.__cache[idx]
         else:
-            data = self.__get_item_from_tar(self.members[idx]) # will have to be a link between the idx and the fname here
+            data = self.__get_item_from_tar(self.members[idx])
         
         img = data["image"] # assuming 'img' key
         metadata = data["metadata"]
