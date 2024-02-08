@@ -83,12 +83,12 @@ def main():
                 threshold = filters.threshold_otsu(image)
                 foreground = image > threshold
 
-                # NOTE. + 1 is important in cases where image.shape == CROP_SIZE
-                for j in range(0, image.shape[-2] - CROP_SIZE + 1, CROP_SIZE):
-                    for i in range(0, image.shape[-1] - CROP_SIZE + 1, CROP_SIZE):
+                for j in range(0, image.shape[-2], CROP_SIZE):
+                    for i in range(0, image.shape[-1], CROP_SIZE):
+                        # NOTE. This generates the edge crops on right/bottom
                         slc = (
-                            slice(j, j + CROP_SIZE),
-                            slice(i,  i + CROP_SIZE)
+                            slice(j, j + CROP_SIZE) if j + CROP_SIZE < image.shape[-2] else slice(image.shape[-2] - CROP_SIZE, image.shape[-2]),
+                            slice(i,  i + CROP_SIZE) if i + CROP_SIZE < image.shape[-1] else slice(image.shape[-1] - CROP_SIZE, image.shape[-1]),
                         )
                         foreground_crop = foreground[slc]
                         if foreground_crop.sum() > MINIMUM_FOREGROUND * CROP_SIZE ** 2:
