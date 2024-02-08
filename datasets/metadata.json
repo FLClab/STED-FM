@@ -23963,780 +23963,6 @@
             "user-id": "jgsantiague"
         },
         {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01_STEDS_AND_CONFOCALS_FOOR_PREVIOUS_IMAGE.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_04.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_04.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/TH_UNMIX.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/VGLUT_UNMIX.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/aSYN_UNMIX.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_04.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_aSyn488_MAP2-594_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.13_4_color_session/P10_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_4_color_image.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.13_4_color_session/P10_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_4_color_image.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_4_color_image_2.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH488_aSyn635_n1.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH594_aSyn488_n1.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH594_aSyn488_n2.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH594_aSyn488_n3.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n10_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n11_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n11_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n12_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n12_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n8_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n9_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n9_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_04.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_04.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_PSD643.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_TH488.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_VGLUT594.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_aSyn490LS.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_02.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_03.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n8_01.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
-            "chan-id": "STED_635P {6}",
-            "image-id": "sbaker/2023.10.05/sauron.msr",
-            "image-type": "msr",
-            "user-id": "sbaker"
-        },
-        {
             "chan_id": 1,
             "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
             "image-type": "tif",
@@ -27909,6 +27135,780 @@
             "image-id": "jmbellavance/ALS_FUS_and_PSD95/2023-03-01 (26.2) (dendrites 4c Batch3)/InfDIV5_shFUS_7DPI_VGLUT1490-MAP2490LS-FUS594-PSD95635_linksoma8_img7.msr",
             "image-type": "msr",
             "user-id": "jmbellavance"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01_STEDS_AND_CONFOCALS_FOOR_PREVIOUS_IMAGE.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/TH_UNMIX.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/VGLUT_UNMIX.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/aSYN_UNMIX.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_aSyn488_MAP2-594_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P10_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_4_color_image.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P10_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_4_color_image.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_4_color_image_2.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH488_aSyn635_n1.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH594_aSyn488_n1.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH594_aSyn488_n2.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH594_aSyn488_n3.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n10_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n11_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n11_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n12_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n12_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n8_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n9_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n9_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_PSD643.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_TH488.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_VGLUT594.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_aSyn490LS.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n8_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_635P {6}",
+            "image-id": "sbaker/2023.10.05/sauron.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
         }
     ],
     "rim": [
@@ -32941,6 +32941,288 @@
     ],
     "vglut2": [
         {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
+            "chan_id": 0,
+            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
+            "image-type": "tif",
+            "user-id": "oferguson"
+        },
+        {
             "chan-id": "STED_594 {6}",
             "image-id": "sbaker/2023.05.30.P6FinalP7/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
             "image-type": "msr",
@@ -33713,288 +33995,6 @@
             "image-id": "sbaker/2023.10.05/sauron.msr",
             "image-type": "msr",
             "user-id": "sbaker"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan_id": 0,
-            "image-id": "oferguson/synaptic_proteins/L15_AIW_A53T_Rot_DIV60/INPUT/Untreated/A53T/L15_A53T_msTH488_RbTom20_635_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
         }
     ],
     "vimentin": [
