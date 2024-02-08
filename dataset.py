@@ -70,7 +70,7 @@ def main():
                 
                 # Min-Max normalization
                 m, M = numpy.quantile(image, [0.01, 0.99])
-                if m == M:
+                if m == M: 
                     print("\n")
                     print("Min-Max normalization impossible... Skipping")
                     print(info)
