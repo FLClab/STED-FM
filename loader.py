@@ -25,7 +25,6 @@ class TarFLCDataset(Dataset):
 
         # store headers of all files and folders by name
         self.members = list(sorted(self.tar_obj[worker].getmembers(), key=lambda m: m.name))
-        self.members_by_name = {m.name: m for m in self.members}       
 
         if use_cache:
             self.__fill_cache()
@@ -38,8 +37,9 @@ class TarFLCDataset(Dataset):
         if worker not in self.tar_obj:
             self.tar_obj[worker] = tarfile.open(self.tar_path, "r")
 
+        # Loads file from TarFile stored as numpy array
         buffer = io.BytesIO()
-        buffer.write(self.tar_obj[worker].extractfile(self.members_by_name[member.name]).read())
+        buffer.write(self.tar_obj[worker].extractfile(member).read())
         buffer.seek(0)
         data = numpy.load(buffer, allow_pickle=True)
 
@@ -56,7 +56,7 @@ class TarFLCDataset(Dataset):
         return len(self.members)
 
     def __getitem__(self, idx: int) -> torch.Tensor:
-        if idx in self.__cache.keys():
+        if idx in self.__cache:
             data = self.__cache[idx]
         else:
             data = self.__get_item_from_tar(self.members[idx]) # will have to be a link between the idx and the fname here
