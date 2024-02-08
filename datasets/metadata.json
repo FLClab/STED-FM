@@ -1757,6 +1757,426 @@
             "image-id": "twiesner/synaptic-protein-paper/PSD95-Basson/naive/R-Bassoon_GARSTAR635_M-PSD95_GAMAlexa594_Naive_35.tif",
             "image-type": "tif",
             "user-id": "twiesner"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c1.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c10.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c11.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c12.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c13.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c14.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c15.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c16.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c17.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c18.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c19.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c2.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c20.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c21.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c22.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c23.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c24.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c25.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c26.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c27.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c28.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c29.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c3.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c30.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c4.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c5.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c6.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c7.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c8.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c9.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c1.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c10.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c11.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c12.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c13.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c14.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c15.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c16.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c17.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c18.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c19.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c2.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c20.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c21.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c22.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c23.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c24.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c25.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c26.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c27.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c28.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c29.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c3.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c30.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c31.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c32.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c33.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c34.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c35.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c36.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c37.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c38.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c39.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c4.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c40.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c5.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c6.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c7.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c8.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c9.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
         }
     ],
     "beta2-spectrin": [
@@ -20227,6 +20647,1200 @@
             "image-id": "flavoiecardinal/optim-lavoiecardinal/PSD95_Neuron/train/99-0.776.npz",
             "image-type": "npz",
             "user-id": "flavoiecardinal"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c1.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c10.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c11.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c12.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c13.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c14.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c15.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c16.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c17.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c18.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c19.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c2.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c20.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c21.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c22.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c23.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c24.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c25.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c26.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c27.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c28.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c29.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c3.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c30.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c4.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c5.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c6.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c7.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c8.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-08-09/PSD95_STAR635P_Bassoon_Alexa594_c9.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c1.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c10.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c11.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c12.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c13.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c14.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c15.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c16.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c17.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c18.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c19.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c2.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c20.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c21.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c22.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c23.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c24.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c25.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c26.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c27.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c28.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c29.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c3.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c30.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c31.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c32.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c33.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c34.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c35.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c36.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c37.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c38.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c39.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c4.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c40.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c5.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c6.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c7.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c8.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c9.msr",
+            "image-type": "msr",
+            "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01_STEDS_AND_CONFOCALS_FOOR_PREVIOUS_IMAGE.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/TH_UNMIX.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/VGLUT_UNMIX.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/aSYN_UNMIX.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_aSyn488_MAP2-594_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P10_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_4_color_image.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P10_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_4_color_image.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_4_color_image_2.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH488_aSyn635_n1.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH594_aSyn488_n1.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH594_aSyn488_n2.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH594_aSyn488_n3.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n10_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n11_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n11_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n12_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n12_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n8_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n9_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n9_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_PSD643.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_TH488.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_VGLUT594.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_aSyn490LS.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n8_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635P {6}",
+            "image-id": "sbaker/2023.10.05/sauron.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
         }
     ],
     "rim": [
@@ -23107,6 +24721,782 @@
             "image-id": "flavoiecardinal/optim-lavoiecardinal/tubulin/train/99-0.752.npz",
             "image-type": "npz",
             "user-id": "flavoiecardinal"
+        }
+    ],
+    "vglut2": [
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01_STEDS_AND_CONFOCALS_FOOR_PREVIOUS_IMAGE.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_CTRL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P6_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/TH_UNMIX.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/VGLUT_UNMIX.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.05.30.P6FinalP7/2023.05.31/aSYN_UNMIX.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.06.21.P7final/P7_DIV20_ROT_aSyn488_MAP2-594_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P10_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_4_color_image.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P10_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_4_color_image.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_4_color_image_2.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH488_aSyn635_n1.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH594_aSyn488_n1.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH594_aSyn488_n2.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.13_4_color_session/P8_DIV20_CTL_TH594_aSyn488_n3.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_AAV_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n10_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n11_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n11_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n12_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n12_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n8_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n9_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.07.20_p8/P8_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n9_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_04.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_PSD643.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_TH488.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_VGLUT594.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.09.23/P11_DIV20_UNMIX_aSyn490LS.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n6_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_02.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n7_03.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/P11_DIV20_CTL_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n8_01.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 594 {6}",
+            "image-id": "sbaker/2023.10.05/sauron.msr",
+            "image-type": "msr",
+            "user-id": "sbaker"
         }
     ],
     "vimentin": [
