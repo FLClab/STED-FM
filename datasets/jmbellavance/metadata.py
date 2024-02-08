@@ -35,7 +35,7 @@ def main():
                 image_id = f["Path"]
                 image_type = os.path.splitext(os.path.basename(image_id))[1][1:]
                 meta = {
-                    "image-id": os.path.join(f"jmbellavance/{folder_name}", image_id),
+                    "image-id": os.path.join(f"jmbellavance/ALS_FUS_and_PSD95/{folder_name}", image_id),
                     "image-type": image_type,
                     "chan-id": channel_id,
                     "user-id": "jmbellavance"
