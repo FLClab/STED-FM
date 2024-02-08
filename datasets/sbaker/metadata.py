@@ -25,7 +25,7 @@ def main():
 
     for folder_name in FOLDERS:
         for PROTEIN in ["vglut2", "psd95"]:
-            channel_id = "STED 594 {6}" if PROTEIN == "vglut2" else "STED 635P {6}"
+            channel_id = "STED_594 {6}" if PROTEIN == "vglut2" else "STED_635P {6}"
             if not PROTEIN in metadata:
                 metadata[PROTEIN] = []
             current = [m["image-id"] for m in metadata[PROTEIN]]
