@@ -21,8 +21,10 @@ def get_files(src):
     return output
 
 def main():
-    metadata = json.load(open("../metadata.json", "r"))
 
+    PROTEIN = "tom20"
+
+    metadata = json.load(open("../metadata.json", "r"))
     for key, values in metadata.items():
         deletevalues = []
         for i, value in enumerate(values):
@@ -31,25 +33,43 @@ def main():
         for i in reversed(deletevalues):
             del metadata[key][i]
 
-    if not "tom20" in metadata:
-        metadata["tom20"] = []
+    if not PROTEIN in metadata:
+        metadata[PROTEIN] = []
 
-    current = [m["image-id"] for m in metadata["tom20"]]
+    current = [m["image-id"] for m in metadata[PROTEIN]]
 
-    files = get_files("flclab-private/FLCDataset/oferguson")
+    # Inserts images
+    files = get_files("flclab-private/FLCDataset/oferguson/Inserts_Images_and_Masks")
     for file in files:
         image_id = file["Path"]
+        image_type = os.path.splitext(image_id)[-1][1:]
         meta = {
-            "image-id" : os.path.join("oferguson", image_id),
-            "image-type" : "msr" if image_id.endswith("msr") else "tif",
+            "image-id" : os.path.join("oferguson/Inserts_Images_and_Masks", image_id),
+            "image-type" : image_type,
             "chan-id" : 1,
             "user-id" : "oferguson",
         }
         if not image_id in current:
-            metadata["tom20"].append(meta)
+            metadata[PROTEIN].append(meta)
         else:
-            metadata["tom20"][current.index(image_id)] = meta
-            
+            metadata[PROTEIN][current.index(image_id)] = meta
+
+    # Manual mitos images
+    files = get_files("flclab-private/FLCDataset/oferguson/Manual_Mitos")
+    for file in files:
+        image_id = file["Path"]
+        image_type = os.path.splitext(image_id)[-1][1:]
+        meta = {
+            "image-id" : os.path.join("oferguson/Manual_Mitos", image_id),
+            "image-type" : image_type,
+            "chan-id" : 2,
+            "user-id" : "oferguson",
+        }
+        if not image_id in current:
+            metadata[PROTEIN].append(meta)
+        else:
+            metadata[PROTEIN][current.index(image_id)] = meta
+
     for key, values in metadata.items():
         print(key, len(values))
     print("total", sum([len(value) for value in metadata.values()]))
