@@ -54,7 +54,15 @@ def main():
 
                 # Indexes image
                 if not isinstance(info["chan-id"], type(None)):
-                    image = image[info["chan-id"]]
+                    try:
+                        image = image[info["chan-id"]]
+                    except Exception as err:
+                        print()
+                        print(err)
+                        if info["image-type"] == "msr":
+                            print(image.keys())
+                        print(info)
+                        continue
 
                 # If a side of image is smaller than CROP_SIZE we remove
                 if (image.shape[-2] < CROP_SIZE) or (image.shape[-1] < CROP_SIZE):
