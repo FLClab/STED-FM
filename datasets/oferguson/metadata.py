@@ -8,7 +8,8 @@ def get_files(src):
 
     :param config: A `dict` of the configuration file
     """
-    _src = "valeria-s3:" + src
+    # _src = "valeria-s3:" + src
+    _src = "/Users/fredbeaupre/valeria-s3/" + src
     args = [
         "rclone", "lsjson", "-R", _src
     ]
@@ -69,6 +70,27 @@ def main():
             metadata[PROTEIN].append(meta)
         else:
             metadata[PROTEIN][current.index(image_id)] = meta
+
+    proteins = ["vglut2", "psd95"]
+    for PROTEIN in proteins:
+        channel_id = 0 if PROTEIN == "vglut2" else 1
+        if not PROTEIN in metadata:
+            metadata[PROTEIN] = []
+        current = [m["image-id"] for m in metadata[PROTEIN]]
+        files = get_files("flclab-private/FLCDataset/oferguson/synaptic_proteins")
+        for f in files:
+            image_id = file["Path"]
+            image_type = os.path.splitext(image_id)[-1][1:]
+            meta = {
+                "image-id": os.path.join("oferguson/synaptic_proteins", image_id),
+                "image-type": image_type,
+                "chan_id": channel_id,
+                "user_id": "oferguson"
+            }
+            if not image_id in current:
+                metadata[PROTEIN].append(meta)
+            else:
+                metadata[PROTEIN][current.index(image_id)] = meta
 
     for key, values in metadata.items():
         print(key, len(values))

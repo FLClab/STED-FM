@@ -10,7 +10,7 @@ class TarFLCDataset(Dataset):
         self,
         tar_path: str, 
         use_cache: bool = False,
-        max_cache_size: int = 32e9
+        max_cache_size: int = 32e9,
         image_channels: int = 1,
         transform: Any = None
     ) -> None:
