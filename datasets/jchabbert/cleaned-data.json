@@ -42,15 +42,7 @@
                 "jchabbert/6-2022-03-31_B-KCl-B+KCl-AP5-AP5+KCl_LAM18_MAP2-SMI-PH635_n=3/6-AP5/",
                 "jchabbert/6-2022-03-31_B-KCl-B+KCl-AP5-AP5+KCl_LAM18_MAP2-SMI-PH635_n=3/6-Bloc+KCl/",
                 "jchabbert/6-2022-03-31_B-KCl-B+KCl-AP5-AP5+KCl_LAM18_MAP2-SMI-PH635_n=3/6-Bloc/",
-                "jchabbert/6-2022-03-31_B-KCl-B+KCl-AP5-AP5+KCl_LAM18_MAP2-SMI-PH635_n=3/6-KCl/",
-                "jchabbert/9-2022-05-12_STED-Actin-shRNA-BCaMKII_LAM18_GFP-TAUS460L-BCaMKIIA594-PH635/9-GFP/",
-                "jchabbert/9-2022-05-12_STED-Actin-shRNA-BCaMKII_LAM18_GFP-TAUS460L-BCaMKIIA594-PH635/9-NT/",
-                "jchabbert/9-2022-05-12_STED-Actin-shRNA-BCaMKII_LAM18_GFP-TAUS460L-BCaMKIIA594-PH635/9-Rescue/",
-                "jchabbert/12-2022-05-30__4cSTED-Actin-shRNA-BCaMKII_LAM12_GFP-TAUS460L-BCaMKIIA594-PH635/12-GFP/",
-                "jchabbert/12-2022-05-30__4cSTED-Actin-shRNA-BCaMKII_LAM12_GFP-TAUS460L-BCaMKIIA594-PH635/12-Non Transfected/",
-                "jchabbert/12-2022-05-30__4cSTED-Actin-shRNA-BCaMKII_LAM12_GFP-TAUS460L-BCaMKIIA594-PH635/12-rescue/",
-                "jchabbert/12-2022-05-30__4cSTED-Actin-shRNA-BCaMKII_LAM12_GFP-TAUS460L-BCaMKIIA594-PH635/12-shRNA + rescue/",
-                "jchabbert/12-2022-05-30__4cSTED-Actin-shRNA-BCaMKII_LAM12_GFP-TAUS460L-BCaMKIIA594-PH635/12-shRNA BcaMKII/"
+                "jchabbert/6-2022-03-31_B-KCl-B+KCl-AP5-AP5+KCl_LAM18_MAP2-SMI-PH635_n=3/6-KCl/"
             ]
         },
         {
@@ -77,7 +69,15 @@
                 "jchabbert/Tests/2023-11-16_FIXED_stim-GCaMP6f_SNAP-constructs/2023-11-27_Block_0MgTTX_GluGly2_NT/",
                 "jchabbert/Tests/2023-11-16_FIXED_stim-GCaMP6f_SNAP-constructs/2023-11-27_Block_0MgTTX_NT/",
                 "jchabbert/Tests/2023-11-16_FIXED_stim-GCaMP6f_SNAP-constructs/2023-11-29_cLTP Cabou_NT/",
-                "jchabbert/Tests/2023-11-16_FIXED_stim-GCaMP6f_SNAP-constructs/2023-11-29_cLTP JC_NT/"
+                "jchabbert/Tests/2023-11-16_FIXED_stim-GCaMP6f_SNAP-constructs/2023-11-29_cLTP JC_NT/",
+                "jchabbert/12-2022-05-30__4cSTED-Actin-shRNA-BCaMKII_LAM12_GFP-TAUS460L-BCaMKIIA594-PH635/12-GFP/",
+                "jchabbert/12-2022-05-30__4cSTED-Actin-shRNA-BCaMKII_LAM12_GFP-TAUS460L-BCaMKIIA594-PH635/12-Non Transfected/",
+                "jchabbert/12-2022-05-30__4cSTED-Actin-shRNA-BCaMKII_LAM12_GFP-TAUS460L-BCaMKIIA594-PH635/12-rescue/",
+                "jchabbert/12-2022-05-30__4cSTED-Actin-shRNA-BCaMKII_LAM12_GFP-TAUS460L-BCaMKIIA594-PH635/12-shRNA + rescue/",
+                "jchabbert/12-2022-05-30__4cSTED-Actin-shRNA-BCaMKII_LAM12_GFP-TAUS460L-BCaMKIIA594-PH635/12-shRNA BcaMKII/",
+                "jchabbert/9-2022-05-12_STED-Actin-shRNA-BCaMKII_LAM18_GFP-TAUS460L-BCaMKIIA594-PH635/9-GFP/",
+                "jchabbert/9-2022-05-12_STED-Actin-shRNA-BCaMKII_LAM18_GFP-TAUS460L-BCaMKIIA594-PH635/9-NT/",
+                "jchabbert/9-2022-05-12_STED-Actin-shRNA-BCaMKII_LAM18_GFP-TAUS460L-BCaMKIIA594-PH635/9-Rescue/"                
             ]
         },
         {
