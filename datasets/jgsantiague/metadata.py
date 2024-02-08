@@ -24,7 +24,7 @@ def main():
 
     for folder_name in ["no_beads_2023-08-09", "no_beads_2023-09-23"]:
         for PROTEIN in ["bassoon", "psd95"]:
-            channel_id = "STED_594 {12}" if PROTEIN == "bassoon" else "STED_635 {12}"
+            channel_id = "STED_594 {12}" if PROTEIN == "bassoon" else "STED 635 {12}"
             if not PROTEIN in metadata:
                 metadata[PROTEIN] = []
             current = [m["image-id"] for m in metadata[PROTEIN]]
