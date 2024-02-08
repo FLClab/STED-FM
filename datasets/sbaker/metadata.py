@@ -2,7 +2,7 @@ import json
 import os 
 import subprocess
 
-FOLDERS = [""]
+FOLDERS = ["2023.05.30.P6FinalP7", "2023.06.21.P7final", "2023.07.13_4_color_session", "2023.07.20_p8", "2023.09.23", "2023.10.05"]
 
 def get_files(src: str):
     _src = "/Users/fredbeaupre/valeria-s3/flclab-private/" + src
