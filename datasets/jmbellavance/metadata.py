@@ -7,6 +7,7 @@ FOLDERS = ["2023-01-12 (25) (cryodendrites)", "2023-02-15 (26.1) (dendrites 4c)"
 
 def get_files(src: str):
     _src = "/Users/fredbeaupre/valeria-s3/flclab-private/" + src
+    _src = "valeria-s3:" + src
     args = ["rclone", "lsjson", "-R", _src]
     print("[-----] Running: {}".format(" ".join(args)))
     p = subprocess.check_output(args).decode("utf-8")
@@ -26,11 +27,11 @@ def main():
 
     for folder_name in FOLDERS:
         for PROTEIN in ["FUS", "psd95"]:
-            channel_id = "STED 594 {6}" if PROTEIN == "FUS" else "STED 635P {6}"
+            channel_id = "STED_594 {6}" if PROTEIN == "FUS" else "STED_635P {6}"
             if not PROTEIN in metadata:
                 metadata[PROTEIN] = []
             current = [m["image-id"] for m in metadata[PROTEIN]]
-            files = get_files(f"FLCDataset/jmbellavance/ALS_FUS_and_PSD95/{folder_name}")
+            files = get_files(f"flclab-private/FLCDataset/jmbellavance/ALS_FUS_and_PSD95/{folder_name}")
             for f in files:
                 image_id = f["Path"]
                 image_type = os.path.splitext(os.path.basename(image_id))[1][1:]
