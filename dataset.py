@@ -57,8 +57,8 @@ def main():
                     try:
                         image = image[info["chan-id"]]
                     except Exception as err:
-                        print()
-                        print(err)
+                        print("\n")
+                        print("`chan-id` not found in file")
                         if info["image-type"] == "msr":
                             print(image.keys())
                         print(info)
@@ -70,6 +70,12 @@ def main():
                 
                 # Min-Max normalization
                 m, M = numpy.quantile(image, [0.01, 0.99])
+                if m == M:
+                    print("\n")
+                    print("Min-Max normalization impossible... Skipping")
+                    print(info)
+                    print(f"{numpy.min(image)=}, {numpy.max(image)=}")
+                    continue
                 image = (image - m) / (M - m) * 255
                 image = image.astype(numpy.uint8)
 
