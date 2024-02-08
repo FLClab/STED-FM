@@ -85,7 +85,7 @@ def main():
                 "image-id": os.path.join("oferguson/synaptic_proteins", image_id),
                 "image-type": image_type,
                 "chan_id": channel_id,
-                "user_id": "oferguson"
+                "user-id": "oferguson"
             }
             if not image_id in current:
                 metadata[PROTEIN].append(meta)
