@@ -187,7 +187,12 @@
             "chan-id" : "STED640 {0}",
             "images" : [
                 "jchabbert/Tests/2023-09-14_Test-Stim-GCaMP6f_SNAP-constructs/2023-09-14_GCaMP6f_SNAP-Tubulin_HD/",
-                "jchabbert/Tests/2023-10-25_Tests-stim-GCaMP6f_SNAP-constructs/2023-10-27_SNAP-Tubulin/",
+                "jchabbert/Tests/2023-10-25_Tests-stim-GCaMP6f_SNAP-constructs/2023-10-27_SNAP-Tubulin/"
+            ]
+        },
+        {
+            "chan-id" : "STED640 {10}",
+            "images" : [
                 "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/"
             ]
         }

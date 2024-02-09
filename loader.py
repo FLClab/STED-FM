@@ -58,6 +58,9 @@ class TarFLCDataset(Dataset):
         
         img = data["image"] # assuming 'img' key
         metadata = data["metadata"]
+        if img.size != 224 * 224:
+            print(img.shape)
+            print(metadata)
         
         img = img / 255.
         img = torch.tensor(img, dtype=torch.float32)

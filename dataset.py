@@ -22,7 +22,7 @@ MINIMUM_FOREGROUND = 0.001
 def main():
 
     logging.basicConfig(
-        filename="dataset.log", encoding="utf-8", level=logging.DEBUG,
+        filename="dataset.log", filemode="w", encoding="utf-8", level=logging.DEBUG,
         format='%(asctime)s %(message)s', datefmt='[%Y%m%d-%H%M%S]'
     )
 
@@ -77,6 +77,9 @@ def main():
 
                 # If a side of image is smaller than CROP_SIZE we remove
                 if (image.shape[-2] < CROP_SIZE) or (image.shape[-1] < CROP_SIZE):
+                    continue
+                # If image is >2D (e.g. timelapse, volume) we skip
+                if image.ndim != 2:
                     continue
                 
                 # Min-Max normalization
