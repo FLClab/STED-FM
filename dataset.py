@@ -7,6 +7,7 @@ import io
 import javabridge
 import tifffile
 import argparse 
+import logging 
 
 from tqdm.auto import tqdm
 from skimage import filters
@@ -19,6 +20,11 @@ CROP_SIZE = 224
 MINIMUM_FOREGROUND = 0.001
 
 def main():
+
+    logging.basicConfig(
+        filename="dataset.log", encoding="utf-8", level=logging.DEBUG,
+        format='%(asctime)s %(message)s', datefmt='[%Y%m%d-%H%M%S]'
+    )
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--overwrite", action="store_true", help="Overwrites the tar file")
@@ -44,6 +50,11 @@ def main():
                 info["protein-id"] = protein_name
 
                 # Reads image
+                if not os.path.isfile(os.path.join(BASEPATH, info["image-id"])):
+                    logging.info("FileNotFoundError")
+                    logging.info(f"{info=}")
+                    continue
+
                 if info["image-type"] == "msr":
                     with MSRReader() as msrreader:
                         image = msrreader.read(os.path.join(BASEPATH, info["image-id"]))
@@ -57,11 +68,11 @@ def main():
                     try:
                         image = image[info["chan-id"]]
                     except Exception as err:
-                        print("\n")
-                        print("`chan-id` not found in file")
+                        logging.info("ChannelNotFoundError")
+                        logging.info("`chan-id` not found in file")
                         if info["image-type"] == "msr":
-                            print(image.keys())
-                        print(info)
+                            logging.info(f"{image.keys()=}")
+                        logging.info(f"{info=}")
                         continue
 
                 # If a side of image is smaller than CROP_SIZE we remove
@@ -71,10 +82,10 @@ def main():
                 # Min-Max normalization
                 m, M = numpy.quantile(image, [0.01, 0.99])
                 if m == M: 
-                    print("\n")
-                    print("Min-Max normalization impossible... Skipping")
-                    print(info)
-                    print(f"{numpy.min(image)=}, {numpy.max(image)=}")
+                    logging.info("InvalidNormalizationError")
+                    logging.info("Min-Max normalization impossible... Skipping")
+                    logging.info(f"{info=}")
+                    logging.info(f"{numpy.min(image)=}, {numpy.max(image)=}")
                     continue
                 image = (image - m) / (M - m) * 255
                 image = image.astype(numpy.uint8)

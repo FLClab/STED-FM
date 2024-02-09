@@ -27566,126 +27566,6 @@
     "live-tubulin": [
         {
             "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i2.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i3.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_2_NTemp.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n1_i3.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i2.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i3.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i2.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i3.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i2.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i3.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n2_i1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n2_i2++.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n5_i1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n5_i2.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n6.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/Tests/2023-09-14_Test-Stim-GCaMP6f_SNAP-constructs/2023-09-14_GCaMP6f_SNAP-Tubulin_HD/2023-09-14_GCaMP6f_SNAP-Tubulin_HD_After_Region0.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
@@ -27795,6 +27675,126 @@
         {
             "chan-id": "STED640 {0}",
             "image-id": "jchabbert/Tests/2023-10-25_Tests-stim-GCaMP6f_SNAP-constructs/2023-10-27_SNAP-Tubulin/2023-10-27_SNAP-Tubulin_LAM_New647_7.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i2.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i3.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_2_NTemp.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n1_i3.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i2.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i3.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i2.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i3.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i2.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i3.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n2_i1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n2_i2++.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n5_i1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n5_i2.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n6.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         }
