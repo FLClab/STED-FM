@@ -22,6 +22,8 @@ def get_2d_sincos_pos_embed_from_grid(embed_dim: int, grid: np.ndarray):
     assert embed_dim % 2 == 0
     emb_h = get_1d_sincos_pos_embed_from_grid(embed_dim=embed_dim // 2, pos=grid[0]) # (H*W, D/2)
     emb_w = get_1d_sincos_pos_embed_from_grid(embed_dim=embed_dim//2, pos=grid[1])   # (H*W, D/2)
+    emb = np.concatenate([emb_h, emb_w], axis=1)
+    return emb
 
 
 def get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
