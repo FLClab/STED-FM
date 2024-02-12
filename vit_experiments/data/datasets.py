@@ -3,7 +3,8 @@ import numpy as np
 import io
 import torch
 from typing import Any, List, Tuple
-from torch.utils.data import Dataset, DataLoader, get_worker_info
+from torch.utils.data import Dataset, get_worker_info
+from tqdm import tqdm
 
 class TarFLCDataset(Dataset):
     def __init__(
@@ -63,7 +64,7 @@ class TarFLCDataset(Dataset):
         for i in pbar:
             if self.size >= self.max_cache_size:
                 break
-            data = self.__get_item_from_tar(self.members[idx])
+            data = self.__get_item_from_tar(self.members[i])
             self.__cache[i] = data
             self.size += self.__getsizeof(data)
             pbar.set_description(f"Cache size --> {self.size}")
