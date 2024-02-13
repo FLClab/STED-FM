@@ -68,14 +68,14 @@ def train(model: Net, train_loader: Loader, optimizer: torch.optim, num_epochs: 
         train_loss.append(loss)
         temp_lr = optimizer.param_groups[0]['lr']
         lrates.append(temp_lr)
-        track_loss(train_loss=train_loss, lrates=lrates, save_dir="./model_checkpoints/mae")
+        track_loss(train_loss=train_loss, lrates=lrates, save_dir="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/vit_experiments/model_checkpoints/mae")
         if epoch + 1 % 100 == 0:
             torch.save({
                 'epoch': epoch + 1,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'loss': None,
-            }, f'./model_checkpoints/mae/model_{epoch+1}.pth')
+            }, f'/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/vit_experiments/model_checkpoints/mae/model_{epoch+1}.pth')
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -107,7 +107,7 @@ def main():
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'loss': None,
-    }, './model_checkpoints/mae/final_model.pth')
+    }, '/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/vit_experiments/model_checkpoints/mae/final_model.pth')
 
 
 if __name__=="__main__":
