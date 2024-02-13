@@ -1,8 +1,96 @@
 import torch
-from patch_embed import PatchEmbed
-from pos_embed import get_1d_sincos_pos_embed_from_grid, get_2d_sincos_pos_embed, get_2d_sincos_pos_embed_from_grid
-from typing import Optional
+## For some reason the two imports below result in module not found error even though the scripts are in the same directory?
+# from patch_embed import PatchEmbed
+# from pos_embed import get_1d_sincos_pos_embed_from_grid, get_2d_sincos_pos_embed, get_2d_sincos_pos_embed_from_grid
+from typing import Optional, Callable
 from functools import partial
+import numpy as np
+
+# --------------------------------------------------------
+# 2D sine-cosine position embedding
+# References:
+# Transformer: https://github.com/tensorflow/models/blob/master/official/nlp/transformer/model_utils.py
+# MoCo v3: https://github.com/facebookresearch/moco-v3
+# --------------------------------------------------------
+
+def get_2d_sincos_pos_embed(embed_dim: int, grid_size: int, cls_token: bool = False):
+    grid_h = np.arange(grid_size, dtype=np.float32)
+    grid_w = np.arange(grid_size, dtype=np.float32)
+    grid = np.meshgrid(grid_w, grid_h)
+    grid = np.stack(grid, axis=0)
+    grid = grid.reshape([2, 1, grid_size, grid_size])
+    pos_embed = get_2d_sincos_pos_embed_from_grid(embed_dim=embed_dim, grid=grid)
+    if cls_token:
+        pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
+    return pos_embed
+
+def get_2d_sincos_pos_embed_from_grid(embed_dim: int, grid: np.ndarray):
+    assert embed_dim % 2 == 0
+    emb_h = get_1d_sincos_pos_embed_from_grid(embed_dim=embed_dim // 2, pos=grid[0]) # (H*W, D/2)
+    emb_w = get_1d_sincos_pos_embed_from_grid(embed_dim=embed_dim//2, pos=grid[1])   # (H*W, D/2)
+    emb = np.concatenate([emb_h, emb_w], axis=1)
+    return emb
+
+
+def get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
+    """
+    embed_dim: output dimension for each position
+    pos: a list of positions to be encoded: size (M,)
+    out: (M, D)
+    """
+    assert embed_dim % 2 == 0
+    omega = np.arange(embed_dim // 2, dtype=np.float)
+    omega /= embed_dim / 2.
+    omega = 1. / 10000**omega  # (D/2,)
+
+    pos = pos.reshape(-1)  # (M,)
+    out = np.einsum('m,d->md', pos, omega)  # (M, D/2), outer product
+
+    emb_sin = np.sin(out) # (M, D/2)
+    emb_cos = np.cos(out) # (M, D/2)
+
+    emb = np.concatenate([emb_sin, emb_cos], axis=1)  # (M, D)
+    return emb
+
+class PatchEmbed(torch.nn.Module):
+    def __init__(
+            self,
+            img_size: int = 224,
+            patch_size: int = 16,
+            input_channels: int = 1,
+            embed_dim: int = 768,
+            norm_layer: Optional[Callable] = None,
+            flatten: bool = True,
+            bias: bool = True,
+            strict_img_size: bool = True,
+            dynamic_img_pad: bool = False
+    ) -> None:
+        super().__init__()
+        self.patch_size = (patch_size, patch_size)
+        self.img_size = (img_size, img_size)
+        self.strict_img_size = strict_img_size
+        self.grid_size = tuple([s // p for s, p in zip(self.img_size, self.patch_size)])
+        self.num_patches = self.grid_size[0] * self.grid_size[1]
+        self.flatten = flatten
+        self.projection = torch.nn.Conv2d(
+            in_channels=input_channels,
+            out_channels=embed_dim,
+            kernel_size=patch_size,
+            stride=patch_size,
+            bias=bias
+            )
+        self.norm = norm_layer(embed_dim) if norm_layer else torch.nn.Identity()
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        B, C, H, W = x.shape
+        if self.strict_img_size:
+            assert H % self.patch_size[0] == 0, f"Input image height ({H}) must be divisible by patch size ({self.patch_size[0]})."
+            assert W % self.patch_size[1] == 0, f"Input image width ({W}) must be divisible by patch_size ({self.patch_size[1]})."
+        x = self.projection(x)
+        if self.flatten:
+            x = x.flatten(2).transpose(1, 2)
+        x = self.norm(x)
+        return x
 
 def drop_path(x, drop_prob: float = 0., training: bool = False, scale_by_keep: bool = True):
     """Drop paths (Stochastic Depth) per sample (when applied in main path of residual blocks).
@@ -120,6 +208,7 @@ class Attention(torch.nn.Module):
         x = x.transpose(1, 2).reshape(B, N, C)
         x = self.projection(x)
         x = self.projection_dropout(x)
+        return x
 
 class Block(torch.nn.Module):
     def __init__(
@@ -156,11 +245,11 @@ class Block(torch.nn.Module):
             act_layer=act_layer,
             drop=projection_dropout,
         )
-        self.ls2 = LayerScale(dim, init_values=init_values) if init_values > 0.0 else torch.nn.Identity()
+        self.ls2 = LayerScale(dim, init_values=init_values) if init_values else torch.nn.Identity()
         self.drop_path2 = DropPath(drop_path) if drop_path > 0.0 else torch.nn.Identity()
        
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = x + self.drop_path1(self.ls1(self.attention(self.norm1)))
+        x = x + self.drop_path1(self.ls1(self.attention(self.norm1(x))))
         x = x + self.drop_path2(self.ls2(self.mlp(self.norm2(x))))
         return x
 
@@ -172,14 +261,15 @@ class MAE(torch.nn.Module):
             input_channels: int = 1,
             embed_dim: int = 1024,
             depth: int = 24,
-            decoder_embed_dim: int = 512,
             num_heads: int = 16,
+            decoder_embed_dim: int = 512,
             decoder_depth: int = 8,
             decoder_num_heads: int = 16,
             mlp_ratio: float = 4.0,
             norm_layer: torch.nn.Module =  torch.nn.LayerNorm,
             norm_pix_loss: bool = False
     ) -> None:
+        
         super().__init__()
         self.patch_embed = PatchEmbed(
             img_size=img_size, 
@@ -191,17 +281,19 @@ class MAE(torch.nn.Module):
         self.cls_token = torch.nn.Parameter(torch.zeros(1, 1, embed_dim))
         num_patches = self.patch_embed.num_patches
         self.image_channels = input_channels
-        self.pos_embed = torch.nn.Paramter(torch.zeros(1, num_patches+1, embed_dim), requires_grad=False)
+        self.pos_embed = torch.nn.Parameter(torch.zeros(1, num_patches+1, embed_dim), requires_grad=False)
         self.blocks = torch.nn.ModuleList([
-            Block(dim=embed_dim, num_heads=num_heads, mlp_ratio=mlp_ratio, qkv_bias=True, qk_scale=None, norm_layer=norm_layer) for i in range(decoder_depth)
+            Block(dim=embed_dim, num_heads=num_heads, mlp_ratio=mlp_ratio, qkv_bias=True, qk_norm=None, norm_layer=norm_layer) for i in range(depth)
         ])
         self.norm = norm_layer(embed_dim)
 
         self.decoder_embed = torch.nn.Linear(embed_dim, decoder_embed_dim, bias=True)
+
         self.mask_token = torch.nn.Parameter(torch.zeros(1, 1, decoder_embed_dim))
+
         self.decoder_pos_embed = torch.nn.Parameter(torch.zeros(1, num_patches + 1, decoder_embed_dim), requires_grad=False)
         self.decoder_blocks = torch.nn.ModuleList([
-            Block(dim=decoder_embed_dim, num_heads=decoder_num_heads, mlp_ratio=mlp_ratio, qkv_bias=True, qk_scale=None, norm_layer=norm_layer) for i in range(decoder_depth)
+            Block(dim=decoder_embed_dim, num_heads=decoder_num_heads, mlp_ratio=mlp_ratio, qkv_bias=True, qk_norm=None, norm_layer=norm_layer) for i in range(decoder_depth)
         ])
         self.decoder_norm = norm_layer(decoder_embed_dim)
         self.decoder_pred = torch.nn.Linear(decoder_embed_dim, patch_size ** 2 * input_channels, bias=True)
@@ -219,12 +311,12 @@ class MAE(torch.nn.Module):
 
     def initialize_weights(self):
         # Initialize and freeze pos_embed w/ sin-cos embedding
-        pos_embed = get_2d_sincos_pos_embed(self.pos_embed.shape[-1], int(self.patch_embed.num_patches**.5), cls_token=False)
+        pos_embed = get_2d_sincos_pos_embed(self.pos_embed.shape[-1], int(self.patch_embed.num_patches**.5), cls_token=True)
         self.pos_embed.data.copy_(torch.from_numpy(pos_embed).float().unsqueeze(0))
-        decoder_pos_embed = get_2d_sincos_pos_embed(self.decoder_pos_embed.shape[-1], int(self.patch_embed.num_patches**.5), cls_token=False)
-        self.deocder_pos_embed.data.copy_(torch.from_numpy(decoder_pos_embed).float().unsqueeze(0))
+        decoder_pos_embed = get_2d_sincos_pos_embed(self.decoder_pos_embed.shape[-1], int(self.patch_embed.num_patches**.5), cls_token=True)
+        self.decoder_pos_embed.data.copy_(torch.from_numpy(decoder_pos_embed).float().unsqueeze(0))
         # Initialize patch embed
-        w = self.patch_embed.proj.weight.data
+        w = self.patch_embed.projection.weight.data
         torch.nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
         torch.nn.init.normal_(self.cls_token, std=0.2)
         torch.nn.init.normal_(self.mask_token, std=0.2)
@@ -250,7 +342,7 @@ class MAE(torch.nn.Module):
         assert h * w == x.shape[1]   
         x = x.reshape(shape=(x.shape[0], h, w, p, p, self.image_channels))
         x = torch.einsum('nhwpqc->nchpwq', x)
-        imgs = x.reshape(shape=(x.shape[0], self.image_channels, h*p, w*p))
+        imgs = x.reshape(shape=(x.shape[0], self.image_channels, h*p, h*p))
         return imgs  
 
     def random_masking(self, x, mask_ratio: float):
@@ -263,6 +355,7 @@ class MAE(torch.nn.Module):
         # sort noise for each sample
         ids_shuffle = torch.argsort(noise, dim=1) # We'll keep small, remove large
         ids_restore = torch.argsort(ids_shuffle, dim=1)
+
         ids_keep = ids_shuffle[:, :len_keep]
         x_masked = torch.gather(x, dim=1, index=ids_keep.unsqueeze(-1).repeat(1,1,D))
         mask = torch.ones([N, L], device=x.device) # 0 is keep, 1 is remove
@@ -274,15 +367,14 @@ class MAE(torch.nn.Module):
         # Embed patches
         x = self.patch_embed(x)
         # add pos embed w/o class token because we'll be doing self-supervised
-        # x = x + self.pos_embed[:, 1:, :] # Must use this if we initialize pos_embed with a cls_token
-        x = x + self.pos_embed # Otherwise we can add directly
+        x = x + self.pos_embed[:, 1:, :]
         # masking: length -> length * mask_ratio (which is a float < 1.0)
         x, mask, ids_restore = self.random_masking(x, mask_ratio)
 
-        ## append cls token (NOTE: not used in SSL)
-        # cls_token = self.cls_token + self.pos_embed[:, :1, :]
-        # cls_token = cls_token.expland(x.shape[0], -1, -1)
-        # x = torch.cat((cls_token, x), dim=1)
+        # append cls token 
+        cls_token = self.cls_token + self.pos_embed[:, :1, :]
+        cls_token = cls_token.expand(x.shape[0], -1, -1)
+        x = torch.cat((cls_token, x), dim=1)
         for blk in self.blocks:
             x = blk(x)
             # NOTE: we may need to keep the outputs of each encoder block to use them as input to the Normalizing Flow
@@ -292,16 +384,13 @@ class MAE(torch.nn.Module):
 
     def forward_decoder(self, x: torch.Tensor, ids_restore):
         # embed tokens
-        self.decoder_embed(x)
+        x = self.decoder_embed(x)
+        
         mask_tokens = self.mask_token.repeat(x.shape[0], ids_restore.shape[1] + 1 - x.shape[1], 1)
-        # # If there's a class token
-        # x_ = torch.cat([x[:, 1:, :], mask_tokens], dim=1)  # no cls token
-        # x_ = torch.gather(x_, dim=1, index=ids_restore.unsqueeze(-1).repeat(1, 1, x.shape[2]))  # unshuffle
-        # x = torch.cat([x[:, :1, :], x_], dim=1)  # append cls token
-
-        # Otherwise:
-        x_  = torch.cat([x, mask_tokens], dim=1)
-        x = torch.gather(x_, dim=1, index=ids_restore.unsqueeze(-1).repeat(1, 1, x.shape[2])) # unshuffle
+        # If there's a class token
+        x_ = torch.cat([x[:, 1:, :], mask_tokens], dim=1)  # no cls token
+        x_ = torch.gather(x_, dim=1, index=ids_restore.unsqueeze(-1).repeat(1, 1, x.shape[2]))  # unshuffle
+        x = torch.cat([x[:, :1, :], x_], dim=1)  # append cls token
         
         # Add pos_embed
         x = x + self.decoder_pos_embed
@@ -312,7 +401,7 @@ class MAE(torch.nn.Module):
         x = self.decoder_norm(x)
         # predictor
         x = self.decoder_pred(x) # this is the reconstruction for segmentation for example
-        ## x = x[:, 1:, :] remove class token
+        x = x[:, 1:, :] # remove class token
         return x
 
 
@@ -329,7 +418,7 @@ class MAE(torch.nn.Module):
 
     def forward(self, imgs: torch.Tensor, mask_ratio: float = 0.75):
         latent, mask, ids_restore = self.forward_encoder(imgs, mask_ratio)
+        print(f"Forward ids restore shape: {ids_restore.shape}")
         pred = self.forward_decoder(latent, ids_restore)
         loss = self.forward_loss(imgs, pred, mask)
         return loss, pred, mask, latent
-        
