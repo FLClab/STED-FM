@@ -261,8 +261,8 @@ class MAE(torch.nn.Module):
             input_channels: int = 1,
             embed_dim: int = 1024,
             depth: int = 24,
-            decoder_embed_dim: int = 512,
             num_heads: int = 16,
+            decoder_embed_dim: int = 512,
             decoder_depth: int = 8,
             decoder_num_heads: int = 16,
             mlp_ratio: float = 4.0,
@@ -288,6 +288,7 @@ class MAE(torch.nn.Module):
         self.norm = norm_layer(embed_dim)
 
         self.decoder_embed = torch.nn.Linear(embed_dim, decoder_embed_dim, bias=True)
+
         self.mask_token = torch.nn.Parameter(torch.zeros(1, 1, decoder_embed_dim))
 
         self.decoder_pos_embed = torch.nn.Parameter(torch.zeros(1, num_patches + 1, decoder_embed_dim), requires_grad=False)
@@ -341,7 +342,7 @@ class MAE(torch.nn.Module):
         assert h * w == x.shape[1]   
         x = x.reshape(shape=(x.shape[0], h, w, p, p, self.image_channels))
         x = torch.einsum('nhwpqc->nchpwq', x)
-        imgs = x.reshape(shape=(x.shape[0], self.image_channels, h*p, w*p))
+        imgs = x.reshape(shape=(x.shape[0], self.image_channels, h*p, h*p))
         return imgs  
 
     def random_masking(self, x, mask_ratio: float):
@@ -355,6 +356,7 @@ class MAE(torch.nn.Module):
         # sort noise for each sample
         ids_shuffle = torch.argsort(noise, dim=1) # We'll keep small, remove large
         ids_restore = torch.argsort(ids_shuffle, dim=1)
+
         ids_keep = ids_shuffle[:, :len_keep]
         x_masked = torch.gather(x, dim=1, index=ids_keep.unsqueeze(-1).repeat(1,1,D))
         mask = torch.ones([N, L], device=x.device) # 0 is keep, 1 is remove
@@ -383,7 +385,7 @@ class MAE(torch.nn.Module):
 
     def forward_decoder(self, x: torch.Tensor, ids_restore):
         # embed tokens
-        self.decoder_embed(x)
+        x = self.decoder_embed(x)
         
         mask_tokens = self.mask_token.repeat(x.shape[0], ids_restore.shape[1] + 1 - x.shape[1], 1)
         print(x.shape, mask_tokens.shape)
