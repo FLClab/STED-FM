@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --account=def-flavielc
-#SBATCH --time=2:00:00
+#SBATCH --time=00:30:00
 #SBATCH --mem=32Gb
 #SBATCH --gpus-per-node=1
 #SBATCH --mail-user=frederic.beaupre.3@ulaval.ca
@@ -22,10 +22,10 @@ mkdir $SLURM_TMPDIR/data
 cp /home/frbea320/scratch/Datasets/FLCDataset/dataset.tar $SLURM_TMPDIR/data
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "Variational Autoencoder training"
+echo "Masked Autoencoder training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python train_mae.py --datapath $SLURM_TMPDIR/data
+python train_mae.py --datapath $SLURM_TMPDIR/data/dataset.tar
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "Done"
