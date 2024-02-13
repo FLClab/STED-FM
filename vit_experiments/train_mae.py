@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from utils.data_utils import tar_dataloader
 from utils.training_utils import SaveBestModel, AverageMeter, track_loss
-from models.mae import MAE, MaskedAutoencoderViT
+from models.mae import MAE
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from typing import List
 from tqdm import tqdm 
@@ -16,7 +16,7 @@ args = parser.parse_args()
 Net = torch.nn.Module
 Loader = torch.utils.data.DataLoader
 
-def run_single_images(model: MAE, imgs: torch.Tensor, preds, torch.Tensor, masks: torch.Tensor, device: torch.device, num_samples: int = 10) -> None:
+def run_single_images(model: MAE, imgs: torch.Tensor, preds: torch.Tensor, masks: torch.Tensor, device: torch.device, num_samples: int = 10) -> None:
     for i in range(num_samples):
         x = imgs[i].unsqueeze(dim=0)
         pred = preds[i].unsqueeze(dim=0)
@@ -51,10 +51,10 @@ def train_one_epoch(dataloader: Loader, model: MAE, optimizer: torch.optim, epoc
     loss_meter = AverageMeter()
     for batch in tqdm(dataloader, desc="Training..."):
         imgs = batch.to(device)
-        losses, preds, masks, _ = model(imgs, mask_ratio=0.75)
+        loss, preds, masks, _ = model(imgs, mask_ratio=0.75)
         run_single_images(model=model, imgs=imgs, preds=preds, masks=masks, device=device)
         optimizer.zero_grad()
-        losses.backward()
+        loss.backward()
         optimizer.step()
         loss_meter.update(loss.item())
     print("Epoch {}: Training loss = {:.3f}({:.3f})".format(epoch + 1, loss_meter.val, loss_meter.avg))
@@ -73,7 +73,7 @@ def train(model: Net, train_loader: Loader, optimizer: torch.optim, num_epochs: 
             torch.save({
                 'epoch': epoch + 1,
                 'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict()
+                'optimizer_state_dict': optimizer.state_dict(),
                 'loss': None,
             }, f'./model_checkpoints/mae/model_{epoch+1}.pth')
 
@@ -105,7 +105,7 @@ def main():
     torch.save({
         'epoch': num_epochs,
         'model_state_dict': model.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict()
+        'optimizer_state_dict': optimizer.state_dict(),
         'loss': None,
     }, './model_checkpoints/mae/final_model.pth')
 
