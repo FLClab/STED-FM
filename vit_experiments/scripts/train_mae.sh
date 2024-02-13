@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --account=def-flavielc
-#SBATCH --time=00:30:00
+#SBATCH --time=24:00:00
 #SBATCH --mem=32Gb
 #SBATCH --gpus-per-node=1
 #SBATCH --mail-user=frederic.beaupre.3@ulaval.ca
