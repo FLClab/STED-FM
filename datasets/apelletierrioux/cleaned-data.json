@@ -1,0 +1,267 @@
+{
+    "gephyrin" : [
+        {
+            "chan-id" : "STED_640 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-01_Gephyrin_star635Pm_cs1N1.msr",
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-01_Gephyrin_star635Pm_cs1N2.msr",
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-01_Gephyrin_star635Pm_cs1N5.msr",
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-01_Gephyrin_star635Pm_cs2N1.msr",
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-01_Gephyrin_star635Pm_cs2N2.msr",
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-01_Gephyrin_star635Pm_cs2N3.msr",
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-01_Gephyrin_star635Pm_cs2N4.msr"                
+            ]
+        },
+        {
+            "chan-id" : "STED_594 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_Gephyrin m_A594m_cs1_N1.msr",
+                "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_Gephyrin m_A594m_cs1_N2.msr",
+                "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_Gephyrin m_A594m_cs1_N3.msr",
+                "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_Gephyrin m_A594m_cs1_N4.msr",
+                "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_Gephyrin m_A594m_cs1_N5.msr"
+            ]
+        },
+        {
+            "chan-id" : "STED 635 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Gephyrinm_Star635Pm_Vgatr_A594r_XY_N3_2e_acquisition_Sted_775_passe_a_60pourcent_pour_Vgat_et_gephyrin_a_place_de_45_et_35.msr"
+            ]
+        }
+    ],
+    "map2" : [
+        {
+            "chan-id" : "STED 635 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs1_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs1_N2.msr",
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs1_N3.msr",
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs2_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs2_N2.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N1.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N2.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N3.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N4.msr"
+            ]
+        }
+    ],
+    "vgat" : [
+        {
+            "chan-id" : "STED_594 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs1_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs1_N2.msr",
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs1_N3.msr",
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs2_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs2_N2.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Gephyrinm_Star635Pm_Vgatr_A594r_XY_N3_2e_acquisition_Sted_775_passe_a_60pourcent_pour_Vgat_et_gephyrin_a_place_de_45_et_35.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_Vgatrb_A594rb_XY_N1.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_Vgatrb_A594rb_XY_N2.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_Vgatrb_A594rb_XY_N3.msr"
+            ]
+        },
+        {
+            "chan-id" : "STED_LSS {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_VGAT gp_Atto490LS_cs1_N1.msr",
+                "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_VGAT gp_Atto490LS_cs1_N2.msr",
+                "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_VGAT gp_Atto490LS_cs1_N3.msr",
+                "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_VGAT gp_Atto490LS_cs2_N1.msr",
+                "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_VGAT gp_Atto490LS_cs2_N2.msr",
+                "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_VGAT gp_Atto490LS_cs2_N3.msr",
+                "apelletierrioux/Maitrise/2023-11-24_Test_proteines_synaptiques_tranche_aigu_green_channel/2023-11-24_Vgatr_Atto490LS_1_250_tranche_aigu_XY_N1.msr",
+                "apelletierrioux/Maitrise/2023-11-24_Test_proteines_synaptiques_tranche_aigu_green_channel/2023-11-24_Vgatr_Atto490LS_1_250_tranche_aigu_XY_N2.msr",
+                "apelletierrioux/Maitrise/2023-11-24_Test_proteines_synaptiques_tranche_aigu_green_channel/2023-11-24_Vgatr_Atto490LS_1_250_tranche_aigu_XY_N3.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_Vgatr_490LS_tranche_aigu_N3.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_Vgatr_490LS_tranche_aigu_N2.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_Vgatr_490LS_tranche_aigu_N1.msr"
+            ]
+        },
+        {
+            "chan-id" : "STED LSS {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N4.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N3.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N2.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N1.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_PSD95_nano643+Gephyrinm_A594+Vgatr_490LS+Vglut1_nano488_N1.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_PSD95_nano643+Gephyrinm_A594+Vgatr_490LS+Vglut1_nano488_N2.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_PSD95_nano643+Gephyrinm_A594+Vgatr_490LS+Vglut1_nano488_N3.msr"
+            ]
+        }
+    ],
+    "bassoon" : [
+        {
+            "chan-id" : "STED_561 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-27_Bassoon r_A594r_cs2_N2.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-27_Bassoon r_A594r_cs2_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-27_Bassoon r_A594r_cs1_N2.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-27_Bassoon r_A594r_cs1_N1.msr"
+            ]
+        },
+        {
+            "chan-id" : "STED_594 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs1_N1_from_test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs1_N2_from_test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs1_N3_from_test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs2_N1_from_test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs2_N2_from_test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs2_N3_from_test_N1.msr"
+            ]
+        }        
+    ],
+    "psd95" : [
+        {
+            "chan-id" : "STED 635 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs1_N1_from_test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs1_N2_from_test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs1_N3_from_test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs2_N1_from_test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs2_N2_from_test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs2_N3_from_test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs1_N1_from_Test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs1_N2_from_Test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs1_N3_from_Test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs2_N1_from_Test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs2_N2_from_Test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs2_N3_from_Test_N1.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_Cortex_N1_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_Cortex_N2_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_Cortex_N3_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_hippo_N1_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_hippo_N2_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_hippo_N3_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Cortex_N1_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Cortex_N2_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Cortex_N3_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Hippo_N2_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Hippo_N3_.msr"
+            ]
+        },
+        {
+            "chan-id" : "STED_640 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-08-18_Test_proteine_synaptique_tranche_aigu+organotypique/2023-08-21_PSD95nano_Atto643_tranche_aigu_XY_N1.msr",
+                "apelletierrioux/Maitrise/2023-08-18_Test_proteine_synaptique_tranche_aigu+organotypique/2023-08-21_PSD95nano_Atto643_tranche_aigu_XY_N2.msr",
+                "apelletierrioux/Maitrise/2023-09-22_Test_proteine_synaptique_tranche_aigu_Cleared_but_washed/2023-09-25_PSD95_nano643_XY_N1.msr",
+                "apelletierrioux/Maitrise/2023-09-22_Test_proteine_synaptique_tranche_aigu_Cleared_but_washed/2023-09-25_PSD95_nano643_XY_N2.msr",
+                "apelletierrioux/Maitrise/2023-09-22_Test_proteine_synaptique_tranche_aigu_Cleared_but_washed/2023-09-25_PSD95_nano643_XY_N3.msr",
+                "apelletierrioux/Maitrise/2023-10-13_Test_proteine_syanptique_tranche_aigu_cleared_N1/2023-10-13_PSD95_nano643_XY_N1.msr",
+                "apelletierrioux/Maitrise/2023-10-13_Test_proteine_syanptique_tranche_aigu_cleared_N1/2023-10-13_PSD95_nano643_XY_N2.msr",
+                "apelletierrioux/Maitrise/2023-10-13_Test_proteine_syanptique_tranche_aigu_cleared_N1/2023-10-13_PSD95_nano643_XY_N3.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_PSD95_nano643_XY_N1_dessous_hippo.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_PSD95_nano643_XY_N1_hippo_wethink.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_PSD95_nano643_XY_N2_hippo_wethink.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_PSD95_nano643_XY_N3_hippo_wethink.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-23_PSD95_nano643+AMPAR(GluR1)r_1_500_A594+Vglut1gp_490LS_N3.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-23_PSD95_nano643+AMPAR(GluR1)r_1_500_A594+Vglut1gp_490LS_N1.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N4.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N3.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N2.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N1.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+AMPAR(GluR1)r_1_250_A594+Vglut1gp_490LS_N1.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+AMPAR(GluR1)r_1_250_A594+Vglut1gp_490LS_N2.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+AMPAR(GluR1)r_1_250_A594+Vglut1gp_490LS_N3.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_PSD95_nano643+Gephyrinm_A594+Vgatr_490LS+Vglut1_nano488_N1.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_PSD95_nano643+Gephyrinm_A594+Vgatr_490LS+Vglut1_nano488_N2.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_PSD95_nano643+Gephyrinm_A594+Vgatr_490LS+Vglut1_nano488_N3.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_PSD95_nano643_tranche_aigu_N3.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_PSD95_nano643_tranche_aigu_N2.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_PSD95_nano643_tranche_aigu_N1.msr"
+            ]
+        },
+        {
+            "chan-id" : "STED_594 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N1.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N2.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N3.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N4.msr"
+            ]
+        }
+    ],
+    "vglut2" : [
+        {
+            "chan-id" : "STED_594 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs1_N1_from_Test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs1_N2_from_Test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs1_N3_from_Test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs2_N1_from_Test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs2_N2_from_Test_N1.msr",
+                "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs2_N3_from_Test_N1.msr"
+            ]
+        }
+    ],
+    "vglut1" : [
+        {
+            "chan-id" : "STED_594 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-09-25_Test_proteine_Synaptique_tranche_aigu_N3/2023-09-26_Vglut1gp_A594gp_XY_N1.msr",
+                "apelletierrioux/Maitrise/2023-09-25_Test_proteine_Synaptique_tranche_aigu_N3/2023-09-26_Vglut1gp_A594gp_XY_N2.msr",
+                "apelletierrioux/Maitrise/2023-09-25_Test_proteine_Synaptique_tranche_aigu_N3/2023-09-26_Vglut1gp_A594gp_XY_N3.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_Cortex_N1_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_Cortex_N2_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_Cortex_N3_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_hippo_N1_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_hippo_N2_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_hippo_N3_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Cortex_N1_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Cortex_N2_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Cortex_N3_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Hippo_N2_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Hippo_N3_.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_Vglut1gp_A594gp_XY_N2.msr",
+                "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_Vglut1gp_A594gp_XY_N3.msr"
+            ]
+        },
+        {
+            "chan-id" : "STED 594 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N4.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N3.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N2.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N1.msr"                
+            ]
+        },
+        {
+            "chan-id" : "STED_LSS {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_Vglut1gp_490LS_tranche_aigu_N1.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_Vglut1gp_490LS_tranche_aigu_N3.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_Vglut1gp_490LS_tranche_aigu_N2.msr"
+            ]
+        },
+        {
+            "chan-id" : "STED LSS {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-23_PSD95_nano643+AMPAR(GluR1)r_1_500_A594+Vglut1gp_490LS_N3.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-23_PSD95_nano643+AMPAR(GluR1)r_1_500_A594+Vglut1gp_490LS_N1.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+AMPAR(GluR1)r_1_250_A594+Vglut1gp_490LS_N1.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+AMPAR(GluR1)r_1_250_A594+Vglut1gp_490LS_N2.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+AMPAR(GluR1)r_1_250_A594+Vglut1gp_490LS_N3.msr"
+            ]
+        }
+    ],
+    "glur1" : [
+        {
+            "chan-id" : "STED_594 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-23_PSD95_nano643+AMPAR(GluR1)r_1_500_A594+Vglut1gp_490LS_N3.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-23_PSD95_nano643+AMPAR(GluR1)r_1_500_A594+Vglut1gp_490LS_N1.msr"
+            ]
+        },
+        {
+            "chan-id" : "STED_640 {12}",
+            "images" : [
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_AMPARr_Star635P_tranche_aigu_1_500_N3.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_AMPARr_Star635P_tranche_aigu_1_500_N1.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_AMPARr_Star635P_tranche_aigu_1_500_N2.msr",
+                "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_AMPARr_Star635P_tranche_aigu_1_500_N4.msr"
+            ]
+        }
+    ]
+}

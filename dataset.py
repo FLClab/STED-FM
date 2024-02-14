@@ -15,7 +15,7 @@ from skimage import filters
 from utils.msrreader import MSRReader
 
 BASEPATH = "/home-local2/projects/FLCDataset"
-OUTPATH = "/home-local2/projects/FLCDataset/dataset.tar"
+OUTPATH = "/home-local2/projects/FLCDataset/20240214-dataset.tar"
 CROP_SIZE = 224
 MINIMUM_FOREGROUND = 0.001
 
@@ -83,14 +83,14 @@ def main():
                     continue
                 
                 # Min-Max normalization
-                m, M = numpy.quantile(image, [0.01, 0.99])
+                m, M = numpy.quantile(image, [0.01, 0.995])
                 if m == M: 
                     logging.info("InvalidNormalizationError")
                     logging.info("Min-Max normalization impossible... Skipping")
                     logging.info(f"{info=}")
                     logging.info(f"{numpy.min(image)=}, {numpy.max(image)=}")
                     continue
-                image = (image - m) / (M - m) * 255
+                image = numpy.clip((image - m) / (M - m), 0, 1) * 255
                 image = image.astype(numpy.uint8)
 
                 # Calculates forrground from Otsu
