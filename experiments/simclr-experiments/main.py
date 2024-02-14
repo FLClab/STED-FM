@@ -13,6 +13,7 @@ from multiprocessing import Manager
 
 from dataset import TarFLCDataset
 from transforms import SimCLRTransform
+from backbones import get_backbone
 
 # Create a PyTorch module for the SimCLR model.
 class SimCLR(torch.nn.Module):
@@ -25,6 +26,16 @@ class SimCLR(torch.nn.Module):
             output_dim=128,
         )
 
+    def load_state_dict(self, state_dict: numpy.Mapping[str, torch.Any], strict: bool = True, assign: bool = False):
+        self.backbone.load_state_dict(state_dict["backbone"])
+        self.projection_head.load_state_dict(state_dict["projection-head"])
+    
+    def state_dict(self):
+        return {
+            "backbone" : self.backbone.state_dict(),
+            "projection-head" : self.projection_head.state_dict()
+        }
+
     def forward(self, x):
         features = self.backbone(x).flatten(start_dim=1)
         z = self.projection_head(features)
@@ -35,17 +46,14 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--restore-from", type=str, default="",
-                        help="Model from which to restore from")
+                    help="Model from which to restore from") 
+    parser.add_argument("--backbone", type=str, default="resnet18",
+                        help="Backbone model to load")
     args = parser.parse_args()
 
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # Use a resnet backbone.
-    backbone = torchvision.models.resnet18()
-    backbone.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-
-    # Ignore the classification head as we only want the features.
-    backbone.fc = torch.nn.Identity()
+    backbone = get_backbone(args.backbone)
 
     if args.restore_from:
         checkpoint = torch.load(args.restore_from)
