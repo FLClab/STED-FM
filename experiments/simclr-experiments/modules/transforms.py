@@ -1,6 +1,11 @@
+
+
 from typing import Dict, List, Optional, Tuple, Union
 
+import random
+import torch
 import torchvision.transforms as T
+from torchvision.transforms import functional as F
 from PIL.Image import Image
 from torch import Tensor
 
@@ -8,6 +13,8 @@ from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
+
+from skimage import filters
 
 
 class SimCLRTransform(MultiViewTransform):
@@ -93,7 +100,9 @@ class SimCLRTransform(MultiViewTransform):
         cj_contrast: float = 0.8,
         cj_sat: float = 0.8,
         cj_hue: float = 0.2,
+        cj_gamma: float = 0.8,
         min_scale: float = 0.08,
+        minimal_foreground : float = 0.05,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
         kernel_size: Optional[float] = None,
@@ -103,6 +112,11 @@ class SimCLRTransform(MultiViewTransform):
         rr_prob: float = 0.0,
         rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
+        gaussian_noise_mu: float = 0.,
+        gaussian_noise_std: float = 0.25,
+        gaussian_noise_prob : float = 0.5,
+        poisson_noise_lambda : float = 0.1,
+        poisson_noise_prob : float = 0.5        
     ):
         view_transform = SimCLRViewTransform(
             input_size=input_size,
@@ -112,6 +126,8 @@ class SimCLRTransform(MultiViewTransform):
             cj_contrast=cj_contrast,
             cj_sat=cj_sat,
             cj_hue=cj_hue,
+            cj_gamma=cj_gamma,
+            minimal_foreground = minimal_foreground,
             min_scale=min_scale,
             random_gray_scale=random_gray_scale,
             gaussian_blur=gaussian_blur,
@@ -122,6 +138,11 @@ class SimCLRTransform(MultiViewTransform):
             rr_prob=rr_prob,
             rr_degrees=rr_degrees,
             normalize=normalize,
+            gaussian_noise_mu = gaussian_noise_mu,
+            gaussian_noise_std = gaussian_noise_std,
+            gaussian_noise_prob = gaussian_noise_prob,
+            poisson_noise_lambda = poisson_noise_lambda,
+            poisson_noise_prob = poisson_noise_prob
         )
         super().__init__(transforms=[view_transform, view_transform])
 
@@ -136,7 +157,9 @@ class SimCLRViewTransform:
         cj_contrast: float = 0.8,
         cj_sat: float = 0.8,
         cj_hue: float = 0.2,
+        cj_gamma: float = 0.8,
         min_scale: float = 0.08,
+        minimal_foreground : float = 0.05,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
         kernel_size: Optional[float] = None,
@@ -146,22 +169,34 @@ class SimCLRViewTransform:
         rr_prob: float = 0.0,
         rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
+        gaussian_noise_mu: float = 0.,
+        gaussian_noise_std: float = 0.25,
+        gaussian_noise_prob : float = 0.5,
+        poisson_noise_lambda : float = 0.1,
+        poisson_noise_prob : float = 0.5        
     ):
-        color_jitter = T.ColorJitter(
+        # color_jitter = T.ColorJitter(
+        #     brightness=cj_strength * cj_bright,
+        #     contrast=cj_strength * cj_contrast,
+        #     saturation=cj_strength * cj_sat,
+        #     hue=cj_strength * cj_hue,
+        # )
+        color_jitter = MicroscopyColorJitter(
+            p=cj_prob, 
             brightness=cj_strength * cj_bright,
-            contrast=cj_strength * cj_contrast,
-            saturation=cj_strength * cj_sat,
-            hue=cj_strength * cj_hue,
+            gamma=cj_strength * cj_gamma
         )
 
         transform = [
-            T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
+            RandomResizedCropMinimumForeground(size=input_size, scale=(min_scale, 1.0), min_fg=minimal_foreground),
             random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomVerticalFlip(p=vf_prob),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
+            GaussianNoise(p=gaussian_noise_prob, mu=gaussian_noise_mu, std=gaussian_noise_std),
+            PoissonNoise(p=poisson_noise_prob, _lambda=poisson_noise_lambda)
             # T.ToTensor(),
         ]
         if normalize:
@@ -182,3 +217,95 @@ class SimCLRViewTransform:
         """
         transformed: Tensor = self.transform(image)
         return transformed
+    
+class MicroscopyColorJitter(torch.nn.Module):
+    def __init__(self, 
+                 p:float, 
+                 brightness:Union[float, Tuple[float, float]], 
+                 gamma: Union[float, Tuple[float, float]], 
+                 *args, **kwargs) -> None:
+        super().__init__()
+
+        self.p = p
+
+        if isinstance(brightness, float):
+            brightness = (-1 * brightness, brightness)
+        self.brightness = brightness
+
+        if isinstance(gamma, float):
+            gamma = (-1 * gamma, gamma)
+        self.gamma = gamma
+
+        self.options = [
+            self.brightness_adjust,
+            self.gamma_adjust
+        ]
+
+    def brightness_adjust(self, tensor: Tensor) -> Tensor:
+        scale = random.uniform(*self.brightness)
+        return torch.clamp_(tensor * (1 + scale), 0, 1)
+    
+    def gamma_adjust(self, tensor: Tensor) -> Tensor:
+        gamma = random.uniform(*self.gamma)
+        return torch.clamp_(tensor ** (1 + gamma), 0, 1)    
+
+    def forward(self, tensor: Tensor) -> Tensor:
+        options = list(range(len(self.options)))
+        random.shuffle(options)
+        for i in options:
+            if random.random() < self.p:
+                tensor = self.options[i](tensor)
+        return tensor
+
+class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
+    def __init__(self, size, scale, min_fg=0.1) -> None:
+        super().__init__(size, scale)
+
+        self.min_fg = min_fg
+        self.max_tries = 10
+
+    def forward(self, img) -> Tensor:
+        """
+        Implements a random resized crop with a minimum foreground
+        """
+        img_array = img.numpy()
+        threshold = filters.threshold_otsu(img_array)
+        fg = img > threshold
+        for _ in range(self.max_tries):
+            i, j, h, w = self.get_params(img, self.scale, self.ratio)
+            crop = fg[:, j : j + w, i : i + w]
+            if crop.sum() > self.min_fg * torch.numel(crop):
+                break
+        return F.resized_crop(img, i, j, h, w, self.size, self.interpolation, antialias=self.antialias)
+
+class PoissonNoise(torch.nn.Module):
+    def __init__(self, p: float, _lambda: float) -> None:
+        super().__init__()
+        self.p = p
+        self._lambda = _lambda
+    
+    def forward(self, tensor : Tensor) -> Tensor:
+        if random.random() < self.p:
+            rates = torch.rand(tensor.size()) * random.uniform(0, self._lambda)
+            return tensor + torch.poisson(rates)
+        return tensor
+
+    def __repr__(self):
+        return self.__class__.__name__ + '(lambda={})'.format(self._lambda)
+
+class GaussianNoise(torch.nn.Module):
+    def __init__(self, p: float, mu : float, std : float) -> None:
+        super().__init__()
+        self.p = p
+        self.mu = mu
+        self.std = std
+    
+    def forward(self, tensor : Tensor) -> Tensor:
+        if random.random() < self.p:
+            std = random.uniform(0, self.std)
+            mu = random.uniform(0, self.mu)
+            return tensor + torch.randn(tensor.size()) * std + mu
+        return tensor
+
+    def __repr__(self):
+        return self.__class__.__name__ + '(mean={0}, std={1})'.format(self.mu, self.std)
