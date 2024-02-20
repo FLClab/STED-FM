@@ -31,10 +31,12 @@ class SimCLR(torch.nn.Module):
             dim = 256
         elif isinstance(self.backbone, torchvision.models.resnet.ResNet):
             dim = 512
+        elif isinstance(self.backbone, torchvision.models.convnext.ConvNeXt):
+            dim = 768
         else:
             dim = 512
         self.projection_head = heads.SimCLRProjectionHead(
-            input_dim=dim,  # Resnet18 features have 512 dimensions.
+            input_dim=dim,
             hidden_dim=512,
             output_dim=128,
         )
@@ -73,7 +75,7 @@ if __name__ == "__main__":
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     backbone = get_backbone(args.backbone)
-
+    
     if args.restore_from:
         checkpoint = torch.load(args.restore_from)
         OUTPUT_FOLDER = os.path.dirname(args.restore_from)
@@ -131,9 +133,9 @@ if __name__ == "__main__":
     # Build a PyTorch dataloader.
     dataloader = torch.utils.data.DataLoader(
         dataset,  # Pass the dataset to the dataloader.
-        batch_size=64,  # A large batch size helps with the learning.
+        batch_size=32,  # A large batch size helps with the learning.
         shuffle=True,  # Shuffling is important!
-        num_workers=4
+        num_workers=0
     )
 
     # Lightly exposes building blocks such as loss functions.
@@ -190,3 +192,9 @@ if __name__ == "__main__":
             "model" : model.state_dict(),
             "stats" : stats
         }, os.path.join(OUTPUT_FOLDER, "result.pt"))
+        if epoch % 10 == 0:
+            torch.save({
+                "optimizer" : optimizer.state_dict(),
+                "model" : model.state_dict(),
+                "stats" : stats
+            }, os.path.join(OUTPUT_FOLDER, f"checkpoint-{epoch}.pt"))
