@@ -3,6 +3,12 @@ import torch
 import torchvision
 
 from torch import nn
+from dataclasses import dataclass
+
+@dataclass
+class MICRANetConfiguration:
+    
+    batch_size: int = 128
 
 class MICRANet(nn.Module):
     """
@@ -134,4 +140,4 @@ def get_backbone(name: str) -> torch.nn.Module:
         backbone.fc = torch.nn.Identity()
     else:
         raise NotImplementedError(f"`{name}` not implemented")
-    return backbone
+    return backbone, MICRANetConfiguration()

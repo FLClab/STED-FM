@@ -1,7 +1,12 @@
 
 import torch
 import torchvision
+from dataclasses import dataclass
 
+@dataclass
+class ConvNextConfiguration:
+    
+    batch_size: int = 64
 
 
 def get_backbone(name: str) -> torch.nn.Module:
@@ -14,4 +19,4 @@ def get_backbone(name: str) -> torch.nn.Module:
         backbone.classifier = torch.nn.Identity()
     else:
         raise NotImplementedError(f"`{name}` not implemented")
-    return backbone
+    return backbone, ConvNextConfiguration()

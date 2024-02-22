@@ -83,7 +83,7 @@ if __name__ == "__main__":
     random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-    backbone = get_backbone(args.backbone)
+    backbone, cfg = get_backbone(args.backbone)
     
     if args.restore_from:
         checkpoint = torch.load(args.restore_from)
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     # Build a PyTorch dataloader.
     dataloader = torch.utils.data.DataLoader(
         dataset,  # Pass the dataset to the dataloader.
-        batch_size=128,  # A large batch size helps with the learning.
+        batch_size=cfg.batch_size,  # A large batch size helps with the learning.
         shuffle=True,  # Shuffling is important!
         num_workers=4
     )
