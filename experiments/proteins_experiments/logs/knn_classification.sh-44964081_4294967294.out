@@ -1,0 +1,23 @@
+
+Due to MODULEPATH changes, the following have been reloaded:
+  1) libfabric/1.10.1     2) openmpi/4.0.3     3) ucx/1.8.0
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+KNN classification of synaptic proteins
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+dict_keys(['optimizer', 'model', 'stats'])
+  0%|          | 0/264 [00:00<?, ?it/s]  0%|          | 0/264 [00:12<?, ?it/s]
+tensor(4.) <class 'torch.Tensor'>
+Unique type: <class 'numpy.float64'>
+Predicted type: <class 'numpy.float64'>
+Traceback (most recent call last):
+  File "knn_classification.py", line 85, in <module>
+    main()
+  File "knn_classification.py", line 82, in main
+    knn_predict(model=model, loader=loader, device=device)
+  File "knn_classification.py", line 53, in knn_predict
+    confusion_matrix[unique, predicted_unique] += np.sum(votes >= 3)
+IndexError: only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean arrays are valid indices
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Done
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
