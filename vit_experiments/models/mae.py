@@ -418,7 +418,6 @@ class MAE(torch.nn.Module):
 
     def forward(self, imgs: torch.Tensor, mask_ratio: float = 0.75):
         latent, mask, ids_restore = self.forward_encoder(imgs, mask_ratio)
-        print(f"Forward ids restore shape: {ids_restore.shape}")
         pred = self.forward_decoder(latent, ids_restore)
         loss = self.forward_loss(imgs, pred, mask)
         return loss, pred, mask, latent
