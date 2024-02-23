@@ -8,8 +8,8 @@ def get_files(src):
 
     :param config: A `dict` of the configuration file
     """
-    # _src = "valeria-s3:" + src
-    _src = "/Users/fredbeaupre/valeria-s3/" + src
+    _src = "valeria-s3:" + src
+    # _src = "/Users/fredbeaupre/valeria-s3/" + src
     args = [
         "rclone", "lsjson", "-R", _src
     ]
@@ -82,7 +82,7 @@ def main():
             image_id = file["Path"]
             image_type = os.path.splitext(image_id)[-1][1:]
             meta = {
-                "image-id": os.path.join("oferguson/synaptic_proteins", image_id),
+                "image-id": os.path.join("oferguson/synaptic_proteins", os.path.basename(image_id)),
                 "image-type": image_type,
                 "chan_id": channel_id,
                 "user-id": "oferguson"

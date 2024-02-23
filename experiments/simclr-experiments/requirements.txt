@@ -1,0 +1,6 @@
+lightly
+tensorboard
+numpy
+scikit-image
+matplotlib
+torch-summary

@@ -42,7 +42,7 @@ def main():
     
     for protein_name, protein_images in tqdm(metadata.items(), desc="Proteins"):
         with tarfile.open(OUTPATH, "a") as tf:
-            for info in tqdm(protein_images, desc="Images", leave=False):
+            for info in tqdm(protein_images, desc=protein_name, leave=False):
                 if info["image-id"] in image_ids:
                     continue
                 
