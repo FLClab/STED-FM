@@ -1,6 +1,12 @@
 
 import torch
 import torchvision
+from dataclasses import dataclass
+
+@dataclass
+class ResNetConfiguration:
+    
+    batch_size: int = 256
 
 def get_backbone(name: str) -> torch.nn.Module:
     if name == "resnet18":
@@ -12,4 +18,4 @@ def get_backbone(name: str) -> torch.nn.Module:
         backbone.fc = torch.nn.Identity()
     else:
         raise NotImplementedError(f"`{name}` not implemented")
-    return backbone
+    return backbone, ResNetConfiguration()
