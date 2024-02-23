@@ -186,9 +186,14 @@
         {
             "chan-id" : "STED640 {0}",
             "images" : [
-                "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/",
                 "jchabbert/Tests/2023-09-14_Test-Stim-GCaMP6f_SNAP-constructs/2023-09-14_GCaMP6f_SNAP-Tubulin_HD/",
                 "jchabbert/Tests/2023-10-25_Tests-stim-GCaMP6f_SNAP-constructs/2023-10-27_SNAP-Tubulin/"
+            ]
+        },
+        {
+            "chan-id" : "STED640 {10}",
+            "images" : [
+                "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/"
             ]
         }
     ],
@@ -197,8 +202,13 @@
             "chan-id" : "STED640 {0}",
             "images" : [
                 "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP647-SiR/16-SNAP-Tubulin-SNAP647-SiR_LIVE/",
-                "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/",
                 "jchabbert/20-2022-11-21_SNAP-actin-GFP-act-SNAP-Tub-SiR-Actin_LAM18_DIV18/20-SNAP-Tubulin/20-SNAP-Tubulin-647_LIVED/"
+            ]
+        },
+        {
+            "chan-id" : "STED640 {12}",
+            "images" : [
+                "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/"
             ]
         }
     ],

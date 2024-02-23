@@ -5559,6 +5559,66 @@
             "image-id": "jgsantiague/no_beads_2023-09-23/PSD95_STAR635P_Bassoon_Alexa594_c9.msr",
             "image-type": "msr",
             "user-id": "jgsantiague"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-27_Bassoon r_A594r_cs2_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-27_Bassoon r_A594r_cs2_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-27_Bassoon r_A594r_cs1_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-27_Bassoon r_A594r_cs1_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs1_N1_from_test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs1_N2_from_test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs1_N3_from_test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs2_N1_from_test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs2_N2_from_test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs2_N3_from_test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
         }
     ],
     "beta-camkii": [
@@ -25171,6 +25231,124 @@
             "user-id": "jchabbert"
         }
     ],
+    "gephyrin": [
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-01_Gephyrin_star635Pm_cs1N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-01_Gephyrin_star635Pm_cs1N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-01_Gephyrin_star635Pm_cs1N5.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-01_Gephyrin_star635Pm_cs2N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-01_Gephyrin_star635Pm_cs2N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-01_Gephyrin_star635Pm_cs2N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-01_Gephyrin_star635Pm_cs2N4.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_Gephyrin m_A594m_cs1_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_Gephyrin m_A594m_cs1_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_Gephyrin m_A594m_cs1_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_Gephyrin m_A594m_cs1_N4.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_Gephyrin m_A594m_cs1_N5.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Gephyrinm_Star635Pm_Vgatr_A594r_XY_N3_2e_acquisition_Sted_775_passe_a_60pourcent_pour_Vgat_et_gephyrin_a_place_de_45_et_35.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        }
+    ],
+    "glur1": [
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-23_PSD95_nano643+AMPAR(GluR1)r_1_500_A594+Vglut1gp_490LS_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-23_PSD95_nano643+AMPAR(GluR1)r_1_500_A594+Vglut1gp_490LS_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_AMPARr_Star635P_tranche_aigu_1_500_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_AMPARr_Star635P_tranche_aigu_1_500_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_AMPARr_Star635P_tranche_aigu_1_500_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_AMPARr_Star635P_tranche_aigu_1_500_N4.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        }
+    ],
     "homer": [
         {
             "chan-id": 1,
@@ -27566,126 +27744,6 @@
     "live-tubulin": [
         {
             "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i2.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i3.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_2_NTemp.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n1_i3.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i2.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i3.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i2.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i3.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i2.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i3.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n2_i1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n2_i2++.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n5_i1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n5_i2.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n6.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/Tests/2023-09-14_Test-Stim-GCaMP6f_SNAP-constructs/2023-09-14_GCaMP6f_SNAP-Tubulin_HD/2023-09-14_GCaMP6f_SNAP-Tubulin_HD_After_Region0.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
@@ -27797,6 +27855,182 @@
             "image-id": "jchabbert/Tests/2023-10-25_Tests-stim-GCaMP6f_SNAP-constructs/2023-10-27_SNAP-Tubulin/2023-10-27_SNAP-Tubulin_LAM_New647_7.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i2.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i3.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_2_NTemp.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n1_i3.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i2.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i3.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i2.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i3.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i2.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i3.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n2_i1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n2_i2++.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n5_i1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n5_i2.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {10}",
+            "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n6.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        }
+    ],
+    "map2": [
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs1_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs1_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs1_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs2_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs2_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N4.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
         }
     ],
     "nkcc2": [
@@ -35265,6 +35499,330 @@
             "image-id": "sbaker/2023.10.05/sauron.msr",
             "image-type": "msr",
             "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs1_N1_from_test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs1_N2_from_test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs1_N3_from_test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs2_N1_from_test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs2_N2_from_test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_Bassoon_Alexa594_cs2_N3_from_test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs1_N1_from_Test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs1_N2_from_Test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs1_N3_from_Test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs2_N1_from_Test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs2_N2_from_Test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs2_N3_from_Test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_Cortex_N1_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_Cortex_N2_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_Cortex_N3_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_hippo_N1_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_hippo_N2_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_hippo_N3_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Cortex_N1_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Cortex_N2_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Cortex_N3_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Hippo_N2_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 635 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Hippo_N3_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-08-18_Test_proteine_synaptique_tranche_aigu+organotypique/2023-08-21_PSD95nano_Atto643_tranche_aigu_XY_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-08-18_Test_proteine_synaptique_tranche_aigu+organotypique/2023-08-21_PSD95nano_Atto643_tranche_aigu_XY_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-09-22_Test_proteine_synaptique_tranche_aigu_Cleared_but_washed/2023-09-25_PSD95_nano643_XY_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-09-22_Test_proteine_synaptique_tranche_aigu_Cleared_but_washed/2023-09-25_PSD95_nano643_XY_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-09-22_Test_proteine_synaptique_tranche_aigu_Cleared_but_washed/2023-09-25_PSD95_nano643_XY_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-13_Test_proteine_syanptique_tranche_aigu_cleared_N1/2023-10-13_PSD95_nano643_XY_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-13_Test_proteine_syanptique_tranche_aigu_cleared_N1/2023-10-13_PSD95_nano643_XY_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-13_Test_proteine_syanptique_tranche_aigu_cleared_N1/2023-10-13_PSD95_nano643_XY_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_PSD95_nano643_XY_N1_dessous_hippo.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_PSD95_nano643_XY_N1_hippo_wethink.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_PSD95_nano643_XY_N2_hippo_wethink.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_PSD95_nano643_XY_N3_hippo_wethink.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-23_PSD95_nano643+AMPAR(GluR1)r_1_500_A594+Vglut1gp_490LS_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-23_PSD95_nano643+AMPAR(GluR1)r_1_500_A594+Vglut1gp_490LS_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N4.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+AMPAR(GluR1)r_1_250_A594+Vglut1gp_490LS_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+AMPAR(GluR1)r_1_250_A594+Vglut1gp_490LS_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+AMPAR(GluR1)r_1_250_A594+Vglut1gp_490LS_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_PSD95_nano643+Gephyrinm_A594+Vgatr_490LS+Vglut1_nano488_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_PSD95_nano643+Gephyrinm_A594+Vgatr_490LS+Vglut1_nano488_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_PSD95_nano643+Gephyrinm_A594+Vgatr_490LS+Vglut1_nano488_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_PSD95_nano643_tranche_aigu_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_PSD95_nano643_tranche_aigu_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_640 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_PSD95_nano643_tranche_aigu_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-06_PSD95_Nano568_MAP2_Star635P_XY_Cortex_N4.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
         }
     ],
     "rim": [
@@ -37986,54 +38544,6 @@
         },
         {
             "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_TimeLapse.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n1.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n2.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n3.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n4.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n5.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n6.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
-            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n7.msr",
-            "image-type": "msr",
-            "user-id": "jchabbert"
-        },
-        {
-            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/20-2022-11-21_SNAP-actin-GFP-act-SNAP-Tub-SiR-Actin_LAM18_DIV18/20-SNAP-Tubulin/20-SNAP-Tubulin-647_LIVED/20-2022-11-21_SNAP-tubulin-SNAP647_cs1n1.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
@@ -38101,6 +38611,54 @@
         {
             "chan-id": "STED640 {0}",
             "image-id": "jchabbert/20-2022-11-21_SNAP-actin-GFP-act-SNAP-Tub-SiR-Actin_LAM18_DIV18/20-SNAP-Tubulin/20-SNAP-Tubulin-647_LIVED/20-2022-11-21_SNAP-tubulin-SNAP647_cs2n6.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {12}",
+            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_TimeLapse.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {12}",
+            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n1.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {12}",
+            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n2.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {12}",
+            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n3.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {12}",
+            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n4.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {12}",
+            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n5.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {12}",
+            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n6.msr",
+            "image-type": "msr",
+            "user-id": "jchabbert"
+        },
+        {
+            "chan-id": "STED640 {12}",
+            "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n7.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         }
@@ -42771,6 +43329,346 @@
             "user-id": "flavoiecardinal"
         }
     ],
+    "vgat": [
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs1_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs1_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs1_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs2_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-01_Test_proteine_synaptique_N1/2023-06-02_Map2 r_Star635P r_VGATgp_A594gp_cs2_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Gephyrinm_Star635Pm_Vgatr_A594r_XY_N3_2e_acquisition_Sted_775_passe_a_60pourcent_pour_Vgat_et_gephyrin_a_place_de_45_et_35.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_Vgatrb_A594rb_XY_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_Vgatrb_A594rb_XY_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_Vgatrb_A594rb_XY_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_VGAT gp_Atto490LS_cs1_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_VGAT gp_Atto490LS_cs1_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_VGAT gp_Atto490LS_cs1_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_VGAT gp_Atto490LS_cs2_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_VGAT gp_Atto490LS_cs2_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-08-03_Test_proteine_synaptique_N3/2023-08-03_VGAT gp_Atto490LS_cs2_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-11-24_Test_proteines_synaptiques_tranche_aigu_green_channel/2023-11-24_Vgatr_Atto490LS_1_250_tranche_aigu_XY_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-11-24_Test_proteines_synaptiques_tranche_aigu_green_channel/2023-11-24_Vgatr_Atto490LS_1_250_tranche_aigu_XY_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-11-24_Test_proteines_synaptiques_tranche_aigu_green_channel/2023-11-24_Vgatr_Atto490LS_1_250_tranche_aigu_XY_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_Vgatr_490LS_tranche_aigu_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_Vgatr_490LS_tranche_aigu_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_Vgatr_490LS_tranche_aigu_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N4.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_PSD95_nano643+Gephyrinm_A594+Vgatr_490LS+Vglut1_nano488_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_PSD95_nano643+Gephyrinm_A594+Vgatr_490LS+Vglut1_nano488_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-19_PSD95_nano643+Gephyrinm_A594+Vgatr_490LS+Vglut1_nano488_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        }
+    ],
+    "vglut1": [
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-09-25_Test_proteine_Synaptique_tranche_aigu_N3/2023-09-26_Vglut1gp_A594gp_XY_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-09-25_Test_proteine_Synaptique_tranche_aigu_N3/2023-09-26_Vglut1gp_A594gp_XY_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-09-25_Test_proteine_Synaptique_tranche_aigu_N3/2023-09-26_Vglut1gp_A594gp_XY_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_Cortex_N1_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_Cortex_N2_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_Cortex_N3_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_hippo_N1_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_hippo_N2_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut1gp_A594gp_XY_hippo_N3_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Cortex_N1_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Cortex_N2_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Cortex_N3_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Hippo_N2_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-11-03_Psd95_nano643_Vglut2gp_A594gp_XY_Hippo_N3_.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_Vglut1gp_A594gp_XY_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-10-30_Test_Proteines_synaptique_tranche_aigu_vieille_souris_N1/2023-10-30_Vglut1gp_A594gp_XY_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N4.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED 594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+Vglut1gp_A594+Vgatr_490LS+Gephyrinm_StarGreen_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_Vglut1gp_490LS_tranche_aigu_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_Vglut1gp_490LS_tranche_aigu_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-18_Vglut1gp_490LS_tranche_aigu_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-23_PSD95_nano643+AMPAR(GluR1)r_1_500_A594+Vglut1gp_490LS_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-23_PSD95_nano643+AMPAR(GluR1)r_1_500_A594+Vglut1gp_490LS_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+AMPAR(GluR1)r_1_250_A594+Vglut1gp_490LS_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+AMPAR(GluR1)r_1_250_A594+Vglut1gp_490LS_N2.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED LSS {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-20_PSD95_nano643+AMPAR(GluR1)r_1_250_A594+Vglut1gp_490LS_N3.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        }
+    ],
     "vglut2": [
         {
             "chan_id": 0,
@@ -43827,6 +44725,42 @@
             "image-id": "sbaker/2023.10.05/sauron.msr",
             "image-type": "msr",
             "user-id": "sbaker"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs1_N1_from_Test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs1_N2_from_Test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs1_N3_from_Test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs2_N1_from_Test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs2_N2_from_Test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
+        },
+        {
+            "chan-id": "STED_594 {12}",
+            "image-id": "apelletierrioux/Maitrise/2023-06-27_Test_proteine_synaptique_N2/2023-06-29_PSD95_STAR635P_VGLut2_Alexa594_cs2_N3_from_Test_N1.msr",
+            "image-type": "msr",
+            "user-id": "apelletierrioux"
         }
     ],
     "vimentin": [
@@ -43857,6 +44791,72 @@
         {
             "chan-id": "STED_561 {12}",
             "image-id": "adeschenes/2023-11-28_TestAnticorpsVimentin_CultureGlie/MsVimentin_1to100_GAM_STOrange_1to250_Culture80K_FixPFA20min_DIV8_cs1_c2.msr",
+            "image-type": "msr",
+            "user-id": "adeschenes"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "adeschenes/2024-02-13_msVimentinAntibody_DilutionTest/MsVimentin_1to100_GAM_STOrange_1to250_CultureCortex80Kcells_FixPFA20min_DIV8_cs1_c1.msr",
+            "image-type": "msr",
+            "user-id": "adeschenes"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "adeschenes/2024-02-13_msVimentinAntibody_DilutionTest/ MsVimentin_1to100_GAM_STOrange_1to250_CultureCortex80Kcells_FixPFA20min_DIV8_cs1_c1_2.msr",
+            "image-type": "msr",
+            "user-id": "adeschenes"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "adeschenes/2024-02-13_msVimentinAntibody_DilutionTest/MsVimentin_1to100_GAM_STOrange_1to250_CultureCortex80Kcells_FixPFA20min_DIV8_cs1_c2.msr",
+            "image-type": "msr",
+            "user-id": "adeschenes"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "adeschenes/2024-02-13_msVimentinAntibody_DilutionTest/MsVimentin_1to100_GAM_STOrange_1to250_CultureCortex80Kcells_FixPFA20min_DIV8_cs1_c3.msr",
+            "image-type": "msr",
+            "user-id": "adeschenes"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "adeschenes/2024-02-13_msVimentinAntibody_DilutionTest/MsVimentin_1to250_GAM_STOrange_1to250_CultureCortex80Kcells_FixPFA20min_DIV8_cs1_c1.msr",
+            "image-type": "msr",
+            "user-id": "adeschenes"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "adeschenes/2024-02-13_msVimentinAntibody_DilutionTest/MsVimentin_1to250_GAM_STOrange_1to250_CultureCortex80Kcells_FixPFA20min_DIV8_cs1_c2.msr",
+            "image-type": "msr",
+            "user-id": "adeschenes"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "adeschenes/2024-02-13_msVimentinAntibody_DilutionTest/MsVimentin_1to250_GAM_STOrange_1to250_CultureCortex80Kcells_FixPFA20min_DIV8_cs1_c3.msr",
+            "image-type": "msr",
+            "user-id": "adeschenes"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "adeschenes/2024-02-13_msVimentinAntibody_DilutionTest/MsVimentin_1to250_GAM_STOrange_1to250_CultureCortex80Kcells_FixPFA20min_DIV8_cs1_c4.msr",
+            "image-type": "msr",
+            "user-id": "adeschenes"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "adeschenes/2024-02-13_msVimentinAntibody_DilutionTest/MsVimentin_1to250_GAM_STOrange_1to250_CultureCortex80Kcells_FixPFA20min_DIV8_cs1_c5.msr",
+            "image-type": "msr",
+            "user-id": "adeschenes"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "adeschenes/2024-02-13_msVimentinAntibody_DilutionTest/MsVimentin_1to250_GAM_STOrange_1to250_CultureCortex80Kcells_FixPFA20min_DIV8_cs1_c5_2.msr",
+            "image-type": "msr",
+            "user-id": "adeschenes"
+        },
+        {
+            "chan-id": "STED_561 {12}",
+            "image-id": "adeschenes/2024-02-13_msVimentinAntibody_DilutionTest/MsVimentin_1to250_GAM_STOrange_1to250_CultureCortex80Kcells_FixPFA20min_DIV8_cs1_c6_1.msr",
             "image-type": "msr",
             "user-id": "adeschenes"
         }

@@ -7,6 +7,7 @@ import io
 import javabridge
 import tifffile
 import argparse 
+import logging 
 
 from tqdm.auto import tqdm
 from skimage import filters
@@ -14,11 +15,16 @@ from skimage import filters
 from utils.msrreader import MSRReader
 
 BASEPATH = "/home-local2/projects/FLCDataset"
-OUTPATH = "/home-local2/projects/FLCDataset/dataset.tar"
+OUTPATH = "/home-local2/projects/FLCDataset/20240214-dataset.tar"
 CROP_SIZE = 224
 MINIMUM_FOREGROUND = 0.001
 
 def main():
+
+    logging.basicConfig(
+        filename="dataset.log", filemode="w", encoding="utf-8", level=logging.DEBUG,
+        format='%(asctime)s %(message)s', datefmt='[%Y%m%d-%H%M%S]'
+    )
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--overwrite", action="store_true", help="Overwrites the tar file")
@@ -44,6 +50,11 @@ def main():
                 info["protein-id"] = protein_name
 
                 # Reads image
+                if not os.path.isfile(os.path.join(BASEPATH, info["image-id"])):
+                    logging.info("FileNotFoundError")
+                    logging.info(f"{info=}")
+                    continue
+
                 if info["image-type"] == "msr":
                     with MSRReader() as msrreader:
                         image = msrreader.read(os.path.join(BASEPATH, info["image-id"]))
@@ -57,26 +68,29 @@ def main():
                     try:
                         image = image[info["chan-id"]]
                     except Exception as err:
-                        print("\n")
-                        print("`chan-id` not found in file")
+                        logging.info("ChannelNotFoundError")
+                        logging.info("`chan-id` not found in file")
                         if info["image-type"] == "msr":
-                            print(image.keys())
-                        print(info)
+                            logging.info(f"{image.keys()=}")
+                        logging.info(f"{info=}")
                         continue
 
                 # If a side of image is smaller than CROP_SIZE we remove
                 if (image.shape[-2] < CROP_SIZE) or (image.shape[-1] < CROP_SIZE):
                     continue
+                # If image is >2D (e.g. timelapse, volume) we skip
+                if image.ndim != 2:
+                    continue
                 
                 # Min-Max normalization
-                m, M = numpy.quantile(image, [0.01, 0.99])
+                m, M = numpy.quantile(image, [0.01, 0.995])
                 if m == M: 
-                    print("\n")
-                    print("Min-Max normalization impossible... Skipping")
-                    print(info)
-                    print(f"{numpy.min(image)=}, {numpy.max(image)=}")
+                    logging.info("InvalidNormalizationError")
+                    logging.info("Min-Max normalization impossible... Skipping")
+                    logging.info(f"{info=}")
+                    logging.info(f"{numpy.min(image)=}, {numpy.max(image)=}")
                     continue
-                image = (image - m) / (M - m) * 255
+                image = numpy.clip((image - m) / (M - m), 0, 1) * 255
                 image = image.astype(numpy.uint8)
 
                 # Calculates forrground from Otsu
