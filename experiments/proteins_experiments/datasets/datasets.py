@@ -22,3 +22,13 @@ class ProteinDataset(Dataset):
             condition = hf["condition"][idx]
             img = transforms.ToTensor()(img)
             return (img, protein, condition)
+        
+class TarFLCDataset(Dataset):
+    def __init__(self):
+        pass
+
+    def __len__(self):
+        pass
+
+    def __getitem__(self, x):
+        pass
