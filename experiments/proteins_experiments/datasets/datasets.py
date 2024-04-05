@@ -45,3 +45,13 @@ class ProteinDataset(Dataset):
                 img = np.moveaxis(img, 0, -1)
             img = transforms.ToTensor()(img)
             return (img, protein, condition)
+        
+class TarFLCDataset(Dataset):
+    def __init__(self):
+        pass
+
+    def __len__(self):
+        pass
+
+    def __getitem__(self, x):
+        pass
