@@ -166,3 +166,4 @@ cython_debug/
 vit_experiments/logs/
 vit_experiments/sanity_check/
 vit_experiments/model_checkpoints/
+experiments/vit_experiments/logs/

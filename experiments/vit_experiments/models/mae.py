@@ -39,7 +39,7 @@ def get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
     out: (M, D)
     """
     assert embed_dim % 2 == 0
-    omega = np.arange(embed_dim // 2, dtype=np.float)
+    omega = np.arange(embed_dim // 2, dtype=np.float32)
     omega /= embed_dim / 2.
     omega = 1. / 10000**omega  # (D/2,)
 
@@ -420,4 +420,7 @@ class MAE(torch.nn.Module):
         latent, mask, ids_restore = self.forward_encoder(imgs, mask_ratio)
         pred = self.forward_decoder(latent, ids_restore)
         loss = self.forward_loss(imgs, pred, mask)
+        print(f"Latent shape: {latent.shape}")
+        print(f"Mask shape: {mask.shape}")
+        print(f"Decoded shape: {pred.shape}")
         return loss, pred, mask, latent

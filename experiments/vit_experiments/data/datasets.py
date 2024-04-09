@@ -22,6 +22,7 @@ class TarFLCDataset(Dataset):
         self.transform = transform
         self.max_cache_size = max_cache_size
         self.cache_size = 0
+        self.transform = transform
         
         worker = get_worker_info()
         worker = worker.id if worker else None
@@ -82,9 +83,11 @@ class TarFLCDataset(Dataset):
         metadata = data["metadata"]
         img = img / 255.
         # img = torch.tensor(img, dtype=torch.float32)
-        img = transforms.ToTensor()(img).type(torch.FloatTensor)
         if self.transform is not None:
+            print(f"In transform: {type(img)}")
             img = self.transform(img)
+        else:
+            img = transforms.ToTensor()(img).type(torch.FloatTensor)
         return img
     
     def __del__(self):
