@@ -3,7 +3,7 @@
 #SBATCH --time=00:30:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
-#SBATCH --mem=64G
+#SBATCH --mem=16G
 #SBATCH --gpus-per-node=1
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
@@ -19,7 +19,7 @@ source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 # Moves to working directory
-cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/vit_experiments/downstream_tasks
+cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/vit_experiments
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Copy file"
@@ -33,11 +33,11 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started classification"
+echo "% Started evaluation"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python knn_classification.py --class-type protein --pretraining lightly --datapath "${SLURM_TMPDIR}"
+python evaluate.py --model linear-probe
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Done classification"
+echo "% Done evaluation"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

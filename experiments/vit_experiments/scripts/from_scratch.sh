@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=00:30:00
+#SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
-#SBATCH --mem=64G
+#SBATCH --mem=32G
 #SBATCH --gpus-per-node=1
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
@@ -33,11 +33,11 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started classification"
+echo "% Started training from scratch"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python knn_classification.py --class-type protein --pretraining lightly --datapath "${SLURM_TMPDIR}"
+python from_scratch.py --class-type protein
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Done classification"
+echo "% Done training from scratch"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

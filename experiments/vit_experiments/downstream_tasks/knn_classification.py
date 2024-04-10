@@ -13,10 +13,11 @@ from tqdm import tqdm
 from sklearn.neighbors import NearestNeighbors
 import numpy as np
 from sklearn.decomposition import PCA
+import seaborn
 import pandas
 # All imports before ones from my own packages should come before this line
 sys.path.insert(0, "../../proteins_experiments")
-from utils.data_utils import load_theresa_proteins
+from utils.data_utils import load_theresa_proteins, fewshot_loader
 
 
 parser = argparse.ArgumentParser()
@@ -83,12 +84,23 @@ def load_model():
         print("--- Loading STED ViT ---")
         vit = vit_small_patch16_224(in_chans=1)
         model = LightlyMAE(vit=vit)
-        checkpoint = torch.load("../Datasets/FLCDataset/baselines/checkpoint-200.pth")
+        checkpoint = torch.load("../Datasets/FLCDataset/baselines/checkpoint-530.pth")
         model.load_state_dict(checkpoint['model'])
     return model
 
 def plot_PCA(samples, labels):
-    df = pandas.DataFrame(columns=[''])
+    colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:purple']
+    df = pandas.DataFrame(columns=['PCA-1', 'PCA-2', 'Label'])
+    reducer = PCA(n_components=2)
+    data = reducer.fit_transform(samples)
+    df['PCA-1'] = data[:, 0]
+    df['PCA-2'] = data[:, 1]
+    df['Label'] = labels
+    fig = plt.figure()
+    seaborn.scatterplot(data=df, x='PCA-1', y='PCA-2', hue='Label', palette=seaborn.color_palette(colors, 4))
+    expr = "imagenet" if args.imagenet else "sted"
+    fig.savefig(f"../results/{args.pretraining}/{expr}_{args.class_type}_PCA.pdf", dpi=1200, bbox_inches='tight', transparent=True)
+    plt.close(fig)
 
 def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device):
     out = defaultdict(list)
@@ -105,7 +117,7 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
             out['labels'].extend(labels.cpu().data.numpy().tolist())
     samples = np.array(out['features'])
     labels = np.array([int(item) for item in out['labels']])
-    # TODO: plot PCA
+    plot_PCA(samples=samples, labels=labels)
     neigh = NearestNeighbors(n_neighbors=6)
     neigh.fit(samples)
     neighbors = neigh.kneighbors(samples, return_distance=False)[:, 1:]
@@ -145,7 +157,7 @@ def main():
     n_channels = 3 if args.imagenet else 1
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
-    loader = load_theresa_proteins(
+    _, _, loader = fewshot_loader(
         path=args.datapath,
         class_type=args.class_type,
         n_channels=n_channels,

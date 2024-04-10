@@ -7,7 +7,7 @@ import torchvision
 from timm.models.vision_transformer import vit_small_patch16_224
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 import lightly.models.utils
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import CosineAnnealingLR
 import sys
 sys.path.insert(0, "../../proteins_experiments")
 from utils.data_utils import fewshot_loader
@@ -19,7 +19,10 @@ from classifier import MAEClassificationHead
 parser = argparse.ArgumentParser()
 parser.add_argument("--class-type", type=str, default='protein')
 parser.add_argument("--pretraining", type=str, default='lightly')
+parser.add_argument("--freeze", action='store_true')
 args = parser.parse_args()
+
+SAVE_EXPR = "linear-probe" if args.freeze else "finetuned"
 
 class LightlyMAE(torch.nn.Module):
     def __init__(self, vit) -> None:
@@ -48,7 +51,6 @@ class LightlyMAE(torch.nn.Module):
     def forward_decoder(self, x: torch.Tensor, idx_keep: bool, idx_mask: bool) -> torch.Tensor:
         batch_size = x.shape[0]
         x_decode = self.decoder.embed(x)
-        print(f"x_decode: {x_decode.shape}")
         x_masked = lightly.models.utils.repeat_token(self.decoder.mask_token, (batch_size, self.sequence_length))
         x_masked = lightly.models.utils.set_at_index(x_masked, idx_keep, x_decode.type_as(x_masked))
         x_decoded = self.decoder.decode(x_masked)
@@ -72,13 +74,13 @@ class LightlyMAE(torch.nn.Module):
 def load_model():
     vit = vit_small_patch16_224(in_chans=1)
     backbone = LightlyMAE(vit=vit)
-    checkpoint = torch.load("../Datasets/FLCDataset/baselines/checkpoint-200.pth")
+    checkpoint = torch.load("../Datasets/FLCDataset/baselines/checkpoint-530.pth")
     backbone.load_state_dict(checkpoint['model'])
     model = MAEClassificationHead(
         backbone=backbone,
         feature_dim=384,
         num_classes=4,
-        freeze=True,
+        freeze=args.freeze,
         global_pool="avg"
     )
     return model
@@ -171,7 +173,7 @@ def train(
     train_loss, val_loss, val_acc, lrates = [], [], [], []
     save_best_model = SaveBestModel(
         save_dir=model_path,
-        model_name="finetuned_model",
+        model_name=f"{SAVE_EXPR}_model",
     )
     for epoch in tqdm(range(num_epochs), desc="Epochs..."):
         loss = train_one_epoch(
@@ -186,7 +188,7 @@ def train(
         v_loss, v_acc = validation_step(model, valid_loader, criterion, epoch, device)
         val_loss.append(v_loss)
         val_acc.append(v_acc)
-        scheduler.step(v_loss)
+        scheduler.step()
         temp_lr = optimizer.param_groups[0]['lr']
         lrates.append(temp_lr)
         save_best_model(v_loss, epoch=epoch, model=model, optimizer=optimizer, criterion=criterion)
@@ -207,10 +209,8 @@ def plot_training_curves(train_loss, val_loss, val_acc, learning_rates, model_pa
     axs[0].set_ylabel('Loss')
     axs[0].legend()
     axs[1].legend()
-    fig.savefig(f"{model_path}/finetuning_curves.png")
+    fig.savefig(f"{model_path}/{SAVE_EXPR}_curves.png")
     plt.close(fig)
-
-
 
 def main():
     device = torch.device('cuda' if torch.cuda.is_available() else "cpu")
@@ -221,16 +221,18 @@ def main():
         n_channels=1
     )
     model = load_model().to(device)
-    model.eval()
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-    scheduler = ReduceLROnPlateau(optimizer=optimizer, mode='min', patience=10, factor=0.95)
+    if args.freeze:
+        optimizer = torch.optim.SGD(model.parameters(), lr=0.1, weight_decay=0, momentum=0.9)
+    else:
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.99))
+    scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=20)
     criterion = torch.nn.CrossEntropyLoss()
     train(
         model=model,
         train_loader=train_loader,
         valid_loader=valid_loader,
         device=device,
-        num_epochs=300,
+        num_epochs=500,
         criterion=criterion,
         optimizer=optimizer,
         scheduler=scheduler,

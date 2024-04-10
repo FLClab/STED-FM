@@ -6,9 +6,12 @@ import torchvision
 from torch.utils.data import DataLoader
 from sklearn.neighbors import NearestNeighbors
 from collections import defaultdict, OrderedDict
-from utils.data_utils import load_theresa_proteins
+from utils.data_utils import load_theresa_proteins, fewshot_loader
 from models.intensity_model import get_intensity_model
 import argparse
+import pandas 
+import seaborn
+from sklearn.decomposition import PCA
 plt.style.use("dark_background")
 
 parser = argparse.ArgumentParser()
@@ -23,7 +26,7 @@ def load_model(pretraining: str = "STED"):
         backbone = torchvision.models.resnet18()
         backbone.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=(7,7), stride=(2,2), padding=1, bias=False)
         backbone.fc = torch.nn.Identity()
-        checkpoint = torch.load("/home/frederic/Datasets/FLCDataset/baselines/result.pt")
+        checkpoint = torch.load("/home/frbea320/scratch/Datasets/FLCDataset/baselines/ResNet/result.pt")
         print(checkpoint.keys())
         model_dict = checkpoint["model"]["backbone"]
         backbone.load_state_dict(model_dict)
@@ -38,6 +41,20 @@ def load_model(pretraining: str = "STED"):
         exit(f"Model {args.pretraining} not implemented yet.")
     return backbone
 
+def plot_PCA(samples, labels):
+    colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:purple']
+    df = pandas.DataFrame(columns=['PCA-1', 'PCA-2', 'Label'])
+    reducer = PCA(n_components=2)
+    data = reducer.fit_transform(samples)
+    df['PCA-1'] = data[:, 0]
+    df['PCA-2'] = data[:, 1]
+    df['Label'] = labels
+    fig = plt.figure()
+    seaborn.scatterplot(data=df, x='PCA-1', y='PCA-2', hue='Label', palette=seaborn.color_palette(colors, 4))
+    expr = "imagenet" if args.imagenet else "sted"
+    fig.savefig(f"../results/{args.pretraining}/{expr}_{args.class_type}_PCA.pdf", dpi=1200, bbox_inches='tight', transparent=True)
+    plt.close(fig)
+
 def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device):
     out = defaultdict(list)
     with torch.no_grad():
@@ -49,6 +66,7 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
             out["labels"].extend(labels.cpu().data.numpy().tolist())
     samples = np.array(out['features'])
     labels = np.array([int(item) for item in out['labels']])
+    plot_PCA(samples=samples, labels=labels)
     neigh = NearestNeighbors(n_neighbors=6)
     neigh.fit(samples)
     neighbors = neigh.kneighbors(samples, return_distance=False)[:, 1:]
@@ -86,12 +104,13 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    n_channels = 1 if args.pretraining == "STED" else 3
     model = load_model(pretraining=args.pretraining).to(device)
     model.eval()
-    loader = load_theresa_proteins(
-        path="/home/frederic/Datasets/FLCDataset",
+    _, _, loader = fewshot_loader(
+        path=args.datapath,
         class_type=args.class_type,
-        n_channels=1 if args.pretraining == "STED" else 3,
+        n_channels=n_channels,
     )
     knn_predict(model=model, loader=loader, device=device)
 

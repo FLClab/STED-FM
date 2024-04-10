@@ -33,4 +33,3 @@ class MAEClassificationHead(torch.nn.Module):
             exit(f"{self.global_pool} not implemented yet")
         out = self.classfication_head(features)
         return out
-

@@ -1,31 +1,38 @@
-#!/bin/bash
-#SBATCH --output=logs/%x-%A_%a.out
+#!/usr/bin/env bash
+#
+#SBATCH --time=00:30:00
 #SBATCH --account=def-flavielc
-#SBATCH --time=00:10:00
-#SBATCH --mem=16Gb
+#SBATCH --cpus-per-task=6
+#SBATCH --mem=16G
 #SBATCH --gpus-per-node=1
-#SBATCH --mail-user=frederic.beaupre.3@ulaval.ca
+#SBATCH --output=logs/%x-%A_%a.out
+#SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --cpus-per-task=8
 
-
-module load python/3.8 scipy-stack
+module load python/3.10 scipy-stack
 module load cuda cudnn
+source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 
-source /home/frbea320/projects/def-flavielc/frbea320/ad/bin/activate
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 mkdir $SLURM_TMPDIR/data
 
-cp /home/frbea320/scratch/Datasets/FLCDataset/TheresaProteins/theresa_proteins.hdf5 $SLURM_TMPDIR/data
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Copy file"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
+cp "/home/frbea320/scratch/Datasets/FLCDataset/TheresaProteins/theresa_proteins.hdf5" "${SLURM_TMPDIR}/data/theresa_proteins.hdf5"
+
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Done copy file"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "KNN classification of synaptic proteins"
+echo "ResNet KNN classification"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python knn_classification.py --datapath $SLURM_TMPDIR/data -ct protein
+python knn_classification.py --class-type protein --pretraining STED --datapath $SLURM_TMPDIR/data 
 
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

@@ -14,8 +14,9 @@ def fewshot_loader(
         class_type: str = "protein",
         n_channels: int = 1
         ) -> DataLoader:
+        np.random.seed(42) # For reproducibility and to always get same test set when we evaluate
         indices = np.arange(0, H5SIZE, 1)
-        np.random.shuffle(indices)
+        np.random.shuffle(indices) 
         split = int( (H5SIZE) * (1 - validation_size))
         temp_indices = indices[:split]
         test_indices = indices[split:]
