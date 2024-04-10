@@ -12,6 +12,8 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from sklearn.neighbors import NearestNeighbors
 import numpy as np
+from sklearn.decomposition import PCA
+import pandas
 # All imports before ones from my own packages should come before this line
 sys.path.insert(0, "../../proteins_experiments")
 from utils.data_utils import load_theresa_proteins
@@ -21,13 +23,15 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--class-type", "-ct", type=str, default='protein')
 parser.add_argument("--pretraining", type=str, default='lightly')
 parser.add_argument("--datapath", type=str, default="")
+parser.add_argument("--global-pool", type=str, default="avg", choices=["avg", "token"])
+parser.add_argument("--imagenet", action='store_true')
 args = parser.parse_args()
 
 class LightlyMAE(torch.nn.Module):
     def __init__(self, vit) -> None:
         super().__init__()
         decoder_dim = 512
-        self.mask_ratio = 0.75
+        self.mask_ratio = 0.0
         self.patch_size = vit.patch_embed.patch_size[0]
         self.backbone = MaskedVisionTransformerTIMM(vit=vit)
         self.sequence_length = self.backbone.sequence_length
@@ -36,7 +40,7 @@ class LightlyMAE(torch.nn.Module):
             patch_size=self.patch_size,
             embed_dim=vit.embed_dim,
             decoder_embed_dim=decoder_dim,
-            in_chans=1,
+            in_chans=3 if args.imagenet else 1,
             decoder_depth=1,
             decoder_num_heads=8,
             mlp_ratio=4.0,
@@ -71,11 +75,20 @@ class LightlyMAE(torch.nn.Module):
         return x_pred, target
     
 def load_model():
-    vit = vit_small_patch16_224(in_chans=1)
-    model = LightlyMAE(vit=vit)
-    checkpoint = torch.load("/home/frederic/Datasets/FLCDataset/baselines/MAE/checkpoint-190.pth")
-    model.load_state_dict(checkpoint['model'])
+    if args.imagenet:
+        print("--- Loading ImageNet ViT ---")
+        vit = vit_small_patch16_224(in_chans=3, pretrained=True)
+        model = LightlyMAE(vit=vit)
+    else:
+        print("--- Loading STED ViT ---")
+        vit = vit_small_patch16_224(in_chans=1)
+        model = LightlyMAE(vit=vit)
+        checkpoint = torch.load("../Datasets/FLCDataset/baselines/checkpoint-200.pth")
+        model.load_state_dict(checkpoint['model'])
     return model
+
+def plot_PCA(samples, labels):
+    df = pandas.DataFrame(columns=[''])
 
 def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device):
     out = defaultdict(list)
@@ -84,10 +97,15 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
             labels = proteins if args.class_type == "protein" else conditions
             x, labels = x.to(device), labels.to(device)
             features = model.forward_encoder(x)
+            if args.global_pool == "token":
+                features = features[:, 0, :] # class token
+            else:
+                features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens
             out['features'].extend(features.cpu().data.numpy())
             out['labels'].extend(labels.cpu().data.numpy().tolist())
     samples = np.array(out['features'])
     labels = np.array([int(item) for item in out['labels']])
+    # TODO: plot PCA
     neigh = NearestNeighbors(n_neighbors=6)
     neigh.fit(samples)
     neighbors = neigh.kneighbors(samples, return_distance=False)[:, 1:]
@@ -118,17 +136,19 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
         xticks=uniques, yticks=uniques,  
     )
     ax.set_title(round(acc, 4))
-    fig.savefig(f"./results/{args.pretraining}/{args.class_type}_knn_results.pdf", dpi=1200, bbox_inches='tight', transparent=True)
+    expr = "imagenet" if args.imagenet else "sted"
+    fig.savefig(f"../results/{args.pretraining}/{expr}_{args.class_type}_knn_results.pdf", dpi=1200, bbox_inches='tight', transparent=True)
     plt.close(fig)
 
 def main():
     feature_dims = 384 # MAE's ViT embedding dimension
+    n_channels = 3 if args.imagenet else 1
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
     loader = load_theresa_proteins(
-        path="/home/frederic/Datasets/FLCDataset",
+        path=args.datapath,
         class_type=args.class_type,
-        n_channels=1,
+        n_channels=n_channels,
     )
     model = load_model().to(device)
     model.eval()

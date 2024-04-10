@@ -30,7 +30,7 @@ def sanity_check(imgs: torch.Tensor, labels: torch.Tensor, masks: torch.Tensor) 
 
 
 class SaveBestModel:
-    def __init__(self, best, maximize, model_name, save_dir) -> None:
+    def __init__(self, model_name, save_dir, best: float = float('inf'), maximize: bool = False) -> None:
         self.best = best
         self.maximize = maximize
         self.save_dir = save_dir
