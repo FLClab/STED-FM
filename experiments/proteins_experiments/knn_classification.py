@@ -16,7 +16,6 @@ plt.style.use("dark_background")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--class-type", "-ct", type=str, default="protein")
-parser.add_argument("--datapath", type=str)
 parser.add_argument("--pretraining", type=str, default="STED")
 args = parser.parse_args()
 
@@ -51,8 +50,8 @@ def plot_PCA(samples, labels):
     df['Label'] = labels
     fig = plt.figure()
     seaborn.scatterplot(data=df, x='PCA-1', y='PCA-2', hue='Label', palette=seaborn.color_palette(colors, 4))
-    expr = "imagenet" if args.imagenet else "sted"
-    fig.savefig(f"../results/{args.pretraining}/{expr}_{args.class_type}_PCA.pdf", dpi=1200, bbox_inches='tight', transparent=True)
+    expr = "imagenet" if args.pretraining == "ImageNet" else "STED"
+    fig.savefig(f"./results/{args.pretraining}/{expr}_{args.class_type}_PCA.pdf", dpi=1200, bbox_inches='tight', transparent=True)
     plt.close(fig)
 
 def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device):

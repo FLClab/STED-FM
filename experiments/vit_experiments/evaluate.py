@@ -7,11 +7,13 @@ import numpy as np
 from tqdm import tqdm
 from models.classifier import MAEClassificationHead
 import sys
-sys.path.insert(0, "../../proteins_experiments")
+sys.path.insert(0, "../proteins_experiments")
 from utils.data_utils import fewshot_loader
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default='finetuned')
+parser.add_argument('--class-type', type=str, default='protein')
+parser.add_argument("--datapath", type=str)
 args = parser.parse_args()
 
 
@@ -89,10 +91,10 @@ def load_model():
         backbone=backbone,
         feature_dim=384,
         num_classes=4,
-        freeze=args.freeze,
+        freeze=False,
         global_pool="avg"
     )
-    checkpoint = torch.load(f"../Datasets/FLCDataset/baselines/{args.model}_model.pth")
+    checkpoint = torch.load(f"./Datasets/FLCDataset/baselines/{args.model}_model.pth")
     model.load_state_dict(checkpoint['model_state_dict'])
     return model
 
@@ -126,7 +128,7 @@ def main():
     model = load_model().to(DEVICE)
     model.eval()
     _, _, loader = fewshot_loader(
-        path=args.datapath,
+        path="./Datasets/FLCDataset/TheresaProteins/theresa_proteins.hdf5",
         class_type=args.class_type,
         n_channels=1,
     )
