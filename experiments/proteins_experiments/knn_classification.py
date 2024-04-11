@@ -26,7 +26,6 @@ def load_model(pretraining: str = "STED"):
         backbone.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=(7,7), stride=(2,2), padding=1, bias=False)
         backbone.fc = torch.nn.Identity()
         checkpoint = torch.load("/home/frbea320/scratch/Datasets/FLCDataset/baselines/ResNet/result.pt")
-        print(checkpoint.keys())
         model_dict = checkpoint["model"]["backbone"]
         backbone.load_state_dict(model_dict)
     elif pretraining == "ImageNet":
@@ -107,7 +106,7 @@ def main():
     model = load_model(pretraining=args.pretraining).to(device)
     model.eval()
     _, _, loader = fewshot_loader(
-        path=args.datapath,
+        path="/home/frbea320/scratch/Datasets/FLCDataset/TheresaProteins/",
         class_type=args.class_type,
         n_channels=n_channels,
     )

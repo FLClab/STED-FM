@@ -36,7 +36,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started classification"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python knn_classification.py --class-type protein --pretraining lightly --datapath "${SLURM_TMPDIR}"
+python knn_classification.py --class-type protein --datapath "${SLURM_TMPDIR}"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done classification"

@@ -18,17 +18,18 @@ from classifier import MAEClassificationHead
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--class-type", type=str, default='protein')
-parser.add_argument("--pretraining", type=str, default='lightly')
+parser.add_argument("--pretraining", type=str, default='STED')
 parser.add_argument("--freeze", action='store_true')
 args = parser.parse_args()
 
 SAVE_EXPR = "linear-probe" if args.freeze else "finetuned"
 
 class LightlyMAE(torch.nn.Module):
-    def __init__(self, vit) -> None:
+    def __init__(self, vit, in_channels: int = 1) -> None:
         super().__init__()
         decoder_dim = 512
         self.mask_ratio = 0.0
+
         self.patch_size = vit.patch_embed.patch_size[0]
         self.backbone = MaskedVisionTransformerTIMM(vit=vit)
         self.sequence_length = self.backbone.sequence_length
@@ -37,7 +38,7 @@ class LightlyMAE(torch.nn.Module):
             patch_size=self.patch_size,
             embed_dim=vit.embed_dim,
             decoder_embed_dim=decoder_dim,
-            in_chans=1,
+            in_chans=in_channels,
             decoder_depth=1,
             decoder_num_heads=8,
             mlp_ratio=4.0,
@@ -72,17 +73,32 @@ class LightlyMAE(torch.nn.Module):
         return x_pred, target
     
 def load_model():
-    vit = vit_small_patch16_224(in_chans=1)
-    backbone = LightlyMAE(vit=vit)
-    checkpoint = torch.load("../Datasets/FLCDataset/baselines/checkpoint-530.pth")
-    backbone.load_state_dict(checkpoint['model'])
-    model = MAEClassificationHead(
-        backbone=backbone,
-        feature_dim=384,
-        num_classes=4,
-        freeze=args.freeze,
-        global_pool="avg"
-    )
+    if args.pretraining == "STED":
+        vit = vit_small_patch16_224(in_chans=1)
+        backbone = LightlyMAE(vit=vit)
+        checkpoint = torch.load("../Datasets/FLCDataset/baselines/checkpoint-530.pth")
+        backbone.load_state_dict(checkpoint['model'])
+        model = MAEClassificationHead(
+            backbone=backbone,
+            feature_dim=384,
+            num_classes=4,
+            freeze=args.freeze,
+            global_pool="avg"
+        )
+    elif args.pretraining == "ImageNet":
+        vit = vit_small_patch16_224(in_chans=3, pretrained=True)
+        backbone = LightlyMAE(vit=vit, in_channels=3)
+        # No need to load any checkpoint into the full MAE because the Decoder is never used in fine-tuning
+        # So only need to load the encoder checkpoint (pretrained weights)
+        model = MAEClassificationHead(
+            backbone=backbone, 
+            feature_dim=384,
+            num_classes=4,
+            freeze=args.freeze,
+            global_pool='avg'
+        )
+    else:
+        exit(f"Pretraining on {args.pretraining} not supported.")
     return model
 
 def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4) -> list:
@@ -218,7 +234,7 @@ def main():
     train_loader, valid_loader, test_loader = fewshot_loader(
         path="../Datasets/FLCDataset/TheresaProteins",
         class_type='protein',
-        n_channels=1
+        n_channels=1 if args.pretraining == "STED" else 3
     )
     model = load_model().to(device)
     if args.freeze:
@@ -236,7 +252,7 @@ def main():
         criterion=criterion,
         optimizer=optimizer,
         scheduler=scheduler,
-        model_path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/vit_experiments/Datasets/FLCDataset/baselines"
+        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/vit_experiments/Datasets/FLCDataset/baselines/finetuning/{args.pretraining}"
     )
     
 

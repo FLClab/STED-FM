@@ -22,8 +22,6 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Copy file"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-cp "/home/frbea320/scratch/Datasets/FLCDataset/TheresaProteins/theresa_proteins.hdf5" "${SLURM_TMPDIR}/data/theresa_proteins.hdf5"
-
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done copy file"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
@@ -32,7 +30,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "ResNet KNN classification"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python knn_classification.py --class-type protein --pretraining STED --datapath $SLURM_TMPDIR/data 
+python knn_classification.py --class-type protein --pretraining STED
 
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

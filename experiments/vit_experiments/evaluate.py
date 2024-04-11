@@ -85,17 +85,22 @@ def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4)
 
 
 def load_model():
-    vit = vit_small_patch16_224(in_chans=1)
-    backbone = LightlyMAE(vit=vit)
-    model = MAEClassificationHead(
-        backbone=backbone,
-        feature_dim=384,
-        num_classes=4,
-        freeze=False,
-        global_pool="avg"
-    )
-    checkpoint = torch.load(f"./Datasets/FLCDataset/baselines/{args.model}_model.pth")
-    model.load_state_dict(checkpoint['model_state_dict'])
+    if args.model == "from-scratch":
+        model = vit_small_patch16_224(in_chans=1, num_classes=4, global_pool='token')
+        checkpoint = torch.load(f"./Datasets/FLCDataset/baselines/{args.model}_model.pth")
+        model.load_state_dict(checkpoint['model_state_dict'])
+    else:
+        vit = vit_small_patch16_224(in_chans=1)
+        backbone = LightlyMAE(vit=vit)
+        model = MAEClassificationHead(
+            backbone=backbone,
+            feature_dim=384,
+            num_classes=4,
+            freeze=False,
+            global_pool="avg"
+        )
+        checkpoint = torch.load(f"./Datasets/FLCDataset/baselines/{args.model}_model.pth")
+        model.load_state_dict(checkpoint['model_state_dict'])
     return model
 
 def evaluate(
@@ -128,7 +133,7 @@ def main():
     model = load_model().to(DEVICE)
     model.eval()
     _, _, loader = fewshot_loader(
-        path="./Datasets/FLCDataset/TheresaProteins/theresa_proteins.hdf5",
+        path="./Datasets/FLCDataset/TheresaProteins/",
         class_type=args.class_type,
         n_channels=1,
     )
