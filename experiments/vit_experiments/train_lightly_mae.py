@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # from torch.utils.tensorboard import SummaryWriter
 import typing 
 from data.datasets import TarFLCDataset
-from utils.data_utils import tar_dataloader
+from utils.data_utils import tar_dataloader, ctc_loader
 from collections import defaultdict
 from collections.abc import Mapping
 from multiprocessing import Manager
@@ -25,6 +25,7 @@ parser.add_argument("--save-folder", type=str, default="./Datasets/FLCDataset/ba
 parser.add_argument("--dataset-path", type=str, default="./Datasets/FLCDataset/dataset.tar")
 parser.add_argument("--use-tensorboard", action="store_true")
 parser.add_argument("--dry-run", action="store_true")
+parser.add_argument("--modality", type=str, default="STED", choices=["STED", 'CTC'])
 args = parser.parse_args()
 
 class LightlyMAE(torch.nn.Module):
@@ -87,7 +88,7 @@ def track_loss(loss):
     x = np.arange(0, len(loss), 1)
     plt.plot(x, loss, color='steelblue', label='Train')
     plt.legend()
-    fig.savefig("./MAE_loss.png")
+    fig.savefig(f"./{args.modality}_MAE_loss.png")
     plt.close(fig)
 
 
@@ -120,8 +121,14 @@ def main():
         torchvision.transforms.ToPILImage(),
         MAETransform(input_size=224),
     ])
-    transform = None
-    dataloader = tar_dataloader(transform=transform)
+    STED_transform = None
+    CTC_transform = None
+    if args.modality == "STED":
+        print("--- Loading FLCDataset ---")
+        dataloader = tar_dataloader(transform=STED_transform)
+    elif args.modality == "CTC":
+        print("--- Loading CTC dataset ---")
+        dataloader = ctc_loader(transform=CTC_transform, path=args.dataset_path)
 
     criterion = torch.nn.MSELoss()
 
