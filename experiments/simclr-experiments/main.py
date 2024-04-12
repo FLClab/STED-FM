@@ -162,7 +162,7 @@ if __name__ == "__main__":
     ckpt = checkpoint.get("stats", None)
     if not ckpt is None:
         stats = ckpt
-    for epoch in range(len(stats["mean"]), 512):
+    for epoch in range(len(stats["mean"]), 1024):
         print(f"[----] Epoch: {epoch}")
         pbar = tqdm(dataloader, leave=False)
         stats_loss, running_loss, running_batches = [], 0, 0
