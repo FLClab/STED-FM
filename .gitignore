@@ -1,5 +1,6 @@
 # data symlink
 experiments/simclr-experiments/data
+experiments/simclr-experiments/panels
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
