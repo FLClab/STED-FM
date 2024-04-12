@@ -25,19 +25,12 @@ from backbones import get_backbone
 
 # Create a PyTorch module for the SimCLR model.
 class SimCLR(torch.nn.Module):
-    def __init__(self, backbone):
+    def __init__(self, backbone, cfg):
         super().__init__()
         self.backbone = backbone
-        if isinstance(self.backbone, backbones.micranet.MICRANet):
-            dim = 256
-        elif isinstance(self.backbone, torchvision.models.resnet.ResNet):
-            dim = 512
-        elif isinstance(self.backbone, torchvision.models.convnext.ConvNeXt):
-            dim = 768
-        else:
-            dim = 512
+        self.cfg = cfg
         self.projection_head = heads.SimCLRProjectionHead(
-            input_dim=dim,
+            input_dim=self.cfg.dim,
             hidden_dim=512,
             output_dim=128,
         )
@@ -98,7 +91,7 @@ if __name__ == "__main__":
         writer = SummaryWriter(os.path.join(OUTPUT_FOLDER, "logs"))
 
     # Build the SimCLR model.
-    model = SimCLR(backbone)
+    model = SimCLR(backbone, cfg)
     ckpt = checkpoint.get("model", None)
     if not ckpt is None:
         print("Restoring model...")

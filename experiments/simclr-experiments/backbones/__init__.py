@@ -7,6 +7,7 @@ from .convnext import get_backbone as get_convnext_backbone
 
 BACKBONES = {
     "resnet18" : get_resnet_backbone,
+    "resnet50" : get_resnet_backbone,
     "micranet" : get_micranet_backbone,
     "convnext" : get_convnext_backbone
 }
