@@ -15,6 +15,7 @@ import numpy as np
 from sklearn.decomposition import PCA
 import seaborn
 import pandas
+import timm
 # All imports before ones from my own packages should come before this line
 sys.path.insert(0, "../../proteins_experiments")
 from utils.data_utils import load_theresa_proteins, fewshot_loader
@@ -22,10 +23,9 @@ from utils.data_utils import load_theresa_proteins, fewshot_loader
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--class-type", "-ct", type=str, default='protein')
-parser.add_argument("--pretraining", type=str, default='lightly')
 parser.add_argument("--datapath", type=str, default="")
 parser.add_argument("--global-pool", type=str, default="avg", choices=["avg", "token"])
-parser.add_argument("--imagenet", action='store_true')
+parser.add_argument("--pretraining", type=str, default="STED")
 args = parser.parse_args()
 
 class LightlyMAE(torch.nn.Module):
@@ -41,7 +41,7 @@ class LightlyMAE(torch.nn.Module):
             patch_size=self.patch_size,
             embed_dim=vit.embed_dim,
             decoder_embed_dim=decoder_dim,
-            in_chans=3 if args.imagenet else 1,
+            in_chans=3 if args.pretraining == "ImageNet" else 1,
             decoder_depth=1,
             decoder_num_heads=8,
             mlp_ratio=4.0,
@@ -76,16 +76,25 @@ class LightlyMAE(torch.nn.Module):
         return x_pred, target
     
 def load_model():
-    if args.imagenet:
+    if args.pretraining == "ImageNet":
         print("--- Loading ImageNet ViT ---")
         vit = vit_small_patch16_224(in_chans=3, pretrained=True)
+        # model = timm.create_model('vit_small_patch16_224.augreg_in21k_ft_in1k', pretrained=True, in_chans=3)
         model = LightlyMAE(vit=vit)
-    else:
+    elif args.pretraining == "STED":
         print("--- Loading STED ViT ---")
         vit = vit_small_patch16_224(in_chans=1)
         model = LightlyMAE(vit=vit)
         checkpoint = torch.load("../Datasets/FLCDataset/baselines/checkpoint-530.pth")
         model.load_state_dict(checkpoint['model'])
+    elif args.pretraining == "CTC":
+        print("--- Loading CTC ViT ---")
+        vit = vit_small_patch16_224(in_chans=1)
+        model = LightlyMAE(vit=vit)
+        checkpoint = torch.load("../Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth")
+        model.load_state_dict(checkpoint['model']) 
+    else:
+        exit(f"{args.pretraining} pretraining not supported.")
     return model
 
 def plot_PCA(samples, labels):
@@ -98,8 +107,7 @@ def plot_PCA(samples, labels):
     df['Label'] = labels
     fig = plt.figure()
     seaborn.scatterplot(data=df, x='PCA-1', y='PCA-2', hue='Label', palette=seaborn.color_palette(colors, 4))
-    expr = "imagenet" if args.imagenet else "sted"
-    fig.savefig(f"../results/{args.pretraining}/{expr}_{args.class_type}_PCA.pdf", dpi=1200, bbox_inches='tight', transparent=True)
+    fig.savefig(f"../results/{args.pretraining}_{args.class_type}_PCA.pdf", dpi=1200, bbox_inches='tight', transparent=True)
     plt.close(fig)
 
 def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device):
@@ -148,13 +156,12 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
         xticks=uniques, yticks=uniques,  
     )
     ax.set_title(round(acc, 4))
-    expr = "imagenet" if args.imagenet else "sted"
-    fig.savefig(f"../results/{args.pretraining}/{expr}_{args.class_type}_knn_results.pdf", dpi=1200, bbox_inches='tight', transparent=True)
+    fig.savefig(f"../results/{args.pretraining}_{args.class_type}_knn_results.pdf", dpi=1200, bbox_inches='tight', transparent=True)
     plt.close(fig)
 
 def main():
     feature_dims = 384 # MAE's ViT embedding dimension
-    n_channels = 3 if args.imagenet else 1
+    n_channels = 3 if args.pretraining == "ImageNet" else 1
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
     _, _, loader = fewshot_loader(

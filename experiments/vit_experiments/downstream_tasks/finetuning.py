@@ -74,6 +74,7 @@ class LightlyMAE(torch.nn.Module):
     
 def load_model():
     if args.pretraining == "STED":
+        print("-- Loading STED ViT ---")
         vit = vit_small_patch16_224(in_chans=1)
         backbone = LightlyMAE(vit=vit)
         checkpoint = torch.load("../Datasets/FLCDataset/baselines/checkpoint-530.pth")
@@ -85,7 +86,21 @@ def load_model():
             freeze=args.freeze,
             global_pool="avg"
         )
+    elif args.pretraining == "CTC":
+        print("-- Loading CTC ViT ---")
+        vit = vit_small_patch16_224(in_chans=1)
+        backbone = LightlyMAE(vit=vit)
+        checkpoint = torch.load("../Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth")
+        backbone.load_state_dict(checkpoint['model'])
+        model = MAEClassificationHead(
+            backbone=backbone,
+            feature_dim=384,
+            num_classes=4,
+            freeze=args.freeze,
+            global_pool="avg"
+        )
     elif args.pretraining == "ImageNet":
+        print("-- Loading ImageNet ViT ---")
         vit = vit_small_patch16_224(in_chans=3, pretrained=True)
         backbone = LightlyMAE(vit=vit, in_channels=3)
         # No need to load any checkpoint into the full MAE because the Decoder is never used in fine-tuning
@@ -118,6 +133,28 @@ def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4)
         # temp = ( (preds == labels) * (labels == n)).float().sum() / (labels == n).float().sum()
         # accuracies.append(temp.cpu().detach().numpy())
     return np.array(correct), np.array(big_n)
+
+
+def evaluate(model, loader, device):
+    model.eval()
+    big_correct = np.array([0] * (4+1))
+    big_n = np.array([0] * (4+1))
+    with torch.no_grad():
+        for imgs, proteins, conditions in tqdm(loader, desc="Evaluation..."):
+            labels = proteins if args.class_type == 'protein' else conditions
+            imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
+            predictions = model(imgs)
+            correct, n = compute_Nary_accuracy(predictions, labels)
+            big_correct = big_correct + correct
+            big_n = big_n + n
+        accuracies = big_correct / big_n
+        print("********* Validation metrics **********")
+        print("Overall accuracy = {:.3f}".format(accuracies[0]))
+        for i in range(1, 4+1):
+            acc = accuracies[i]
+            print("Class {} accuracy = {:.3f}".format(
+                i, acc))
+    return accuracies[0]
 
 def validation_step(
         model,
@@ -179,6 +216,7 @@ def train(
         model,
         train_loader, 
         valid_loader,
+        test_loader,
         device,
         num_epochs, 
         criterion, 
@@ -187,6 +225,7 @@ def train(
         model_path
 ): 
     train_loss, val_loss, val_acc, lrates = [], [], [], []
+    acc_per_epoch = []
     save_best_model = SaveBestModel(
         save_dir=model_path,
         model_name=f"{SAVE_EXPR}_model",
@@ -205,10 +244,20 @@ def train(
         val_loss.append(v_loss)
         val_acc.append(v_acc)
         scheduler.step()
+        if epoch == 1 or (epoch + 1) % 10 == 0:
+            test_acc = evaluate(model=model, loader=test_loader, device=device)
+            acc_per_epoch.append(test_acc)
+            torch.save({
+                    'epoch': epoch + 1,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'loss': criterion,
+                }, f'{model_path}/{SAVE_EXPR}_epoch{epoch+1}_model.pth')
         temp_lr = optimizer.param_groups[0]['lr']
         lrates.append(temp_lr)
         save_best_model(v_loss, epoch=epoch, model=model, optimizer=optimizer, criterion=criterion)
         plot_training_curves(train_loss, val_loss, val_acc, lrates, model_path)
+    return acc_per_epoch
 
 def plot_training_curves(train_loss, val_loss, val_acc, learning_rates, model_path):
     fig, axs = plt.subplots(2, 1, sharex=True)
@@ -234,7 +283,7 @@ def main():
     train_loader, valid_loader, test_loader = fewshot_loader(
         path="../Datasets/FLCDataset/TheresaProteins",
         class_type='protein',
-        n_channels=1 if args.pretraining == "STED" else 3
+        n_channels=3 if args.pretraining == "ImageNet" else 1
     )
     model = load_model().to(device)
     if args.freeze:
@@ -243,17 +292,21 @@ def main():
         optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.99))
     scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=20)
     criterion = torch.nn.CrossEntropyLoss()
-    train(
+    test_accuracies = train(
         model=model,
         train_loader=train_loader,
         valid_loader=valid_loader,
+        test_loader=test_loader,
         device=device,
-        num_epochs=500,
+        num_epochs=200,
         criterion=criterion,
         optimizer=optimizer,
         scheduler=scheduler,
         model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/vit_experiments/Datasets/FLCDataset/baselines/finetuning/{args.pretraining}"
     )
+    np.savez(
+        f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/vit_experiments/results/{SAVE_EXPR}/{args.pretraining}_test_results", 
+        acc=test_accuracies)
     
 
 if __name__=="__main__":

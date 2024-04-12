@@ -15,3 +15,4 @@ def ctc_loader(transform, path: str):
     dataset = CTCDataset(h5file=path, transform=transform)
     dataloader = DataLoader(dataset=dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
     return dataloader
+

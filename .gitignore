@@ -168,3 +168,4 @@ vit_experiments/sanity_check/
 vit_experiments/model_checkpoints/
 experiments/vit_experiments/logs/
 experiments/vit_experiments/MAE_loss.png
+experiments/vit_experiments/results/
