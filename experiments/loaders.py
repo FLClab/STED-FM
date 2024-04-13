@@ -17,7 +17,8 @@ def get_CTC_dataset(transform, path: str):
 
 def get_synaptic_proteins_dataset(
         path: str,
-        class_ids: List,
+        transform,
+        class_ids: List = None,
         batch_size: int = 256,
         validation_size: float = 0.10,
         class_type: str = "protein",
@@ -80,7 +81,7 @@ def get_synaptic_proteins_dataset(
         drop_last=False,
         num_workers=6,
     )
-    return train_loader, valid_loader, test_loader
+    return test_loader
 
 def get_optim_dataset(path: str, **kwargs):
     dataset = datasets.OptimDataset(
@@ -105,9 +106,17 @@ def get_factin_block_glugly_dataset(path: str, **kwargs):
 
 def get_dataset(name, path, **kwargs):
     if name == "optim":
-        return get_optim_dataset(path=path, transform=kwargs['transform'])
+        return get_optim_dataset(
+            path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/vit_experiments/Datasets/optim-data", 
+            n_channels=kwargs['n_channels'],
+            transform=kwargs['transform'],
+            )
     elif name == "synaptic-proteins":
-        return get_synaptic_proteins_dataset(path=path, n_channels=kwargs['n_channels'], transform=kwargs['transform'])
+        return get_synaptic_proteins_dataset(
+            path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/vit_experiments/Datasets/FLCDataset/TheresaProteins/", 
+            n_channels=kwargs['n_channels'], 
+            transform=kwargs['transform'],
+            )
     elif name == "factin-rings-fibers":
         return get_factin_rings_fibers_dataset(path=path, transform=kwargs['transform'])
     elif name == "factin-block-glugly":

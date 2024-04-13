@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from utils.data_utils import tar_dataloader
 from utils.training_utils import SaveBestModel, AverageMeter, track_loss
-from models.mae import MAE
+from experiments.models.mae import MAE
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from typing import List
 from tqdm import tqdm 

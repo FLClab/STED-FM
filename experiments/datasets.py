@@ -62,9 +62,9 @@ class CreateFactinRingsFibersDataset(Dataset):
         m, M = image.min(), image.max()
         image = (image - m) / (M - m)
         if self.requires_3_channels:
-            image = numpy.tile(image[numpy.newaxis], (3, 1, 1))
+            image = np.tile(image[np.newaxis], (3, 1, 1))
         else:
-            image = image[numpy.newaxis]
+            image = image[np.newaxis]
         image = torch.tensor(image, dtype=torch.float32)        
         
         if self.transform:
@@ -244,11 +244,14 @@ class OptimDataset(Dataset):
         m, M = np.quantile(image, [0.01, 0.995])
         m, M = image.min(), image.max()
         image = (image - m) / (M - m)
-        if self.requires_3_channels:
+        if self.n_channels == 3:
             image = np.tile(image[np.newaxis], (3, 1, 1))
+            image = np.moveaxis(image, 0, -1)
+            image = transforms.ToTensor()(image)
+            image = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(image)
         else:
             image = image[np.newaxis]
-        image = torch.tensor(image, dtype=torch.float32)        
+        image = torch.tensor(image, dtype=torch.float32)   
         
         if self.transform:
             image = self.transform(image)
@@ -265,8 +268,9 @@ class ProteinDataset(Dataset):
     def __init__(
             self, 
             h5file: str, 
-            class_ids: List[int], 
-            class_type: str, 
+            class_ids: List[int] = None, 
+            class_type: str = "protein", 
+            transform = None,
             n_channels: int = 1,
             indices: List[int] = None) -> None:
         self.h5file = h5file 
@@ -303,7 +307,7 @@ class ProteinDataset(Dataset):
                 img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
             else:
                 img = transforms.ToTensor()(img)
-            return img, {"protein": protein, "condition": condition}
+            return img, {"label": protein, "condition": condition}
 
 class CTCDataset(Dataset):
     def __init__(

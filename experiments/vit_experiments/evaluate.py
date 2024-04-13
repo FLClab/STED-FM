@@ -5,7 +5,7 @@ import lightly.models.utils
 import argparse
 import numpy as np
 from tqdm import tqdm
-from models.classifier import MAEClassificationHead
+from experiments.models.classifier import MAEClassificationHead
 import sys
 sys.path.insert(0, "../proteins_experiments")
 from utils.data_utils import fewshot_loader
