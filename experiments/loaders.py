@@ -24,6 +24,7 @@ def get_synaptic_proteins_dataset(
         class_type: str = "protein",
         n_channels: int = 1,
         h5size: int = 67436,
+        training: bool = False
 ) -> DataLoader:
     np.random.seed(42) # For reproducibility and to always get same test set when we evaluate
     indices = np.arange(0, h5size, 1)
@@ -81,7 +82,10 @@ def get_synaptic_proteins_dataset(
         drop_last=False,
         num_workers=6,
     )
-    return test_loader
+    if training: 
+        return train_loader, valid_loader, test_loader
+    else:
+        return test_loader
 
 def get_optim_dataset(path: str, **kwargs):
     dataset = datasets.OptimDataset(
@@ -116,6 +120,7 @@ def get_dataset(name, path, **kwargs):
             path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/vit_experiments/Datasets/FLCDataset/TheresaProteins/", 
             n_channels=kwargs['n_channels'], 
             transform=kwargs['transform'],
+            training=kwargs['training']
             )
     elif name == "factin-rings-fibers":
         return get_factin_rings_fibers_dataset(path=path, transform=kwargs['transform'])
