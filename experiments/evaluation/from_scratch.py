@@ -1,41 +1,19 @@
-import torch
+import torch 
 import numpy as np
-from timm.models.vision_transformer import vit_small_patch16_224
-from torch.optim.lr_scheduler import CosineAnnealingLR
-import argparse 
-from tqdm import tqdm 
+from tqdm import tqdm
 import matplotlib.pyplot as plt
-import sys
-sys.path.insert(0, "../../proteins_experiments")
-from utils.data_utils import fewshot_loader
-from utils.training_utils import AverageMeter, SaveBestModel 
+from torch.optim.lr_scheduler import CosineAnnealingLR
+import argparse
+import sys 
+sys.path.insert(0, "../")
+from loader import get_dataset
+from model_builder import get_pretrained_model, get_base_model
+from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--class-type", type=str, default='protein')
+parser.add_argument("--dataset", type=str, default="synaptic-proteins")
+parser.add_argument("--model", type=str, default="vit")
 args = parser.parse_args()
-
-def load_model():
-    model = vit_small_patch16_224(in_chans=1, num_classes=4, global_pool='token')
-    return model
-
-def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4) -> list:
-    # accuracies = []
-    correct = []
-    big_n = []
-    _, preds = torch.max(preds, 1)
-
-    assert preds.shape == labels.shape
-    c = torch.sum(preds == labels)
-    correct.append(c.item())
-    big_n.append(preds.shape[0])
-    for n in range(N):
-        c = ((preds == labels ) * (labels == n)).float().sum().cpu().detach().numpy()
-        n = (labels==n).float().sum().cpu().detach().numpy()
-        correct.append(c)
-        big_n.append(n)
-        # temp = ( (preds == labels) * (labels == n)).float().sum() / (labels == n).float().sum()
-        # accuracies.append(temp.cpu().detach().numpy())
-    return np.array(correct), np.array(big_n)
 
 def validation_step(
         model,
@@ -107,7 +85,7 @@ def train(
     train_loss, val_loss, val_acc, lrates = [], [], [], []
     save_best_model = SaveBestModel(
         save_dir=model_path,
-        model_name='from-scratch_model'
+        model_name=f'{args.model}_from-scratch_model'
     )
     for epoch in tqdm(range(num_epochs), desc="Epochs..."):
         loss = train_one_epoch(
@@ -126,53 +104,35 @@ def train(
         temp_lr = optimizer.param_groups[0]['lr']
         lrates.append(temp_lr)
         save_best_model(v_loss, epoch=epoch, model=model, optimizer=optimizer, criterion=criterion)
-        plot_training_curves(train_loss, val_loss, val_acc, lrates, model_path)
+        track_loss(train_loss, val_loss, val_acc, lrates, save_dir=f"{model_path}/{args.model}_from-scratch_curves.png")
 
-
-def plot_training_curves(train_loss, val_loss, val_acc, learning_rates, model_path):
-    fig, axs = plt.subplots(2, 1, sharex=True)
-    x = np.arange(0, len(train_loss), 1)
-    ax1 = axs[0].twinx()
-    ax2 = axs[0].twinx()
-    axs[0].plot(x, train_loss, color='lightblue', label="Train")
-    axs[0].plot(x, val_loss, color='lightcoral', label="Validation")
-    ax1.plot(x, learning_rates, color='lightgreen', label='lr', ls='--')
-    axs[1].plot(x, val_acc, color='lightcoral', label="Validation")
-    axs[1].set_xlabel('Epochs')
-    ax2.plot(x, learning_rates, color='palegreen', label='lr', ls='--', alpha=0.1)
-    axs[1].set_ylabel('Accuracy')
-    axs[0].set_ylabel('Loss')
-    axs[0].legend()
-    axs[1].legend()
-    fig.savefig(f"{model_path}/from-scratch_curves.png")
-    plt.close(fig)
 
 def main():
-    DEVICE = torch.device('cuda' if torch.cuda.is_available() else "cpu")
-    print(f"--- Running on {DEVICE} ---")
-    train_loader, valid_loader, test_loader = fewshot_loader(
-        path="../Datasets/FLCDataset/TheresaProteins",
-        class_type='protein',
-        n_channels=1,
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"--- Running on {device} ---")
+    n_channels = 3 if args.model == "ImageNet" else 1
+    train_loader, valid_loader, test_loader = get_dataset(
+        name=args.dataset,
+        transform=None,
+        path=None,
+        n_channels=n_channels,
+        training=True
     )
-    model = load_model().to(DEVICE)
+    model = get_base_model(name=args.model).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.99))
     scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=20)
     criterion = torch.nn.CrossEntropyLoss()
-
-    num_epochs = 1000
     train(
-        model=model, 
+        model=model,
         train_loader=train_loader,
         valid_loader=valid_loader,
-        device=DEVICE,
-        num_epochs=num_epochs,
+        device=device,
+        num_epochs=1000,
         criterion=criterion,
         optimizer=optimizer,
         scheduler=scheduler,
-        model_path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/vit_experiments/Datasets/FLCDataset/baselines"
+        model_path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/from-scratch"
     )
-
 
 if __name__=="__main__":
     main()

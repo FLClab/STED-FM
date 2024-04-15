@@ -4,6 +4,20 @@ from timm.models.vision_transformer import vit_small_patch16_224
 import lightly.models.utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 import torch
+import torchvision
+
+def get_base_model(name: str):
+    if name=="vit":
+        model = vit_small_patch16_224(in_chans=1, num_classes=4, global_pool="token")
+    elif name=='resnet-18':
+        model = torchvision.resnet18(weights="IMAGENETV1_1K")
+        # TODO: change first layer to handle grayscale input
+    elif name == "resnet-50":
+        model = torchvision.resnet50(weights="IMAGENETV1_1K")
+        # TODO: change first layer to handle grayscale input
+    else: 
+        raise NotImplementedError(f"Base model {name} is not supported.")
+    return model
 
 def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwargs):
     if name == "MAE":
@@ -26,7 +40,7 @@ def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwa
         if weights == "ImageNet":
             print("-- Loading ImageNet ViT ---")
             vit = vit_small_patch16_224(in_chans=3, pretrained=True)
-            backbone = LightlyMAE(vit=vit, in_channels=3)
+            backbone = LightlyMAE(vit=vit, in_channels=3, mask_ratio=0.0)
             # No need to load any checkpoint into the full MAE because the Decoder is never used in fine-tuning
             # So only need to load the encoder checkpoint (pretrained weights)
             model = LinearProbe(
@@ -39,8 +53,8 @@ def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwa
         elif weights == "CTC":
             print("-- Loading CTC ViT ---")
             vit = vit_small_patch16_224(in_chans=1)
-            backbone = LightlyMAE(vit=vit)
-            checkpoint = torch.load("./Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth")
+            backbone = LightlyMAE(vit=vit, in_channels=1, mask_ratio=0.0)
+            checkpoint = torch.load("/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth")
             backbone.load_state_dict(checkpoint['model'])
             model = LinearProbe(
                 backbone=backbone,
@@ -50,10 +64,10 @@ def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwa
                 global_pool="avg"
             )
         elif weights == "STED":
-            print("-- Loading STED ViT ---")
+            print("--- Loading STED ViT ---")
             vit = vit_small_patch16_224(in_chans=1)
-            backbone = LightlyMAE(vit=vit)
-            checkpoint = torch.load("./Datasets/FLCDataset/baselines/checkpoint-530.pth")
+            backbone = LightlyMAE(vit=vit, in_channels=1, mask_ratio=0.0)
+            checkpoint = torch.load("/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/checkpoint-530.pth")
             backbone.load_state_dict(checkpoint['model'])
             model = LinearProbe(
                 backbone=backbone,

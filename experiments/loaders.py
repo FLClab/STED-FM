@@ -111,13 +111,13 @@ def get_factin_block_glugly_dataset(path: str, **kwargs):
 def get_dataset(name, path, **kwargs):
     if name == "optim":
         return get_optim_dataset(
-            path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/vit_experiments/Datasets/optim-data", 
+            path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/optim-data", 
             n_channels=kwargs['n_channels'],
             transform=kwargs['transform'],
             )
     elif name == "synaptic-proteins":
         return get_synaptic_proteins_dataset(
-            path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/vit_experiments/Datasets/FLCDataset/TheresaProteins/", 
+            path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/TheresaProteins", 
             n_channels=kwargs['n_channels'], 
             transform=kwargs['transform'],
             training=kwargs['training']

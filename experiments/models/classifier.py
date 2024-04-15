@@ -19,9 +19,9 @@ class LinearProbe(torch.nn.Module):
             feature_dim = 384
 
         elif self.name == "resnet-18":
-            feature_dim = 256
-        elif self.name == "resnet-50":
             feature_dim = 512
+        elif self.name == "resnet-50":
+            feature_dim = 2048
         elif self.name == "micranet":
             pass 
         elif self.name == 'convnext':
@@ -30,6 +30,7 @@ class LinearProbe(torch.nn.Module):
             raise NotImplementedError(f"Backbone {self.name} not supported.")
         
         if freeze: # Linear probing, otherwise end-to-end fine-tuning
+            print("--- Freezing backbone ---")
             for p in self.backbone.parameters():
                 p.requires_grad = False
 

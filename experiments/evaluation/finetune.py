@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 import torch
 import argparse 
 from tqdm import tqdm 
-from torch.optim.lr_scheduler import CosineAnnealingLR
+from torch.optim.lr_scheduler import CosineAnnealingLR, CosineAnnealingWarmRestarts
 import sys
 sys.path.insert(0, "../")
-from loader import get_dataset
+from loaders import get_dataset
 from model_builder import get_pretrained_model
 from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss
 
@@ -15,6 +15,7 @@ parser.add_argument("--dataset", type=str, default='synaptic-proteins')
 parser.add_argument("--model", type=str, default="MAE")
 parser.add_argument("--weights", type=str, default="STED")
 parser.add_argument("--global-pool", type=str, default='avg')
+parser.add_argument("--freeze", action="store_true")
 args = parser.parse_args()
 
 SAVE_EXPR = "linear-probe" if args.freeze else "finetuned"
@@ -24,8 +25,8 @@ def evaluate(model, loader, device):
     big_correct = np.array([0] * (4+1))
     big_n = np.array([0] * (4+1))
     with torch.no_grad():
-        for imgs, proteins, conditions in tqdm(loader, desc="Evaluation..."):
-            labels = proteins if args.class_type == 'protein' else conditions
+        for imgs, data_dict in tqdm(loader, desc="Evaluation..."):
+            labels = data_dict['label']
             imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
             predictions = model(imgs)
             correct, n = compute_Nary_accuracy(predictions, labels)
@@ -140,7 +141,12 @@ def train(
         temp_lr = optimizer.param_groups[0]['lr']
         lrates.append(temp_lr)
         save_best_model(v_loss, epoch=epoch, model=model, optimizer=optimizer, criterion=criterion)
-        track_loss(train_loss, val_loss, val_acc, lrates, save_dir=f"{model_path}/{SAVE_EXPR}_curves.png")
+        track_loss(
+            train_loss, 
+            val_loss, 
+            val_acc, 
+            lrates, 
+            save_dir=f"{model_path}/{SAVE_EXPR}_curves.png")
     return acc_per_epoch
 
 def main():
@@ -156,9 +162,11 @@ def main():
         ).to(device)
     if args.freeze:
         optimizer = torch.optim.SGD(model.parameters(), lr=0.1, weight_decay=0, momentum=0.9)
+
     else:
         optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.99))
-    scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=20)
+    scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=200)
+    # scheduler = CosineAnnealingWarmRestarts(optimizer=optimizer,)
     criterion = torch.nn.CrossEntropyLoss()
     test_accuracies = train(
         model=model,
@@ -170,14 +178,11 @@ def main():
         criterion=criterion,
         optimizer=optimizer,
         scheduler=scheduler,
-        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/{args.pretraining}"
+        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/{args.weights}"
     )
     np.savez(
-        f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/results/{SAVE_EXPR}/{args.pretraining}_test_results", 
+        f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation/results/{args.model}/{SAVE_EXPR}/{args.weights}_test_results", 
         acc=test_accuracies)
     
-
-
-
 if __name__=="__main__":
     main()

@@ -1,6 +1,7 @@
 import torch
 import matplotlib.pyplot as plt
 import numpy as np
+plt.style.use("dark_background")
 
 def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4) -> list:
     # accuracies = []
@@ -20,7 +21,7 @@ def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4)
         # accuracies.append(temp.cpu().detach().numpy())
     return np.array(correct), np.array(big_n)
 
-def track_loss(train_loss: list, val_loss, val_acc, lrates: list, save_dir: str) -> None:
+def track_loss(train_loss: list, val_loss: list, val_acc: list, lrates: list, save_dir: str) -> None:
     fig, axs = plt.subplots(2, 1, sharex=True)
     x = np.arange(0, len(train_loss), 1)
     ax1 = axs[0].twinx()
