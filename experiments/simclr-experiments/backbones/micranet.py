@@ -8,8 +8,9 @@ from dataclasses import dataclass
 @dataclass
 class MICRANetConfiguration:
     
+    backbone: str = "micranet"
     batch_size: int = 128
-    dim: int = 128
+    dim: int = 256
 
 class MICRANet(nn.Module):
     """

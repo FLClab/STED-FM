@@ -450,12 +450,23 @@ class CreateMitoDataset(Dataset):
         self.transform = transform
         self.classes = classes
         self.requires_3_channels = requires_3_channels
+
+        to_remove = [
+            "L25_AIW_msTH488_RbTom20_635_Insert_04_to_segment.tif",
+            "L26_3x_msTH488_RbTom20_635_Insert_02_.tif",
+            "L30_A53T_msTH488_RbTom20_635_Insert_02_.tif",
+            "L31_2KO_msTH488_RbTom20_635_Insert_02_.tif",
+            "L32_A53T_msTH488_RbTom20_635_Insert_cs1_01_.tif",
+            "L33_A53T_msTH488_RbTom20_635_Insert_cs1_04_.tif",
+        ]
     
         self.samples = {}
         for class_name in self.classes:
             files = []
             found = sorted(glob.glob(os.path.join(self.data_folder, f"**/{class_name}/*.tif"), recursive=True))
             files.extend(found)
+            files = [file for file in files if os.path.basename(file) not in to_remove]
+            
             print(class_name, len(files))
             self.samples[class_name] = self.get_valid_indices(files)
         
@@ -566,9 +577,21 @@ def get_dataset(name, **kwargs):
     elif name == "mito":
         dataset = CreateMitoDataset(
             "/home-local2/projects/FLCDataset/oferguson/Inserts_Images_and_Masks",
-            classes = ["A53T", "AIW", "3x", "2KO"],
+            classes = ["3x", "2KO", "A53T", "AIW"],
+            **kwargs
+        )        
+    elif name == "mito-3x-2ko":
+        dataset = CreateMitoDataset(
+            "/home-local2/projects/FLCDataset/oferguson/Inserts_Images_and_Masks",
+            classes = ["3x", "2KO"],
             **kwargs
         )
+    elif name == "mito-a53t-aiw":
+        dataset = CreateMitoDataset(
+            "/home-local2/projects/FLCDataset/oferguson/Inserts_Images_and_Masks",
+            classes = ["A53T", "AIW"],
+            **kwargs
+        )        
     else:
         raise NotImplementedError(f"`{name}` dataset is not implemented")
     return dataset

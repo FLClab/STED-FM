@@ -10,8 +10,11 @@ from .unet import get_backbone as get_unet_backbone
 BACKBONES = {
     "resnet18" : get_resnet_backbone,
     "resnet50" : get_resnet_backbone,
+    "resnet101" : get_resnet_backbone,
     "micranet" : get_micranet_backbone,
-    "convnext" : get_convnext_backbone,
+    "convnext-tiny" : get_convnext_backbone,
+    "convnext-small" : get_convnext_backbone,
+    "convnext-base" : get_convnext_backbone,
     "naive" : get_naive_backbone,
     "unet" : get_unet_backbone,
 }

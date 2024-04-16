@@ -77,7 +77,7 @@ if __name__ == "__main__":
     torch.manual_seed(args.seed)
 
     backbone, cfg = get_backbone(args.backbone)
-    
+   
     if args.restore_from:
         checkpoint = torch.load(args.restore_from)
         OUTPUT_FOLDER = os.path.dirname(args.restore_from)
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     ckpt = checkpoint.get("stats", None)
     if not ckpt is None:
         stats = ckpt
-    for epoch in range(len(stats["mean"]), 1024):
+    for epoch in range(len(stats["mean"]), 1000):
         print(f"[----] Epoch: {epoch}")
         pbar = tqdm(dataloader, leave=False)
         stats_loss, running_loss, running_batches = [], 0, 0
