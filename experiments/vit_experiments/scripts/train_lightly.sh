@@ -38,10 +38,10 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-if test -e ./Datasets/FLCDataset/baselines/not_lightly/current_model.pth; then 
-	python train_mae.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset.tar" --restore-from "./Datasets/FLCDataset/baselines/not_lightly/current_model.pth"
+if test -e ./Datasets/FLCDataset/baselines/current_model.pth; then 
+	python train_lightly_mae.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset.tar" --restore-from "./Datasets/FLCDataset/baselines/current_model.pth"
 else 
-	python train_mae.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset.tar"
+	python train_lightly_mae.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset.tar"
 fi
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

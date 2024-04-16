@@ -6,6 +6,35 @@ from typing import Any, List, Tuple
 from torch.utils.data import Dataset, get_worker_info
 from tqdm import tqdm
 from torchvision import transforms
+import h5py
+
+class CTCDataset(Dataset):
+    def __init__(
+            self,
+            h5file: str,
+            n_channels: int = 1,
+            transform: Any = None,
+    ) -> None:
+        self.h5file = h5file
+        self.n_channels = n_channels
+        self.transform = transform
+        with h5py.File(h5file, "r") as hf:
+            self.dataset_size = int(hf["protein"].size)
+
+    def __len__(self):
+        return self.dataset_size
+
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        with h5py.File(self.h5file, "r") as hf:
+            img = hf["images"][idx]
+            protein = hf['protein'][idx]
+            condition = hf['condition'][idx]
+            if self.transform is not None:
+                img = self.transform(img)
+            else:
+                img = transforms.ToTensor()(img)
+            return img
+
 
 class TarFLCDataset(Dataset):
     def __init__(
@@ -22,6 +51,7 @@ class TarFLCDataset(Dataset):
         self.transform = transform
         self.max_cache_size = max_cache_size
         self.cache_size = 0
+        self.transform = transform
         
         worker = get_worker_info()
         worker = worker.id if worker else None
@@ -82,9 +112,11 @@ class TarFLCDataset(Dataset):
         metadata = data["metadata"]
         img = img / 255.
         # img = torch.tensor(img, dtype=torch.float32)
-        img = transforms.ToTensor()(img).type(torch.FloatTensor)
         if self.transform is not None:
+            print(f"In transform: {type(img)}")
             img = self.transform(img)
+        else:
+            img = transforms.ToTensor()(img).type(torch.FloatTensor)
         return img
     
     def __del__(self):

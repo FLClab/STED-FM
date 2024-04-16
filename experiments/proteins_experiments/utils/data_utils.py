@@ -14,11 +14,17 @@ def fewshot_loader(
         class_type: str = "protein",
         n_channels: int = 1
         ) -> DataLoader:
+        np.random.seed(42) # For reproducibility and to always get same test set when we evaluate
         indices = np.arange(0, H5SIZE, 1)
-        np.random.shuffle(indices)
+        np.random.shuffle(indices) 
         split = int( (H5SIZE) * (1 - validation_size))
-        train_indices = indices[:split]
-        valid_indices = indices[split:]
+        temp_indices = indices[:split]
+        test_indices = indices[split:]
+
+        val_split = int(( (temp_indices.shape[0]) * (1 - validation_size)))
+        train_indices = temp_indices[:val_split]
+        val_indices = temp_indices[val_split:]
+  
         train_dataset = ProteinDataset(
             h5file=f"{path}/theresa_proteins.hdf5",
             class_ids=None,
@@ -31,10 +37,18 @@ def fewshot_loader(
             class_ids=None,
             class_type=class_type,
             n_channels=n_channels,
-            indices=valid_indices
+            indices=val_indices
+        )
+        test_dataset = ProteinDataset(
+              h5file=f"{path}/theresa_proteins.hdf5",
+              class_ids=None,
+              class_type=class_type,
+              n_channels=n_channels,
+              indices=test_indices
         )
         print(f"Training size: {len(train_dataset)}")
         print(f"Validation size: {len(valid_dataset)}")
+        print(f"Test size: {len(test_dataset)}")
         train_loader = DataLoader(
             dataset=train_dataset,
             batch_size=batch_size,
@@ -49,8 +63,14 @@ def fewshot_loader(
             drop_last=False,
             num_workers=6,
         )
-
-        return train_loader, valid_loader
+        test_loader = DataLoader(
+            dataset=test_dataset,
+            batch_size=batch_size,
+            shuffle=True,
+            drop_last=False,
+            num_workers=6,
+        )
+        return train_loader, valid_loader, test_loader
 
 def load_theresa_proteins(
         path: str = PROTEINS_PATH, 

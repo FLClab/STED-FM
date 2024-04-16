@@ -43,7 +43,10 @@ class ProteinDataset(Dataset):
             if self.n_channels == 3:
                 img = np.tile(img[np.newaxis], (3, 1, 1))
                 img = np.moveaxis(img, 0, -1)
-            img = transforms.ToTensor()(img)
+                img = transforms.ToTensor()(img)
+                img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+            else:
+                img = transforms.ToTensor()(img)
             return (img, protein, condition)
         
 class TarFLCDataset(Dataset):

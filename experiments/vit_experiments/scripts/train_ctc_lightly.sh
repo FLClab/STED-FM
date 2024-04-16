@@ -27,7 +27,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Copy file"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-cp "./Datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
+cp "./Datasets/Cell-Tracking-Challenge/cell-tracking-challenge.hdf5" "${SLURM_TMPDIR}/cell-tracking-challenge.hdf5"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done copy file"
@@ -38,10 +38,10 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-if test -e ./Datasets/FLCDataset/baselines/not_lightly/current_model.pth; then 
-	python train_mae.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset.tar" --restore-from "./Datasets/FLCDataset/baselines/not_lightly/current_model.pth"
+if test -e ./Datasets/Cell-Tracking-Challenge/baselines/current_model.pth; then 
+	python train_lightly_mae.py --seed 42 --save-folder "./Datasets/Cell-Tracking-Challenge/baselines" --modality CTC --dataset-path "${SLURM_TMPDIR}/cell-tracking-challenge.hdf5" --restore-from "./Datasets/Cell-Tracking-Challenge/baselines/current_model.pth"
 else 
-	python train_mae.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset.tar"
+	python train_lightly_mae.py --seed 42 --save-folder "./Datasets/Cell-Tracking-Challenge/baselines" --modality CTC --dataset-path "${SLURM_TMPDIR}/cell-tracking-challenge.hdf5"
 fi
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

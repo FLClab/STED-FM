@@ -38,7 +38,7 @@ def get_image_cornichons(path: str = INPATH) -> List[str]:
 
 
 def create_hdf5(files: List[str], path: str = OUTPATH) -> None:
-    with h5py.File(f"{path}/theresa_proteins.hdf5", "a") as hf:
+    with h5py.File(f"{path}/theresa_proteins.hdf5", "r") as hf:
         img_set = hf.create_dataset(name="images", shape=(0, 224, 224), maxshape=(None, 224, 224))
         protein_set = hf.create_dataset(name="protein", shape=(0, ), maxshape=(None, ))
         condition_set = hf.create_dataset(name="condition", shape=(0, ), maxshape=(None, ))
@@ -48,6 +48,8 @@ def create_hdf5(files: List[str], path: str = OUTPATH) -> None:
             with open(f, "rb") as handle:
                 image_dict = pickle.load(handle)
             img = image_dict['img']
+            print(img.max(), img.min())
+            continue
             tau = threshold_otsu(img)
             img_tau = img >= tau
             protein = protein_dict[image_dict['protein']]
