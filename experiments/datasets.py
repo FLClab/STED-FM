@@ -338,47 +338,78 @@ class CTCDataset(Dataset):
 
 
 class TarFLCDataset(Dataset):
-    def __init__(
-        self,
-        tar_path: str, 
-        use_cache: bool = False,
-        max_cache_size: int = 32e9,
-        image_channels: int = 1,
-        transform: Any = None
-    ) -> None:
+    """
+    Dataset class for loading and processing image data from a TarFile object.
+    """
+    def __init__(self, tar_path: str, 
+                 use_cache: bool = False, 
+                 max_cache_size: int = 16e9, 
+                 image_channels: int = 1, 
+                 transform: Any = None, 
+                 cache_system=None, 
+                 return_metadata: bool=False) -> None:
+        """
+        Instantiates a new ``TarFLCDataset`` object.
+
+        :param tar_path: The path to the TarFile object to load data from.
+        :param use_cache: Whether to use a cache system to store data.
+        :param max_cache_size: The maximum size of the cache in bytes.
+        :param image_channels: The number of channels in the image data.
+        :param transform: The transformation to apply to the image data.
+        :param cache_system: The cache system to use for storing data. This is 
+            used to share a cache system across multiple workers using ``multiprocessing.Manager``.
+        :param return_metadata: Whether to return metadata along with the image data.
+        """
         self.__cache = {}
+        self.__max_cache_size = max_cache_size
         self.tar_path = tar_path
         self.image_channels = image_channels
         self.transform = transform
-        self.max_cache_size = max_cache_size
-        self.cache_size = 0
-        self.transform = transform
-        
+        self.return_metadata = return_metadata
+
         worker = get_worker_info()
         worker = worker.id if worker else None
         self.tar_obj = {worker: tarfile.open(self.tar_path, "r")}
-        
+
         # store headers of all files and folders by name
         self.members = list(sorted(self.tar_obj[worker].getmembers(), key=lambda m: m.name))
-        
-        if use_cache and max_cache_size > 0:
-            self.__fill_cache
-    
+
+        if use_cache and self.__max_cache_size > 0:
+            self.__cache_size = 0
+            if not cache_system is None:
+                self.__cache = cache_system
+            self.__fill_cache()
+
     def __get_item_from_tar(self, member: tarfile.TarInfo):
         """
-        Ensures a unique file handle per worker in a multiprocessing setting
+        Implements a function to load a file from a TarFile object.
+
+        :param member: The TarInfo object representing the file to load.
+
+        :returns : The data loaded from the file.
         """
+        # ensure a unique file handle per worker, in multiprocessing settings
         worker = get_worker_info()
         worker = worker.id if worker else None
         if worker not in self.tar_obj:
             self.tar_obj[worker] = tarfile.open(self.tar_path, "r")
+
+        # Loads file from TarFile stored as numpy array
         buffer = io.BytesIO()
         buffer.write(self.tar_obj[worker].extractfile(member).read())
         buffer.seek(0)
         data = np.load(buffer, allow_pickle=True)
+
         return data
-    
-    def __getsizeof(self, obj: Any):
+
+    def __getsizeof(self, obj: Any) -> int:
+        """
+        Implements a simple function to estimate the size of an object in memory.
+
+        :param obj: The object to estimate the size of.
+
+        :returns : The size of the object in bytes.
+        """
         if isinstance(obj, dict):
             return sum([self.__getsizeof(o) for o in obj.values()])
         elif isinstance(obj, (list, tuple)):
@@ -389,42 +420,68 @@ class TarFLCDataset(Dataset):
             return obj.size * obj.dtype.itemsize
     
     def __fill_cache(self):
+        """
+        Implements a function to fill up the cache with data from the TarFile.
+        """
         indices = np.arange(0, len(self.members), 1)
         np.random.shuffle(indices)
         print("Filling up the cache...")
         pbar = tqdm(indices, total=indices.shape[0])
-        for i in pbar:
-            if self.size >= self.max_cache_size:
+        for idx in pbar:
+            if self.__cache_size >= self.__max_cache_size:
                 break
-            data = self.__get_item_from_tar(self.members[i])
-            self.__cache[i] = data
-            self.size += self.__getsizeof(data)
-            pbar.set_description(f"Cache size --> {self.size}")
-    
+            data = self.__get_item_from_tar(self.members[idx])
+            data = {key : values for key, values in data.items()}
+            self.__cache[idx] = data
+            self.__cache_size += self.__getsizeof(data)
+            pbar.set_description(f"Cache size --> {self.__cache_size * 1e-9:0.2f}G")
+
     def __len__(self):
+        """
+        Implements the `__len__` method for the dataset.
+        """
         return len(self.members)
-    
+
     def __getitem__(self, idx: int) -> torch.Tensor:
+        """
+        Implements the `__getitem__` method for the dataset.
+
+        :param idx: The index of the item to retrieve.
+
+        :returns : The item at the given index.
+        """
         if idx in self.__cache:
             data = self.__cache[idx]
         else:
             data = self.__get_item_from_tar(self.members[idx])
-        img = data["image"]
+        
+        img = data["image"] # assuming 'img' key
         metadata = data["metadata"]
+        if img.size != 224 * 224:
+            print(img.shape)
+            print(metadata)
+        
         img = img / 255.
-        # img = torch.tensor(img, dtype=torch.float32)
+        img = img[np.newaxis]
+        img = torch.tensor(img, dtype=torch.float32)
         if self.transform is not None:
-            print(f"In transform: {type(img)}")
             img = self.transform(img)
-        else:
-            img = transforms.ToTensor()(img).type(torch.FloatTensor)
-        return img
+
+        if self.return_metadata:
+            return img, metadata
+        return img # and whatever other metadata we like
     
     def __del__(self):
+        """
+        Close the TarFile file handles on exit.
+        """
         for o in self.tar_obj.values():
             o.close()
-    
-    def __getstate__(self):
+            
+    def __getstate__(self) -> dict:
+        """
+        Serialize without the TarFile references, for multiprocessing compatibility.
+        """
         state = dict(self.__dict__)
-        state["tar_obj"] = {}
+        state['tar_obj'] = {}
         return state
