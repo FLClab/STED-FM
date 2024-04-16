@@ -81,7 +81,7 @@ class Expander(nn.Module):
         return x
 
 
-class UNet(nn.Module):
+class UNet(torch.nn.Module):
     """
     Implements a U-Net model for segmentation. The encoder is a backbone model
     that is used to extract features from the input data. The decoder part of 
