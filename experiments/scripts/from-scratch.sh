@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=00:30:00
+#SBATCH --time=10:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -9,30 +9,25 @@
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
 
+#### PARAMETERS
+
+# Use this directory venv, reusable across RUNs
 module load python/3.10 scipy-stack
 module load cuda cudnn
 source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 
-
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-mkdir $SLURM_TMPDIR/data
+# Moves to working directory
+cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
+# Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Copy file"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Done copy file"
+echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "ResNet KNN classification"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+python from-scratch.py --dataset synaptic-proteins --model vit
 
-python knn_classification.py --class-type protein --pretraining STED
-
-
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "Done"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% DONE %"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
