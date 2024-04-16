@@ -81,3 +81,62 @@ def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwa
     else:
         raise NotImplementedError(f"Model {name} not implemented yet.")
     return model
+
+
+def get_classifier(name: str, pretraining: str, task:str, path: str = None):
+    if name == "MAE":
+        if pretraining == "ImageNet":
+            print("--- Loading ImageNet ViT fine-tuned ---")
+            vit = vit_small_patch16_224(in_chans=3, pretrained=True)
+            backbone = LightlyMAE(vit=vit, in_channels=3, mask_ratio=0.0)
+            model = LinearProbe(
+                backbone=backbone,
+                name="MAE",
+                num_classes=4,
+                freeze=True,
+                global_pool='avg'
+            )
+            if path is not None:
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/ImageNet/{task}_{path}_model.pth")
+            else:
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/ImageNet/{task}_model.pth")
+            model.load_state_dict(checkpoint["model_state_dict"])
+            return model
+        elif pretraining == "CTC":
+            print("-- Loading CTC ViT fine-tuned---")
+            vit = vit_small_patch16_224(in_chans=1)
+            backbone = LightlyMAE(vit=vit, in_channels=1, mask_ratio=0.0)
+            model = LinearProbe(
+                backbone=backbone,
+                name="MAE",
+                num_classes=4,
+                freeze=True,
+                global_pool="avg"
+            )
+            if path is not None:
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/CTC/{task}_{path}_model.pth")
+            else:
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/CTC/{task}_model.pth")
+            model.load_state_dict(checkpoint['model_state_dict'])
+            return model
+        elif pretraining == "STED":
+            print("--- Loading STED ViT ---")
+            vit = vit_small_patch16_224(in_chans=1)
+            backbone = LightlyMAE(vit=vit, in_channels=1, mask_ratio=0.0)
+            model = LinearProbe(
+                backbone=backbone,
+                name="MAE",
+                num_classes=4,
+                freeze=True,
+                global_pool="avg"
+            )
+            if path is not None:
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/STED/{task}_{path}_model.pth")
+            else:
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/STED/{task}_model.pth")
+            model.load_state_dict(checkpoint['model_state_dict'])
+            return model
+        else:
+            raise NotImplementedError(f"Pretraining {pretraining} not supported.")
+    else: 
+        raise not NotImplementedError(f"Model {name} not implemented yet.")

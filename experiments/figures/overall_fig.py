@@ -14,18 +14,18 @@ RESULTS = {
                 {
                     "ImageNet": {
                         "KNN": 0.397,
-                        "linear-probing": 0.0,
-                        "fine-tuning": 0.0,
+                        "linear-probing": 0.499,
+                        "fine-tuning": 0.720,
                     },
                     "CTC": {
                         "KNN": 0.409,
-                        "linear-probing": 0.0,
-                        "fine-tuning": 0.0,
+                        "linear-probing": 0.501,
+                        "fine-tuning": 0.733,
                     },
                     "STED": {
                         "KNN": 0.749,
-                        "linear-probing": 0.0,
-                        "fine-tuning": 0.0,
+                        "linear-probing": 0.780,
+                        "fine-tuning": 0.817,
                     }
                 },
         "optim": 
@@ -79,7 +79,7 @@ def make_plot(results: dict, model: str = "MAE", task: str = "synaptic-proteins"
 
 def main():
     make_plot(results=RESULTS, model="MAE", task='synaptic-proteins')
-    make_plot(results=RESULTS, model="MAE", task='optim')
+    # make_plot(results=RESULTS, model="MAE", task='optim')
 
 if __name__=="__main__":
     main()

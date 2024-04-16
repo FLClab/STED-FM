@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import torch
 import argparse 
 from tqdm import tqdm 
-from torch.optim.lr_scheduler import CosineAnnealingLR, CosineAnnealingWarmRestarts
+from torch.optim.lr_scheduler import CosineAnnealingLR
 import sys
 sys.path.insert(0, "../")
 from loaders import get_dataset
@@ -165,8 +165,9 @@ def main():
 
     else:
         optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.99))
-    scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=200)
-    # scheduler = CosineAnnealingWarmRestarts(optimizer=optimizer,)
+
+        
+    scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=100)
     criterion = torch.nn.CrossEntropyLoss()
     test_accuracies = train(
         model=model,
@@ -174,7 +175,7 @@ def main():
         valid_loader=valid_loader,
         test_loader=test_loader,
         device=device,
-        num_epochs=200,
+        num_epochs=100,
         criterion=criterion,
         optimizer=optimizer,
         scheduler=scheduler,

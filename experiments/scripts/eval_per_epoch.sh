@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=16:00:00
+#SBATCH --time=01:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
-#SBATCH --mem=64G
+#SBATCH --mem=16G
 #SBATCH --gpus-per-node=1
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-2
+#SBATCH --array=0-1
 
 #### PARAMETERS
 
@@ -22,21 +22,39 @@ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 # Moves to working directory
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
-WEIGHTS=(
-    "ImageNet"
-    "CTC"
-    "STED"
+# WEIGHTS=(
+#     "ImageNet"
+#     "CTC"
+#     "STED"
+# )
+
+TASKS=(
+    "linear-probe"
+    "finetuned"
 )
 
-weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
+# opts=()
+# for weight in "${WEIGHTS[@]}"
+# do 
+#     for task in "${TASKS[@]}"
+#     do
+#         opts+=("$weight, $task")
+#     done 
+# done 
+
+task=${TASKS[${SLURM_ARRAY_TASK_ID}]}
+
+# IFS=', ' read -r -a opt <<< "${opts[${SLURM_ARRAY_TASK_ID}]}"
+# weight="${opt[0]}"
+# task="${opt[1]}"
 
 
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started eval"
+echo "% Started fine-tuning $task"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune.py --dataset synaptic-proteins --model MAEClassifier --weights $weight
+python eval_per_epoch.py --dataset synaptic-proteins --model MAE --task $task
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=16:00:00
+#SBATCH --time=00:30:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=64G
@@ -8,7 +8,7 @@
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-2
+#SBATCH --array=0-5
 
 #### PARAMETERS
 
@@ -28,15 +28,33 @@ WEIGHTS=(
     "STED"
 )
 
-weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
+TASKS=(
+    "linear-probe"
+    "finetuned"
+)
+
+opts=()
+for weight in "${WEIGHTS[@]}"
+do 
+    for task in "${TASKS[@]}"
+    do
+        opts+=("$weight, $task")
+    done 
+done 
+
+# weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
+
+IFS=', ' read -r -a opt <<< "${opts[${SLURM_ARRAY_TASK_ID}]}"
+weight="${opt[0]}"
+task="${opt[1]}"
 
 
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started eval"
+echo "% Started fine-tuning $weight $task"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune.py --dataset synaptic-proteins --model MAEClassifier --weights $weight
+python eval.py --dataset synaptic-proteins --model MAE --task $task --pretraining $weight
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
