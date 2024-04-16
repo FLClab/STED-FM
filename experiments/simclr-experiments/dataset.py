@@ -9,12 +9,13 @@ from tqdm.auto import tqdm
 from torch.utils.data import Dataset, get_worker_info
 
 class TarFLCDataset(Dataset):
-    def __init__(self, tar_path: str, use_cache: bool = False, max_cache_size: int = 16e9, image_channels: int = 3, transform: Any = None, cache_system=None) -> None:
+    def __init__(self, tar_path: str, use_cache: bool = False, max_cache_size: int = 16e9, image_channels: int = 3, transform: Any = None, cache_system=None, return_metadata: bool=False) -> None:
         self.__cache = {}
         self.__max_cache_size = max_cache_size
         self.tar_path = tar_path
         self.image_channels = image_channels
         self.transform = transform
+        self.return_metadata = return_metadata
 
         worker = get_worker_info()
         worker = worker.id if worker else None
@@ -90,6 +91,8 @@ class TarFLCDataset(Dataset):
         if self.transform is not None:
             img = self.transform(img)
 
+        if self.return_metadata:
+            return img, metadata
         return img # and whatever other metadata we like
     
     def __del__(self):

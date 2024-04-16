@@ -8,7 +8,9 @@ from dataclasses import dataclass
 @dataclass
 class MICRANetConfiguration:
     
+    backbone: str = "micranet"
     batch_size: int = 128
+    dim: int = 256
 
 class MICRANet(nn.Module):
     """
@@ -134,10 +136,11 @@ class MICRANet(nn.Module):
         return hook
 
 def get_backbone(name: str) -> torch.nn.Module:
+    cfg = MICRANetConfiguration()
     if name == "micranet":
         backbone = MICRANet(num_input_images=1, num_classes=1)
         # Ignore the classification head as we only want the features.
         backbone.fc = torch.nn.Identity()
     else:
         raise NotImplementedError(f"`{name}` not implemented")
-    return backbone, MICRANetConfiguration()
+    return backbone, cfg
