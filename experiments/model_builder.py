@@ -6,18 +6,11 @@ from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 import torch
 import torchvision
 
+from models import get_model
+
 def get_base_model(name: str):
-    if name=="vit":
-        model = vit_small_patch16_224(in_chans=1, num_classes=4, global_pool="token")
-    elif name=='resnet-18':
-        model = torchvision.resnet18(weights="IMAGENETV1_1K")
-        # TODO: change first layer to handle grayscale input
-    elif name == "resnet-50":
-        model = torchvision.resnet50(weights="IMAGENETV1_1K")
-        # TODO: change first layer to handle grayscale input
-    else: 
-        raise NotImplementedError(f"Base model {name} is not supported.")
-    return model
+    model, cfg = get_model(name)
+    return model, cfg
 
 def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwargs):
     if name == "MAE":

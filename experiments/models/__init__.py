@@ -5,9 +5,9 @@ from .resnet import get_backbone as get_resnet_backbone
 from .micranet import get_backbone as get_micranet_backbone
 from .convnext import get_backbone as get_convnext_backbone
 from .naive import get_backbone as get_naive_backbone
-from .unet import get_backbone as get_unet_backbone
+from .vit import get_backbone as get_vit_backbone
 
-BACKBONES = {
+MODELS = {
     "resnet18" : get_resnet_backbone,
     "resnet50" : get_resnet_backbone,
     "resnet101" : get_resnet_backbone,
@@ -16,10 +16,10 @@ BACKBONES = {
     "convnext-small" : get_convnext_backbone,
     "convnext-base" : get_convnext_backbone,
     "naive" : get_naive_backbone,
-    "unet" : get_unet_backbone,
+    "vit-small" : get_vit_backbone,
 }
 
-def get_backbone(name : str) -> torch.nn.Module:
-    if not name in BACKBONES:
+def get_model(name : str) -> torch.nn.Module:
+    if not name in MODELS:
         raise NotImplementedError(f"`{name}` is not a valid option.")
-    return BACKBONES[name](name)
+    return MODELS[name](name)

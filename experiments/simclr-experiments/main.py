@@ -17,11 +17,12 @@ from multiprocessing import Manager
 from torch.utils.tensorboard import SummaryWriter
 from torchsummary import summary
 
-import backbones
-
-from dataset import TarFLCDataset
 from modules.transforms import SimCLRTransform
-from backbones import get_backbone
+
+import sys 
+sys.path.insert(0, "..")
+from datasets import TarFLCDataset
+from model_builder import get_base_model
 
 # Create a PyTorch module for the SimCLR model.
 class SimCLR(torch.nn.Module):
@@ -76,7 +77,7 @@ if __name__ == "__main__":
     random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-    backbone, cfg = get_backbone(args.backbone)
+    backbone, cfg = get_base_model(args.backbone)
    
     if args.restore_from:
         checkpoint = torch.load(args.restore_from)
