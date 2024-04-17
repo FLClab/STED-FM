@@ -6,6 +6,7 @@ import os
 import json
 import h5py 
 
+from dataclasses import dataclass
 from torch import nn
 
 class DoubleConvolver(nn.Module):
@@ -90,12 +91,12 @@ class UNet(torch.nn.Module):
 
     The final image is upsampled to the original size of the input image.
     """    
-    def __init__(self, backbone, cfg):
+    def __init__(self, backbone: torch.nn.Module, cfg : dataclass):
         """
         Initializes the `UNet` model
 
         :param backbone: A `torch.nn.Module` of the backbone model
-        :param cfg: A `dict` of the configuration for the backbone model
+        :param cfg: A configuration `dataclass` of the model
         :param num_classes: An `int` of the number of classes to segment
         """
         super().__init__()

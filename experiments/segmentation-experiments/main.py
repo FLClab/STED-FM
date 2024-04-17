@@ -31,10 +31,24 @@ from model_builder import get_base_model, get_pretrained_model
 @dataclass
 class SegmentationConfiguration:
     
-    batch_size: int = 32
     freeze_backbone: bool = False
     num_epochs: int = 500
     learning_rate: float = 1e-4
+
+def update_cfg(cfg: dataclass, opts: list[str]) -> dataclass:
+    """
+    Updates the configuration with additional options inplace
+
+    :param cfg: A `dataclass` of the configuration
+    :param opts: A `list` of options to update the configuration
+    """
+    for i in range(0, len(opts), 2):
+        key, value = opts[i], opts[i + 1]
+        if len(key.split(".")) > 1:
+            key, subkey = key.split(".")
+            update_cfg(getattr(cfg, key), [subkey, value])
+        else:
+            setattr(cfg, key, type(getattr(cfg, key))(value))
 
 if __name__ == "__main__":
 
@@ -53,10 +67,14 @@ if __name__ == "__main__":
     parser.add_argument("--backbone-weights", type=str, default=None,
                         help="Backbone model to load")    
     parser.add_argument("--use-tensorboard", action="store_true",
-                        help="Logging using tensorboard")    
+                        help="Logging using tensorboard")
+    parser.add_argument("--opts", nargs="+", default=[], help="Additional configuration options")
     parser.add_argument("--dry-run", action="store_true",
                         help="Activates dryrun")        
     args = parser.parse_args()
+
+    # Assert args.opts is a multiple of 2
+    assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
 
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
@@ -73,9 +91,7 @@ if __name__ == "__main__":
     # Loads dataset and dataset-specific configuration
     cache_manager = Manager()
     cache_system = cache_manager.dict()
-    training_dataset, validation_dataset, testing_dataset, dataset_cfg = get_dataset(name=args.dataset, cfg=cfg, cache_system=cache_system)
-    for key, value in dataset_cfg.__dict__.items():
-        setattr(cfg, key, value)
+    training_dataset, validation_dataset, testing_dataset = get_dataset(name=args.dataset, cfg=cfg, cache_system=cache_system)
 
     # Loads segmentation configuration
     segmentation_cfg = SegmentationConfiguration()
@@ -95,6 +111,9 @@ if __name__ == "__main__":
     
     if args.use_tensorboard:
         writer = SummaryWriter(os.path.join(OUTPUT_FOLDER, "logs"))
+
+    # Updates configuration with additional options; performs inplace
+    update_cfg(cfg, args.opts)     
 
     # Build the UNet model.
     model = UNet(backbone, cfg)
@@ -132,7 +151,7 @@ if __name__ == "__main__":
     )
 
     optimizer = torch.optim.Adam(model.parameters(), lr = cfg.learning_rate)
-    criterion = torch.nn.MSELoss()
+    criterion = getattr(torch.nn, cfg.dataset_cfg.criterion)()
 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience = 10, threshold = 0.01, min_lr=1e-5, factor=0.1,)
     for epoch in range(start_epoch, cfg.num_epochs):

@@ -14,6 +14,7 @@ from tqdm import tqdm
 class FActinConfiguration:
 
     num_classes: int = 2
+    criterion: str = "MSELoss"
 
 class HDF5Dataset(Dataset):
     """
@@ -119,8 +120,8 @@ class HDF5Dataset(Dataset):
     
 def get_dataset(cfg:dataclass, **kwargs) -> tuple[Dataset, Dataset, Dataset, dataclass]:
 
-    datset_configuration = FActinConfiguration()
-    cfg.dataset_cfg = datset_configuration
+    # Updates the configuration inplace
+    cfg.dataset_cfg = FActinConfiguration()
 
     hdf5_training_path = "./data/SSL/segmentation-data/factin/training_01-04-19.hdf5"
     hdf5_validation_path = "./data/SSL/segmentation-data/factin/validation_01-04-19.hdf5"
@@ -150,4 +151,4 @@ def get_dataset(cfg:dataclass, **kwargs) -> tuple[Dataset, Dataset, Dataset, dat
         step=0.75,
         out_channels=cfg.in_channels
     )
-    return training_dataset, validation_dataset, testing_dataset, cfg
+    return training_dataset, validation_dataset, testing_dataset
