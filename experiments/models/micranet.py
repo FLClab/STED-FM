@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 class MICRANetWeights:
 
-    MICRANET_SSL_STED = "/home-local2/projects/SSL/baselines/micranet/result.pt"
+    MICRANET_SSL_STED = "./data/SSL/baselines/micranet/result.pt"
 
 @dataclass
 class MICRANetConfiguration:

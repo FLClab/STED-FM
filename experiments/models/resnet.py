@@ -7,13 +7,13 @@ from dataclasses import dataclass
 class ResNetWeights:
 
     RESNET18_IMAGENET1K_V1 = torchvision.models.ResNet18_Weights.IMAGENET1K_V1
-    RESNET18_SSL_STED = "/home-local2/projects/SSL/baselines/resnet18/result.pt"
+    RESNET18_SSL_STED = "./data/SSL/baselines/resnet18/result.pt"
 
     RESNET50_IMAGENET1K_V1 = torchvision.models.ResNet50_Weights.IMAGENET1K_V1
-    RESNET50_SSL_STED = "/home-local2/projects/SSL/baselines/resnet50/result.pt"
+    RESNET50_SSL_STED = "./data/SSL/baselines/resnet50/result.pt"
 
     RESNET101_IMAGENET1K_V1 = torchvision.models.ResNet101_Weights.IMAGENET1K_V1
-    RESNET101_SSL_STED = "/home-local2/projects/SSL/baselines/resnet101/result.pt"
+    RESNET101_SSL_STED = "./data/SSL/baselines/resnet101/result.pt"
 
 @dataclass
 class ResNetConfiguration:
