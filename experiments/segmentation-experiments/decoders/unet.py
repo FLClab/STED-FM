@@ -6,6 +6,7 @@ import os
 import json
 import h5py 
 
+from dataclasses import dataclass
 from torch import nn
 
 class DoubleConvolver(nn.Module):
@@ -81,7 +82,7 @@ class Expander(nn.Module):
         return x
 
 
-class UNet(nn.Module):
+class UNet(torch.nn.Module):
     """
     Implements a U-Net model for segmentation. The encoder is a backbone model
     that is used to extract features from the input data. The decoder part of 
@@ -90,12 +91,12 @@ class UNet(nn.Module):
 
     The final image is upsampled to the original size of the input image.
     """    
-    def __init__(self, backbone, cfg):
+    def __init__(self, backbone: torch.nn.Module, cfg : dataclass):
         """
         Initializes the `UNet` model
 
         :param backbone: A `torch.nn.Module` of the backbone model
-        :param cfg: A `dict` of the configuration for the backbone model
+        :param cfg: A configuration `dataclass` of the model
         :param num_classes: An `int` of the number of classes to segment
         """
         super().__init__()
@@ -113,7 +114,7 @@ class UNet(nn.Module):
             Expander(in_channels=layer_sizes[i + 1][0], out_channels=layer_sizes[i][0])
             for i in reversed(range(len(layer_sizes) - 1))
         ])
-        self.out_conv = torch.nn.Conv2d(in_channels=layer_sizes[0][0], out_channels=self.cfg.num_classes, kernel_size=1)
+        self.out_conv = torch.nn.Conv2d(in_channels=layer_sizes[0][0], out_channels=self.cfg.dataset_cfg.num_classes, kernel_size=1)
 
     def get_layer_sizes(self) -> list[tuple[int, int, int]]:
         """
@@ -122,7 +123,7 @@ class UNet(nn.Module):
         :returns : A `list` of the sizes of the intermediate layers
         """
         sizes = []
-        _, out = self.forward_encoder(torch.randn(1, 1, 224, 224))
+        _, out = self.forward_encoder(torch.randn(1, self.cfg.in_channels, 224, 224))
         for o in out:
             sizes.append(o.shape[1:])
         return sizes

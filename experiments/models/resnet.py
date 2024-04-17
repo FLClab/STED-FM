@@ -1,7 +1,19 @@
 
 import torch
 import torchvision
+
 from dataclasses import dataclass
+
+class ResNetWeights:
+
+    RESNET18_IMAGENET1K_V1 = torchvision.models.ResNet18_Weights.IMAGENET1K_V1
+    RESNET18_SSL_STED = "./data/SSL/baselines/resnet18/result.pt"
+
+    RESNET50_IMAGENET1K_V1 = torchvision.models.ResNet50_Weights.IMAGENET1K_V1
+    RESNET50_SSL_STED = "./data/SSL/baselines/resnet50/result.pt"
+
+    RESNET101_IMAGENET1K_V1 = torchvision.models.ResNet101_Weights.IMAGENET1K_V1
+    RESNET101_SSL_STED = "./data/SSL/baselines/resnet101/result.pt"
 
 @dataclass
 class ResNetConfiguration:
@@ -9,20 +21,25 @@ class ResNetConfiguration:
     backbone: str = "resnet"
     batch_size: int = 256
     dim: int = 512
+    in_channels: int = 1
 
-def get_backbone(name: str) -> torch.nn.Module:
+def get_backbone(name: str, **kwargs) -> torch.nn.Module:
     cfg = ResNetConfiguration()
+    for key, value in kwargs.items():
+        setattr(cfg, key, value)
+
     if name == "resnet18":
         # Use a resnet backbone.
         backbone = torchvision.models.resnet18()
-        backbone.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        backbone.conv1 = torch.nn.Conv2d(in_channels=cfg.in_channels, out_channels=64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 
         # Ignore the classification head as we only want the features.
         backbone.fc = torch.nn.Identity()
+
     elif name == "resnet50":
         # Use a resnet backbone.
         backbone = torchvision.models.resnet50()
-        backbone.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        backbone.conv1 = torch.nn.Conv2d(in_channels=cfg.in_channels, out_channels=64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 
         # Ignore the classification head as we only want the features.
         backbone.fc = torch.nn.Identity()        
@@ -33,7 +50,7 @@ def get_backbone(name: str) -> torch.nn.Module:
     elif name == "resnet101":
         # Use a resnet backbone.
         backbone = torchvision.models.resnet101()
-        backbone.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        backbone.conv1 = torch.nn.Conv2d(in_channels=cfg.in_channels, out_channels=64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 
         # Ignore the classification head as we only want the features.
         backbone.fc = torch.nn.Identity()        
