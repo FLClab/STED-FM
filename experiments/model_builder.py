@@ -7,9 +7,10 @@ import torch
 import torchvision
 
 from models import get_model
+from models.loading import get_weights
 
-def get_base_model(name: str):
-    model, cfg = get_model(name)
+def get_base_model(name: str, **kwargs):
+    model, cfg = get_model(name, **kwargs)
     return model, cfg
 
 def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwargs):
@@ -107,6 +108,12 @@ def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwa
     elif name == "resnet50":
         pass
 
+    elif name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base"]:
+        model, cfg = get_base_model(name, in_channels=3 if "imagenet" in weights.lower() else 1)
+        state_dict = get_weights(name, weights)
+        # This is could lead to errors if the model is not exactly the same as the one used for pretraining
+        model.load_state_dict(state_dict, strict=False)
+        return model, cfg
     else:
         raise NotImplementedError(f"Model {name} not implemented yet.")
     return model

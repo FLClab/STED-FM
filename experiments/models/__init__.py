@@ -19,7 +19,7 @@ MODELS = {
     "vit-small" : get_vit_backbone,
 }
 
-def get_model(name : str) -> torch.nn.Module:
+def get_model(name : str, **kwargs) -> torch.nn.Module:
     if not name in MODELS:
         raise NotImplementedError(f"`{name}` is not a valid option.")
-    return MODELS[name](name)
+    return MODELS[name](name, **kwargs)

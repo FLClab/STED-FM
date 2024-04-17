@@ -87,6 +87,7 @@ if __name__ == "__main__":
         OUTPUT_FOLDER = os.path.join(args.save_folder, args.backbone)
     if args.dry_run:
         OUTPUT_FOLDER = os.path.join(args.save_folder, "debug")
+    os.makedirs(OUTPUT_FOLDER, exist_ok=True)
     
     if args.use_tensorboard:
         writer = SummaryWriter(os.path.join(OUTPUT_FOLDER, "logs"))

@@ -5,12 +5,17 @@ import torchvision
 from torch import nn
 from dataclasses import dataclass
 
+class MICRANetWeights:
+
+    MICRANET_SSL_STED = "./data/SSL/baselines/micranet/result.pt"
+
 @dataclass
 class MICRANetConfiguration:
     
     backbone: str = "micranet"
     batch_size: int = 128
     dim: int = 256
+    in_channels: int = 1
 
 class MICRANet(nn.Module):
     """
@@ -25,7 +30,7 @@ class MICRANet(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=2)
 
-        self.conv1a = nn.Conv2d(in_channels=kwargs["num_input_images"], out_channels=32, kernel_size=3, padding=1)
+        self.conv1a = nn.Conv2d(in_channels=kwargs["in_channels"], out_channels=32, kernel_size=3, padding=1)
         self.bnorm1a = nn.BatchNorm2d(32)
         self.conv1b = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, padding=1)
         self.bnorm1b = nn.BatchNorm2d(32)
@@ -135,10 +140,12 @@ class MICRANet(nn.Module):
             self.grads[name] = grad.cpu().data.numpy()
         return hook
 
-def get_backbone(name: str) -> torch.nn.Module:
+def get_backbone(name: str, **kwargs) -> torch.nn.Module:
     cfg = MICRANetConfiguration()
+    for key, value in kwargs.items():
+        setattr(cfg, key, value)
     if name == "micranet":
-        backbone = MICRANet(num_input_images=1, num_classes=1)
+        backbone = MICRANet(in_channels=cfg.in_channels, num_classes=1)
         # Ignore the classification head as we only want the features.
         backbone.fc = torch.nn.Identity()
     else:
