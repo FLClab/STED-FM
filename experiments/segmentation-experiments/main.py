@@ -51,7 +51,11 @@ def update_cfg(cfg: dataclass, opts: list[str]) -> dataclass:
             key, subkey = key.split(".")
             update_cfg(getattr(cfg, key), [subkey, value])
         else:
-            setattr(cfg, key, type(getattr(cfg, key))(value))
+            if type(getattr(cfg, key)) == bool:
+                # Special case for boolean values
+                setattr(cfg, key, value in ("True", "true", "1"))
+            else:
+                setattr(cfg, key, type(getattr(cfg, key))(value))
 
 def save_cfg(cfg: dataclass, path: str):
     """
