@@ -25,8 +25,10 @@ class HDF5Dataset(Dataset):
     :param validation: (optional) Wheter the Dataset is for validation (no data augmentation)
     :param size: (optional) The size of the crops
     :param step: (optional) The step between each crops
+    :param cache_system: (optional) A `dict` to store the cache
+    :param out_channels: (optional) The number of output channels to return
     """
-    def __init__(self, file_path, data_aug=0, validation=False, size=256, step=0.75, cache_system=None, **kwargs):
+    def __init__(self, file_path, data_aug=0, validation=False, size=256, step=0.75, cache_system=None, out_channels=1, **kwargs):
         super(HDF5Dataset, self).__init__()
 
         self.file_path = file_path
@@ -34,6 +36,7 @@ class HDF5Dataset(Dataset):
         self.step = step
         self.validation = validation
         self.data_aug = data_aug
+        self.out_channels = out_channels
 
         self.cache = {}
         if cache_system is not None:
@@ -105,15 +108,19 @@ class HDF5Dataset(Dataset):
                 image_crop = numpy.clip(image_crop**gamma, 0, 1)
 
         x = torch.tensor(image_crop, dtype=torch.float32)
+        if self.out_channels > 1:
+            x = x.unsqueeze(0)
+            x = torch.tile(x, (self.out_channels, 1, 1))
         y = torch.tensor(label_crop > 0, dtype=torch.float32)
         return x, y
 
     def __len__(self):
         return len(self.samples)
     
-def get_dataset(**kwargs) -> tuple[Dataset, Dataset, Dataset, dataclass]:
+def get_dataset(cfg:dataclass, **kwargs) -> tuple[Dataset, Dataset, Dataset, dataclass]:
 
-    cfg = FActinConfiguration()
+    datset_configuration = FActinConfiguration()
+    cfg.dataset_cfg = datset_configuration
 
     hdf5_training_path = "./data/SSL/segmentation-data/factin/training_01-04-19.hdf5"
     hdf5_validation_path = "./data/SSL/segmentation-data/factin/validation_01-04-19.hdf5"
@@ -124,20 +131,23 @@ def get_dataset(**kwargs) -> tuple[Dataset, Dataset, Dataset, dataclass]:
         data_aug=0.5,
         validation=False,
         size=256,
-        step=0.75
+        step=0.75,
+        out_channels=cfg.in_channels
     )
     validation_dataset = HDF5Dataset(
         file_path=hdf5_validation_path,
         data_aug=0,
         validation=True,
         size=256,
-        step=0.75
+        step=0.75,
+        out_channels=cfg.in_channels
     )
     testing_dataset = HDF5Dataset(
         file_path=hdf5_testing_path,
         data_aug=0,
         validation=True,
         size=256,
-        step=0.75
+        step=0.75,
+        out_channels=cfg.in_channels
     )
     return training_dataset, validation_dataset, testing_dataset, cfg

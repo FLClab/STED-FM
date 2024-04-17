@@ -47,7 +47,7 @@ if __name__ == "__main__":
     parser.add_argument("--save-folder", type=str, default="./data/SSL/segmentation-baselines",
                     help="Model from which to restore from")     
     parser.add_argument("--dataset", required=True, type=str,
-                    help="Model from which to restore from")             
+                    help="Name of the dataset to use")             
     parser.add_argument("--backbone", type=str, default="resnet18",
                         help="Backbone model to load")
     parser.add_argument("--backbone-weights", type=str, default=None,
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     # Loads dataset and dataset-specific configuration
     cache_manager = Manager()
     cache_system = cache_manager.dict()
-    training_dataset, validation_dataset, testing_dataset, dataset_cfg = get_dataset(name=args.dataset, cache_system=cache_system)
+    training_dataset, validation_dataset, testing_dataset, dataset_cfg = get_dataset(name=args.dataset, cfg=cfg, cache_system=cache_system)
     for key, value in dataset_cfg.__dict__.items():
         setattr(cfg, key, value)
 
@@ -83,6 +83,7 @@ if __name__ == "__main__":
         setattr(cfg, key, value)
 
     if args.restore_from:
+        # Loads checkpoint
         checkpoint = torch.load(args.restore_from)
         OUTPUT_FOLDER = os.path.dirname(args.restore_from)
     else:
@@ -107,12 +108,14 @@ if __name__ == "__main__":
     stats = checkpoint.get("stats", None)
     if not stats is None:
         min_valid_loss = numpy.min(stats["testMean"])
+        start_epoch = len(stats["testMean"])
     else:
         stats = defaultdict(list)
         min_valid_loss = numpy.inf
+        start_epoch = 0
 
     # Prints a summary of the model
-    summary(model, input_size=(1, 224, 224))
+    summary(model, input_size=(cfg.in_channels, 224, 224))
 
     # Build a PyTorch dataloader.
     train_loader = torch.utils.data.DataLoader(
@@ -132,7 +135,7 @@ if __name__ == "__main__":
     criterion = torch.nn.MSELoss()
 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience = 10, threshold = 0.01, min_lr=1e-5, factor=0.1,)
-    for epoch in range(cfg.num_epochs):
+    for epoch in range(start_epoch, cfg.num_epochs):
 
         start = time.time()
         print("[----] Starting epoch {}/{}".format(epoch + 1, cfg.num_epochs))

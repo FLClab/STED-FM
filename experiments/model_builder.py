@@ -75,6 +75,7 @@ def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwa
     elif name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base"]:
         model, cfg = get_base_model(name, in_channels=3 if "imagenet" in weights.lower() else 1)
         state_dict = get_weights(name, weights)
+        # This is could lead to errors if the model is not exactly the same as the one used for pretraining
         model.load_state_dict(state_dict, strict=False)
         return model, cfg
     else:

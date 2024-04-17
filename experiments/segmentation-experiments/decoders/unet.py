@@ -113,7 +113,7 @@ class UNet(torch.nn.Module):
             Expander(in_channels=layer_sizes[i + 1][0], out_channels=layer_sizes[i][0])
             for i in reversed(range(len(layer_sizes) - 1))
         ])
-        self.out_conv = torch.nn.Conv2d(in_channels=layer_sizes[0][0], out_channels=self.cfg.num_classes, kernel_size=1)
+        self.out_conv = torch.nn.Conv2d(in_channels=layer_sizes[0][0], out_channels=self.cfg.dataset_cfg.num_classes, kernel_size=1)
 
     def get_layer_sizes(self) -> list[tuple[int, int, int]]:
         """
@@ -122,7 +122,7 @@ class UNet(torch.nn.Module):
         :returns : A `list` of the sizes of the intermediate layers
         """
         sizes = []
-        _, out = self.forward_encoder(torch.randn(1, 1, 224, 224))
+        _, out = self.forward_encoder(torch.randn(1, self.cfg.in_channels, 224, 224))
         for o in out:
             sizes.append(o.shape[1:])
         return sizes
