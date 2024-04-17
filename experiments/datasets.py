@@ -14,6 +14,14 @@ import re
 import tifffile
 from skimage import filters
 
+def get_dataset(name: str, path: str, **kwargs):
+    if name == "CTC":
+        return CTCDataset(path, **kwargs)
+    elif name == "STED": 
+        return TarFLCDataset(path, **kwargs)
+    else:
+        raise NotImplementedError(f"Dataset `{name}` not implemented yet.")
+
 class CreateFactinRingsFibersDataset(Dataset):
     def __init__(self, data_folder : str, transform : Any, classes : list, requires_3_channels : bool=False):
     
@@ -310,31 +318,60 @@ class ProteinDataset(Dataset):
             return img, {"label": protein, "condition": condition}
 
 class CTCDataset(Dataset):
+    """
+    Dataset class for loading and processing image data from a HDF5 file.
+    This dataset is specifically designed for the CTC dataset.
+    """
     def __init__(
             self,
             h5file: str,
             n_channels: int = 1,
             transform: Any = None,
+            return_metadata: bool = False,
+            **kwargs
     ) -> None:
+        """
+        Instantiates a new ``CTCDataset`` object.
+
+        :param h5file: The path to the HDF5 file to load data from.
+        :param n_channels: The number of channels in the image data.
+        :param transform: The transformation to apply to the image data.
+        """
         self.h5file = h5file
         self.n_channels = n_channels
         self.transform = transform
+        self.return_metadata = return_metadata
         with h5py.File(h5file, "r") as hf:
             self.dataset_size = int(hf["protein"].size)
 
     def __len__(self):
+        """
+        Implements the ``__len__`` method for the dataset.
+        """
         return self.dataset_size
 
     def __getitem__(self, idx: int) -> torch.Tensor:
+        """
+        Implements the ``__getitem__`` method for the dataset.
+
+        :param idx: The index of the item to retrieve.
+
+        :returns : The item at the given index.
+        """
         with h5py.File(self.h5file, "r") as hf:
             img = hf["images"][idx]
             protein = hf['protein'][idx]
             condition = hf['condition'][idx]
+
+            img = img[np.newaxis]
+            img = torch.tensor(img, dtype=torch.float32)
             if self.transform is not None:
                 img = self.transform(img)
             else:
                 img = transforms.ToTensor()(img)
+        if self.return_metadata:
             return img, {"protein": protein, "condition": condition}
+        return img
 
 
 class TarFLCDataset(Dataset):
