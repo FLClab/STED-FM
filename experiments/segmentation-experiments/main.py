@@ -120,13 +120,29 @@ if __name__ == "__main__":
     cache_system = cache_manager.dict()
     training_dataset, validation_dataset, testing_dataset = get_dataset(name=args.dataset, cfg=cfg, cache_system=cache_system)
 
+    # Updates configuration with additional options; performs inplace
+    cfg.args = args
+    segmentation_cfg = SegmentationConfiguration()
+    for key, value in segmentation_cfg.__dict__.items():
+        setattr(cfg, key, value)
+    update_cfg(cfg, args.opts)
+
     if args.restore_from:
         # Loads checkpoint
         checkpoint = torch.load(args.restore_from)
         OUTPUT_FOLDER = os.path.dirname(args.restore_from)
     else:
         checkpoint = {}
-        OUTPUT_FOLDER = os.path.join(args.save_folder, f"{args.backbone}-{args.dataset}-{str(uuid.uuid4())[:8]}")
+        model_name = ""
+        if args.backbone_weights:
+            model_name += f"pretrained-"
+            if cfg.freeze_backbone:
+                model_name += "frozen-"
+            model_name += f"{args.backbone_weights}"
+        else:
+            model_name += "from-scratch"
+
+        OUTPUT_FOLDER = os.path.join(args.save_folder, args.backbone, args.dataset, model_name)
     if args.dry_run:
         OUTPUT_FOLDER = os.path.join(args.save_folder, "debug")
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
@@ -134,12 +150,7 @@ if __name__ == "__main__":
     if args.use_tensorboard:
         writer = SummaryWriter(os.path.join(OUTPUT_FOLDER, "logs"))
 
-    # Updates configuration with additional options; performs inplace
-    cfg.args = args
-    segmentation_cfg = SegmentationConfiguration()
-    for key, value in segmentation_cfg.__dict__.items():
-        setattr(cfg, key, value)
-    update_cfg(cfg, args.opts)
+    # Save configuration
     save_cfg(cfg, os.path.join(OUTPUT_FOLDER, "config.json"))
 
     # Build the UNet model.
