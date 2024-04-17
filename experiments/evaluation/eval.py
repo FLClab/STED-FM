@@ -47,6 +47,7 @@ def main():
         name=args.model,
         pretraining=args.pretraining,
         task=args.task,
+        dataset=args.dataset
     ).to(device)
     _, _, test_loader = get_dataset(
         name=args.dataset,

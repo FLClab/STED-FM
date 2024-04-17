@@ -29,6 +29,7 @@ def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwa
             model.load_state_dict(checkpoint['model'])
         else:
             raise NotImplementedError(f"Weights {weights} not supported yet for model {name}.")
+
     elif name == "MAEClassifier":
         if weights == "ImageNet":
             print("-- Loading ImageNet ViT ---")
@@ -71,13 +72,54 @@ def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwa
             )
         else:
             raise NotImplementedError(f"Weights {weights} not supported yet for model {name}.")
+
+    elif name == "resnet18":
+        if weights == "ImageNet":
+            print("--- Loading ImageNet ResNet-18 ---")
+            backbone = torchvision.models.resnet18(weights="IMAGENET1K_V1")
+            backbone.fc = torch.nn.Identity()
+            model = LinearProbe(
+                backbone=backbone, 
+                name="resnet18",
+                num_classes=4,
+                freeze=kwargs['freeze'],
+                global_pool=None,
+            )
+        elif weights == "CTC":
+            raise NotImplementedError
+        elif weights == "STED":
+            print("Loading STED ResNet-18")
+            backbone = torchvision.models.resnet18(weights=None)
+            backbone.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+            backbone.fc = torch.nn.Identity()
+            checkpoint = torch.load("/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_STED/result.pt")
+            backbone.load_state_dict(checkpoint['model']['backbone'])
+            model = LinearProbe(
+                backbone=backbone,
+                name='resnet18',
+                num_classes=4,
+                freeze=kwargs['freeze'],
+                global_pool=None
+            )
+        else:
+            raise NotImplementedError(f"Weights {weights} not supported yet for model {name}.")
+
+    elif name == "resnet50":
+        pass
+
     else:
         raise NotImplementedError(f"Model {name} not implemented yet.")
     return model
 
 
-def get_classifier(name: str, pretraining: str, task:str, path: str = None):
-    if name == "MAE":
+def get_classifier(name: str, pretraining: str, task:str, path: str = None, dataset: str = None):
+    if name == "vit-small":
+        print(f"--- Loading ViT-S/16 trained from scratch on {dataset}---")
+        model = vit_small_patch16_224(in_chans=1)
+        checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/from-scratch/{dataset}/vit-small_from-scratch_model.pth")
+        model.load_state_dict(checkpoint['model_state_dict'])
+        return model
+    elif name == "MAE":
         if pretraining == "ImageNet":
             print("--- Loading ImageNet ViT fine-tuned ---")
             vit = vit_small_patch16_224(in_chans=3, pretrained=True)
@@ -90,9 +132,9 @@ def get_classifier(name: str, pretraining: str, task:str, path: str = None):
                 global_pool='avg'
             )
             if path is not None:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/ImageNet/{task}_{path}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/ImageNet/{dataset}/{task}_{path}_model.pth")
             else:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/ImageNet/{task}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/ImageNet/{dataset}/{task}_model.pth")
             model.load_state_dict(checkpoint["model_state_dict"])
             return model
         elif pretraining == "CTC":
@@ -107,9 +149,9 @@ def get_classifier(name: str, pretraining: str, task:str, path: str = None):
                 global_pool="avg"
             )
             if path is not None:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/CTC/{task}_{path}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/CTC/{dataset}/{task}_{path}_model.pth")
             else:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/CTC/{task}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/CTC/{dataset}/{task}_model.pth")
             model.load_state_dict(checkpoint['model_state_dict'])
             return model
         elif pretraining == "STED":
@@ -124,9 +166,9 @@ def get_classifier(name: str, pretraining: str, task:str, path: str = None):
                 global_pool="avg"
             )
             if path is not None:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/STED/{task}_{path}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/STED/{dataset}/{task}_{path}_model.pth")
             else:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/STED/{task}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/STED/{dataset}/{task}_model.pth")
             model.load_state_dict(checkpoint['model_state_dict'])
             return model
         else:

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=12:00:00
+#SBATCH --time=6:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -8,7 +8,6 @@
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-2
 
 #### PARAMETERS
 
@@ -22,13 +21,13 @@ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 # Moves to working directory
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
-WEIGHTS=(
-    "ImageNet"
-    "CTC"
-    "STED"
-)
+# WEIGHTS=(
+#     "ImageNet"
+#     "CTC"
+#     "STED"
+# )
 
-weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
+# weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
 
 
 # Launch training 
@@ -36,7 +35,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune.py --dataset synaptic-proteins --model MAEClassifier --weights $weight --freeze
+python finetune.py --dataset optim --model resnet18 --weights STED --freeze
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

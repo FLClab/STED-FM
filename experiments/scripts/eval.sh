@@ -54,7 +54,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started fine-tuning $weight $task"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python eval.py --dataset synaptic-proteins --model MAE --task $task --pretraining $weight
+python eval.py --dataset optim --model MAE --task $task --pretraining $weight
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

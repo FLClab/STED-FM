@@ -14,10 +14,11 @@ class ViTConfiguration:
 
 def get_backbone(name: str) -> torch.nn.Module:
     cfg = ViTConfiguration()
+    print(f"--- {name} ---")
     if name == "vit-small":
         # Use a vit-small backbone.
         backbone = vit_small_patch16_224(in_chans=1)
-    if name == "vit-base":
+    elif name == "vit-base":
         # Use a vit-base backbone.
         backbone = vit_base_patch16_224(in_chans=1)     
     else:

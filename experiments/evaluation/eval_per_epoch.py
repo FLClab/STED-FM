@@ -53,7 +53,7 @@ def make_plot(accuracies: dict):
     plt.xlabel("Epochs")
     plt.ylabel('Accuracy')
     plt.legend()
-    fig.savefig(f'/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation/results/MAEClassifier/{args.task}/acc_vs_epoch.pdf', bbox_inches='tight', dpi=1200)
+    fig.savefig(f'/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation/results/MAEClassifier/{args.task}/{args.dataset}_acc_vs_epoch.pdf', bbox_inches='tight', dpi=1200)
 
 
 def main():
@@ -74,7 +74,8 @@ def main():
                 name=args.model,
                 pretraining=pretraining,
                 task=args.task,
-                path=path
+                path=path,
+                dataset=args.dataset
             ).to(device)
             _, _, test_loader = get_dataset(
                 name=args.dataset,

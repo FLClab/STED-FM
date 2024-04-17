@@ -20,27 +20,6 @@ args = parser.parse_args()
 
 SAVE_EXPR = "linear-probe" if args.freeze else "finetuned"
 
-def evaluate(model, loader, device):
-    model.eval()
-    big_correct = np.array([0] * (4+1))
-    big_n = np.array([0] * (4+1))
-    with torch.no_grad():
-        for imgs, data_dict in tqdm(loader, desc="Evaluation..."):
-            labels = data_dict['label']
-            imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
-            predictions = model(imgs)
-            correct, n = compute_Nary_accuracy(predictions, labels)
-            big_correct = big_correct + correct
-            big_n = big_n + n
-        accuracies = big_correct / big_n
-        print("********* Validation metrics **********")
-        print("Overall accuracy = {:.3f}".format(accuracies[0]))
-        for i in range(1, 4+1):
-            acc = accuracies[i]
-            print("Class {} accuracy = {:.3f}".format(
-                i, acc))
-    return accuracies[0]
-
 def validation_step(
         model,
         valid_loader,
@@ -101,7 +80,6 @@ def train(
         model,
         train_loader, 
         valid_loader,
-        test_loader,
         device,
         num_epochs, 
         criterion, 
@@ -130,8 +108,6 @@ def train(
         val_acc.append(v_acc)
         scheduler.step()
         if epoch == 1 or (epoch + 1) % 10 == 0:
-            test_acc = evaluate(model=model, loader=test_loader, device=device)
-            acc_per_epoch.append(test_acc)
             torch.save({
                     'epoch': epoch + 1,
                     'model_state_dict': model.state_dict(),
@@ -147,19 +123,19 @@ def train(
             val_acc, 
             lrates, 
             save_dir=f"{model_path}/{SAVE_EXPR}_curves.png")
-    return acc_per_epoch
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
     n_channels = 3 if args.weights == "ImageNet" else 1 
-    train_loader, valid_loader, test_loader = get_dataset(name=args.dataset, transform=None, path=None, n_channels=n_channels, training=True)
+    train_loader, valid_loader, _ = get_dataset(name=args.dataset, transform=None, path=None, n_channels=n_channels, training=True)
     model = get_pretrained_model(
         name=args.model, 
         weights=args.weights, 
         path=None,
-        freeze=args.freeze
+        freeze=args.freeze,
         ).to(device)
+    exit()
     if args.freeze:
         optimizer = torch.optim.SGD(model.parameters(), lr=0.1, weight_decay=0, momentum=0.9)
 
@@ -169,21 +145,17 @@ def main():
         
     scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=100)
     criterion = torch.nn.CrossEntropyLoss()
-    test_accuracies = train(
+    train(
         model=model,
         train_loader=train_loader,
         valid_loader=valid_loader,
-        test_loader=test_loader,
         device=device,
         num_epochs=100,
         criterion=criterion,
         optimizer=optimizer,
         scheduler=scheduler,
-        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/{args.weights}"
+        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{args.model}_{args.weights}/{args.dataset}"
     )
-    np.savez(
-        f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation/results/{args.model}/{SAVE_EXPR}/{args.weights}_test_results", 
-        acc=test_accuracies)
     
 if __name__=="__main__":
     main()
