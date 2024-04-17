@@ -7,6 +7,9 @@ import typing
 import random
 import dataclasses
 import time
+import json
+import argparse
+import uuid
 
 from dataclasses import dataclass
 from lightly import loss
@@ -50,6 +53,27 @@ def update_cfg(cfg: dataclass, opts: list[str]) -> dataclass:
         else:
             setattr(cfg, key, type(getattr(cfg, key))(value))
 
+def save_cfg(cfg: dataclass, path: str):
+    """
+    Saves the configuration to a file
+
+    :param cfg: A `dataclass` of the configuration
+    :param path: A `str` of the path to save the configuration
+    """
+    out = {}
+    for key, value in cfg.__dict__.items():
+        if dataclasses.is_dataclass(value):
+            out[key] = save_cfg(value, None)
+        elif isinstance(value, argparse.Namespace):
+            out[key] = value.__dict__
+        else:
+            out[key] = value
+
+    # Save to file; if path is None, return the dictionary for recursive calls
+    if isinstance(path, str):
+        json.dump(out, open(path, "w"), indent=4, sort_keys=True)
+    return out
+
 if __name__ == "__main__":
 
     import argparse
@@ -68,12 +92,15 @@ if __name__ == "__main__":
                         help="Backbone model to load")    
     parser.add_argument("--use-tensorboard", action="store_true",
                         help="Logging using tensorboard")
-    parser.add_argument("--opts", nargs="+", default=[], help="Additional configuration options")
+    parser.add_argument("--opts", nargs="+", default=[], 
+                        help="Additional configuration options")
     parser.add_argument("--dry-run", action="store_true",
                         help="Activates dryrun")        
     args = parser.parse_args()
 
     # Assert args.opts is a multiple of 2
+    if len(args.opts) == 1:
+        args.opts = args.opts[0].split(" ")
     assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
 
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -93,18 +120,13 @@ if __name__ == "__main__":
     cache_system = cache_manager.dict()
     training_dataset, validation_dataset, testing_dataset = get_dataset(name=args.dataset, cfg=cfg, cache_system=cache_system)
 
-    # Loads segmentation configuration
-    segmentation_cfg = SegmentationConfiguration()
-    for key, value in segmentation_cfg.__dict__.items():
-        setattr(cfg, key, value)
-
     if args.restore_from:
         # Loads checkpoint
         checkpoint = torch.load(args.restore_from)
         OUTPUT_FOLDER = os.path.dirname(args.restore_from)
     else:
         checkpoint = {}
-        OUTPUT_FOLDER = os.path.join(args.save_folder, args.backbone)
+        OUTPUT_FOLDER = os.path.join(args.save_folder, f"{args.backbone}-{args.dataset}-{str(uuid.uuid4())[:8]}")
     if args.dry_run:
         OUTPUT_FOLDER = os.path.join(args.save_folder, "debug")
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
@@ -113,7 +135,12 @@ if __name__ == "__main__":
         writer = SummaryWriter(os.path.join(OUTPUT_FOLDER, "logs"))
 
     # Updates configuration with additional options; performs inplace
-    update_cfg(cfg, args.opts)     
+    cfg.args = args
+    segmentation_cfg = SegmentationConfiguration()
+    for key, value in segmentation_cfg.__dict__.items():
+        setattr(cfg, key, value)
+    update_cfg(cfg, args.opts)
+    save_cfg(cfg, os.path.join(OUTPUT_FOLDER, "config.json"))
 
     # Build the UNet model.
     model = UNet(backbone, cfg)
