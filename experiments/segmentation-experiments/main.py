@@ -126,6 +126,7 @@ if __name__ == "__main__":
     for key, value in segmentation_cfg.__dict__.items():
         setattr(cfg, key, value)
     update_cfg(cfg, args.opts)
+    print(cfg.__dict__)
 
     if args.restore_from:
         # Loads checkpoint
@@ -136,6 +137,7 @@ if __name__ == "__main__":
         model_name = ""
         if args.backbone_weights:
             model_name += f"pretrained-"
+            print(cfg.freeze_backbone)
             if cfg.freeze_backbone:
                 model_name += "frozen-"
             model_name += f"{args.backbone_weights}"
