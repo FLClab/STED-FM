@@ -1,12 +1,17 @@
 
+import os
 import torch
 import torchvision
 from dataclasses import dataclass
 
+import sys
+sys.path.insert(0, "../")
+from DEFAULTS import BASE_PATH
+
 class ConvNextWeights:
 
     CONVNEXT_TINY_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Tiny_Weights.IMAGENET1K_V1
-    CONVNEXT_TINY_SSL_STED = "./data/SSL/baselines/convnext-tiny/result.pt"
+    CONVNEXT_TINY_SSL_STED = os.path.join(BASE_PATH, "baselines", "convnext-tiny", "result.pt")
 
     CONVNEXT_SMALL_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Small_Weights.IMAGENET1K_V1
 

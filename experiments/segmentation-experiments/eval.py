@@ -63,30 +63,6 @@ def comptue_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.nda
         iou_per_class.append(intersection / union)
     return iou_per_class
 
-def compute_ap(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> list:
-    """
-    Compute the average precision score between the truth and the prediction
-
-    :param truth: A `numpy.ndarray` of the ground truth
-    :param prediction: A `numpy.ndarray` of the prediction
-    :param mask: A `numpy.ndarray` of the mask to apply
-
-    :return: A `list` of the AP
-    """
-    ap_per_class = []
-    for t, p in zip(truth, prediction):
-        t, p = t[mask].ravel(), p[mask].ravel()
-
-        if not numpy.any(t):
-            ap_per_class.append(-1)
-            continue
-        if numpy.unique(t).size == 1:
-            ap_per_class.append(-1)
-            continue        
-
-        ap_per_class.append(average_precision_score(t, p))
-    return ap_per_class
-
 def compute_aupr(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> list:
     """
     Compute the area under the precision-recall curve between the truth and the prediction
@@ -160,14 +136,20 @@ def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
         mask = mask > 0
 
         scores["iou"].append(comptue_iou(truth_, prediction_, mask))
-        scores["ap"].append(compute_ap(truth_, prediction_, mask))
         scores["aupr"].append(compute_aupr(truth_, prediction_, mask))
         scores["auroc"].append(compute_auroc(truth_, prediction_, mask))
 
     return scores
 
 def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataLoader) -> dict:
+    """
+    Evaluates the segmentation model on the given loader
 
+    :param model: A `torch.nn.Module` of the model to evaluate
+    :param loader: A `torch.utils.data.DataLoader` of the loader to evaluate
+
+    :returns : A `dict` of the computed scores
+    """
     all_scores = defaultdict(list)
     for i, (X, y) in enumerate(tqdm(loader, desc="[----] ")):
 
@@ -189,10 +171,10 @@ def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataL
             y_ = y.cpu().data.numpy()
             pred_ = pred.cpu().data.numpy()
 
-            import tifffile
-            tifffile.imwrite("./results/input.tif", X_.astype(numpy.float32))
-            tifffile.imwrite("./results/label.tif", y_.astype(numpy.float32))
-            tifffile.imwrite("./results/prediction.tif", pred_.astype(numpy.float32))
+            # import tifffile
+            # tifffile.imwrite("./results/input.tif", X_.astype(numpy.float32))
+            # tifffile.imwrite("./results/label.tif", y_.astype(numpy.float32))
+            # tifffile.imwrite("./results/prediction.tif", pred_.astype(numpy.float32))
         
         scores = compute_scores(y, pred)
         for key, values in scores.items():

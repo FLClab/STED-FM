@@ -6,13 +6,14 @@ from collections import defaultdict
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from sklearn.neighbors import NearestNeighbors
+from torchvision import transforms
 import numpy as np
 from sklearn.decomposition import PCA
 import seaborn
 import pandas
 import sys 
 sys.path.insert(0, "../")
-from loaders import get_dataset
+from datasets import get_dataset
 from model_builder import get_pretrained_model
 
 parser = argparse.ArgumentParser()
@@ -32,7 +33,7 @@ def plot_PCA(samples, labels):
     df['Label'] = labels
     fig = plt.figure()
     seaborn.scatterplot(data=df, x='PCA-1', y='PCA-2', hue='Label', palette=seaborn.color_palette(colors, 4))
-    fig.savefig(f"./results/{args.model}/KNN/{args.weights}_{args.dataset}_PCA.pdf", dpi=1200, bbox_inches='tight', transparent=True)
+    # fig.savefig(f"./results/{args.model}/KNN/{args.weights}_{args.dataset}_PCA.pdf", dpi=1200, bbox_inches='tight', transparent=True)
     plt.close(fig)
 
 def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device):
@@ -41,11 +42,13 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
         for x, data_dict in tqdm(loader, desc="Extracting features..."):
             labels = data_dict['label']
             x, labels = x.to(device), labels.to(device)
-            features = model.forward_encoder(x)
-            if args.global_pool == "token":
-                features = features[:, 0, :] # class token
-            else:
-                features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens
+            # features = model.forward_encoder(x)
+            # if args.global_pool == "token":
+            #     features = features[:, 0, :] # class token
+            # else:
+            #     features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens
+            features = model(x)
+            
             out['features'].extend(features.cpu().data.numpy())
             out['labels'].extend(labels.cpu().data.numpy().tolist())
     samples = np.array(out['features'])
@@ -81,15 +84,21 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
         xticks=uniques, yticks=uniques,  
     )
     ax.set_title(round(acc, 4))
-    fig.savefig(f"./results/{args.model}/KNN/{args.weights}_{args.dataset}_knn_results.pdf", dpi=1200, bbox_inches='tight', transparent=True)
+    # fig.savefig(f"./results/{args.model}/KNN/{args.weights}_{args.dataset}_knn_results.pdf", dpi=1200, bbox_inches='tight', transparent=True)
     plt.close(fig)
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
-    n_channels = 3 if args.weights == "ImageNet" else 1
-    loader = get_dataset(name=args.dataset, transform=None, path=None, n_channels=n_channels)
-    model = get_pretrained_model(name=args.model, weights=args.weights, path=None).to(device)
+    model, cfg = get_pretrained_model(name=args.model, weights=args.weights, path=None)
+    model = model.to(device)
+
+    transform = None
+    if cfg.in_channels == 3:
+        transform = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])
+    dataset = get_dataset(name=args.dataset, transform=transform, path=None, n_channels=cfg.in_channels)
+    loader = DataLoader(dataset=dataset, batch_size=cfg.batch_size, shuffle=True, drop_last=False, num_workers=0)
+    
     model.eval()
     knn_predict(model=model, loader=loader, device=device)
     
