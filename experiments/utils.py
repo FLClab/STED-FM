@@ -1,7 +1,51 @@
 import torch
+import argparse
+import json
+import dataclasses
 import matplotlib.pyplot as plt
 import numpy as np
-plt.style.use("dark_background")
+
+from dataclasses import dataclass
+
+def update_cfg(cfg: dataclass, opts: list[str]) -> dataclass:
+    """
+    Updates the configuration with additional options inplace
+
+    :param cfg: A `dataclass` of the configuration
+    :param opts: A `list` of options to update the configuration
+    """
+    for i in range(0, len(opts), 2):
+        key, value = opts[i], opts[i + 1]
+        if len(key.split(".")) > 1:
+            key, subkey = key.split(".")
+            update_cfg(getattr(cfg, key), [subkey, value])
+        else:
+            if type(getattr(cfg, key)) == bool:
+                # Special case for boolean values
+                setattr(cfg, key, value in ("True", "true", "1"))
+            else:
+                setattr(cfg, key, type(getattr(cfg, key))(value))
+
+def save_cfg(cfg: dataclass, path: str):
+    """
+    Saves the configuration to a file
+
+    :param cfg: A `dataclass` of the configuration
+    :param path: A `str` of the path to save the configuration
+    """
+    out = {}
+    for key, value in cfg.__dict__.items():
+        if dataclasses.is_dataclass(value):
+            out[key] = save_cfg(value, None)
+        elif isinstance(value, argparse.Namespace):
+            out[key] = value.__dict__
+        else:
+            out[key] = value
+
+    # Save to file; if path is None, return the dictionary for recursive calls
+    if isinstance(path, str):
+        json.dump(out, open(path, "w"), indent=4, sort_keys=True)
+    return out
 
 def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4) -> list:
     # accuracies = []

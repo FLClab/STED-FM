@@ -28,8 +28,9 @@ class HDF5Dataset(Dataset):
     :param step: (optional) The step between each crops
     :param cache_system: (optional) A `dict` to store the cache
     :param out_channels: (optional) The number of output channels to return
+    :param return_foregound: (optional) Wheter to return the foreground mask
     """
-    def __init__(self, file_path, data_aug=0, validation=False, size=256, step=0.75, cache_system=None, out_channels=1, **kwargs):
+    def __init__(self, file_path, data_aug=0, validation=False, size=256, step=0.75, cache_system=None, out_channels=1, return_foregound=False, **kwargs):
         super(HDF5Dataset, self).__init__()
 
         self.file_path = file_path
@@ -38,6 +39,8 @@ class HDF5Dataset(Dataset):
         self.validation = validation
         self.data_aug = data_aug
         self.out_channels = out_channels
+        self.return_foregound = return_foregound
+        self.classes = ["Rings", "Fibers"]
 
         self.cache = {}
         if cache_system is not None:
@@ -62,7 +65,10 @@ class HDF5Dataset(Dataset):
                             dendrite = dendrite_mask[j : j + self.size, i : i + self.size]
                             if dendrite.sum() >= 0.1 * self.size * self.size: # dendrite is at least 1% of image
                                 samples.append((group_name, k, j, i))
-                self.cache[group_name] = {"data" : data, "label" : label[:, :-1]}
+                if self.return_foregound:
+                    self.cache[group_name] = {"data" : data, "label" : label}
+                else:
+                    self.cache[group_name] = {"data" : data, "label" : label[:, :-1]}
         return samples
 
     def __getitem__(self, index):
@@ -88,15 +94,22 @@ class HDF5Dataset(Dataset):
 
         # Applies data augmentation
         if not self.validation:
+
+            if random.random() < self.data_aug:
+                # random rotation 90
+                number_rotations = random.randint(1, 3)
+                image_crop = numpy.rot90(image_crop, k=number_rotations).copy()
+                label_crop = numpy.array([numpy.rot90(l, k=number_rotations).copy() for l in label_crop])
+
             if random.random() < self.data_aug:
                 # left-right flip
                 image_crop = numpy.fliplr(image_crop).copy()
-                label_crop = numpy.fliplr(label_crop).copy()
+                label_crop = numpy.array([numpy.fliplr(l).copy() for l in label_crop])
 
             if random.random() < self.data_aug:
                 # up-down flip
                 image_crop = numpy.flipud(image_crop).copy()
-                label_crop = numpy.flipud(label_crop).copy()
+                label_crop = numpy.array([numpy.flipud(l).copy() for l in label_crop])
 
             if random.random() < self.data_aug:
                 # intensity scale
@@ -118,14 +131,14 @@ class HDF5Dataset(Dataset):
     def __len__(self):
         return len(self.samples)
     
-def get_dataset(cfg:dataclass, **kwargs) -> tuple[Dataset, Dataset, Dataset, dataclass]:
+def get_dataset(cfg:dataclass, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
 
     # Updates the configuration inplace
     cfg.dataset_cfg = FActinConfiguration()
 
-    hdf5_training_path = "./data/SSL/segmentation-data/factin/training_01-04-19.hdf5"
-    hdf5_validation_path = "./data/SSL/segmentation-data/factin/validation_01-04-19.hdf5"
-    hdf5_testing_path = "./data/SSL/segmentation-data/factin/testing-exp192.hdf5"
+    hdf5_training_path = "./data/SSL/segmentation-data/factin/training_small-dataset_20240418.hdf5"
+    hdf5_validation_path = "./data/SSL/segmentation-data/factin/validation_small-dataset_20240418.hdf5"
+    hdf5_testing_path = "./data/SSL/segmentation-data/factin/testing_EXP192-block-glugly.hdf5"
 
     training_dataset = HDF5Dataset(
         file_path=hdf5_training_path,
@@ -149,6 +162,7 @@ def get_dataset(cfg:dataclass, **kwargs) -> tuple[Dataset, Dataset, Dataset, dat
         validation=True,
         size=256,
         step=0.75,
-        out_channels=cfg.in_channels
+        out_channels=cfg.in_channels,
+        return_foregound=False
     )
     return training_dataset, validation_dataset, testing_dataset
