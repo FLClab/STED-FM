@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=6:00:00
+#SBATCH --time=8:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -35,7 +35,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune.py --dataset optim --model resnet18 --weights STED --freeze
+python finetune.py --dataset optim --model resnet18 --weights RESNET18_SSL_STED --blocks all --track-epochs
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

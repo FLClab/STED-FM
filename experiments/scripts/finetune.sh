@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=10:00:00
+#SBATCH --time=12:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -36,7 +36,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started fine-tuning"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune.py --dataset optim --model resnet18 --weights STED
+python finetune.py --dataset optim --model resnet18 --weights RESNET18_SSL_STED --blocks 0 --track-epochs
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

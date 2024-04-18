@@ -1,7 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
 import numpy as np
-plt.style.use("dark_background")
 
 def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4) -> list:
     # accuracies = []

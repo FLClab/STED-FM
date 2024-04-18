@@ -19,6 +19,18 @@ MODELS = {
     "vit-small" : get_vit_backbone,
 }
 
+CLASSIFIERS = {
+    "resnet18" : None,
+    "resnet50" : None,
+    "resnet101" : None,
+    "micranet" : None,
+    "convnext-tiny" : None,
+    "convnext-small" : None,
+    "convnext-base" : None,
+    "naive" : None,
+    "vit-small" : None,
+}
+
 def get_model(name : str, **kwargs) -> torch.nn.Module:
     if not name in MODELS:
         raise NotImplementedError(f"`{name}` is not a valid option.")

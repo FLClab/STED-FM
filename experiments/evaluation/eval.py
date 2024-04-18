@@ -21,6 +21,7 @@ def evaluate(
         loader, 
         device
 ):
+    model.eval()
     big_correct = np.array([0] * (4+1))
     big_n = np.array([0] * (4+1))
     with torch.no_grad():

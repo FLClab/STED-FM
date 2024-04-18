@@ -119,7 +119,8 @@ def main():
     )
     model, cfg = get_base_model(name=args.model)
     model = model.to(device)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0.3, betas=(0.9, 0.95))
+    # optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0.3, betas=(0.9, 0.95)) --> proposed by the MAE paper, but does not seem to be optimal here
+    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.99))
     scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=100)
     criterion = torch.nn.CrossEntropyLoss()
     train(
@@ -131,7 +132,7 @@ def main():
         criterion=criterion,
         optimizer=optimizer,
         scheduler=scheduler,
-        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/from-scratch/{args.dataset}"
+        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_fully-supervised/{args.dataset}"
     )
 
 if __name__=="__main__":

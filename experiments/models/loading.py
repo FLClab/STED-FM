@@ -17,6 +17,8 @@ MODELS = {
     "convnext-tiny" : ConvNextWeights,
     "convnext-small" : ConvNextWeights,
     "convnext-base" : ConvNextWeights,
+    'vit-small': None,
+    'mae': None,
 }
 
 def load_weights(weights: Union[str, Enum]) -> dict:

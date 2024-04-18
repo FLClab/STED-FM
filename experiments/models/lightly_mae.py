@@ -3,6 +3,18 @@ from timm.models.vision_transformer import vit_small_patch16_224
 import lightly.models.utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 
+class MAEWeights:
+    MAE_SSL_CTC = None
+    MAE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_STED/checkpoint-530.pth"
+
+class MAEConfiguration:
+    backbone: str = "vit-small"
+    batch_size: int = 256
+    dim: int = 384
+    in_channels: int = 1
+    mask_ratio: float = 0.77
+
+
 class LightlyMAE(torch.nn.Module):
     def __init__(self, vit, in_channels, mask_ratio) -> None:
         super().__init__()
