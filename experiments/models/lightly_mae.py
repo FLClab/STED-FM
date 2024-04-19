@@ -3,6 +3,32 @@ from timm.models.vision_transformer import vit_small_patch16_224
 import lightly.models.utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 
+class MAEWeights:
+    MAE_IMAGENET = None
+    MAE_SSL_CTC = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth"
+    MAE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_STED/checkpoint-530.pth"
+
+class MAEConfiguration:
+    backbone: str = "vit-small"
+    batch_size: int = 256
+    dim: int = 384
+    in_channels: int = 1
+    mask_ratio: float = 0.75
+    pretrained: bool = False
+
+def get_backbone(name: str, **kwargs) -> torch.nn.Module:
+    cfg = MAEConfiguration()
+    for key, value in kwargs.items():
+        setattr(cfg, key, value)
+
+    if name == "mae":
+        vit = vit_small_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
+        backbone = LightlyMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+    else:
+        raise NotImplementedError(f"`{name}` not implemented")
+    return backbone, cfg
+
+
 class LightlyMAE(torch.nn.Module):
     def __init__(self, vit, in_channels, mask_ratio) -> None:
         super().__init__()

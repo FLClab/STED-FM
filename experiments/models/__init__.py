@@ -6,6 +6,7 @@ from .micranet import get_backbone as get_micranet_backbone
 from .convnext import get_backbone as get_convnext_backbone
 from .naive import get_backbone as get_naive_backbone
 from .vit import get_backbone as get_vit_backbone
+from .lightly_mae import get_backbone as get_mae_backbone
 
 MODELS = {
     "resnet18" : get_resnet_backbone,
@@ -17,6 +18,19 @@ MODELS = {
     "convnext-base" : get_convnext_backbone,
     "naive" : get_naive_backbone,
     "vit-small" : get_vit_backbone,
+    "mae": get_mae_backbone,
+}
+
+CLASSIFIERS = {
+    "resnet18" : None,
+    "resnet50" : None,
+    "resnet101" : None,
+    "micranet" : None,
+    "convnext-tiny" : None,
+    "convnext-small" : None,
+    "convnext-base" : None,
+    "naive" : None,
+    "vit-small" : None,
 }
 
 def get_model(name : str, **kwargs) -> torch.nn.Module:

@@ -13,7 +13,7 @@ import pandas
 import sys 
 sys.path.insert(0, "../")
 from loaders import get_dataset
-from model_builder import get_pretrained_model
+from model_builder import get_pretrained_model, get_pretrained_model_v2
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default='synaptic-proteins')
@@ -22,7 +22,7 @@ parser.add_argument("--weights", type=str, default="STED")
 parser.add_argument("--global-pool", type=str, default='avg')
 args = parser.parse_args()
 
-def plot_PCA(samples, labels):
+def plot_PCA(samples, labels, savename):
     colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:purple']
     df = pandas.DataFrame(columns=['PCA-1', 'PCA-2', 'Label'])
     reducer = PCA(n_components=2)
@@ -32,10 +32,10 @@ def plot_PCA(samples, labels):
     df['Label'] = labels
     fig = plt.figure()
     seaborn.scatterplot(data=df, x='PCA-1', y='PCA-2', hue='Label', palette=seaborn.color_palette(colors, 4))
-    fig.savefig(f"./results/{args.model}/KNN/{args.weights}_{args.dataset}_PCA.pdf", dpi=1200, bbox_inches='tight', transparent=True)
+    fig.savefig(f"./results/{args.model}/KNN/{savename}_{args.dataset}_PCA.pdf", dpi=1200, bbox_inches='tight', transparent=True)
     plt.close(fig)
 
-def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device):
+def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device, savename: str):
     out = defaultdict(list)
     with torch.no_grad():
         for x, data_dict in tqdm(loader, desc="Extracting features..."):
@@ -50,7 +50,7 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
             out['labels'].extend(labels.cpu().data.numpy().tolist())
     samples = np.array(out['features'])
     labels = np.array([int(item) for item in out['labels']])
-    plot_PCA(samples=samples, labels=labels)
+    plot_PCA(samples=samples, labels=labels, savename=savename)
     neigh = NearestNeighbors(n_neighbors=6)
     neigh.fit(samples)
     neighbors = neigh.kneighbors(samples, return_distance=False)[:, 1:]
@@ -65,7 +65,7 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
             votes = np.sum((associated_labels[mask] == predicted_unique).astype(int), axis=-1)
             confusion_matrix[unique, predicted_unique] += np.sum(votes >= 3)
     accuracy = np.diag(confusion_matrix).sum() / np.sum(confusion_matrix)
-    print(f"--- {args.dataset} ; {args.model} ; {args.weights} ---\n\tAccuracy: {accuracy * 100:0.2f}\n")
+    print(f"--- {args.dataset} ; {args.model} ; {savename} ---\n\tAccuracy: {accuracy * 100:0.2f}\n")
     acc = accuracy * 100
     fig, ax = plt.subplots()
     cm = confusion_matrix / np.sum(confusion_matrix, axis=-1)[np.newaxis]
@@ -81,17 +81,42 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
         xticks=uniques, yticks=uniques,  
     )
     ax.set_title(round(acc, 4))
-    fig.savefig(f"./results/{args.model}/KNN/{args.weights}_{args.dataset}_knn_results.pdf", dpi=1200, bbox_inches='tight', transparent=True)
+    fig.savefig(f"./results/{args.model}/KNN/{savename}_{args.dataset}_knn_results.pdf", dpi=1200, bbox_inches='tight', transparent=True)
     plt.close(fig)
 
+def get_save_folder() -> str:
+    if "imagenet" in args.weights.lower():
+        return "ImageNet"
+    elif "sted" in args.weights.lower():
+        return "STED"
+    else:
+        return "CTC"
+
 def main():
+    SAVE_NAME = get_save_folder()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
-    n_channels = 3 if args.weights == "ImageNet" else 1
-    loader = get_dataset(name=args.dataset, transform=None, path=None, n_channels=n_channels)
-    model = get_pretrained_model(name=args.model, weights=args.weights, path=None).to(device)
+    n_channels = 3 if SAVE_NAME == "ImageNet" else 1
+    loader = get_dataset(
+        name=args.dataset, 
+        transform=None, 
+        path=None, 
+        n_channels=n_channels,
+        training=False
+        )
+    # model = get_pretrained_model(name=args.model, weights=args.weights, path=None).to(device)
+    model, _ = get_pretrained_model_v2(
+        name=args.model,
+        weights=args.weights,
+        mask_ratio=0.0,
+        pretrained=False,
+        in_channels=n_channels,
+        as_classifier=False, # KNN directly in the model's latent space
+        blocks='0'
+    )
+    model = model.to(device)
     model.eval()
-    knn_predict(model=model, loader=loader, device=device)
+    knn_predict(model=model, loader=loader, device=device, savename=SAVE_NAME)
     
 
 if __name__=="__main__":

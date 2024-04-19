@@ -1,18 +1,18 @@
-import torch
+import torch 
 import numpy as np
-import matplotlib.pyplot as plt 
-from tqdm import tqdm 
-import argparse
+import matplotlib.pyplot as plt
+from tqdm import tqdm
+import argparse 
 import sys 
 sys.path.insert(0, "../")
-from loaders import get_dataset 
 from model_builder import get_classifier 
+from loaders import get_dataset
 from utils import compute_Nary_accuracy
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="MAE")
-parser.add_argument("--task", type=str, default='linear-probe')
-parser.add_argument("--dataset", type=str, default='synaptic-proteins')
+parser.add_argument("--num-blocks", type=int, default=12)
+parser.add_argument("--dataset", type=str, default='optim')
 args = parser.parse_args()
 
 def evaluate(
@@ -32,35 +32,36 @@ def evaluate(
             big_correct = big_correct + correct
             big_n = big_n + n
         accuracies = big_correct / big_n
-        # print(f"********* {args.model} - {args.pretraining} | {args.task} | {args.dataset} **********")
         print("Overall accuracy = {:.3f}".format(accuracies[0]))
         for i in range(1, 4+1):
             acc = accuracies[i]
             print("Class {} accuracy = {:.3f}".format(
                 i, acc))
+        print('\n')
     return accuracies[0]
 
-def make_plot(accuracies: dict):
-    imnet_data = accuracies["ImageNet"]
-    ctc_data = accuracies["CTC"]
-    sted_data = accuracies["STED"]
-    x = np.arange(0, len(imnet_data), 1)
-    ticklabels = [str(item) for item in [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]]
+def make_plot(accuracies: dict) -> None:
+    # reverse because the order is in terms of # of blocks frozen, we want # of blocks fine-tuned
+    imnet_data = list(reversed(accuracies['ImageNet']))
+    ctc_data = list(reversed(accuracies['CTC']))
+    sted_data = list(reversed(accuracies["STED"]))
+    x = np.arange(0, len(sted_data), 1)
+    ticklabels = [str(item) for item in x]
     fig = plt.figure()
-    plt.plot(x, imnet_data, color='tab:red', marker='x', label='ImageNet')
+    plt.plot(x, imnet_data, color='tab:red', marker='x', label="ImageNet")
     plt.plot(x, ctc_data, color='tab:green', marker='x', label='CTC')
     plt.plot(x, sted_data, color='tab:blue', marker='x', label='STED')
     plt.xticks(x, ticklabels)
-    plt.xlabel("Epochs")
-    plt.ylabel('Accuracy')
+    plt.xlabel("# blocks fine-tuned")
+    plt.ylabel("Accuracy")
     plt.legend()
-    fig.savefig(f'/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation/results/MAEClassifier/{args.task}/{args.dataset}_acc_vs_epoch.pdf', bbox_inches='tight', dpi=1200)
+    fig.savefig(f'/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation/results/MAEClassifier/finetuned/{args.dataset}_acc_vs_blocks.pdf', bbox_inches='tight', dpi=1200)
 
 
 def main():
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
+    blocks_list = list(range(args.num_blocks + 1))
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
-
     accuracies = {
         "ImageNet": [],
         "CTC": [],
@@ -69,25 +70,25 @@ def main():
 
     for pretraining in ["ImageNet", "CTC", "STED"]:
         n_channels = 3 if pretraining == "ImageNet" else 1 
-        for path in [f"epoch{item}" for item in [str(2), str(10), str(20), str(30), str(40), str(50), str(60), str(70), str(80), str(90), str(100)]]:
-            print(f"--- Evaluating model at {path} ---")
+        for bnum in blocks_list:
+            print(f"--- Evaluating {args.model}_{pretraining} with {bnum} frozen blocks ---")
             model = get_classifier(
                 name=args.model,
                 pretraining=pretraining,
-                task=args.task,
-                path=path,
+                task='finetuned',
+                path=f"{bnum}blocks",
                 dataset=args.dataset
             ).to(device)
             _, _, test_loader = get_dataset(
                 name=args.dataset,
-                transform=None, 
-                path=None, 
+                transform=None,
+                path=None,
                 n_channels=n_channels,
                 training=True
             )
             acc = evaluate(model=model, loader=test_loader, device=device)
             accuracies[pretraining].append(acc)
-
+    
     make_plot(accuracies=accuracies)
 
 

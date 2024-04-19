@@ -87,16 +87,46 @@ def get_synaptic_proteins_dataset(
     else:
         return test_loader
 
-def get_optim_dataset(path: str, **kwargs):
-    dataset = datasets.OptimDataset(
-        data_folder=path,
-        num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
-        apply_filter=True,
-        classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
-        **kwargs
-    )
-    dataloader = DataLoader(dataset=dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
-    return dataloader
+def get_optim_dataset(path: str, training: bool = False, **kwargs):
+    if training: # Disregards the provided path
+        train_dataset = datasets.OptimDataset(
+            data_folder="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/optim_train",
+            num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
+            apply_filter=True,
+            classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
+            **kwargs
+        )
+        valid_dataset = datasets.OptimDataset(
+            data_folder="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/optim_valid",
+            num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
+            apply_filter=True,
+            classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
+            **kwargs
+        )
+        test_dataset = datasets.OptimDataset(
+            data_folder="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/optim-data",
+            num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
+            apply_filter=True,
+            classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
+            **kwargs
+        )
+        print(f"Train dataset size: {len(train_dataset)}")
+        print(f"Valid dataset size: {len(valid_dataset)}")
+        print(f"Test dataset size: {len(test_dataset)}")
+        train_loader = DataLoader(dataset=train_dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
+        valid_loader = DataLoader(dataset=valid_dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
+        test_loader = DataLoader(dataset=test_dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
+        return train_loader, valid_loader, test_loader
+    else:
+        dataset = datasets.OptimDataset(
+            data_folder=path,
+            num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
+            apply_filter=True,
+            classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
+            **kwargs
+        )
+        dataloader = DataLoader(dataset=dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
+        return dataloader
 
 def get_factin_rings_fibers_dataset(path: str, **kwargs):
     dataset = datasets.CreateFactinRingsFibersDataset(data_folder=path, classes=["rings", "fibers"], **kwargs)
@@ -114,6 +144,7 @@ def get_dataset(name, path, **kwargs):
             path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/optim-data", 
             n_channels=kwargs['n_channels'],
             transform=kwargs['transform'],
+            training=kwargs['training']
             )
     elif name == "synaptic-proteins":
         return get_synaptic_proteins_dataset(
