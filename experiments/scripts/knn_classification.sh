@@ -3,7 +3,7 @@
 #SBATCH --time=00:30:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
-#SBATCH --mem=64G
+#SBATCH --mem=16G
 #SBATCH --gpus-per-node=1
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
@@ -36,9 +36,9 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started KNN classification"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python knn_classification.py --dataset synaptic-proteins --model MAE --weights ImageNet
-python knn_classification.py --dataset synaptic-proteins --model MAE --weights CTC
-python knn_classification.py --dataset synaptic-proteins --model MAE --weights STED
+python knn_classification.py --dataset synaptic-proteins --model mae --weights MAE_IMAGENET
+python knn_classification.py --dataset synaptic-proteins --model mae --weights MAE_SSL_CTC
+python knn_classification.py --dataset synaptic-proteins --model mae --weights MAE_SSL_STED
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

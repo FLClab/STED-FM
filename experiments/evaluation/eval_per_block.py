@@ -46,7 +46,7 @@ def make_plot(accuracies: dict) -> None:
     ctc_data = list(reversed(accuracies['CTC']))
     sted_data = list(reversed(accuracies["STED"]))
     x = np.arange(0, len(sted_data), 1)
-    ticklabels = [str(item + 1) for item in x]
+    ticklabels = [str(item) for item in x]
     fig = plt.figure()
     plt.plot(x, imnet_data, color='tab:red', marker='x', label="ImageNet")
     plt.plot(x, ctc_data, color='tab:green', marker='x', label='CTC')
@@ -59,7 +59,7 @@ def make_plot(accuracies: dict) -> None:
 
 
 def main():
-    blocks_list = list(range(1, args.num_blocks + 1))
+    blocks_list = list(range(args.num_blocks + 1))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
     accuracies = {

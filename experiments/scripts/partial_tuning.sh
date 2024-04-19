@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=4:00:00
+#SBATCH --time=08:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -8,7 +8,7 @@
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-12
+#SBATCH --array=0-36
 
 
 #### PARAMETERS
@@ -39,6 +39,26 @@ BLOCKS=(
     "0"
 )
 
+WEIGHTS=(
+    "MAE_IMAGENET"
+    "MAE_SSL_CTC"
+    "MAE_SSL_STED"
+)
+
+opts=()
+for block in "${BLOCKS[@]}"
+do 
+    for weight in "${WEIGHTS[@]}"
+    do
+        opts+=("$block, $weight")
+    done 
+done 
+
+IFS=', ' read -r -a opt <<< "${opts[${SLURM_ARRAY_TASK_ID}]}"
+block="${opt[0]}"
+weight="${opt[1]}"
+
+
 block=${BLOCKS[${SLURM_ARRAY_TASK_ID}]}
 
 
@@ -47,7 +67,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started fine-tuning"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune.py --dataset optim --model MAEClassifier --weights "ImageNet" --blocks $block
+python finetune.py --dataset synaptic-proteins --model mae --weights $weight --blocks $block
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

@@ -8,7 +8,7 @@ class LinearProbe(torch.nn.Module):
             backbone: torch.nn.Module,
             name: str,
             num_classes: int = 4,
-            global_pool: str = None,
+            global_pool: str = 'avg',
             num_blocks: int = 0
             ) -> None:
         super().__init__()
@@ -17,7 +17,7 @@ class LinearProbe(torch.nn.Module):
         self.num_classes = num_classes 
         self.global_pool = global_pool
         
-        if self.name == "MAE":
+        if self.name.lower() == "mae":
             feature_dim = 384
         elif self.name == "resnet-18":
             feature_dim = 512
@@ -37,13 +37,15 @@ class LinearProbe(torch.nn.Module):
         elif num_blocks == "0":
             print("--- Not freezing any layers ---")
         elif num_blocks != "0":
-            if name in ["MAE", "MAEClassifier", 'vit-small']:
+            if name in ["MAE", "mae", "MAEClassifier", 'vit-small']:
                 self.backbone.backbone.mask_token.requires_grad = False
                 self.backbone.backbone.vit.cls_token.requires_grad = False
                 self.backbone.backbone.vit.pos_embed.requires_grad = False
                 blocks = list(range(num_blocks))
                 self._freeze_blocks(blocks)
                 print(f"--- Freezing blocks {blocks} ---")
+        else:
+            raise NotImplementedError(f"Imvalid number ({num_blocks}) of blocks.")
 
         self.classification_head = torch.nn.Sequential(
             torch.nn.BatchNorm1d(num_features=feature_dim, affine=False, eps=1e-6),
@@ -52,14 +54,14 @@ class LinearProbe(torch.nn.Module):
 
     def _freeze_blocks(self, blocks):
         for bidx in blocks:
-            if self.name in ["MAE", "MAEClassifier", 'vit-small']:
+            if self.name in ["MAE", "MAEClassifier", 'mae', 'vit-small']:
                 for p in self.backbone.backbone.vit.blocks[bidx].parameters():
                     p.requires_grad = False
             else: 
                 raise NotImplementedError(f"Freezing of {self.name} not supported yet.")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        if self.name == "MAE":
+        if self.name in ["MAE", 'mae', "MAEClassifier"]:
             features = self.backbone.forward_encoder(x)
             if self.global_pool == "token":
                 features = features[:, 0, :] # class token

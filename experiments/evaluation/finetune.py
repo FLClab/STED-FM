@@ -4,10 +4,11 @@ import torch
 import argparse 
 from tqdm import tqdm 
 from torch.optim.lr_scheduler import CosineAnnealingLR
+from torchinfo import summary
 import sys
 sys.path.insert(0, "../")
 from loaders import get_dataset
-from model_builder import get_pretrained_model
+from model_builder import get_pretrained_model, get_pretrained_model_v2
 from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss
 
 
@@ -140,13 +141,24 @@ def main():
     print(f"--- Running on {device} ---")
     n_channels = 3 if "imagenet" in args.weights.lower() else 1 
     train_loader, valid_loader, _ = get_dataset(name=args.dataset, transform=None, path=None, n_channels=n_channels, training=True)
-    model = get_pretrained_model(
+    # model = get_pretrained_model(
+    #     name=args.model, 
+    #     weights=args.weights, 
+    #     path=None,
+    #     blocks=int(args.blocks),
+    #     )
+    model, _ = get_pretrained_model_v2(
         name=args.model, 
         weights=args.weights, 
         path=None,
+        mask_ratio=0.0, 
+        pretrained=True if "imagenet" in args.weights.lower() else 1, # This refers to the ViT encoder boolean flag for pretraining. If not ImageNet, then the whole MAE is pretrained, otherwise we got pretrained weights for the ViT encoder and the decoder is never used
+        in_channels=n_channels,
+        as_classifier=True,
         blocks=int(args.blocks),
         )
     model = model.to(device)
+    summary(model, size=(256, 1, 224, 224))
     if args.blocks == 'all' or args.blocks == '12': # Need different hyper-parameters for the linear-probing setting
         # TODO the '12' assumes MAE architecture, need to adapt it to other archs as well
         optimizer = torch.optim.SGD(model.parameters(), lr=0.1, weight_decay=0, momentum=0.9)
@@ -167,7 +179,7 @@ def main():
         criterion=criterion,
         optimizer=optimizer,
         scheduler=scheduler,
-        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{SAVE_NAME}/{args.dataset}"
+        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{args.model}_{SAVE_NAME}/{args.dataset}"
     )
     
 if __name__=="__main__":

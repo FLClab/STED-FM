@@ -13,6 +13,30 @@ def get_base_model(name: str, **kwargs):
     model, cfg = get_model(name, **kwargs)
     return model, cfg
 
+
+def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool = False, path: str = None, **kwargs):
+    if name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "vit-small", "mae"]:
+        backbone, cfg = get_base_model(name, **kwargs)
+        state_dict = get_weights(name, weights)
+        # This is could lead to errors if the model is not exactly the same as the one used for pretraining
+        if state_dict is not None:
+            print(f"--- Loading from state dict ---")
+            backbone.load_state_dict(state_dict, strict=False)
+        print(f"--- Loaded model {name} with weights {weights} ---")
+        if as_classifier:
+            model = LinearProbe(
+                backbone=backbone,
+                name=name,
+                num_classes=4,
+                num_blocks=kwargs['blocks'],
+            )
+            print(f"--- Added linear probe to {kwargs['blocks']} frozen blocks ---")
+            return model, cfg
+        else:
+            return backbone, cfg
+    else:
+        raise NotImplementedError(f"Model {name} not implemented yet.")
+
 def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwargs):
     if name == "MAE":
         if weights == "ImageNet":
@@ -62,7 +86,7 @@ def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwa
             print("--- Loading STED ViT ---")
             vit = vit_small_patch16_224(in_chans=1)
             backbone = LightlyMAE(vit=vit, in_channels=1, mask_ratio=0.0)
-            checkpoint = torch.load("/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_STED/checkpoint-530.pth", map_location=torch.device('cpu'))
+            checkpoint = torch.load("/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_STED/checkpoint-530.pth")
             backbone.load_state_dict(checkpoint['model'])
             model = LinearProbe(
                 backbone=backbone,
@@ -117,7 +141,6 @@ def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwa
     else:
         raise NotImplementedError(f"Model {name} not implemented yet.")
     return model
-
 
 def get_classifier(name: str, pretraining: str, task:str, path: str = None, dataset: str = None, **kwargs):
     if name == "vit-small":
