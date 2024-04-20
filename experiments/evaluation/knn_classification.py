@@ -32,7 +32,7 @@ def plot_PCA(samples, labels, savename):
     df['Label'] = labels
     fig = plt.figure()
     seaborn.scatterplot(data=df, x='PCA-1', y='PCA-2', hue='Label', palette=seaborn.color_palette(colors, 4))
-    fig.savefig(f"./results/{args.model}/KNN/{savename}_{args.dataset}_PCA.pdf", dpi=1200, bbox_inches='tight', transparent=True)
+    fig.savefig(f"./results/{args.model}/{savename}_{args.dataset}_PCA.pdf", dpi=1200, bbox_inches='tight', transparent=True)
     plt.close(fig)
 
 def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device, savename: str):
@@ -41,13 +41,22 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
         for x, data_dict in tqdm(loader, desc="Extracting features..."):
             labels = data_dict['label']
             x, labels = x.to(device), labels.to(device)
-            features = model.forward_encoder(x)
-            if args.global_pool == "token":
-                features = features[:, 0, :] # class token
+            if args.dataset == "optim":
+                labels = labels.type(torch.FloatTensor)
+
+            if args.model in ["mae", "MAE", "MAEClassifier"]:
+                features = model.forward_encoder(x)
+                if args.global_pool == "token":
+                    features = features[:, 0, :] # class token
+                else:
+                    features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens
             else:
-                features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens
+                features = model(x)
+
+    
             out['features'].extend(features.cpu().data.numpy())
-            out['labels'].extend(labels.cpu().data.numpy().tolist())
+            out['labels'].extend(labels.cpu().data.numpy())
+
     samples = np.array(out['features'])
     labels = np.array([int(item) for item in out['labels']])
     plot_PCA(samples=samples, labels=labels, savename=savename)
@@ -81,7 +90,7 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
         xticks=uniques, yticks=uniques,  
     )
     ax.set_title(round(acc, 4))
-    fig.savefig(f"./results/{args.model}/KNN/{savename}_{args.dataset}_knn_results.pdf", dpi=1200, bbox_inches='tight', transparent=True)
+    fig.savefig(f"./results/{args.model}/{savename}_{args.dataset}_knn_results.pdf", dpi=1200, bbox_inches='tight', transparent=True)
     plt.close(fig)
 
 def get_save_folder() -> str:
@@ -109,7 +118,7 @@ def main():
         name=args.model,
         weights=args.weights,
         mask_ratio=0.0,
-        pretrained=False,
+        pretrained=True if SAVE_NAME == "ImageNet" else False,
         in_channels=n_channels,
         as_classifier=False, # KNN directly in the model's latent space
         blocks='0'

@@ -46,7 +46,8 @@ def make_plot(accuracies: dict) -> None:
     ctc_data = list(reversed(accuracies['CTC']))
     sted_data = list(reversed(accuracies["STED"]))
     x = np.arange(0, len(sted_data), 1)
-    ticklabels = [str(item) for item in x]
+    # ticklabels = [str(item) for item in x]
+    ticklabels = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
     fig = plt.figure()
     plt.plot(x, imnet_data, color='tab:red', marker='x', label="ImageNet")
     plt.plot(x, ctc_data, color='tab:green', marker='x', label='CTC')
@@ -70,7 +71,7 @@ def main():
 
     for pretraining in ["ImageNet", "CTC", "STED"]:
         n_channels = 3 if pretraining == "ImageNet" else 1 
-        for bnum in blocks_list:
+        for bnum in blocks_list[1:]:
             print(f"--- Evaluating {args.model}_{pretraining} with {bnum} frozen blocks ---")
             model = get_classifier(
                 name=args.model,

@@ -49,6 +49,43 @@ RESULTS = {
                         "fine-tuning": 0.950,
                     }
             }
+    },
+    "RESNET18": {
+        "synaptic_proteins": {
+            "ImageNet": {
+                "KNN": 67.85,
+                "linear-probing": None,
+                "fine-tuning": None,
+            },
+            "CTC": {
+                "KNN": 53.32,
+                "linear-probing": None,
+                "fine-tuning": None,
+            },
+            "STED": {
+                "KNN": 69.76,
+                "linear-probing": None,
+                "fine-tuning": None,
+            }
+        },
+        "optim": {
+             "ImageNet": {
+                "KNN": 92.47,
+                "linear-probing": None,
+                "fine-tuning": None,
+            },
+            "CTC": {
+                "KNN": 90.18,
+                "linear-probing": None,
+                "fine-tuning": None,
+            },
+            "STED": {
+                "KNN": 94.75,
+                "linear-probing": None,
+                "fine-tuning": None,
+            }
+
+        }
     }
 }
 

@@ -36,9 +36,9 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started KNN classification"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python knn_classification.py --dataset synaptic-proteins --model mae --weights MAE_IMAGENET
-python knn_classification.py --dataset synaptic-proteins --model mae --weights MAE_SSL_CTC
-python knn_classification.py --dataset synaptic-proteins --model mae --weights MAE_SSL_STED
+python knn_classification.py --dataset optim --model mae --weights MAE_IMAGENET
+python knn_classification.py --dataset optim --model mae --weights MAE_SSL_CTC
+python knn_classification.py --dataset optim --model mae --weights MAE_SSL_STED
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

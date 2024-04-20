@@ -34,6 +34,10 @@ def load_weights(weights: Union[str, Enum]) -> dict:
                 return state_dict["model"]["backbone"]
             except KeyError:
                 return state_dict['model']
+        elif "model_state_dict" in state_dict:
+            return state_dict["model_state_dict"]
+        else:
+            raise KeyError(f"Not model found in checkpoint.") 
         return state_dict
     elif weights is None:
         print(f"--- None weights refer to ViT encoder of MAE ---")

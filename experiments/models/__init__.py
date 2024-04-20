@@ -18,6 +18,7 @@ MODELS = {
     "convnext-base" : get_convnext_backbone,
     "naive" : get_naive_backbone,
     "vit-small" : get_vit_backbone,
+    "vit-base": get_vit_backbone,
     "mae": get_mae_backbone,
 }
 
