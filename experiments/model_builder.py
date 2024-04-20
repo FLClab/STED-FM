@@ -142,6 +142,31 @@ def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwa
         raise NotImplementedError(f"Model {name} not implemented yet.")
     return model
 
+def get_classifier_v2(name: str, weights: str, task: str, path: str = None, dataset: str = None, **kwargs):
+    if name in ['vit-small', 'vit-base']:
+        model, cfg = get_base_model(name, **kwargs)
+        state_dict = get_weights(name, weights)
+        model.load_state_dict(state_dict, strict=False)
+        return model
+    elif name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "mae"]:
+        backbone, cfg = get_base_model(name, **kwargs)
+        model = LinearProbe(
+            backbone=backbone,
+            name=name,
+            num_classes=4,
+            num_blocks=kwargs['blocks']
+        )
+        if path is not None:
+            # TODO:
+            pass
+        else:
+            state_dict = get_weights(name, weights)
+
+    else:
+        raise NotImplementedError(f"Model {name} not implemented as a classifier yet.")
+
+
+
 def get_classifier(name: str, pretraining: str, task:str, path: str = None, dataset: str = None, **kwargs):
     if name == "vit-small":
         print(f"--- Loading ViT-S/16 trained from scratch on {dataset}---")
@@ -162,9 +187,9 @@ def get_classifier(name: str, pretraining: str, task:str, path: str = None, data
                 global_pool='avg'
             )
             if path is not None:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_ImageNet/{dataset}/{task}_{path}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_ImageNet/{dataset}/{task}_{path}_model.pth")
             else:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_ImageNet/{dataset}/{task}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_ImageNet/{dataset}/{task}_model.pth")
             model.load_state_dict(checkpoint["model_state_dict"])
             return model
         elif pretraining == "CTC":
@@ -179,9 +204,9 @@ def get_classifier(name: str, pretraining: str, task:str, path: str = None, data
                 global_pool="avg"
             )
             if path is not None:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_CTC/{dataset}/{task}_{path}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_CTC/{dataset}/{task}_{path}_model.pth")
             else:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_CTC/{dataset}/{task}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_CTC/{dataset}/{task}_model.pth")
             model.load_state_dict(checkpoint['model_state_dict'])
             return model
         elif pretraining == "STED":
@@ -196,9 +221,9 @@ def get_classifier(name: str, pretraining: str, task:str, path: str = None, data
                 global_pool="avg"
             )
             if path is not None:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_STED/{dataset}/{task}_{path}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_STED/{dataset}/{task}_{path}_model.pth")
             else:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_STED/{dataset}/{task}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_STED/{dataset}/{task}_model.pth")
             model.load_state_dict(checkpoint['model_state_dict'])
             return model
         else:

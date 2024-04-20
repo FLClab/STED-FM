@@ -6,7 +6,13 @@ from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 class MAEWeights:
     MAE_IMAGENET = None
     MAE_SSL_CTC = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth"
-    MAE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_STED/checkpoint-530.pth"
+    MAE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_STED/checkpoint-530.pth"
+    MAE_LINEARPROBE_IMAGENET_PROTEINS = None
+    MAE_LINEARPROBE_CTC_PROTEINS = None
+    MAE_LINEARPROBE_STED_PROTEINS = None
+    MAE_LINEARPROBE_IMAGENET_OPTIM = None
+    MAE_LINEARPROBE_CTC_OPTIM = None
+    MAE_LINEARPROBE_STED_OPTIM = None
 
 class MAEConfiguration:
     backbone: str = "vit-small"
