@@ -5,7 +5,10 @@ Results are transcribed as hard-coded global variables here
 import numpy as np 
 import matplotlib.pyplot as plt
 
-SUPERVISED = 0.742
+SUPERVISED = {
+    "synaptic-proteins": 0.742,
+    "optim": 0.909,
+}
 
 RESULTS = {
     "MAE": 
@@ -32,20 +35,57 @@ RESULTS = {
             {
                 "ImageNet": {
                         "KNN": 0.797,
-                        "linear-probing": 0.0,
-                        "fine-tuning": 0.0,
+                        "linear-probing": 0.881,
+                        "fine-tuning": 0.881,
                     },
                     "CTC": {
                         "KNN": 0.860,
-                        "linear-probing": 0.0,
-                        "fine-tuning": 0.0,
+                        "linear-probing": 0.910,
+                        "fine-tuning": 0.927,
                     },
                     "STED": {
                         "KNN": 0.954,
-                        "linear-probing": 0.0,
-                        "fine-tuning": 0.0,
+                        "linear-probing": 0.975,
+                        "fine-tuning": 0.950,
                     }
             }
+    },
+    "RESNET18": {
+        "synaptic_proteins": {
+            "ImageNet": {
+                "KNN": 67.85,
+                "linear-probing": None,
+                "fine-tuning": None,
+            },
+            "CTC": {
+                "KNN": 53.32,
+                "linear-probing": None,
+                "fine-tuning": None,
+            },
+            "STED": {
+                "KNN": 69.76,
+                "linear-probing": None,
+                "fine-tuning": None,
+            }
+        },
+        "optim": {
+             "ImageNet": {
+                "KNN": 92.47,
+                "linear-probing": None,
+                "fine-tuning": None,
+            },
+            "CTC": {
+                "KNN": 90.18,
+                "linear-probing": None,
+                "fine-tuning": None,
+            },
+            "STED": {
+                "KNN": 94.75,
+                "linear-probing": None,
+                "fine-tuning": None,
+            }
+
+        }
     }
 }
 
@@ -66,8 +106,7 @@ def make_plot(results: dict, model: str = "MAE", task: str = "synaptic-proteins"
     plt.bar(x1, imnet_data, label="ImageNet", color='tab:red', width=w, edgecolor='black')
     plt.bar(x2, ctc_data, label='CTC', color='tab:green', width=w, edgecolor='black')
     plt.bar(x3, sted_data, label="STED", color="tab:blue", width=w, edgecolor='black')
-    if task == 'synaptic-proteins':
-        plt.axhline(y=SUPERVISED, xmin=0, xmax=x3[-1]+w, color='grey', ls='--', label='Fully supervised')
+    plt.axhline(y=SUPERVISED[task], xmin=0, xmax=x3[-1]+w, color='grey', ls='--', label='Fully supervised')
     plt.xticks([item+0.15 for item in x1], keys)
     plt.ylabel("Accuracy")
     plt.xlabel("Classification method")
@@ -79,7 +118,7 @@ def make_plot(results: dict, model: str = "MAE", task: str = "synaptic-proteins"
 
 def main():
     make_plot(results=RESULTS, model="MAE", task='synaptic-proteins')
-    # make_plot(results=RESULTS, model="MAE", task='optim')
+    make_plot(results=RESULTS, model="MAE", task='optim')
 
 if __name__=="__main__":
     main()

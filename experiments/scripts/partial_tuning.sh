@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=00:30:00
+#SBATCH --time=12:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
-#SBATCH --mem=64G
+#SBATCH --mem=16G
 #SBATCH --gpus-per-node=1
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-5
+#SBATCH --array=0-2
+
 
 #### PARAMETERS
 
@@ -22,39 +23,51 @@ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 # Moves to working directory
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
-WEIGHTS=(
-    "ImageNet"
-    "CTC"
-    "STED"
+BLOCKS=(
+    # "12"
+    # "11"
+    # "10"
+    # "9"
+    # "8"
+    # "7"
+    # "6"
+    # "5"
+    # "4"
+    # "3"
+    # "2"
+    # "1"
+    "0"
 )
 
-TASKS=(
-    "linear-probe"
-    "finetuned"
+WEIGHTS=(
+    "MAE_IMAGENET"
+    "MAE_SSL_CTC"
+    "MAE_SSL_STED"
 )
 
 opts=()
-for weight in "${WEIGHTS[@]}"
+for block in "${BLOCKS[@]}"
 do 
-    for task in "${TASKS[@]}"
+    for weight in "${WEIGHTS[@]}"
     do
-        opts+=("$weight, $task")
+        opts+=("$block, $weight")
     done 
 done 
 
-# weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
-
 IFS=', ' read -r -a opt <<< "${opts[${SLURM_ARRAY_TASK_ID}]}"
-weight="${opt[0]}"
-task="${opt[1]}"
+block="${opt[0]}"
+weight="${opt[1]}"
+
+
+# block=${BLOCKS[${SLURM_ARRAY_TASK_ID}]}
 
 
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started fine-tuning $weight $task"
+echo "% Started fine-tuning"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python eval.py --dataset synaptic-proteins --model MAE --task $task --pretraining $weight
+python finetune.py --dataset synaptic-proteins --model mae --weights $weight --blocks $block
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

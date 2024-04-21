@@ -6,13 +6,13 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 import argparse
 import sys 
 sys.path.insert(0, "../")
-from loader import get_dataset
+from loaders import get_dataset
 from model_builder import get_pretrained_model, get_base_model
 from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default="synaptic-proteins")
-parser.add_argument("--model", type=str, default="vit")
+parser.add_argument("--model", type=str, default="vit-small")
 args = parser.parse_args()
 
 def validation_step(
@@ -27,8 +27,8 @@ def validation_step(
     big_correct = np.array([0] * (4+1))
     big_n = np.array([0] * (4+1))
     with torch.no_grad():
-        for imgs, proteins, conditions in tqdm(valid_loader, desc="Validation..."):
-            labels = proteins if args.class_type == 'protein' else conditions
+        for imgs, data_dict in tqdm(valid_loader, desc="Validation..."):
+            labels = data_dict['label']
             imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
             predictions = model(imgs)
             loss = criterion(predictions, labels)
@@ -57,8 +57,8 @@ def train_one_epoch(
 ):
     model.train()
     loss_meter = AverageMeter()
-    for imgs, proteins, conditions in tqdm(train_loader, desc="Training..."):
-        labels = proteins if args.class_type == 'protein' else conditions
+    for imgs, data_dict in tqdm(train_loader, desc="Training..."):
+        labels = data_dict['label']
         imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
         optimizer.zero_grad()
         predictions = model(imgs)
@@ -110,17 +110,18 @@ def train(
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
-    n_channels = 3 if args.model == "ImageNet" else 1
-    train_loader, valid_loader, test_loader = get_dataset(
+    train_loader, valid_loader, _ = get_dataset(
         name=args.dataset,
         transform=None,
         path=None,
-        n_channels=n_channels,
+        n_channels=1,
         training=True
     )
-    model = get_base_model(name=args.model).to(device)
+    model, cfg = get_base_model(name=args.model)
+    model = model.to(device)
+    # optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0.3, betas=(0.9, 0.95)) --> proposed by the MAE paper, but does not seem to be optimal here
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.99))
-    scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=20)
+    scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=100)
     criterion = torch.nn.CrossEntropyLoss()
     train(
         model=model,
@@ -131,7 +132,7 @@ def main():
         criterion=criterion,
         optimizer=optimizer,
         scheduler=scheduler,
-        model_path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/from-scratch"
+        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_fully-supervised/{args.dataset}"
     )
 
 if __name__=="__main__":

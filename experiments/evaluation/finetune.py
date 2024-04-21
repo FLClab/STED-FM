@@ -4,42 +4,24 @@ import torch
 import argparse 
 from tqdm import tqdm 
 from torch.optim.lr_scheduler import CosineAnnealingLR
+from torchinfo import summary
 import sys
 sys.path.insert(0, "../")
 from loaders import get_dataset
-from model_builder import get_pretrained_model
+from model_builder import get_pretrained_model, get_pretrained_model_v2
 from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default='synaptic-proteins')
 parser.add_argument("--model", type=str, default="MAE")
 parser.add_argument("--weights", type=str, default="STED")
 parser.add_argument("--global-pool", type=str, default='avg')
-parser.add_argument("--freeze", action="store_true")
+parser.add_argument("--blocks", type=str, default='0') # end-to-end fine-tuning by default
+parser.add_argument("--track-epochs", action='store_true')
 args = parser.parse_args()
 
-SAVE_EXPR = "linear-probe" if args.freeze else "finetuned"
-
-def evaluate(model, loader, device):
-    model.eval()
-    big_correct = np.array([0] * (4+1))
-    big_n = np.array([0] * (4+1))
-    with torch.no_grad():
-        for imgs, data_dict in tqdm(loader, desc="Evaluation..."):
-            labels = data_dict['label']
-            imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
-            predictions = model(imgs)
-            correct, n = compute_Nary_accuracy(predictions, labels)
-            big_correct = big_correct + correct
-            big_n = big_n + n
-        accuracies = big_correct / big_n
-        print("********* Validation metrics **********")
-        print("Overall accuracy = {:.3f}".format(accuracies[0]))
-        for i in range(1, 4+1):
-            acc = accuracies[i]
-            print("Class {} accuracy = {:.3f}".format(
-                i, acc))
-    return accuracies[0]
+SAVE_EXPR = "linear-probe" if args.blocks == 'all' else "finetuned"
 
 def validation_step(
         model,
@@ -101,7 +83,6 @@ def train(
         model,
         train_loader, 
         valid_loader,
-        test_loader,
         device,
         num_epochs, 
         criterion, 
@@ -113,7 +94,7 @@ def train(
     acc_per_epoch = []
     save_best_model = SaveBestModel(
         save_dir=model_path,
-        model_name=f"{SAVE_EXPR}_model",
+        model_name=f"{SAVE_EXPR}_{args.blocks}blocks_model",
     )
     for epoch in tqdm(range(num_epochs), desc="Epochs..."):
         loss = train_one_epoch(
@@ -129,9 +110,7 @@ def train(
         val_loss.append(v_loss)
         val_acc.append(v_acc)
         scheduler.step()
-        if epoch == 1 or (epoch + 1) % 10 == 0:
-            test_acc = evaluate(model=model, loader=test_loader, device=device)
-            acc_per_epoch.append(test_acc)
+        if (epoch == 1 or (epoch + 1) % 10 == 0) and args.track_epochs:
             torch.save({
                     'epoch': epoch + 1,
                     'model_state_dict': model.state_dict(),
@@ -146,21 +125,42 @@ def train(
             val_loss, 
             val_acc, 
             lrates, 
-            save_dir=f"{model_path}/{SAVE_EXPR}_curves.png")
-    return acc_per_epoch
+            save_dir=f"{model_path}/{SAVE_EXPR}_{args.blocks}blocks_curves.png")
+
+def get_save_folder() -> str:
+    if "imagenet" in args.weights.lower():
+        return "ImageNet"
+    elif "sted" in args.weights.lower():
+        return "STED"
+    else:
+        return "CTC"
 
 def main():
+    SAVE_NAME = get_save_folder()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
-    n_channels = 3 if args.weights == "ImageNet" else 1 
-    train_loader, valid_loader, test_loader = get_dataset(name=args.dataset, transform=None, path=None, n_channels=n_channels, training=True)
-    model = get_pretrained_model(
+    n_channels = 3 if "imagenet" in args.weights.lower() else 1 
+    train_loader, valid_loader, _ = get_dataset(name=args.dataset, transform=None, path=None, n_channels=n_channels, training=True)
+    # model = get_pretrained_model(
+    #     name=args.model, 
+    #     weights=args.weights, 
+    #     path=None,
+    #     blocks=int(args.blocks),
+    #     )
+    model, _ = get_pretrained_model_v2(
         name=args.model, 
         weights=args.weights, 
         path=None,
-        freeze=args.freeze
-        ).to(device)
-    if args.freeze:
+        mask_ratio=0.0, 
+        pretrained=True if "imagenet" in args.weights.lower() else 1, # This refers to the ViT encoder boolean flag for pretraining. If not ImageNet, then the whole MAE is pretrained, otherwise we got pretrained weights for the ViT encoder and the decoder is never used
+        in_channels=n_channels,
+        as_classifier=True,
+        blocks=int(args.blocks),
+        )
+    model = model.to(device)
+    summary(model, size=(256, 1, 224, 224))
+    if args.blocks == 'all' or args.blocks == '12': # Need different hyper-parameters for the linear-probing setting
+        # TODO the '12' assumes MAE architecture, need to adapt it to other archs as well
         optimizer = torch.optim.SGD(model.parameters(), lr=0.1, weight_decay=0, momentum=0.9)
 
     else:
@@ -169,21 +169,18 @@ def main():
         
     scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=100)
     criterion = torch.nn.CrossEntropyLoss()
-    test_accuracies = train(
+    modelname = "MAE" if args.model == "MAEClassifier" else args.model
+    train(
         model=model,
         train_loader=train_loader,
         valid_loader=valid_loader,
-        test_loader=test_loader,
         device=device,
         num_epochs=100,
         criterion=criterion,
         optimizer=optimizer,
         scheduler=scheduler,
-        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/finetuning/{args.weights}"
+        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{args.model}_{SAVE_NAME}/{args.dataset}"
     )
-    np.savez(
-        f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation/results/{args.model}/{SAVE_EXPR}/{args.weights}_test_results", 
-        acc=test_accuracies)
     
 if __name__=="__main__":
     main()

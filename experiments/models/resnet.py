@@ -30,6 +30,7 @@ class ResNetConfiguration:
     dim: int = 512
     in_channels: int = 1
 
+
 def get_backbone(name: str, **kwargs) -> torch.nn.Module:
     cfg = ResNetConfiguration()
     for key, value in kwargs.items():
