@@ -13,6 +13,7 @@ from DEFAULTS import BASE_PATH
 class MICRANetWeights:
 
     MICRANET_SSL_STED = os.path.join(BASE_PATH, "baselines", "micranet", "result.pt")
+    MICRANET_SSL_CTC = os.path.join(BASE_PATH, "baselines", "micranet_CTC", "result.pt")
 
 @dataclass
 class MICRANetConfiguration:
