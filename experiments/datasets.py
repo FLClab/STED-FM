@@ -84,7 +84,7 @@ class CreateFActinDataset(Dataset):
         },
     }
 
-    def __init__(self, data_folder : str, transform : Any, classes : list, n_channels : bool=False):
+    def __init__(self, data_folder : str, transform : Any, classes : list, n_channels : int=1):
     
         self.div = "DIV13"
         self.data_folder = data_folder
@@ -796,3 +796,34 @@ class TarFLCDataset(Dataset):
         state = dict(self.__dict__)
         state['tar_obj'] = {}
         return state
+    
+if __name__ == "__main__":
+
+    import tifffile, pandas
+    name = "factin"
+    dataset = get_dataset(name, None, transform=None)
+    df = pandas.DataFrame(columns=["Metadata_Plate","Metadata_Well","Metadata_Site","chan","gene_name","pert_name","broad_sample","pert_name_replicate","Split"])
+    for i in range(len(dataset)):
+        img, metadata = dataset[i]
+        img = img.squeeze()
+        img = img.cpu().data.numpy()
+
+        tifffile.imwrite(
+            "/home-local2/projects/deepprofiler/inputs/images/{}_{:04d}.tif".format(name, i),
+            (numpy.clip(img * 255, 0, 255)).astype(numpy.uint8)
+        )
+        df = pandas.concat([
+            df, 
+            pandas.DataFrame({
+                "Metadata_Plate" : [1],
+                "Metadata_Well" : [i],
+                "Metadata_Site" : [i],
+                "chan" : ["{}_{:04d}.tif".format(name, i)],
+                "gene_name" : [dataset.classes[metadata["label"]]],
+                "pert_name" : [1],
+                "broad_sample" : [1],
+                "pert_name_replicate" : [1],
+                "Split" : [1]
+            })
+        ], ignore_index=True)
+    df.to_csv(f"/home-local2/projects/deepprofiler/inputs/metadata/{name}_index.csv")

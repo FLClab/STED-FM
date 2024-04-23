@@ -214,6 +214,7 @@ class UNet(torch.nn.Module):
         out.append(x)
 
         x = self.backbone.layer4(x)
+
         out.append(x)
 
         return x, out

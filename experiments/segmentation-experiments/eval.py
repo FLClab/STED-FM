@@ -125,8 +125,7 @@ def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
 
     # Case of foreground stored in truth
     if truth.shape[1] != prediction.shape[1]:
-        truth = truth[:, :-1]
-        foreground = truth[:, -1]
+        truth, foreground = truth[:, :-1], truth[:, -1]
     else:
         foreground = numpy.ones(truth.shape[-2:])
     
@@ -249,6 +248,7 @@ if __name__ == "__main__":
     savedir = f"./results/{args.backbone}/{args.dataset}/{os.path.basename(OUTPUT_FOLDER)}"
     os.makedirs(savedir, exist_ok=True)
     for key, values in scores.items():
+        print("Results for", key)
         values = numpy.array(values)
         
         fig, ax = pyplot.subplots(figsize=(3, 3))
@@ -257,6 +257,12 @@ if __name__ == "__main__":
             
             # Remove -1 values as they are not valid
             data = data[data != -1]
+
+            print(testing_dataset.classes[i])
+            print( 
+                  "avg : {:0.4f}".format(numpy.mean(data, axis=0)), 
+                  "std : {:0.4f}".format(numpy.std(data, axis=0)),
+                  "med : {:0.4f}".format(numpy.median(data, axis=0)),)
 
             bplot = ax.boxplot(data, positions=[i], widths=0.8)
             for element in ['boxes', 'whiskers', 'fliers', 'means', 'medians', 'caps']:

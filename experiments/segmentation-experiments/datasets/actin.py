@@ -136,12 +136,12 @@ def get_dataset(cfg:dataclass, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
     # Updates the configuration inplace
     cfg.dataset_cfg = FActinConfiguration()
 
-    hdf5_training_path = "./data/SSL/segmentation-data/factin/training_small-dataset_20240418.hdf5"
-    hdf5_validation_path = "./data/SSL/segmentation-data/factin/validation_small-dataset_20240418.hdf5"
-    hdf5_testing_path = "./data/SSL/segmentation-data/factin/testing_EXP192-block-glugly.hdf5"
+    hdf5_training_path = os.path.join(BASE_PATH, "segmentation-data", "factin", "training_small-dataset_20240418.hdf5")
+    hdf5_validation_path = os.path.join(BASE_PATH, "segmentation-data", "factin", "validation_small-dataset_20240418.hdf5")
+    hdf5_testing_path = os.path.join(BASE_PATH, "segmentation-data", "factin", "testing_EXP192-block-glugly.hdf5")
 
     training_dataset = HDF5Dataset(
-        file_path=hdf5_training_path,
+        path=hdf5_training_path,
         data_aug=0.5,
         validation=False,
         size=256,
@@ -163,6 +163,6 @@ def get_dataset(cfg:dataclass, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
         size=256,
         step=0.75,
         out_channels=cfg.in_channels,
-        return_foregound=False
+        return_foregound=True
     )
     return training_dataset, validation_dataset, testing_dataset

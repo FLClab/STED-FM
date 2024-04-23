@@ -38,6 +38,7 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
         raise NotImplementedError(f"Model {name} not implemented yet.")
 
 def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwargs):
+    print("Query: ", name, weights)
     if name == "MAE":
         if weights == "ImageNet":
             vit = vit_small_patch16_224(in_chans=3, pretrained=True)
@@ -132,10 +133,11 @@ def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwa
     # elif name == "resnet50":
     #     pass
     elif name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base"]:
-        model, cfg = get_base_model(name, in_channels=3 if "imagenet" in weights.lower() else 1)
+        model, cfg = get_base_model(name, in_channels=3 if (weights is not None and "imagenet" in weights.lower()) else 1)
         state_dict = get_weights(name, weights)
         # This is could lead to errors if the model is not exactly the same as the one used for pretraining
-        model.load_state_dict(state_dict, strict=False)
+        if isinstance(state_dict, dict):
+            model.load_state_dict(state_dict, strict=False)
         print(f"--- Loaded model {name} with weights {weights} ---")
         return model, cfg
     else:
