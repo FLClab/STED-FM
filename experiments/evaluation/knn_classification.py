@@ -41,15 +41,15 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
         for x, data_dict in tqdm(loader, desc="Extracting features..."):
             labels = data_dict['label']
             x, labels = x.to(device), labels.to(device)
-            if args.dataset == "optim":
-                labels = labels.type(torch.FloatTensor)
-
+            print(f"In knn predict {labels.shape, type(labels), labels.dtype}")
             if "mae" in args.model.lower():
                 features = model.forward_encoder(x)
                 if args.global_pool == "token":
                     features = features[:, 0, :] # class token
                 else:
                     features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens
+            elif "convnext" in args.model.lower():
+                features = model(x).flatten(start_dim=1)
             else:
                 features = model(x)
 
@@ -58,16 +58,14 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
 
     samples = np.array(out['features'])
     labels = np.array([int(item) for item in out['labels']])
-    print(samples.shape, labels.shape)
-    print(samples.dtype, labels.dtype)
     plot_PCA(samples=samples, labels=labels, savename=savename)
     neigh = NearestNeighbors(n_neighbors=6)
     neigh.fit(samples)
     neighbors = neigh.kneighbors(samples, return_distance=False)[:, 1:]
+    print(samples.shape, labels.shape, neighbors.shape)
     associated_labels = labels[neighbors]
 
     uniques = np.unique(labels)
-    print(np.unique(labels, return_counts=True))
     confusion_matrix = np.zeros((len(uniques), len(uniques)))
     for unique in tqdm(uniques, desc="Confusion matrix computation..."):
         mask = labels == unique
@@ -124,7 +122,7 @@ def main():
         n_channels=n_channels,
         training=False,
         batch_size=cfg.batch_size,
-        fewshot_pct=0.0
+        fewshot_pct=1.0
         )
     model = model.to(device)
     model.eval()

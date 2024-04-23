@@ -19,6 +19,7 @@ import numpy as np
 from tqdm import tqdm
 import utils
 from model_builder import get_base_model
+from torchinfo import summary
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)
@@ -63,6 +64,8 @@ def main():
         print("--- Restoring model ---")
         model.load_state_dict(ckpt)
     model = model.to(DEVICE)
+
+    summary(model)
 
     transform = torchvision.transforms.Compose([
         torchvision.transforms.ToPILImage(),

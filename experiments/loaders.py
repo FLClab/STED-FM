@@ -137,94 +137,6 @@ def get_synaptic_proteins_dataset(
     else:
         return test_loader
 
-
-
-def get_synaptic_proteins_dataset_old(
-        path: str,
-        transform,
-        class_ids: List = None,
-        batch_size: int = 256,
-        validation_size: float = 0.10,
-        class_type: str = "protein",
-        n_channels: int = 1,
-        h5size: int = 67436,
-        training: bool = False,
-        fewshot_pct: float = 0.0,
-) -> DataLoader:
-    np.random.seed(42) # For reproducibility and to always get same test set when we evaluate
-    indices = np.arange(0, h5size, 1)
-    np.random.shuffle(indices) 
-    split = int( (h5size) * (1 - validation_size))
-    temp_indices = indices[:split]
-    test_indices = indices[split:]
-
-    val_split = int(( (temp_indices.shape[0]) * (1 - validation_size)))
-    train_indices = temp_indices[:val_split]
-    val_indices = temp_indices[val_split:]
-
-    train_dataset = datasets.ProteinDataset(
-        h5file=f"{path}/theresa_proteins.hdf5",
-        class_ids=None,
-        class_type=class_type,
-        n_channels=n_channels,
-        indices=train_indices
-    )
-    valid_dataset = datasets.ProteinDataset(
-        h5file=f"{path}/theresa_proteins.hdf5",
-        class_ids=None,
-        class_type=class_type,
-        n_channels=n_channels,
-        indices=val_indices
-    )
-    test_dataset = datasets.ProteinDataset(
-            h5file=f"{path}/theresa_proteins.hdf5",
-            class_ids=None,
-            class_type=class_type,
-            n_channels=n_channels,
-            indices=test_indices
-    )
-    print(f"Training size: {len(train_dataset)}")
-    print(f"Validation size: {len(valid_dataset)}")
-    print(f"Test size: {len(test_dataset)}")
-
-    if fewshot_pct == 0.0:
-        train_loader = DataLoader(
-            dataset=train_dataset,
-            batch_size=batch_size,
-            shuffle=True,
-            drop_last=False,
-            num_workers=6,
-        )
-    else:
-        print(f"Loading balanced training set with {fewshot_pct * 100}% of labels")
-        sampler = BalancedSampler(dataset=train_dataset, fewshot_pct=fewshot_pct, num_classes=4)
-        train_loader = DataLoader(
-            dataset=train_dataset,
-            batch_size=batch_size,
-            shuffle=False,
-            drop_last=False,
-            num_workers=6,
-            sampler=sampler
-        )
-    valid_loader = DataLoader(
-        dataset=valid_dataset,
-        batch_size=batch_size,
-        shuffle=True,
-        drop_last=False,
-        num_workers=6,
-    )
-    test_loader = DataLoader(
-        dataset=test_dataset,
-        batch_size=batch_size,
-        shuffle=True,
-        drop_last=False,
-        num_workers=6,
-    )
-    if training: 
-        return train_loader, valid_loader, test_loader
-    else:
-        return test_loader
-
 def get_optim_dataset(path: str, training: bool = False, batch_size=256, **kwargs):
     if training: # Disregards the provided path
         train_dataset = datasets.OptimDataset(
@@ -276,7 +188,7 @@ def get_factin_block_glugly_dataset(path: str, **kwargs):
     dataloader = DataLoader(dataset=dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
     return dataset
 
-def get_dataset(name, path, **kwargs):
+def get_dataset(name, path, fewshot_pct: float = 1.0, **kwargs):
     if name == "optim":
         return get_optim_dataset(
             path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/optim-data", 
@@ -292,7 +204,7 @@ def get_dataset(name, path, **kwargs):
             transform=kwargs['transform'],
             training=kwargs['training'],
             batch_size=kwargs['batch_size'],
-            fewshot_pct=kwargs['fewshot_pct']
+            fewshot_pct=fewshot_pct
             )
     elif name == "factin-rings-fibers":
         return get_factin_rings_fibers_dataset(path=path, transform=kwargs['transform'])

@@ -260,6 +260,8 @@ class OptimDataset(Dataset):
         if self.transform:
             image = self.transform(image)
         
+        label = np.float64(label)
+        print(type(label), label.shape, label.dtype)
         return image, {"label" : label, "dataset-idx" : dataset_idx, "score" : quality_score}
 
     def __repr__(self):
@@ -301,7 +303,8 @@ class ProteinDataset(Dataset):
                 img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
             else:
                 img = transforms.ToTensor()(img)
-            return img, {"label": protein, "condition": condition}
+        print(type(label), label.shape, label.dtype)
+        return img, {"label": protein, "condition": condition}
 
 class CTCDataset(Dataset):
     def __init__(

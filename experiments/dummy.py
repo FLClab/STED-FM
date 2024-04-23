@@ -4,7 +4,7 @@ Script mostly used for displaying quick info or downloading torchvision models o
 import torch
 import numpy as np
 from model_builder import get_pretrained_model, get_pretrained_model_v2, get_base_model
-from timm.models.vision_transformer import vit_small_patch16_224, vit_base_patch16_224, vit_tiny_patch16_224
+from timm.models.vision_transformer import vit_small_patch16_224, vit_base_patch16_224, vit_tiny_patch16_224, vit_large_patch16_224
 import argparse 
 import torchvision
 from torchinfo import summary
@@ -28,7 +28,7 @@ def main():
     # model, cfg = get_base_model(
     #     name="convnext-small",
     # )
-    model = vit_tiny_patch16_224(in_chans=1)
+    model = vit_large_patch16_224(in_chans=1)
     
     summary(model)
 

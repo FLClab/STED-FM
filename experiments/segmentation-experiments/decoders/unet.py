@@ -238,7 +238,15 @@ class UNet(torch.nn.Module):
         """
         
         """
-        pass
+        x = self.backbone.images_to_tokens(x)
+        x = self.backbone.add_prefix_tokens(x)
+        x = self.backbone.add_pos_embed(x)
+        x = self.backbone.vit.norm_pre(x)
+        features = []
+        for blk in self.vit.blocks:
+            x  = blk(x)
+            features.append(x)
+        return x, features
 
     def forward(self, x : torch.Tensor):
         """

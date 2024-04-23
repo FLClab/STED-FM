@@ -16,24 +16,24 @@ SUPERVISED = {
 RESULTS = {
     "MAE": 
         {   
-            "synaptic-proteins":
-                {
-                    "ImageNet": {
-                        "KNN": 0.397,
-                        "linear-probing": 0.499,
-                        "fine-tuning": 0.720,
-                    },
-                    "CTC": {
-                        "KNN": 0.409,
-                        "linear-probing": 0.501,
-                        "fine-tuning": 0.733,
-                    },
-                    "STED": {
-                        "KNN": 0.749,
-                        "linear-probing": 0.780,
-                        "fine-tuning": 0.817,
-                    }
+        "synaptic-proteins":
+            {
+                "ImageNet": {
+                    "KNN": 0.397,
+                    "linear-probing": 0.499,
+                    "fine-tuning": 0.720,
                 },
+                "CTC": {
+                    "KNN": 0.409,
+                    "linear-probing": 0.501,
+                    "fine-tuning": 0.733,
+                },
+                "STED": {
+                    "KNN": 0.749,
+                    "linear-probing": 0.780,
+                    "fine-tuning": 0.817,
+                }
+            },
         "optim": 
             {
                 "ImageNet": {
@@ -94,18 +94,18 @@ RESULTS = {
         "synaptic-proteins": {
             "ImageNet": {
                 "KNN": 0.6674,
-                "linear-probing": None,
-                "fine-tuning": None,
+                "linear-probing": 0.688,
+                "fine-tuning": 0.819,
             },
             "CTC": {
                 "KNN": 0.5434,
-                "linear-probing": None,
-                "fine-tuning": None,
+                "linear-probing": 0.622,
+                "fine-tuning": 0.829,
             },
             "STED": {
                 "KNN": 0.6717,
-                "linear-probing": None,
-                "fine-tuning": None,
+                "linear-probing": 0.703,
+                "fine-tuning": 0.862,
             }
         },
         "optim": {
@@ -135,12 +135,12 @@ RESULTS = {
                 "fine-tuning": None,
             },
             "CTC": {
-                "KNN": None,
+                "KNN": 0.558,
                 "linear-probing": None,
                 "fine-tuning": None,
             },
             "STED": {
-                "KNN": None,
+                "KNN": 0.740,
                 "linear-probing": None,
                 "fine-tuning": None,
             }
@@ -152,7 +152,7 @@ RESULTS = {
                 "fine-tuning": None,
             },
             "CTC": {
-                "KNN": None,
+                "KNN": Nones,
                 "linear-probing": None,
                 "fine-tuning": None,
             },
