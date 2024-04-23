@@ -233,6 +233,12 @@ class UNet(torch.nn.Module):
             if ((i + 1) % 2) == 0:
                 out.append(x)
         return x, out
+    
+    def _forward_mae(self, x: torch.Tensor) -> tuple[torch.Tensor, list[torch.Tensor]]:
+        """
+        
+        """
+        pass
 
     def forward(self, x : torch.Tensor):
         """

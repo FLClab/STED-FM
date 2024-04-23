@@ -16,12 +16,13 @@ class LinearProbe(torch.nn.Module):
         self.name = name
         self.num_classes = num_classes 
         self.global_pool = global_pool
+        self.num_blocks = num_blocks
         
         if self.name.lower() == "mae":
             feature_dim = 384
-        elif self.name == "resnet-18":
+        elif self.name == "resnet18":
             feature_dim = 512
-        elif self.name == "resnet-50":
+        elif self.name == "resnet50":
             feature_dim = 2048
         elif self.name == "micranet":
             pass 
@@ -33,19 +34,14 @@ class LinearProbe(torch.nn.Module):
         if num_blocks == 'all':
             for p in self.backbone.parameters():
                 p.requires_grad = False
-                print(f"--- Freezing all blocks ---")
+            print(f"--- Freezing all blocks ---")
         elif num_blocks == "0":
             print("--- Not freezing any layers ---")
         elif num_blocks != "0":
-            if name in ["MAE", "mae", "MAEClassifier", 'vit-small']:
-                self.backbone.backbone.mask_token.requires_grad = False
-                self.backbone.backbone.vit.cls_token.requires_grad = False
-                self.backbone.backbone.vit.pos_embed.requires_grad = False
-                blocks = list(range(num_blocks))
+                blocks = list(range(int(num_blocks)))
                 self._freeze_blocks(blocks)
-                print(f"--- Freezing blocks {blocks} ---")
         else:
-            raise NotImplementedError(f"Imvalid number ({num_blocks}) of blocks.")
+            raise NotImplementedError(f"Invalid number ({num_blocks}) of blocks.")
 
         self.classification_head = torch.nn.Sequential(
             torch.nn.BatchNorm1d(num_features=feature_dim, affine=False, eps=1e-6),
@@ -53,12 +49,38 @@ class LinearProbe(torch.nn.Module):
         )
 
     def _freeze_blocks(self, blocks):
-        for bidx in blocks:
-            if self.name in ["MAE", "MAEClassifier", 'mae', 'vit-small']:
+        if self.name in ["MAE", "MAEClassifier", 'mae', 'vit-small']:
+            print(f"--- Freezing {blocks} ViT blocks ---")
+            self.backbone.backbone.mask_token.requires_grad = False
+            self.backbone.backbone.vit.cls_token.requires_grad = False
+            self.backbone.backbone.vit.pos_embed.requires_grad = False
+            for p in self.backbone.backbone.vit.patch_embed.parameters():
+                p.requires_grad = False
+            for bidx in blocks:
                 for p in self.backbone.backbone.vit.blocks[bidx].parameters():
                     p.requires_grad = False
-            else: 
-                raise NotImplementedError(f"Freezing of {self.name} not supported yet.")
+                    
+        elif "resnet" in self.name.lower():
+            print(f"--- Freezing {blocks} ResNet layers ---")
+            for p in self.backbone.conv1.parameters():
+                p.requires_grad = False
+            for p in self.backbone.bn1.parameters():
+                p.requires_grad = False
+            if len(blocks) == 1:
+                for p in self.backbone.layer1.parameters():
+                    p.requires_grad = False
+            if len(blocks) > 1:
+                for p in self.backbone.layer2.parameters():
+                    p.requires_grad = False
+            if len(blocks) > 2:
+                for p in self.backbone.layer3.parameters():
+                    p.requires_grad = False
+            if len(blocks) > 3:
+                for p in self.backbone.layer4.parameters():
+                    p.requires_grad = False
+        
+        else: 
+            raise NotImplementedError(f"Freezing of {self.name} not supported yet.")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if self.name in ["MAE", 'mae', "MAEClassifier"]:

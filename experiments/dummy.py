@@ -1,28 +1,36 @@
+"""
+Script mostly used for displaying quick info or downloading torchvision models on login nodes (w/ internet)
+"""
 import torch
 import numpy as np
-from model_builder import get_pretrained_model
+from model_builder import get_pretrained_model, get_pretrained_model_v2, get_base_model
+from timm.models.vision_transformer import vit_small_patch16_224, vit_base_patch16_224, vit_tiny_patch16_224
 import argparse 
 import torchvision
+from torchinfo import summary
+from loaders import get_dataset
+from tqdm import tqdm
+import h5py
+
+PATH = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/TheresaProteins/"
 
 def list_of_numbers(arg):
     return [int(item) for item in arg.split(',')]
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--freeze-blocks", type=list_of_numbers)
-args = parser.parse_args()
+def reset_labels(idx):
+    if idx > 1:
+        return idx - 1
+    else:
+        return idx
+
 
 def main():
-    # print(type(args.freeze_blocks))
-    # print(f"{args.freeze_blocks}\n\n")
-    # model = get_pretrained_model(
-    #     name="MAEClassifier",
-    #     weights="STED",
-    #     global_pool='avg',
-    #     blocks=args.freeze_blocks
+    # model, cfg = get_base_model(
+    #     name="convnext-small",
     # )
-    resnet = torchvision.models.resnet18(weights=None)
-    for n, p in resnet.named_parameters():
-        print(n, p)
+    model = vit_tiny_patch16_224(in_chans=1)
+    
+    summary(model)
 
 if __name__=="__main__":
     main()

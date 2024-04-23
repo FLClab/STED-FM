@@ -44,7 +44,7 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
             if args.dataset == "optim":
                 labels = labels.type(torch.FloatTensor)
 
-            if args.model in ["mae", "MAE", "MAEClassifier"]:
+            if "mae" in args.model.lower():
                 features = model.forward_encoder(x)
                 if args.global_pool == "token":
                     features = features[:, 0, :] # class token
@@ -53,12 +53,13 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
             else:
                 features = model(x)
 
-    
             out['features'].extend(features.cpu().data.numpy())
             out['labels'].extend(labels.cpu().data.numpy())
 
     samples = np.array(out['features'])
     labels = np.array([int(item) for item in out['labels']])
+    print(samples.shape, labels.shape)
+    print(samples.dtype, labels.dtype)
     plot_PCA(samples=samples, labels=labels, savename=savename)
     neigh = NearestNeighbors(n_neighbors=6)
     neigh.fit(samples)
@@ -106,15 +107,8 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
     n_channels = 3 if SAVE_NAME == "ImageNet" else 1
-    loader = get_dataset(
-        name=args.dataset, 
-        transform=None, 
-        path=None, 
-        n_channels=n_channels,
-        training=False
-        )
     # model = get_pretrained_model(name=args.model, weights=args.weights, path=None).to(device)
-    model, _ = get_pretrained_model_v2(
+    model, cfg = get_pretrained_model_v2(
         name=args.model,
         weights=args.weights,
         mask_ratio=0.0,
@@ -123,6 +117,15 @@ def main():
         as_classifier=False, # KNN directly in the model's latent space
         blocks='0'
     )
+    loader = get_dataset(
+        name=args.dataset, 
+        transform=None, 
+        path=None, 
+        n_channels=n_channels,
+        training=False,
+        batch_size=cfg.batch_size,
+        fewshot_pct=0.0
+        )
     model = model.to(device)
     model.eval()
     knn_predict(model=model, loader=loader, device=device, savename=SAVE_NAME)

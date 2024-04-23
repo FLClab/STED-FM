@@ -6,8 +6,8 @@ from torch import nn
 from dataclasses import dataclass
 
 class MICRANetWeights:
-
-    MICRANET_SSL_STED = "./data/SSL/baselines/micranet/result.pt"
+    MICRANET_SSL_CTC = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/micranet_CTC/result.pt"
+    MICRANET_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/micranet_STED/result.pt"
 
 @dataclass
 class MICRANetConfiguration:

@@ -1,12 +1,13 @@
 import torch
-from timm.models.vision_transformer import vit_small_patch16_224
+from timm.models.vision_transformer import vit_small_patch16_224, vit_tiny_patch16_224, vit_base_patch16_224, vit_large_patch16_224
 import lightly.models.utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 
 class MAEWeights:
     MAE_IMAGENET = None
     MAE_SSL_CTC = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth"
-    MAE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_STED/checkpoint-530.pth"
+    MAE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_STED/mae-small/checkpoint-530.pth"
+    MAE_BASE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_STED/mae-base/checkpoint-70.pth"
     MAE_LINEARPROBE_IMAGENET_PROTEINS = None
     MAE_LINEARPROBE_CTC_PROTEINS = None
     MAE_LINEARPROBE_STED_PROTEINS = None
@@ -27,8 +28,22 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
     for key, value in kwargs.items():
         setattr(cfg, key, value)
 
-    if name == "mae":
+
+    if name == 'mae-tiny':
+        cfg.dim = 192
+        vit = vit_tiny_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
+        backbone = LightlyMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+    elif name == "mae-small" or name == "mae":
+        cfg.dim = 384
         vit = vit_small_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
+        backbone = LightlyMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+    elif name == "mae-base":
+        cfg.dim = 768
+        vit = vit_base_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
+        backbone = LightlyMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+    elif name == 'mae-large':
+        cfg.dim = 1024
+        vit = vit_large_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
         backbone = LightlyMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
     else:
         raise NotImplementedError(f"`{name}` not implemented")
@@ -57,6 +72,10 @@ class LightlyMAE(torch.nn.Module):
         )
 
     def forward_encoder(self, images: torch.Tensor, idx_keep: bool=None) -> torch.Tensor:
+        # temp = self.images_to_tokens(images)
+        # Hp, Wp = temp.shape[2], temp.shape[3]
+        # x = self.backbone.encode(images=images, idx_keep=idx_keep)
+        # return x, (Hp, Wp)
         return self.backbone.encode(images=images, idx_keep=idx_keep)
 
     def forward_decoder(self, x: torch.Tensor, idx_keep: bool, idx_mask: bool) -> torch.Tensor:

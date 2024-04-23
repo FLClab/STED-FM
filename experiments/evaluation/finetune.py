@@ -19,9 +19,10 @@ parser.add_argument("--weights", type=str, default="STED")
 parser.add_argument("--global-pool", type=str, default='avg')
 parser.add_argument("--blocks", type=str, default='0') # end-to-end fine-tuning by default
 parser.add_argument("--track-epochs", action='store_true')
+parser.add_argument("--label-percentage", type=float, default=1.0)
 args = parser.parse_args()
 
-SAVE_EXPR = "linear-probe" if args.blocks == 'all' else "finetuned"
+LABEL_P = int(args.label_percentage * 100)
 
 def validation_step(
         model,
@@ -94,7 +95,7 @@ def train(
     acc_per_epoch = []
     save_best_model = SaveBestModel(
         save_dir=model_path,
-        model_name=f"{SAVE_EXPR}_{args.blocks}blocks_model",
+        model_name=f"frozen_{args.blocks}blocks_{LABEL_P}%-labels_model",
     )
     for epoch in tqdm(range(num_epochs), desc="Epochs..."):
         loss = train_one_epoch(
@@ -116,7 +117,7 @@ def train(
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
                     'loss': criterion,
-                }, f'{model_path}/{SAVE_EXPR}_epoch{epoch+1}_model.pth')
+                }, f'{model_path}/frozen_epoch{epoch+1}_model.pth')
         temp_lr = optimizer.param_groups[0]['lr']
         lrates.append(temp_lr)
         save_best_model(v_loss, epoch=epoch, model=model, optimizer=optimizer, criterion=criterion)
@@ -125,7 +126,7 @@ def train(
             val_loss, 
             val_acc, 
             lrates, 
-            save_dir=f"{model_path}/{SAVE_EXPR}_{args.blocks}blocks_curves.png")
+            save_dir=f"{model_path}/frozen_{args.blocks}blocks_{LABEL_P}%-labels_curves.png")
 
 def get_save_folder() -> str:
     if "imagenet" in args.weights.lower():
@@ -140,14 +141,13 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
     n_channels = 3 if "imagenet" in args.weights.lower() else 1 
-    train_loader, valid_loader, _ = get_dataset(name=args.dataset, transform=None, path=None, n_channels=n_channels, training=True)
     # model = get_pretrained_model(
     #     name=args.model, 
     #     weights=args.weights, 
     #     path=None,
     #     blocks=int(args.blocks),
     #     )
-    model, _ = get_pretrained_model_v2(
+    model, cfg = get_pretrained_model_v2(
         name=args.model, 
         weights=args.weights, 
         path=None,
@@ -155,12 +155,22 @@ def main():
         pretrained=True if "imagenet" in args.weights.lower() else 1, # This refers to the ViT encoder boolean flag for pretraining. If not ImageNet, then the whole MAE is pretrained, otherwise we got pretrained weights for the ViT encoder and the decoder is never used
         in_channels=n_channels,
         as_classifier=True,
-        blocks=int(args.blocks),
+        blocks=args.blocks,
+        )
+    batch_size = cfg.batch_size
+
+    train_loader, valid_loader, _ = get_dataset(
+        name=args.dataset, 
+        transform=None, 
+        path=None, 
+        n_channels=n_channels,
+        batch_size=batch_size, 
+        training=True,
+        fewshot_pct=args.label_percentage
         )
     model = model.to(device)
-    summary(model, size=(256, 1, 224, 224))
-    if args.blocks == 'all' or args.blocks == '12': # Need different hyper-parameters for the linear-probing setting
-        # TODO the '12' assumes MAE architecture, need to adapt it to other archs as well
+
+    if args.blocks == 'all' or (args.blocks == '12' and "mae" in args.model.lower()) or (args.blocks == "4" and "resnet" in args.model.lower()): 
         optimizer = torch.optim.SGD(model.parameters(), lr=0.1, weight_decay=0, momentum=0.9)
 
     else:
