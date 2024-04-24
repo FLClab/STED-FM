@@ -1,6 +1,23 @@
 # flc-dataset
 Dataset management of FLClab organization
 
+## Folder Architecture
+
+Here's the folder architecture that is assumed in the repository...
+```bash
+baselines
+|--- resnet18
+segmentation-baselines
+|--- resnet18
+|---|--- <DATASET>
+ssl-data
+|--- <DATASET>
+evaluation-data
+|--- <DATASET>
+segmentation-data
+|--- <DATASET>
+```
+
 ## Datasets
 
 In this folder, we include datasets from different users of the lab. A README-type file is provided keep track of the images. A `copy-files` is included to launch the copy-paste of all images.
