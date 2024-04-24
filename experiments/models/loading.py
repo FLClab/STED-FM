@@ -50,6 +50,8 @@ def load_weights(weights: Union[str, Enum]) -> dict:
         raise NotImplementedError("Weights not implemented yet.")
 
 def get_weights(name : str, weights: str) -> torch.nn.Module:
+    if weights is None:
+        return None
     if not name in MODELS:
         raise NotImplementedError(f"`{name}` is not a valid option.")
     weights = getattr(MODELS[name], weights)

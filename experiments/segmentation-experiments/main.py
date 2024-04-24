@@ -30,6 +30,21 @@ import sys
 sys.path.insert(0, "..")
 
 from model_builder import get_base_model, get_pretrained_model
+from utils import update_cfg, save_cfg
+
+def intensity_scale_(images: torch.Tensor) -> numpy.ndarray:
+    """
+    Helper function to scale the intensity of the images
+
+    :param images: A `torch.Tensor` of the images to scale
+
+    :returns : A `numpy.ndarray` of the scaled images
+    """
+    images = images.cpu().data.numpy()
+    images = numpy.array([
+        (image - image.min()) / (image.max() - image.min()) for image in images
+    ])
+    return images
 
 @dataclass
 class SegmentationConfiguration:
@@ -37,42 +52,6 @@ class SegmentationConfiguration:
     freeze_backbone: bool = False
     num_epochs: int = 500
     learning_rate: float = 1e-4
-
-def update_cfg(cfg: dataclass, opts: list[str]) -> dataclass:
-    """
-    Updates the configuration with additional options inplace
-
-    :param cfg: A `dataclass` of the configuration
-    :param opts: A `list` of options to update the configuration
-    """
-    for i in range(0, len(opts), 2):
-        key, value = opts[i], opts[i + 1]
-        if len(key.split(".")) > 1:
-            key, subkey = key.split(".")
-            update_cfg(getattr(cfg, key), [subkey, value])
-        else:
-            setattr(cfg, key, type(getattr(cfg, key))(value))
-
-def save_cfg(cfg: dataclass, path: str):
-    """
-    Saves the configuration to a file
-
-    :param cfg: A `dataclass` of the configuration
-    :param path: A `str` of the path to save the configuration
-    """
-    out = {}
-    for key, value in cfg.__dict__.items():
-        if dataclasses.is_dataclass(value):
-            out[key] = save_cfg(value, None)
-        elif isinstance(value, argparse.Namespace):
-            out[key] = value.__dict__
-        else:
-            out[key] = value
-
-    # Save to file; if path is None, return the dictionary for recursive calls
-    if isinstance(path, str):
-        json.dump(out, open(path, "w"), indent=4, sort_keys=True)
-    return out
 
 if __name__ == "__main__":
 
@@ -102,6 +81,9 @@ if __name__ == "__main__":
     if len(args.opts) == 1:
         args.opts = args.opts[0].split(" ")
     assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
+    # Ensure backbone weights are provided if necessary
+    if args.backbone_weights in (None, "null", "None", "none"):
+        args.backbone_weights = None
 
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
@@ -126,6 +108,7 @@ if __name__ == "__main__":
     for key, value in segmentation_cfg.__dict__.items():
         setattr(cfg, key, value)
     update_cfg(cfg, args.opts)
+    print(cfg.__dict__)
 
     if args.restore_from:
         # Loads checkpoint
@@ -136,6 +119,7 @@ if __name__ == "__main__":
         model_name = ""
         if args.backbone_weights:
             model_name += f"pretrained-"
+            print(cfg.freeze_backbone)
             if cfg.freeze_backbone:
                 model_name += "frozen-"
             model_name += f"{args.backbone_weights}"
@@ -191,7 +175,8 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(model.parameters(), lr = cfg.learning_rate)
     criterion = getattr(torch.nn, cfg.dataset_cfg.criterion)()
 
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience = 10, threshold = 0.01, min_lr=1e-5, factor=0.1,)
+    # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience = 10, threshold = 0.01, min_lr=1e-5, factor=0.1,)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.99)
     for epoch in range(start_epoch, cfg.num_epochs):
 
         start = time.time()
@@ -227,6 +212,12 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
 
+            if (i == 0) and args.use_tensorboard:
+                writer.add_images("Images-train/image", intensity_scale_(X[:5]), epoch, dataformats="NCHW")
+                for i in range(cfg.dataset_cfg.num_classes):
+                    writer.add_images(f"Images-train/label-{i}", y[:5, i:i+1], epoch, dataformats="NCHW")
+                    writer.add_images(f"Images-train/pred-{i}", pred[:5, i:i+1], epoch, dataformats="NCHW")
+
             # To avoid memory leak
             torch.cuda.empty_cache()
             del X, y, pred, loss
@@ -241,7 +232,7 @@ if __name__ == "__main__":
             else:
                 if X.dim() == 3:
                     X = X.unsqueeze(1)
-
+            
             # Send to gpu
             X = X.to(DEVICE)
             y = y.to(DEVICE)
@@ -252,6 +243,12 @@ if __name__ == "__main__":
 
             # Keeping track of statistics
             statLossTest.append(loss.item())
+
+            if (i == 0) and args.use_tensorboard:
+                writer.add_images("Images-test/image", intensity_scale_(X[:5]), epoch, dataformats="NCHW")
+                for i in range(cfg.dataset_cfg.num_classes):
+                    writer.add_images(f"Images-test/label-{i}", y[:5, i:i+1], epoch, dataformats="NCHW")
+                    writer.add_images(f"Images-test/pred-{i}", pred[:5, i:i+1], epoch, dataformats="NCHW")            
 
             # To avoid memory leak
             torch.cuda.empty_cache()
@@ -270,7 +267,8 @@ if __name__ == "__main__":
             if args.use_tensorboard:
                 writer.add_scalar(f"Loss/{key}", stats[key][-1], epoch)
 
-        scheduler.step(numpy.min(stats["testMean"]))
+        # scheduler.step(numpy.min(stats["testMean"]))
+        scheduler.step()
         stats["lr"].append(numpy.array(scheduler.get_last_lr()))
         if args.use_tensorboard:
             writer.add_scalar(f"Learning-rate/lr", stats["lr"][-1].item(), epoch)
@@ -279,8 +277,8 @@ if __name__ == "__main__":
         if min_valid_loss > stats["testMean"][-1]:
             min_valid_loss = stats["testMean"][-1]
             savedata = {
-                "model" : model,
-                "optimizer" : optimizer,
+                "model" : model.state_dict(),
+                "optimizer" : optimizer.state_dict(),
                 "stats" : stats,
             }
             torch.save(
@@ -292,8 +290,8 @@ if __name__ == "__main__":
         # Save every 10 epochs
         if epoch % 10 == 0:
             savedata = {
-                "model" : model,
-                "optimizer" : optimizer,
+                "model" : model.state_dict(),
+                "optimizer" : optimizer.state_dict(),
                 "stats" : stats,
             }
             torch.save(

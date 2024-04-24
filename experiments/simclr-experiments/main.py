@@ -21,7 +21,7 @@ from modules.transforms import SimCLRTransform
 
 import sys 
 sys.path.insert(0, "..")
-from datasets import TarFLCDataset
+from datasets import get_dataset
 from model_builder import get_base_model
 
 # Create a PyTorch module for the SimCLR model.
@@ -61,6 +61,8 @@ if __name__ == "__main__":
                     help="Model from which to restore from") 
     parser.add_argument("--save-folder", type=str, default="./data/SSL/baselines",
                     help="Model from which to restore from")     
+    parser.add_argument("--dataset", type=str, default="STED",
+                    help="Model from which to restore from")         
     parser.add_argument("--dataset-path", type=str, default="./data/FLCDataset/20240214-dataset.tar",
                     help="Model from which to restore from")         
     parser.add_argument("--backbone", type=str, default="resnet18",
@@ -84,7 +86,7 @@ if __name__ == "__main__":
         OUTPUT_FOLDER = os.path.dirname(args.restore_from)
     else:
         checkpoint = {}
-        OUTPUT_FOLDER = os.path.join(args.save_folder, args.backbone)
+        OUTPUT_FOLDER = os.path.join(args.save_folder, f"{args.backbone}_{args.dataset}")
     if args.dry_run:
         OUTPUT_FOLDER = os.path.join(args.save_folder, "debug")
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
@@ -127,12 +129,8 @@ if __name__ == "__main__":
     # Create a dataset from your image folder.
     manager = Manager()
     cache_system = manager.dict()
-    tar_path = args.dataset_path
-    if args.dry_run:
-        tar_path = "./data/FLCDataset/debug-dataset.tar"
-    dataset = TarFLCDataset(
-        tar_path=tar_path, transform=transform, 
-        use_cache=True, cache_system=cache_system, max_cache_size=16e9)
+    dataset = get_dataset(args.dataset, args.dataset_path, transform=transform, 
+                          use_cache=True, cache_system=cache_system, max_cache_size=16e9)
 
     # Build a PyTorch dataloader.
     dataloader = torch.utils.data.DataLoader(

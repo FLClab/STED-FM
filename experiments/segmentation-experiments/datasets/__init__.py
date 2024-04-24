@@ -2,10 +2,12 @@
 from torch.utils.data import Dataset
 from dataclasses import dataclass
 from .actin import get_dataset as get_actin_dataset
+from .fp import get_dataset as get_fp_dataset
 from .synprot import get_dataset as get_synaptic_protein_dataset
 
 DATASETS = {
     "factin" : get_actin_dataset,
+    "footprocess" : get_fp_dataset,
     'synaptic-segmentation': get_synaptic_protein_dataset
 }
 

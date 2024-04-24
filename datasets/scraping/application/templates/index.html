@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Classification Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .btn-group {
+            text-align: center;
+        }
+        .btn-group button {
+            background-color: #fc9003;
+            color: white;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-group button:hover {
+            background-color: #555555;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        .progress-bar-inner {
+            height: 20px;
+            background-color: #fc9003;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+        }        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LLM model validation</h1>
+        <div style="margin-bottom: 20px;">
+            The goal is to ensure that the predictions of the model are accurate.
+        </div>
+        <form method="post">
+            <table>
+                <tr>
+                    <th width=80%>Text Prompt</th>
+                    <th>Prediction</th>
+                    <th>Confidence</th>
+                </tr>
+                <tr>
+                    <td width=80%>{{ text_prompt }}</td>
+                    <td>
+                        <select name="prediction" value="manual-prediction">
+                            <option value="{{ prediction }}" selected disabled hidden>{{ prediction }}</option>
+                            {% for option in possible_options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td style="text-align: center;">{{ confidence }}</td>
+                </tr>
+            </table>
+            <div style="text-align: right;">
+                <input type="text" name="optionToAdd" placeholder="Enter new option">{{ optionToAdd }}</input>
+                <button type="submit" name="action" value="add-option">Add Option</button>
+            </div>
+            <div class="btn-group">
+                <button type="submit" id="previous-action" name="action" value="prev">Previous</button>
+                <button type="submit" id="next-action" name="action" value="next">Next</button>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-bar-inner" id="progressBar">{{ current_index + 1 }} / {{ total_images }}</div>
+            </div>
+        </form>
+    </div>
+    <script>
+        // Function to toggle prediction
+        toggleNext = function() {
+            var button = document.getElementById("next-action");
+            button.click();
+        }
+        togglePrevious = function() {
+            var button = document.getElementById("previous-action");
+            button.click();
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "ArrowLeft") {
+                togglePrevious();
+            } else if (event.key === "ArrowRight") {
+                toggleNext();
+            }
+        });
+    </script>
+</body>
+</html>
