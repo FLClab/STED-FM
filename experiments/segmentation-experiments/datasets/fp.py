@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from skimage import io, transform
 from torch.utils.data import Dataset
 from tqdm import tqdm
+from typing import Union
 
 import sys
 sys.path.insert(0, "..")
@@ -32,23 +33,24 @@ def get_resolution(tif_fl, sh):
 class FPConfiguration:
 
     num_classes: int = 2
-    criterion: str = "CrossEntropyLoss"
+    criterion: str = "BCELoss"
 
 class FPDataset(Dataset):
 
     KEEP_CHANNEL = 0
 
-    def __init__(self, path: str, data_aug: float = 0, validation: bool = False, 
+    def __init__(self, path: str, files: Union[list, None] = None, data_aug: float = 0, validation: bool = False, 
                  size :int = 256, step:float=0.75, cache_system:dict=None, out_channels:int=1, **kwargs) -> None:
         super(FPDataset, self).__init__()
 
         self.path = path
+        self.files = files
         self.size = size
         self.step = step
         self.validation = validation
         self.data_aug = data_aug
         self.out_channels = out_channels
-        self.classes = ["0", "1"]
+        self.classes = ["FP", "SD"]
 
         self.__cache = {}
         if cache_system is not None:
@@ -95,7 +97,11 @@ class FPDataset(Dataset):
     def generate_valid_samples(self):
         samples = []
 
-        files = glob.glob(os.path.join(self.path, "images", "*.tif"))
+        if self.files is None:
+            files = glob.glob(os.path.join(self.path, "images", "*.tif"))
+        else:
+            files = [os.path.join(self.path, "images", file) for file in self.files]
+
         for file in tqdm(files, desc="Files", leave=False):
             image = tifffile.imread(file)
             if image.ndim > 2:
@@ -217,22 +223,32 @@ def get_dataset(cfg:dataclass, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
     cfg.dataset_cfg = FPConfiguration()
 
     training_path = os.path.join(BASE_PATH, "segmentation-data", "footprocess")
+    with open(os.path.join(training_path, "training.txt"), "r") as f:
+        training_files = f.readlines()
+        training_files = [f.strip() for f in training_files]
+    
     validation_path = os.path.join(BASE_PATH, "segmentation-data", "footprocess")
-    testing_path = os.path.join(BASE_PATH, "segmentation-data", "footprocess")
+    with open(os.path.join(training_path, "validation.txt"), "r") as f:
+        validation_files = f.readlines()
+        validation_files = [f.strip() for f in validation_files]
+
+    testing_path = os.path.join(BASE_PATH, "segmentation-data", "footprocess", "test")
 
     training_dataset = FPDataset(
         path=training_path,
+        files=training_files,
         data_aug=0.5,
         validation=False,
-        size=256,
+        size=224,
         step=0.75,
         out_channels=cfg.in_channels
     )
     validation_dataset = FPDataset(
         path=validation_path,
+        files=validation_files,
         data_aug=0,
         validation=True,
-        size=256,
+        size=224,
         step=0.75,
         out_channels=cfg.in_channels
     )
@@ -240,9 +256,38 @@ def get_dataset(cfg:dataclass, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
         path=testing_path,
         data_aug=0,
         validation=True,
-        size=256,
+        size=224,
         step=0.75,
         out_channels=cfg.in_channels,
         return_foregound=True
     )
     return training_dataset, validation_dataset, testing_dataset    
+
+if __name__ == "__main__":
+
+    import shutil
+    from sklearn.model_selection import train_test_split
+    images = glob.glob(os.path.join(BASE_PATH, "segmentation-data", "footprocess", "images", "*.tif"))
+    X_train, X_test = train_test_split(images, test_size=0.2, random_state=42)
+
+    with open(os.path.join(BASE_PATH, "segmentation-data", "footprocess", "training.txt"), "w") as f:
+        for x in X_train:
+            x = os.path.basename(x)
+            f.write(f"{x}\n")
+    with open(os.path.join(BASE_PATH, "segmentation-data", "footprocess", "validation.txt"), "w") as f:
+        for x in X_test:
+            x = os.path.basename(x)
+            f.write(f"{x}\n")
+
+    # Testing modification
+    os.makedirs(os.path.join(BASE_PATH, "segmentation-data", "footprocess", "test", "labels"), exist_ok=True)
+    images = glob.glob(os.path.join(BASE_PATH, "segmentation-data", "footprocess", "test", "images", "*.tif"))
+    for image in images:
+        label = image.replace("test/images", "labels")
+        label = label.replace(".tif", "_bin.tif")
+        if not os.path.isfile(label):
+            print(image)
+            continue 
+        outdir = os.path.dirname(image)
+        outdir = outdir.replace("images", "labels")
+        shutil.copy(label, outdir)
