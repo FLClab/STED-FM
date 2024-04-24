@@ -13,8 +13,32 @@ SUPERVISED = {
     }
 }
 
+FEWSHOT = {
+    "MAE_SMALL": {
+        "synaptic-proteins": {
+            "ImageNet": {
+                "linear-probing": [],
+                "fine-tuning": [],
+            },
+            "CTC": {
+                "linear-probing": [],
+                "fine-tuning": [],
+            },
+            "STED": {
+                "linear-probing": [],
+                "fine-tuning": [0.452, 0.550, 0.635, 0.748, 0.817],
+            }
+        },
+        "optim": {
+            "linear-probing": [],
+            "fine-tuning": [],
+        }
+    }
+
+}
+
 RESULTS = {
-    "MAE": 
+    "MAE_SMALL": 
         {   
         "synaptic-proteins":
             {
@@ -152,7 +176,7 @@ RESULTS = {
                 "fine-tuning": None,
             },
             "CTC": {
-                "KNN": Nones,
+                "KNN": None,
                 "linear-probing": None,
                 "fine-tuning": None,
             },

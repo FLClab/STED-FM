@@ -32,6 +32,7 @@ def evaluate(
             big_correct = big_correct + correct
             big_n = big_n + n
         accuracies = big_correct / big_n
+        print(f"--- {args.model} | {args.dataset} ---")
         print("Overall accuracy = {:.3f}".format(accuracies[0]))
         for i in range(1, 4+1):
             acc = accuracies[i]
@@ -48,17 +49,14 @@ def make_plot(accuracies: dict) -> None:
     x = np.arange(0, len(sted_data), 1)
     ticklabels = ["1", "10", "25", "50"]
     fig = plt.figure()
-    plt.plot(x, imnet_data, color='tab:red', marker='x', label="ImageNet")
-    plt.plot(x, ctc_data, color='tab:green', marker='x', label='CTC')
+    #plt.plot(x, imnet_data, color='tab:red', marker='x', label="ImageNet")
+    # plt.plot(x, ctc_data, color='tab:green', marker='x', label='CTC')
     plt.plot(x, sted_data, color='tab:blue', marker='x', label='STED')
     plt.xticks(x, ticklabels)
     plt.xlabel("Label %")
     plt.ylabel("Accuracy")
     plt.legend()
     fig.savefig(f'/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation/results/{args.model}/finetuned/{args.dataset}_fewshot.pdf', bbox_inches='tight', dpi=1200)
-
-
-
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -75,8 +73,8 @@ def main():
     for pretraining in ["STED"]:
         n_channels = 3 if pretraining == "ImageNet" else 1
         for perc in percentages:
-            path = f"{blocks}blocks_{perc}%_labels"
-            print(f"--- Evaluating {args.model}_pretraining with {perc}% of labels ---")
+            path = f"{blocks}blocks_{perc}%-labels"
+            print(f"--- Evaluating {args.model}_{pretraining} with {perc}% of labels ---")
             model, cfg = get_classifier_v2(
                 name=args.model,
                 weights=pretraining,
@@ -97,6 +95,8 @@ def main():
             )
             acc = evaluate(model=model, loader=test_loader, device=device)
             accuracies[pretraining].append(acc)
+
+    make_plot(accuracies=accuracies)
 
 
 if __name__=="__main__":

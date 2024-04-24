@@ -83,7 +83,7 @@ class LinearProbe(torch.nn.Module):
             raise NotImplementedError(f"Freezing of {self.name} not supported yet.")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        if self.name in ["MAE", 'mae', "MAEClassifier"]:
+        if "mae" in self.name.lower():
             features = self.backbone.forward_encoder(x)
             if self.global_pool == "token":
                 features = features[:, 0, :] # class token
