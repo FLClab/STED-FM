@@ -214,6 +214,7 @@ class UNet(torch.nn.Module):
         out.append(x)
 
         x = self.backbone.layer4(x)
+
         out.append(x)
 
         return x, out
@@ -265,5 +266,8 @@ class UNet(torch.nn.Module):
         for i, layer in enumerate(self.decoder):
             x = layer(x, out[-i-2])
         x = self.out_conv(x)
-        x = torch.nn.functional.interpolate(x, size=size, mode="bilinear", align_corners=True)
+
+        x = torch.sigmoid(x)
+        x = torch.nn.functional.interpolate(x, size=size, mode="bilinear")
+        
         return x

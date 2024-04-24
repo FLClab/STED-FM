@@ -6,6 +6,7 @@ from collections import defaultdict
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from sklearn.neighbors import NearestNeighbors
+from torchvision import transforms
 import numpy as np
 from sklearn.decomposition import PCA
 import seaborn

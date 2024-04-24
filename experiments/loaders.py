@@ -51,6 +51,7 @@ class BalancedSampler(Sampler):
         print(np.unique(np.array(self.dataset.labels)[ids], return_counts=True))
         return iter(ids)
 
+from DEFAULTS import BASE_PATH
 
 def get_STED_dataset(transform, path: str):
     dataset = datasets.TarFLCDataset(tar_path=path, transform=transform)

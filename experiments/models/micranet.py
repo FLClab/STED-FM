@@ -1,13 +1,24 @@
 
+import os
 import torch
 import torchvision
 
 from torch import nn
 from dataclasses import dataclass
 
+import sys
+sys.path.insert(0, "../")
+from DEFAULTS import BASE_PATH
+
 class MICRANetWeights:
+<<<<<<< HEAD
+
+    MICRANET_SSL_STED = os.path.join(BASE_PATH, "baselines", "micranet", "result.pt")
+    MICRANET_SSL_CTC = os.path.join(BASE_PATH, "baselines", "micranet_CTC", "result.pt")
+=======
     MICRANET_SSL_CTC = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/micranet_CTC/result.pt"
     MICRANET_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/micranet_STED/result.pt"
+>>>>>>> 070162485de1449e9cc061f9f95e89f7c29fe901
 
 @dataclass
 class MICRANetConfiguration:

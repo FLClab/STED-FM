@@ -1,0 +1,635 @@
+channel sted 594  from filename 'infdiv14 plko 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma2 img2.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 shfus 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma1 img1.msr' is for the psd95 protein.
+channel sted 561  from filename '2023 05 24 4colors taus488 bassonat490ls b2 spectrina594 ph635 635 n3.msr' is for the beta2spectrin protein.
+channel sted 561  from filename '2023 05 24 4colors taus488 bassonat490ls b2 spectrina594 ph635 cs1n3.msr' is for the beta2spectrin protein.
+channel sted 594  from filename 'infdiv5 plko 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma9 img9.msr' is for the fus protein.
+channel sted 640  from filename '3 bloc prep1 cs2 lam neurons map2s488 smi31a594 phalloidins635 n1.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv14 plko 11dpi vglut1490 map2490ls fus594 psd95635 linksoma7 img7.msr' is for the psd95 protein.
+channel sted 594  from filename 'p11 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n6 03.msr' is for the vglut2 protein.
+channel sted 635p  from filename '27 blockglugly shrna+rescue lam gfp taus490l bcamkiia594 ph635 cs1n1.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv5 shfus moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma2 img2.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 plko moi5 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma3 img3.msr' is for the psd95 protein.
+channel sted 640  from filename '5 ttx cs1 lam neurons map2a594 taua488 phalloidins635 n2.msr' is for the factin protein.
+channel sted640  from filename '2023 11 08 sir actin cltp cabou after region4.msr' is for the siractin protein.
+channel sted640  from filename '2023 10 25 nt sir actin glugly tw before region2.msr' is for the siractin protein.
+channel sted 594  from filename 'p8 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n11 01.msr' is for the vglut2 protein.
+channel sted 594  from filename 'p11 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n2 02.msr' is for the vglut2 protein.
+channel sted640  from filename '2023 09 15 gcamp6f snap tubulin sir actin lam n1 before region4.msr' is for the siractin protein.
+channel sted 640  from filename '3 bloc prep2 cs1 lam neurons map2s488 smi31a594 phalloidins635 n5.msr' is for the factin protein.
+channel sted 635p  from filename '27 blockglugly shrna+rescue lam gfp taus490l bcamkiia594 ph635 cs2n4.msr' is for the factin protein.
+channel sted 594  from filename 'p7 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n1 03.msr' is for the vglut2 protein.
+channel sted 594  from filename 'infdiv5 plko 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma9 img9.msr' is for the fus protein.
+channel sted 640  from filename '6 ap5 lam18 map2s488 smia594 ph635 cs2n4.msr' is for the factin protein.
+channel sted 594  from filename '2023 11 03 psd95 nano643 vglut1gp a594gp xy cortex n3 .msr' is for the vglut1 protein.
+channel sted 561  from filename '2024 01 12 blockglugly adducin594 gptau488 ph635 cs1n6.msr' is for the adducin protein.
+channel sted 594  from filename '25 2023 02 20 lam100k5k snap actin bloc snap647 bcamkiia594 taus488 cs1n12.msr' is for the betacamkii protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c18.msr' is for the bassoon protein.
+channel sted 594  from filename '27 rescue block lam gfp taus490l bcamkiia594 ph635 cs2n2.msr' is for the betacamkii protein.
+channel sted 561  from filename '2024 01 19 blockglugly adducin594 gptau488 ph635 cs3n1.msr' is for the adducin protein.
+channel sted 594  from filename 'infdiv14 plko 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma8 img8.msr' is for the fus protein.
+channel sted lss  from filename '2023 12 20 psd95 nano643+ampar(glur1)r 1 250 a594+vglut1gp 490ls n1.msr' is for the vglut1 protein.
+channel sted640  from filename '2023 05 18 test2 gcapm6f sir actin acsf+ttx cltp6min cs1n5.msr' is for the siractin protein.
+channel sted 640  from filename '6 kcl lam18 map2s488 smia594 ph635 cs1n2.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv14 shfus 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma5 img5.msr' is for the fus protein.
+channel sted640  from filename '2023 10 25 nt sir actin kcl flc after region5.msr' is for the siractin protein.
+channel sted 594  from filename 'infdiv5 plko 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma2 img2.msr' is for the fus protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c14.msr' is for the bassoon protein.
+channel sted 635p  from filename '2023 11 16 block+glugly2 ph635 map2a594 taus488 cs1n9.msr' is for the factin protein.
+channel sted 594  from filename '27 shrna block lam gfp taus490l bcamkiia594 ph635 cs2n2.msr' is for the betacamkii protein.
+channel sted 635p  from filename '27 rescue block lam gfp taus490l bcamkiia594 ph635 cs1n2.msr' is for the factin protein.
+channel sted640  from filename '2023 08 25 sir actin cs1 after region0.msr' is for the siractin protein.
+channel sted640  from filename '2023 09 14 gcamp6f snap tubulin hd after region5.msr' is for the livetubulin protein.
+channel sted640  from filename '16 2022 09 14 sir actin lam18 cs1n1 i2.msr' is for the siractin protein.
+channel sted640  from filename '20 2022 11 21 snap tubulin snap647 cs2n4.msr' is for the sirtubulin protein.
+channel sted 635p  from filename '25 2023 02 20 lam100k5k nt bloc ph635 bcamkiia594 taus488 cs1n13.msr' is for the factin protein.
+channel sted640  from filename '2023 10 25 sir actin blockvs0mgttx before region2.msr' is for the siractin protein.
+channel sted640  from filename '16 2022 09 14 sir actin lam18 cs1n6.msr' is for the siractin protein.
+channel sted640  from filename '2023 10 25 gcamp6f sir actin cltp cabou after region5 after 4.msr' is for the siractin protein.
+channel sted 594  from filename 'infdiv14 plko moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma7 img6.msr' is for the fus protein.
+channel sted 594  from filename '25 2023 02 20 lam100k5k snap actin kcl snap647 bcamkiia594 taus488 cs1n4 axon.msr' is for the betacamkii protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c10.msr' is for the bassoon protein.
+channel sted 635p  from filename 'infdiv14 shfus 4dpi vglut1490 map2490ls fus594 psd95635 linksoma9 img9.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv5 plko 11dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma7 img7.msr' is for the fus protein.
+channel sted 640  from filename '5 no stim cs2 lam neurons map2a594 taua488 phalloidins635 n2.msr' is for the factin protein.
+channel sted 594  from filename '25 2023 02 20 lam100k5k nt kcl ph635 bcamkiia594 taus488 cs1n1.msr' is for the betacamkii protein.
+channel sted 594  from filename 'infdiv5 plko 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma2 img2.msr' is for the fus protein.
+channel sted640  from filename '16 2022 09 14 snap tubulin snap647 cs1 n3 i1.msr' is for the sirtubulin protein.
+channel sted 635p  from filename 'p8 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n4 01.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv14 shfus moi5 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma2 img2.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv5 shfus moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma7 img7.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv5 shfus 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma8 img6.msr' is for the psd95 protein.
+channel sted 635p  from filename '12 rescue lam12 gfp taus460l bcamkiia594 ph635 cs1n9.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv14 shfus moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma18 img12.msr' is for the fus protein.
+channel sted 594  from filename '2023 09 26 vglut1gp a594gp xy n3.msr' is for the vglut1 protein.
+channel sted 640  from filename '2024 01 19 blockglugly padducin594 gptau488 ph635 cs2n1.msr' is for the factin protein.
+channel sted lss  from filename '2023 12 20 psd95 nano643+vglut1gp a594+vgatr 490ls+gephyrinm stargreen n3.msr' is for the vgat protein.
+channel sted 640  from filename '2 d cs1 ms neurons map2s488 smi31a594 phalloidins647 n4.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv5 shfus moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma9 img6.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv14 shfus moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma9 img8.msr' is for the psd95 protein.
+channel sted 594  from filename '2023 10 12 pfa20 ph647 bcamkiia594 1 100 taus488 cs2n5 cub520.msr' is for the betacamkii protein.
+channel sted 594  from filename 'infdiv5 shfus moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma10 img10.msr' is for the fus protein.
+channel sted640  from filename '17 2022 09 28 sir actin hd18 cs3n6.msr' is for the siractin protein.
+channel sted 594  from filename '25 2023 02 20 lam100k5k nt kcl ph635 bcamkiia594 taus488 cs1n8.msr' is for the betacamkii protein.
+channel sted 635p  from filename 'infdiv5 shfus 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma2 img2.msr' is for the psd95 protein.
+channel sted 635p  from filename '2023 11 16 block+glugly2 ph635 map2a594 taus488 cs1n10.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv5 plko 11dpi vglut1490 map2490ls fus594 psd95635 linksoma8 img8.msr' is for the fus protein.
+channel sted 594  from filename 'p6 div20 ctrl th488 asyn490ls vglut2 594 psd95 635 n2 01.msr' is for the vglut2 protein.
+channel sted lss  from filename '2023 12 20 psd95 nano643+ampar(glur1)r 1 250 a594+vglut1gp 490ls n2.msr' is for the vglut1 protein.
+channel sted 594  from filename 'infdiv5 plko moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma1 img1.msr' is for the fus protein.
+channel sted 594  from filename '27 rescue block+glugly lam gfp taus490l bcamkiia594 ph635 cs1n1.msr' is for the betacamkii protein.
+channel sted 640  from filename '5 ttx cs1 lam neurons map2a594 taua488 phalloidins635 n4.msr' is for the factin protein.
+channel sted640  from filename '2023 10 25 gcamp6f sir actin kcl flc before region5.msr' is for the siractin protein.
+channel sted 635  from filename '2023 11 03 psd95 nano643 vglut2gp a594gp xy cortex n1 .msr' is for the psd95 protein.
+channel sted 640  from filename '2023 12 20 ph635 adducina594 cs2n4.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv5 shfus moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma7 img7.msr' is for the psd95 protein.
+channel sted640  from filename '2023 10 25 nt sir actin glugly tw after region1.msr' is for the siractin protein.
+channel sted 635p  from filename '2023 10 02 pfa20 ph647 bcamkiia594 1 100 taus488 cs1n3.msr' is for the factin protein.
+channel sted640  from filename '2023 10 25 gcamp6f sir actin cltp cabou before region2.msr' is for the siractin protein.
+channel sted640  from filename '2023 08 25 sir actin cs2 before region0.msr' is for the siractin protein.
+channel sted 635p  from filename 'infdiv5 plko moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma2 img2.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv14 plko moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma4 img4.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv5 plko moi10 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma10 img10.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv14 plko 11dpi vglut1490 map2490ls fus594 psd95635 linksoma6 img6.msr' is for the fus protein.
+channel sted 635p  from filename '27 rescue block lam gfp taus490l bcamkiia594 ph635 cs1n7.msr' is for the factin protein.
+channel sted 635p  from filename '27 shrna block lam gfp taus490l bcamkiia594 ph635 cs1n4.msr' is for the factin protein.
+channel sted 635p  from filename '9 nt lam18 gfp taus460l bcamkiia594 ph635 cs1n7.msr' is for the factin protein.
+channel sted 635p  from filename '27 gfp blockglugly lam gfp taus490l bcamkiia594 ph635 cs1n3.msr' is for the factin protein.
+channel sted 635p  from filename '2023 11 16 cltpcabou ph635 map2a594 taus488 cs1n6.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv5 plko moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma7 img6.msr' is for the fus protein.
+channel sted 561  from filename '2024 01 19 block adducin594 gptau488 ph635 cs3n2.msr' is for the adducin protein.
+channel sted 594  from filename 'infdiv14 shfus 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma7 img6.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv5 plko 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma10 img10.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv14 plko 11dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma9 img9.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 plko 7dpi vglut1490 map2490ls fus594 psd95635 linksoma9 img9.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv5 plko 7dpi vglut1490 map2490ls fus594 psd95635 linksoma7 img7.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv5 shfus 11dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma10 img9.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv5 shfus moi5 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma8 img5.msr' is for the psd95 protein.
+channel sted 640  from filename '2024 01 19 block padducin594 gptau488 ph635 cs2n4.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv5 plko 11dpi vglut1490 map2490ls fus594 psd95635 linksoma3 img3.msr' is for the psd95 protein.
+channel sted 640  from filename '5 ap5+ttx cs2 lam neurons map2a594 taua488 phalloidins635 n1.msr' is for the factin protein.
+channel sted 635p  from filename '27 block shrna+rescue lam gfp taus490l bcamkiia594 ph635 cs2n4.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv5 plko moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma6 img6.msr' is for the fus protein.
+channel sted640  from filename '2023 05 18 test2 gcapm6f sir actin acsf+ttx cltp6min cs1n12.msr' is for the siractin protein.
+channel sted 635p  from filename '25 2023 02 20 lam100k5k nt kcl ph635 bcamkiia594 taus488 cs1n1.msr' is for the factin protein.
+channel sted 640  from filename '6 ap5+kcl lam18 map2s488 smia594 ph635 cs1n1.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv5 shfus moi5 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma12 img9.msr' is for the fus protein.
+channel sted 635p  from filename 'p6 div20 ctrl th488 asyn490ls vglut2 594 psd95 635 n2 01.msr' is for the psd95 protein.
+channel sted 635p  from filename '27 block shrna+rescue lam gfp taus490l bcamkiia594 ph635 cs2n2.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv5 plko 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma2 img2.msr' is for the psd95 protein.
+channel sted 635p  from filename '25 2023 02 20 lam100k5k nt kcl ph635 bcamkiia594 taus488 cs1n6.msr' is for the factin protein.
+channel sted 640  from filename '4 bloc+kcl prep1 cs1 lam neurons map2s488 smi31a594 phalloidins635 n3.msr' is for the factin protein.
+channel sted 640  from filename '4 bloc+kcl prep2 cs2 lam neurons map2s488 smi31a594 phalloidins635 n5.msr' is for the factin protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c20.msr' is for the bassoon protein.
+channel sted 635p  from filename 'infdiv14 shfus 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma4 img4.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv5 shfus 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma12 img9.msr' is for the fus protein.
+channel sted 635p  from filename '27 gfp blockglugly lam gfp taus490l bcamkiia594 ph635 cs1n2.msr' is for the factin protein.
+channel sted 640  from filename '4 kcl prep1 cs1 lam neurons map2s488 smi31a594 phalloidins635 n3.msr' is for the factin protein.
+channel sted 594  from filename '25 2023 02 20 lam100k5k nt kcl ph635 bcamkiia594 taus488 cs2n8.msr' is for the betacamkii protein.
+channel sted 635p  from filename '2023 11 16 cltpjc ph635 map2a594 taus488 cs1n3.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv14 shfus 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma7 img7.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv5 plko 11dpi vglut1490 map2490ls fus594 psd95635 linksoma6 img6.msr' is for the psd95 protein.
+channel sted 594  from filename '27 27 block shrna+rescue lam gfp taus490l bcamkiia594 ph635 cs1n2.msr' is for the betacamkii protein.
+channel sted 594  from filename 'p7 div20 ctrl th488 asyn490ls vglut2 594 psd95 635 n1 04.msr' is for the vglut2 protein.
+channel sted 594  from filename 'infdiv14 plko moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma2 img2.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv5 shfus 4dpi vglut1490 map2490ls fus594 psd95635 linksoma1 img1.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv14 plko moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma1 img1.msr' is for the fus protein.
+channel sted 640  from filename '3 bloc prep1 cs1 lam neurons map2s488 smi31a594 phalloidins635 n2.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv14 shfus moi10 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma3 img3.msr' is for the fus protein.
+channel sted 635p  from filename '27 shrna block glugly lam gfp taus490l bcamkiia594 ph635 cs1n1.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv14 plko 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma4 img4.msr' is for the fus protein.
+channel sted 594  from filename '27 shrna block glugly lam gfp taus490l bcamkiia594 ph635 cs1n9.msr' is for the betacamkii protein.
+channel sted 594  from filename 'infdiv5 plko moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma8 img8.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv5 shfus moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma13 img8.msr' is for the fus protein.
+channel sted640  from filename '2023 08 25 sir actin cs2 after region9.msr' is for the siractin protein.
+channel sted 561  from filename '2024 01 17 block padducin594 gptau488 ph635 cs1n3.msr' is for the adducin protein.
+channel sted 594  from filename 'infdiv14 shfus 4dpi vglut1490 map2490ls fus594 psd95635 linksoma8 img8.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 shfus moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma8 img8.msr' is for the psd95 protein.
+channel sted 635p  from filename '12 nt lam12 gfp taus460l bcamkiia594 ph635 cs2n4.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv14 shfus moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma10 img10.msr' is for the fus protein.
+channel sted 594  from filename '12 nt lam12 gfp taus460l bcamkiia594 ph635 cs2n1.msr' is for the betacamkii protein.
+channel sted 594  from filename 'p8 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n5 01.msr' is for the vglut2 protein.
+channel sted 594  from filename 'infdiv5 shfus 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma4 img4.msr' is for the fus protein.
+channel sted 594  from filename '27 shrna block lam gfp taus490l bcamkiia594 ph635 cs1n6.msr' is for the betacamkii protein.
+channel sted 640  from filename '4 kcl prep1 cs2 lam neurons map2s488 smi31a594 phalloidins635 n4.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv5 shfus moi5 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma6 img3.msr' is for the fus protein.
+channel sted 561  from filename ' msvimentin 1to100 gam storange 1to250 culturecortex80kcells fixpfa20min div8 cs1 c1 2.msr' is for the vimentin protein.
+channel sted 635p  from filename 'infdiv14 shfus 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma10 img10.msr' is for the psd95 protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c23.msr' is for the bassoon protein.
+channel sted 635p  from filename '25 2023 02 20 lam100k5k nt kcl ph635 bcamkiia594 taus488 cs2n9.msr' is for the factin protein.
+channel sted640  from filename '2023 09 15 gcamp6f snap tubulin sir actin lam n1 before region1.msr' is for the siractin protein.
+channel sted 640  from filename '6 kcl lam18 map2s488 smia594 ph635 cs2n6.msr' is for the factin protein.
+channel sted 594  from filename 'p7 div20 ctrl th488 asyn490ls vglut2 594 psd95 635 n1 03.msr' is for the vglut2 protein.
+channel sted 635p  from filename 'p11 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n5 03.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv5 shfus moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma7 img4.msr' is for the fus protein.
+channel sted 594  from filename 'p11 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n4 02.msr' is for the vglut2 protein.
+channel sted 635p  from filename '27 rescue block lam gfp taus490l bcamkiia594 ph635 cs2n5.msr' is for the factin protein.
+channel sted640  from filename '2023 10 25 nt sir actin cltp cabou before region2.msr' is for the siractin protein.
+channel sted 640  from filename '6 bloc+kcl lam18 map2s488 smia594 ph635 cs1n4.msr' is for the factin protein.
+channel sted640  from filename '2023 08 25 sir actin cs1 before region5.msr' is for the siractin protein.
+channel sted 635p  from filename 'infdiv5 shfus 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma11 img8.msr' is for the psd95 protein.
+channel sted 640  from filename '3 bloc+kcl prep1 cs1 lam neurons map2s488 smi31a594 phalloidins635 n1.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv5 plko 7dpi vglut1490 map2490ls fus594 psd95635 linksoma10 img10.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 plko 4dpi vglut1490 map2490ls fus594 psd95635 linksoma3 img3.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv5 shfus moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma9 img6.msr' is for the fus protein.
+channel sted 640  from filename '5 no stim cs2 lam neurons map2a594 taua488 phalloidins635 n1.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv14 plko 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma5 img5.msr' is for the fus protein.
+channel sted 635  from filename 'psd95 star635p bassoon alexa594 c8.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv14 shfus moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma6 img6.msr' is for the fus protein.
+channel sted lss  from filename '2023 12 23 psd95 nano643+ampar(glur1)r 1 500 a594+vglut1gp 490ls n1.msr' is for the vglut1 protein.
+channel sted640  from filename '2023 09 29 sir actin lam block 11.msr' is for the siractin protein.
+channel sted 635p  from filename 'p11 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n6 03.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv5 plko moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma1 img1.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv5 plko moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma9 img8.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv14 plko moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma5 img5.msr' is for the fus protein.
+channel sted640  from filename '2023 10 25 gcamp6f sir actin kcl flc before region3.msr' is for the siractin protein.
+channel sted 594  from filename '2023 08 03 gephyrin m a594m cs1 n3.msr' is for the gephyrin protein.
+channel sted 635p  from filename 'infdiv14 shfus 4dpi vglut1490 map2490ls fus594 psd95635 linksoma10 img10.msr' is for the psd95 protein.
+channel sted 635p  from filename 'p11 div20 unmix vglut594.msr' is for the psd95 protein.
+channel sted 640  from filename '2024 01 17 block padducin594 gptau488 ph635 cs1n1.msr' is for the factin protein.
+channel sted 594  from filename '12 rescue lam12 gfp taus460l bcamkiia594 ph635 cs1n5.msr' is for the betacamkii protein.
+channel sted 594  from filename 'infdiv5 plko 7dpi vglut1490 map2490ls fus594 psd95635 linksoma8 img8.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv5 plko moi5 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma10 img10.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 shfus 11dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma1 img1.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv14 shfus moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma8 img8.msr' is for the psd95 protein.
+channel sted 594  from filename '2023 12 23 psd95 nano643+ampar(glur1)r 1 500 a594+vglut1gp 490ls n3.msr' is for the glur1 protein.
+channel sted 635p  from filename '9 rescue lam18 gfp taus460l bcamkiia594 ph635 cs1n1.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv5 shfus moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma8 img5.msr' is for the fus protein.
+channel sted640  from filename '2023 10 25 nt sir actin cltp cabou after region1.msr' is for the siractin protein.
+channel sted 594  from filename 'infdiv14 plko moi10 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma10 img10.msr' is for the fus protein.
+channel sted 594  from filename '27 nt block lam gfp taus490l bcamkiia594 ph635 cs1n4.msr' is for the betacamkii protein.
+channel sted 640  from filename '1 a cs1 ms neurons map2s488 smi31s580 phalloidins647 n6.msr' is for the factin protein.
+channel sted 635p  from filename '27 shrna block glugly lam gfp taus490l bcamkiia594 ph635 cs2n4.msr' is for the factin protein.
+channel sted 635p  from filename '27 27 block shrna+rescue lam gfp taus490l bcamkiia594 ph635 cs1n6.msr' is for the factin protein.
+channel sted640  from filename '2023 05 18 test2 gcapm6f sir actin acsf+ttx cs1n1.msr' is for the siractin protein.
+channel sted 640  from filename 'd cs1 ms neurons map2s488 smi31s580 phalloidins647 n4.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv14 shfus moi5 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma5 img5.msr' is for the psd95 protein.
+channel sted 561  from filename '2023 12 13 ph635 adducina594 cs1n4.msr' is for the adducin protein.
+channel sted 640  from filename '2023 12 19 amparr star635p tranche aigu 1 500 n4.msr' is for the glur1 protein.
+channel sted640  from filename '2023 11 08 sir actin glugly after region 8.msr' is for the siractin protein.
+channel sted640  from filename '2023 05 18 test2 sir actin acsf+ttx cs1n3.msr' is for the siractin protein.
+channel sted 594  from filename 'infdiv14 plko moi5 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma2 img2.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv5 plko moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma1 img1.msr' is for the psd95 protein.
+channel sted 640  from filename '13 2022 05 27 sir actin n5.msr' is for the siractin protein.
+channel sted 594  from filename 'infdiv14 plko moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma3 img3.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv14 shfus moi5 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma3 img3.msr' is for the fus protein.
+channel sted640  from filename '17 2022 09 29 snap tubulin snap647 timelapse.msr' is for the sirtubulin protein.
+channel sted 635p  from filename 'p7 div20 rot th488 asyn490ls vglut2 594 psd95 635 n2 02.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv5 plko 4dpi vglut1490 map2490ls fus594 psd95635 linksoma7 img7.msr' is for the fus protein.
+channel sted640  from filename '16 2022 09 14 sir actin lam18 cs2n1.msr' is for the siractin protein.
+channel sted 594  from filename 'infdiv5 plko moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma7 img7.msr' is for the fus protein.
+channel sted 594  from filename '2023 11 03 psd95 nano643 vglut2gp a594gp xy cortex n3 .msr' is for the vglut1 protein.
+channel sted640  from filename '2023 06 04 b2 spectrin s635 a594 cs2n4.msr' is for the beta2spectrin protein.
+channel sted 640  from filename '5 ttx cs2 lam neurons map2a594 taua488 phalloidins635 n4.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv5 shfus moi10 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma1 img1.msr' is for the fus protein.
+channel sted 561  from filename '2024 01 17 block padducin594 gptau488 ph635 cs1n2.msr' is for the adducin protein.
+channel sted 594  from filename 'infdiv5 plko 4dpi vglut1490 map2490ls fus594 psd95635 linksoma10 img10.msr' is for the fus protein.
+channel sted 635p  from filename 'p6 div20 rot th488 asyn490ls vglut2 594 psd95 635 n4 01.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv14 shfus moi10 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma8 img8.msr' is for the psd95 protein.
+channel sted lss  from filename '2023 08 03 vgat gp atto490ls cs2 n2.msr' is for the vgat protein.
+channel sted 635p  from filename 'infdiv14 shfus moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma3 img3.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv14 shfus moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma1 img1.msr' is for the psd95 protein.
+channel sted 635p  from filename '12 nt lam12 gfp taus460l bcamkiia594 ph635 cs1n3.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv14 plko moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma9 img9.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv14 shfus moi10 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma4 img4.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv14 shfus moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma3 img3.msr' is for the psd95 protein.
+channel sted640  from filename '17 2022 09 29 snap tubulin snap647 cs2n2.msr' is for the sirtubulin protein.
+channel sted 594  from filename 'unmixingcontrol msb2spectrin af594 3.msr' is for the beta2spectrin protein.
+channel sted 635p  from filename 'p7 div20 ctrl th488 asyn490ls vglut2 594 psd95 635 n1 02.msr' is for the psd95 protein.
+channel sted 635p  from filename '12 shrna lam12 gfp taus460l bcamkiia594 ph635 cs2n3.msr' is for the factin protein.
+channel sted640  from filename '17 2022 09 28 sir actin hd18 cs2n5.msr' is for the siractin protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c27.msr' is for the bassoon protein.
+channel sted 594  from filename 'infdiv14 shfus 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma9 img9.msr' is for the fus protein.
+channel sted 594  from filename 'asyn unmix.msr' is for the vglut2 protein.
+channel sted 594  from filename 'infdiv14 plko 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma1 img1.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 plko moi5 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma8 img8.msr' is for the psd95 protein.
+channel sted 635  from filename '2023 11 03 psd95 nano643 vglut1gp a594gp xy hippo n3 .msr' is for the psd95 protein.
+channel sted 594  from filename '2023 11 02 pfa20 ph635 bcamkiia594 taus488 cs1n2.msr' is for the betacamkii protein.
+channel sted 640  from filename '2023 05 24 4colors taus488 bassonat490ls b2 spectrina594 ph635 cs4n1.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv14 plko moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma6 img6.msr' is for the psd95 protein.
+channel sted 594  from filename '2023 11 06 psd95 nano568 map2 star635p xy cortex n4.msr' is for the psd95 protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c26.msr' is for the bassoon protein.
+channel sted 594  from filename 'infdiv5 plko moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma2 img2.msr' is for the fus protein.
+channel sted 635p  from filename '27 shrna block glugly lam gfp taus490l bcamkiia594 ph635 cs2n5.msr' is for the factin protein.
+channel sted640  from filename '2023 05 26 test2 sir actin bloc cs1n1.msr' is for the siractin protein.
+channel sted 594  from filename 'infdiv14 shfus moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma8 img8.msr' is for the fus protein.
+channel sted 561  from filename 'msvimentin 1to100 gam storange 1to250 culture80k fixpfa20min div8 cs1 c2.msr' is for the vimentin protein.
+channel sted 594  from filename '27 rescue block lam gfp taus490l bcamkiia594 ph635 cs2n5.msr' is for the betacamkii protein.
+channel sted640  from filename '2023 06 04 b2 spectrin s635 a594 cs1n3.msr' is for the beta2spectrin protein.
+channel sted 594  from filename '2023 10 12 pfa20 ph647 bcamkiia594 1 100 taus488 cs2n4 cub550.msr' is for the betacamkii protein.
+channel sted 594  from filename 'infdiv5 shfus moi10 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma6 img5.msr' is for the fus protein.
+channel sted 640  from filename '5 ap5 cs1 lam neurons map2a594 taua488 phalloidins635 n3.msr' is for the factin protein.
+channel sted 640  from filename '6 ap5 lam18 map2s488 smia594 ph635 cs1n12.msr' is for the factin protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c25.msr' is for the bassoon protein.
+channel sted 594  from filename 'infdiv14 plko 7dpi vglut1490 map2490ls fus594 psd95635 linksoma5 img5.msr' is for the fus protein.
+channel sted 561  from filename '2023 12 20 ph635 adducina594 cs2n1.msr' is for the adducin protein.
+channel sted640  from filename '17 2022 09 28 sir actin hd18 cs3n7.msr' is for the siractin protein.
+channel sted 594  from filename '27 blockglugly shrna+rescue lam gfp taus490l bcamkiia594 ph635 cs1n2.msr' is for the betacamkii protein.
+channel sted 594  from filename 'infdiv14 plko 11dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma4 img4.msr' is for the fus protein.
+channel sted 594  from filename '12 gfp lam12 gfp taus460l bcamkiia594 ph635 cs1n2.msr' is for the betacamkii protein.
+channel sted 640  from filename '5 ttx cs2 lam neurons map2a594 taua488 phalloidins635 n1.msr' is for the factin protein.
+channel sted640  from filename '2023 10 27 snap tubulin lam new647 2.msr' is for the livetubulin protein.
+channel sted640  from filename '2023 09 28 sir actin lam before region8.msr' is for the siractin protein.
+channel sted640  from filename '2023 10 25 gcamp6f sir actin led25 before 2.msr' is for the siractin protein.
+channel sted640  from filename '2023 08 25 sir actin cs2 before region10.msr' is for the siractin protein.
+channel sted 594  from filename '2023 11 02 pfa20 ph635 bcamkiia594 taus488 cs1n3.msr' is for the betacamkii protein.
+channel sted 640  from filename '3 bloc+kcl prep1 cs2 lam neurons map2s488 smi31a594 phalloidins635 n2.msr' is for the factin protein.
+channel sted 594  from filename '12 shrna lam12 gfp taus460l bcamkiia594 ph635 cs1n1.msr' is for the betacamkii protein.
+channel sted 635p  from filename 'infdiv5 plko moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma7 img7.msr' is for the psd95 protein.
+channel sted640  from filename '2023 08 25 sir actin cs1 before region1.msr' is for the siractin protein.
+channel sted 594  from filename 'vglut unmix.msr' is for the vglut2 protein.
+channel sted 594  from filename '25 2023 02 20 lam100k5k nt bloc ph635 bcamkiia594 taus488 cs2n5.msr' is for the betacamkii protein.
+channel sted 594  from filename 'p11 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n3 01.msr' is for the vglut2 protein.
+channel sted 635p  from filename 'p11 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n4 03.msr' is for the psd95 protein.
+channel sted 594  from filename '2023 11 06 psd95 nano568 map2 star635p xy cortex n1.msr' is for the psd95 protein.
+channel sted 594  from filename '27 nt block+glugly lam gfp taus490l bcamkiia594 ph635 cs2n4.msr' is for the betacamkii protein.
+channel sted 561  from filename '2024 01 18 block b2spectrin594 gptau488 ph635 cs1n2.msr' is for the beta2spectrin protein.
+channel sted 594  from filename '27 block shrna+rescue lam gfp taus490l bcamkiia594 ph635 cs2n2.msr' is for the betacamkii protein.
+channel sted 594  from filename '2023 11 17 pfa20 unmixing bcamkii594 cs1n1.msr' is for the betacamkii protein.
+channel sted 594  from filename 'infdiv5 plko moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma3 img3.msr' is for the fus protein.
+channel sted 561  from filename '2023 05 24 4colors taus488 bassonat490ls b2 spectrina594 ph635 594 n1.msr' is for the beta2spectrin protein.
+channel sted 635p  from filename 'p7 div20 rot th488 asyn490ls vglut2 594 psd95 635 n1 01.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv5 shfus 4dpi vglut1490 map2490ls fus594 psd95635 linksoma9 img9.msr' is for the fus protein.
+channel sted 640  from filename '3 bloc prep1 cs2 lam neurons map2s488 smi31a594 phalloidins635 n2.msr' is for the factin protein.
+channel sted640  from filename '2023 09 14 gcamp6f snap tubulin hd before region4.msr' is for the livetubulin protein.
+channel sted640  from filename '16 2022 09 14 snap tubulin snap610 cs2 n6.msr' is for the livetubulin protein.
+channel sted 635p  from filename 'infdiv14 shfus moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma2 img2.msr' is for the psd95 protein.
+channel sted 561  from filename '2024 01 17 blockglugly padducin594 gptau488 ph635 cs1n2.msr' is for the adducin protein.
+channel sted 635p  from filename '25 2023 02 20 lam100k5k nt bloc ph635 bcamkiia594 taus488 cs1n5 axon.msr' is for the factin protein.
+channel sted 561  from filename '2023 05 24 4colors taus488 bassonat490ls b2 spectrina594 ph635 cs4n2.msr' is for the beta2spectrin protein.
+channel sted 640  from filename 'c cs2 ms neurons map2s488 smi31a594 phalloidins647 n1.msr' is for the factin protein.
+channel sted 635p  from filename '2023 11 16 cltpjc ph635 map2a594 taus488 cs1n2.msr' is for the factin protein.
+channel sted 594  from filename '2023 12 20 psd95 nano643+vglut1gp a594+vgatr 490ls+gephyrinm stargreen n3.msr' is for the vglut1 protein.
+channel sted640  from filename '2023 11 08 sir actin glugly before region4.msr' is for the siractin protein.
+channel sted640  from filename '17 2022 09 28 sir actin hd18 cs3n13.msr' is for the siractin protein.
+channel sted 594  from filename '12 shrna+rescue lam12 gfp taus460l bcamkiia594 ph635 cs1n2.msr' is for the betacamkii protein.
+channel sted 635p  from filename '27 rescue block lam gfp taus490l bcamkiia594 ph635 cs1n8.msr' is for the factin protein.
+channel sted640  from filename '17 2022 09 28 sir actin hd18 cs1n5.msr' is for the siractin protein.
+channel sted lss  from filename '2023 08 03 vgat gp atto490ls cs1 n3.msr' is for the vgat protein.
+channel sted640  from filename '2023 10 25 nt sir actin glugly tw before region5.msr' is for the siractin protein.
+channel sted 594  from filename '25 2023 02 20 lam100k5k nt bloc ph635 bcamkiia594 taus488 cs1n8 axons.msr' is for the betacamkii protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c12.msr' is for the bassoon protein.
+channel sted 635p  from filename 'infdiv14 shfus moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma4 img4.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv14 plko 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma4 img4.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 shfus 11dpi vglut1490 map2490ls fus594 psd95635 linksoma2 img2.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv5 shfus moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma4 img4.msr' is for the fus protein.
+channel sted 635p  from filename '25 2023 02 20 lam100k5k nt kcl ph635 bcamkiia594 taus488 cs2n2.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv14 shfus moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma7 img7.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 shfus moi5 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma9 img9.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv5 shfus 7dpi vglut1490 map2490ls fus594 psd95635 linksoma6 img5.msr' is for the fus protein.
+channel sted 640  from filename '2024 01 18 block b2spectrin594 gptau488 ph635 cs1n1.msr' is for the factin protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c26.msr' is for the bassoon protein.
+channel sted 635p  from filename '27 blockglugly shrna+rescue lam gfp taus490l bcamkiia594 ph635 cs2n3.msr' is for the factin protein.
+channel sted 640  from filename '5 no stim cs1 lam neurons map2a594 taua488 phalloidins635 n3.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv5 plko 4dpi vglut1490 map2490ls fus594 psd95635 linksoma1 img1.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv5 plko 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma2 img2.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv14 shfus 7dpi vglut1490 map2490ls fus594 psd95635 linksoma1 img1.msr' is for the fus protein.
+channel sted 561  from filename '2023 05 24 4colors taus488 bassonat490ls b2 spectrina594 ph635 490 n2.msr' is for the beta2spectrin protein.
+channel sted 594  from filename 'infdiv14 plko moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma5 img5.msr' is for the fus protein.
+channel sted 640  from filename '2023 12 19 amparr star635p tranche aigu 1 500 n1.msr' is for the glur1 protein.
+channel sted 635p  from filename 'infdiv5 shfus 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma6 img6.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv5 plko 11dpi vglut1490 map2490ls fus594 psd95635 linksoma5 img5.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv5 plko 7dpi vglut1490 map2490ls fus594 psd95635 linksoma1 img1.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv5 plko 7dpi vglut1490 map2490ls fus594 psd95635 linksoma4 img4.msr' is for the psd95 protein.
+channel sted 640  from filename '1 a cs1 ms neurons map2s488 smi31s580 phalloidins647 n4.msr' is for the factin protein.
+channel sted640  from filename '2023 10 25 gcamp6f sir actin cltp cabou after region5 after 9.msr' is for the siractin protein.
+channel sted 640  from filename '6 ap5 lam18 map2s488 smia594 ph635 cs1n11.msr' is for the factin protein.
+channel sted 594  from filename 'p11 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n4 03.msr' is for the vglut2 protein.
+channel sted 594  from filename '27 rescue block+glugly lam gfp taus490l bcamkiia594 ph635 cs1n6 axon.msr' is for the betacamkii protein.
+channel sted 594  from filename 'infdiv14 shfus 4dpi vglut1490 map2490ls fus594 psd95635 linksoma9 img9.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 shfus 11dpi vglut1490 map2490ls fus594 psd95635 linksoma1 img1.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv14 shfus moi10 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma7 img7.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv14 shfus 4dpi vglut1490 map2490ls fus594 psd95635 linksoma6 img6.msr' is for the fus protein.
+channel sted 561  from filename '2024 01 17 block padducin594 gptau488 ph635 cs1n5.msr' is for the adducin protein.
+channel sted 635p  from filename '27 rescue block+glugly lam gfp taus490l bcamkiia594 ph635 cs2n3.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv14 plko moi5 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma1 img1.msr' is for the fus protein.
+channel sted 635p  from filename 'p11 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n1 03.msr' is for the psd95 protein.
+channel sted 635  from filename '2023 06 29 psd95 star635p bassoon alexa594 cs2 n2 from test n1.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv14 shfus 7dpi vglut1490 map2490ls fus594 psd95635 linksoma3 img3.msr' is for the psd95 protein.
+channel sted 635p  from filename 'p6 div20 ctrl th488 asyn490ls vglut2 594 psd95 635 n1 01.msr' is for the psd95 protein.
+channel sted 635p  from filename 'p7 div20 rot th488 asyn490ls vglut2 594 psd95 635 n1 01.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv14 shfus 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma3 img3.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv5 plko moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma8 img7.msr' is for the psd95 protein.
+channel sted640  from filename '16 2022 09 14 snap tubulin snap647 cs1 n1.msr' is for the sirtubulin protein.
+channel sted 594  from filename 'infdiv5 shfus 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma1 img1.msr' is for the fus protein.
+channel sted 561  from filename '2024 01 18 blockkcl adducin594 gptau488 ph635 cs2n2.msr' is for the adducin protein.
+channel sted 640  from filename '5 no stim cs1 lam neurons map2a594 taua488 phalloidins635 n1.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv5 plko moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma4 img4.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv5 plko moi10 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma2 img2.msr' is for the fus protein.
+channel sted640  from filename '17 2022 09 28 sir actin hd18 cs2n2.msr' is for the siractin protein.
+channel sted 594  from filename '12 nt lam12 gfp taus460l bcamkiia594 ph635 cs1n1.msr' is for the betacamkii protein.
+channel sted 594  from filename '12 rescue lam12 gfp taus460l bcamkiia594 ph635 cs2n5.msr' is for the betacamkii protein.
+channel sted640  from filename '2023 09 28 sir actin lam after region1.msr' is for the siractin protein.
+channel sted 561  from filename '2024 01 17 blockglugly padducin594 gptau488 ph635 cs1n1.msr' is for the adducin protein.
+channel sted 635p  from filename 'infdiv14 plko 11dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma2 img2.msr' is for the psd95 protein.
+channel sted 635p  from filename '27 nt block+glugly lam gfp taus490l bcamkiia594 ph635 cs2n5.msr' is for the factin protein.
+channel sted 640  from filename '3 bloc prep2 cs2 lam neurons map2s488 smi31a594 phalloidins635 n1.msr' is for the factin protein.
+channel sted640  from filename '2023 08 25 sir actin cs2 before region9.msr' is for the siractin protein.
+channel sted 635p  from filename '12 shrna+rescue lam12 gfp taus460l bcamkiia594 ph635 cs1n2.msr' is for the factin protein.
+channel sted640  from filename '2023 10 25 gcamp6f sir actin led ctrl before region0.msr' is for the siractin protein.
+channel sted 594  from filename '27 nt block+glugly lam gfp taus490l bcamkiia594 ph635 cs1n2.msr' is for the betacamkii protein.
+channel sted 635  from filename 'psd95 star635p bassoon alexa594 c2.msr' is for the psd95 protein.
+channel sted 561  from filename '2024 01 19 blockglugly padducin594 gptau488 ph635 cs2n1.msr' is for the adducin protein.
+channel sted 635p  from filename 'infdiv14 plko moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma8 img8.msr' is for the psd95 protein.
+channel sted 594  from filename '25 2023 02 20 lam100k5k nt bloc ph635 bcamkiia594 taus488 cs1n1.msr' is for the betacamkii protein.
+channel sted 594  from filename 'infdiv5 plko moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma4 img4.msr' is for the fus protein.
+channel sted640  from filename '17 2022 09 28 sir actin hd18 cs2n6.msr' is for the siractin protein.
+channel sted640  from filename '17 2022 09 28 sir actin hd18 c4n3.msr' is for the siractin protein.
+channel sted 635  from filename '2023 06 29 psd95 star635p vglut2 alexa594 cs1 n3 from test n1.msr' is for the psd95 protein.
+channel sted 640  from filename '6 bloc+kcl lam18 map2s488 smia594 ph635 cs1n1.msr' is for the factin protein.
+channel sted 640  from filename '4 bloc prep1 cs2 lam neurons map2s488 smi31a594 phalloidins635 n1.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv5 shfus moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma10 img7.msr' is for the psd95 protein.
+channel sted640  from filename '2023 11 08 sir actin glugly before region0.msr' is for the siractin protein.
+channel sted 594  from filename 'infdiv5 shfus 11dpi vglut1490 map2490ls fus594 psd95635 linksoma5 img5.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv14 shfus moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma10 img9.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv5 shfus 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma13 img10.msr' is for the psd95 protein.
+channel sted640  from filename '2023 05 18 test2 gcapm6f sir actin acsf+ttx cltp6min 488 647cs1n16.msr' is for the siractin protein.
+channel sted 635p  from filename 'infdiv5 shfus moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma10 img10.msr' is for the psd95 protein.
+channel sted 635p  from filename '27 rescue block+glugly lam gfp taus490l bcamkiia594 ph635 cs1n5.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv14 plko 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma4 img4.msr' is for the psd95 protein.
+channel sted 635p  from filename '27 gfp block lam gfp taus490l bcamkiia594 ph635 cs1n7.msr' is for the factin protein.
+channel sted 635p  from filename '2023 11 16 cltpcabou ph635 map2a594 taus488 cs1n1.msr' is for the factin protein.
+channel sted 635p  from filename '12 nt lam12 gfp taus460l bcamkiia594 ph635 cs1n1.msr' is for the factin protein.
+channel sted640  from filename '17 2022 09 28 sir actin hd18 cs2n1.msr' is for the siractin protein.
+channel sted 640  from filename '4 bloc prep1 cs2 lam neurons map2s488 smi31a594 phalloidins635 n3.msr' is for the factin protein.
+channel sted lss  from filename '2023 12 20 psd95 nano643+vglut1gp a594+vgatr 490ls+gephyrinm stargreen n2.msr' is for the vgat protein.
+channel sted 594  from filename 'infdiv14 plko 11dpi vglut1490 map2490ls fus594 psd95635 linksoma8 img8.msr' is for the fus protein.
+channel sted640  from filename '17 2022 09 28 sir actin hd18 cs2n13 post stim.msr' is for the siractin protein.
+channel sted 640  from filename '2024 01 17 blockkcl adducin594 gptau488 ph635 cs1n1.msr' is for the factin protein.
+channel sted 640  from filename 'b cs2 ms neurons map2s488 smi31s580 phalloidins647 n2.msr' is for the factin protein.
+channel sted 635  from filename '2023 11 06 psd95 nano568 map2 star635p xy cortex n1.msr' is for the map2 protein.
+channel sted 594  from filename 'p8 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n10 01.msr' is for the vglut2 protein.
+channel sted 594  from filename '2023 11 03 psd95 nano643 vglut2gp a594gp xy cortex n1 .msr' is for the vglut1 protein.
+channel sted 594  from filename 'infdiv5 plko 11dpi vglut1490 map2490ls fus594 psd95635 linksoma1 img1.msr' is for the fus protein.
+channel sted 594  from filename 'p6 div20 ctrl th488 asyn490ls vglut2 594 psd95 635 n1 01.msr' is for the vglut2 protein.
+channel sted 640  from filename '6 ap5+kcl lam18 map2s488 smia594 ph635 cs2n3.msr' is for the factin protein.
+channel sted 635p  from filename '27 shrna block glugly lam gfp taus490l bcamkiia594 ph635 cs2n6.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv5 plko moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma9 img8.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv5 plko moi10 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma3 img3.msr' is for the psd95 protein.
+channel sted 640  from filename '2023 06 01 gephyrin star635pm cs2n1.msr' is for the gephyrin protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c10.msr' is for the bassoon protein.
+channel sted 635p  from filename '12 rescue lam12 gfp taus460l bcamkiia594 ph635 cs1n1.msr' is for the factin protein.
+channel sted 635p  from filename '27 shrna block lam gfp taus490l bcamkiia594 ph635 cs1n5.msr' is for the factin protein.
+channel sted 561  from filename '2023 05 24 4colors taus488 bassonat490ls b2 spectrina594 ph635 cs2n3.msr' is for the beta2spectrin protein.
+channel sted 635p  from filename 'p11 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n2 01.msr' is for the psd95 protein.
+channel sted640  from filename '2023 09 15 gcamp6f snap tubulin sir actin lam n1 before region2.msr' is for the siractin protein.
+channel sted 635  from filename 'psd95 star635p bassoon alexa594 c20.msr' is for the psd95 protein.
+channel sted 594  from filename '27 gfp blockglugly lam gfp taus490l bcamkiia594 ph635 cs1n4.msr' is for the betacamkii protein.
+channel sted640  from filename '2023 10 25 nt sir actin kcl flc before region5.msr' is for the siractin protein.
+channel sted 635p  from filename 'infdiv14 shfus 11dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma2 img2.msr' is for the psd95 protein.
+channel sted 640  from filename '4 kcl prep1 cs2 lam neurons map2s488 smi31a594 phalloidins635 n5.msr' is for the factin protein.
+channel sted640  from filename '2023 05 18 test2 gcapm6f sir actin acsf+ttx cs1n4.msr' is for the siractin protein.
+channel sted 594  from filename 'infdiv14 shfus 7dpi vglut1490 map2490ls fus594 psd95635 linksoma3 img3.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv5 plko moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma5 img5.msr' is for the fus protein.
+channel sted 635  from filename 'psd95 star635p bassoon alexa594 c29.msr' is for the psd95 protein.
+channel sted 635p  from filename '27 shrna block lam gfp taus490l bcamkiia594 ph635 cs1n2.msr' is for the factin protein.
+channel sted 635p  from filename '9 gfp lam18 gfp taus460l bcamkiia594 ph635 cs1n6.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv14 shfus moi10 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma9 img9.msr' is for the psd95 protein.
+channel sted 594  from filename '27 um bcamkii594 lam gfp taus490l bcamkiia594 ph635 cs1n3.msr' is for the betacamkii protein.
+channel sted 635p  from filename 'infdiv5 plko 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma3 img3.msr' is for the psd95 protein.
+channel sted640  from filename '20 2022 11 21 snap tubulin snap647 cs2n1.msr' is for the sirtubulin protein.
+channel sted 594  from filename 'infdiv5 shfus moi10 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma11 img10.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 plko moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma1 img1.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv5 plko 4dpi vglut1490 map2490ls fus594 psd95635 linksoma1 img1.msr' is for the psd95 protein.
+channel sted 640  from filename '5 ap5+ttx cs1 lam neurons map2a594 taua488 phalloidins635 n3.msr' is for the factin protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c35.msr' is for the bassoon protein.
+channel sted 594  from filename 'infdiv5 shfus 7dpi vglut1490 map2490ls fus594 psd95635 linksoma5 img4.msr' is for the fus protein.
+channel sted 635p  from filename 'p7 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n2 01.msr' is for the psd95 protein.
+channel sted 594  from filename '12 nt lam12 gfp taus460l bcamkiia594 ph635 cs2n2.msr' is for the betacamkii protein.
+channel sted 635p  from filename 'infdiv5 plko 7dpi vglut1490 map2490ls fus594 psd95635 linksoma10 img10.msr' is for the psd95 protein.
+channel sted 640  from filename '5 ap5 cs2 lam neurons map2a594 taua488 phalloidins635 n2.msr' is for the factin protein.
+channel sted640  from filename '2023 10 25 nt sir actin cltp cabou after region3.msr' is for the siractin protein.
+channel sted640  from filename '2023 05 18 test2 sir actin acsf+ttx cs1n7 exc4%.msr' is for the siractin protein.
+channel sted 594  from filename 'infdiv14 shfus 11dpi vglut1490 map2490ls fus594 psd95635 linksoma1 img1.msr' is for the fus protein.
+channel sted 640  from filename '13 2022 05 27 sir actin n1.msr' is for the siractin protein.
+channel sted 594  from filename 'p8 div20 ctl th594 asyn488 n2.msr' is for the vglut2 protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c14.msr' is for the bassoon protein.
+channel sted 594  from filename 'infdiv5 plko 4dpi vglut1490 map2490ls fus594 psd95635 linksoma6 img6.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv5 plko moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite(split) linksoma10 img10.msr' is for the fus protein.
+channel sted 635p  from filename '27 rescue block+glugly lam gfp taus490l bcamkiia594 ph635 cs2n9 axons.msr' is for the factin protein.
+channel sted 640  from filename '3 kcl prep2 cs1 lam neurons map2s488 smi31a594 phalloidins635 n2.msr' is for the factin protein.
+channel sted 635  from filename '2023 11 03 psd95 nano643 vglut1gp a594gp xy cortex n3 .msr' is for the psd95 protein.
+channel sted 640  from filename 'a cs1 ms neurons map2s488 smi31s580 phalloidins647 n2.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv5 shfus 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma3 img3.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv14 plko 7dpi vglut1490 map2490ls fus594 psd95635 linksoma4 img4.msr' is for the psd95 protein.
+channel sted640  from filename '16 2022 09 14 snap tubulin snap610 cs1n3 i1.msr' is for the livetubulin protein.
+channel sted640  from filename '2023 10 25 gcamp6f sir actin led25 before 3.msr' is for the siractin protein.
+channel sted 635p  from filename 'p7 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n1 02.msr' is for the psd95 protein.
+channel sted 594  from filename '2023 10 30 vgatrb a594rb xy n1.msr' is for the vgat protein.
+channel sted 640  from filename '3 bloc+kcl prep1 cs2 lam neurons map2s488 smi31a594 phalloidins635 n3.msr' is for the factin protein.
+channel sted 640  from filename '3 bloc+kcl prep2 cs1 lam neurons map2s488 smi31a594 phalloidins635 n6.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv14 plko moi5 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma10 img10.msr' is for the fus protein.
+channel sted 640  from filename '3 bloc prep1 cs1 lam neurons map2s488 smi31a594 phalloidins635 n4.msr' is for the factin protein.
+channel sted 561  from filename '2024 01 17 blockkcl padducin594 gptau488 ph635 cs1n3.msr' is for the adducin protein.
+channel sted 635  from filename 'psd95 star635p bassoon alexa594 c23.msr' is for the psd95 protein.
+channel sted 561  from filename '2023 05 24 4colors taus488 bassonat490ls b2 spectrina594 ph635 cs2n1.msr' is for the beta2spectrin protein.
+channel sted 594  from filename 'infdiv5 plko moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma1 img1.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv5 plko moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma9 img9.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv14 shfus 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma3 img3.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv5 plko 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma3 img3.msr' is for the fus protein.
+channel sted 635p  from filename 'p7 div20 ctrl th488 asyn490ls vglut2 594 psd95 635 n2 03.msr' is for the psd95 protein.
+channel sted 640  from filename '6 ap5 lam18 map2s488 smia594 ph635 cs1n1.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv14 shfus 11dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma7 img7.msr' is for the fus protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c17.msr' is for the bassoon protein.
+channel sted 635p  from filename '2023 11 16 block 0mgttx ph635 map2a594 taus488 cs1n7.msr' is for the factin protein.
+channel sted 635p  from filename '25 2023 02 20 lam100k5k nt bloc ph635 bcamkiia594 taus488 cs1n11.msr' is for the factin protein.
+channel sted lss  from filename '2023 08 03 vgat gp atto490ls cs1 n2.msr' is for the vgat protein.
+channel sted 640  from filename '5 ap5+ttx+bloc cs2 lam neurons map2a594 taua488 phalloidins635 n3.msr' is for the factin protein.
+channel sted 635p  from filename '27 rescue block+glugly lam gfp taus490l bcamkiia594 ph635 cs2n8 axons.msr' is for the factin protein.
+channel sted 640  from filename '3 bloc prep2 cs1 lam neurons map2s488 smi31a594 phalloidins635 n4.msr' is for the factin protein.
+channel sted 640  from filename '2024 01 17 block adducin594 gptau488 ph635 cs2n4.msr' is for the factin protein.
+channel sted 640  from filename '2024 01 12 block adducin594 gptau488 ph635 cs1n4.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv5 shfus 11dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma5 img5.msr' is for the psd95 protein.
+channel sted 594  from filename '25 2023 02 20 lam100k5k nt kcl ph635 bcamkiia594 taus488 cs2n7.msr' is for the betacamkii protein.
+channel sted 594  from filename 'infdiv14 shfus moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma3 img3.msr' is for the fus protein.
+channel sted640  from filename '17 2022 09 28 sir actin hd18 cs3n9.msr' is for the siractin protein.
+channel sted 594  from filename 'infdiv14 plko moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma8 img8.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 shfus 4dpi vglut1490 map2490ls fus594 psd95635 linksoma8 img8.msr' is for the psd95 protein.
+channel sted 635p  from filename '12 shrna lam12 gfp taus460l bcamkiia594 ph635 cs1n5.msr' is for the factin protein.
+channel sted640  from filename '17 2022 09 28 sir actin hd18 cs3n11.msr' is for the siractin protein.
+channel sted640  from filename '16 2022 09 14 snap tubulin snap610 1ul cs4n1 i2.msr' is for the livetubulin protein.
+channel sted640  from filename '2023 11 08 sir actin cltp cabou before region4.msr' is for the siractin protein.
+channel sted 635p  from filename '27 nt block+glugly lam gfp taus490l bcamkiia594 ph635 cs2n4.msr' is for the factin protein.
+channel sted 635p  from filename '2023 11 16 block+glugly2 ph635 map2a594 taus488 cs1n2.msr' is for the factin protein.
+channel sted640  from filename '2023 10 25 sir actin blockvs0mgttx before region1.msr' is for the siractin protein.
+channel sted 635p  from filename 'infdiv5 plko 4dpi vglut1490 map2490ls fus594 psd95635 linksoma9 img9.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv14 shfus 4dpi vglut1490 map2490ls fus594 psd95635 linksoma10 img10.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 shfus moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma3 img3.msr' is for the psd95 protein.
+channel sted 640  from filename '6 ap5+kcl lam18 map2s488 smia594 ph635 cs2n6.msr' is for the factin protein.
+channel sted 594  from filename 'p8 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n1 01.msr' is for the vglut2 protein.
+channel sted 594  from filename '12 rescue lam12 gfp taus460l bcamkiia594 ph635 cs2n3.msr' is for the betacamkii protein.
+channel sted 561  from filename '2023 05 24 4colors taus488 bassonat490ls b2 spectrina594 ph635 10rep594 n2.msr' is for the beta2spectrin protein.
+channel sted 594  from filename '27 gfp blockglugly lam gfp taus490l bcamkiia594 ph635 cs2n3.msr' is for the betacamkii protein.
+channel sted640  from filename '2023 09 28 sir actin lam before region2.msr' is for the siractin protein.
+channel sted 635p  from filename '2023 10 12 pfa20 ph647 bcamkiia594 1 100 taus488 cs2n3 cub550.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv14 shfus moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma4 img4.msr' is for the psd95 protein.
+channel sted 561  from filename '2024 01 19 block adducin594 gptau488 ph635 cs3n1.msr' is for the adducin protein.
+channel sted 635p  from filename 'p6 div20 ctrl th488 asyn490ls vglut2 594 psd95 635 n2 01 steds and confocals foor previous image.msr' is for the psd95 protein.
+channel sted lss  from filename '2023 12 18 vglut1gp 490ls tranche aigu n3.msr' is for the vglut1 protein.
+channel sted 640  from filename '2024 01 19 block adducin594 gptau488 ph635 cs3n2.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv5 shfus moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma3 img3.msr' is for the psd95 protein.
+channel sted640  from filename '2023 09 14 gcamp6f snap tubulin hd after region0.msr' is for the livetubulin protein.
+channel sted 640  from filename '2024 01 19 block padducin594 gptau488 ph635 cs2n3.msr' is for the factin protein.
+channel sted 635p  from filename '25 2023 02 20 lam100k5k nt kcl ph635 bcamkiia594 taus488 cs2n4.msr' is for the factin protein.
+channel sted 594  from filename '25 2023 02 20 lam100k5k nt bloc ph635 bcamkiia594 taus488 cs1n6.msr' is for the betacamkii protein.
+channel sted640  from filename '20 2022 11 21 sir actin647 lam18 cs2n4.msr' is for the siractin protein.
+channel sted 635  from filename 'psd95 star635p bassoon alexa594 c29.msr' is for the psd95 protein.
+channel sted 635p  from filename 'p11 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n5 01.msr' is for the psd95 protein.
+channel sted 594  from filename '27 nt block+glugly lam gfp taus490l bcamkiia594 ph635 cs2n1.msr' is for the betacamkii protein.
+channel sted 635p  from filename 'infdiv5 shfus 11dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma7 img7.msr' is for the psd95 protein.
+channel sted 640  from filename '2024 01 17 block padducin594 gptau488 ph635 cs1n5.msr' is for the factin protein.
+channel sted 635p  from filename 'p11 div20 unmix psd643.msr' is for the psd95 protein.
+channel sted 594  from filename '27 blockglugly shrna+rescue lam gfp taus490l bcamkiia594 ph635 cs1n1.msr' is for the betacamkii protein.
+channel sted 635p  from filename 'infdiv5 shfus 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma8 img8.msr' is for the psd95 protein.
+channel sted 635p  from filename '27 gfp block lam gfp taus490l bcamkiia594 ph635 cs2n2.msr' is for the factin protein.
+channel sted594  from filename '2023 06 04 b2 spectrin a594 unmixing cs1n1.msr' is for the beta2spectrin protein.
+channel sted 635p  from filename 'infdiv14 shfus 4dpi vglut1490 map2490ls fus594 psd95635 linksoma2 img2.msr' is for the psd95 protein.
+channel sted 635p  from filename '27 27 block shrna+rescue lam gfp taus490l bcamkiia594 ph635 cs1n3 axon.msr' is for the factin protein.
+channel sted 635p  from filename 'p11 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n5 02.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv5 plko 11dpi vglut1490 map2490ls fus594 psd95635 linksoma4 img4.msr' is for the psd95 protein.
+channel sted640  from filename '2023 09 28 sir actin lam after region7.msr' is for the siractin protein.
+channel sted 594  from filename 'p7 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n3 03.msr' is for the vglut2 protein.
+channel sted 561  from filename '2024 01 17 blockkcl adducin594 gptau488 ph635 cs1n1.msr' is for the adducin protein.
+channel sted 594  from filename '9 nt lam18 gfp taus460l bcamkiia594 ph635 cs1n4.msr' is for the betacamkii protein.
+channel sted 635p  from filename '27 gfp blockglugly lam gfp taus490l bcamkiia594 ph635 cs2n1.msr' is for the factin protein.
+channel sted 594  from filename '12 shrna+rescue lam12 gfp taus460l bcamkiia594 ph635 cs1n7.msr' is for the betacamkii protein.
+channel sted 640  from filename '2024 01 18 block b2spectrin594 gptau488 ph635 cs1n3.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv14 shfus 11dpi vglut1490 map2490ls fus594 psd95635 linksoma3 img3.msr' is for the psd95 protein.
+channel sted 640  from filename '5 no stim cs1 lam neurons map2a594 taua488 phalloidins635 n2.msr' is for the factin protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c27.msr' is for the bassoon protein.
+channel sted640  from filename '17 2022 09 28 sir actin hd18 cs2n9.msr' is for the siractin protein.
+channel sted 594  from filename 'infdiv14 shfus moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma6 img6.msr' is for the fus protein.
+channel sted 635p  from filename 'p8 div20 aav th488 asyn490ls vglut2 594 psd95 635 n1 01.msr' is for the psd95 protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c18.msr' is for the bassoon protein.
+channel sted 594  from filename 'infdiv5 plko 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma6 img6.msr' is for the fus protein.
+channel sted 640  from filename '2024 01 19 block padducin594 gptau488 ph635 cs2n5.msr' is for the factin protein.
+channel sted 635p  from filename '2023 11 02 pfa20 ph635 bcamkiia594 taus488 cs1n2.msr' is for the factin protein.
+channel sted 635p  from filename '27 gfp block lam gfp taus490l bcamkiia594 ph635 cs1n3.msr' is for the factin protein.
+channel sted 561  from filename 'msvimentin 1to250 gam storange 1to250 culturecortex80kcells fixpfa20min div8 cs1 c3.msr' is for the vimentin protein.
+channel sted 635p  from filename 'infdiv5 plko 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma9 img9.msr' is for the psd95 protein.
+channel sted 640  from filename '5 ap5+ttx cs1 lam neurons map2a594 taua488 phalloidins635 n1.msr' is for the factin protein.
+channel sted 640  from filename '5 ap5+ttx cs2 lam neurons map2a594 taua488 phalloidins635 n4.msr' is for the factin protein.
+channel sted 640  from filename '2024 01 19 blockglugly adducin594 gptau488 ph635 cs3n3.msr' is for the factin protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c15.msr' is for the bassoon protein.
+channel sted 594  from filename '27 rescue block+glugly lam gfp taus490l bcamkiia594 ph635 cs1n8.msr' is for the betacamkii protein.
+channel sted 594  from filename '27 shrna block glugly lam gfp taus490l bcamkiia594 ph635 cs1n7.msr' is for the betacamkii protein.
+channel sted 635p  from filename '25 2023 02 20 lam100k5k nt bloc ph635 bcamkiia594 taus488 cs2n5.msr' is for the factin protein.
+channel sted 594  from filename '12 nt lam12 gfp taus460l bcamkiia594 ph635 cs1n5.msr' is for the betacamkii protein.
+channel sted 640  from filename '4 bloc prep1 cs1 lam neurons map2s488 smi31a594 phalloidins635 n1.msr' is for the factin protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c13.msr' is for the bassoon protein.
+channel sted 594  from filename 'infdiv14 plko moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma6 img6.msr' is for the fus protein.
+channel sted640  from filename '2023 10 25 gcamp6f sir actin kcl flc after 7.msr' is for the siractin protein.
+channel sted 640  from filename '2023 12 15 ph635 b2 spectrina594 cs1n2.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv14 plko 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma7 img7.msr' is for the psd95 protein.
+channel sted 640  from filename '2023 05 24 4colors taus488 bassonat490ls b2 spectrina594 ph635 635 n3.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv5 shfus 4dpi vglut1490 map2490ls fus594 psd95635 linksoma6 img6.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 plko moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma5 img5.msr' is for the psd95 protein.
+channel sted640  from filename '16 2022 09 14 snap tubulin snap647 cs1 n2.msr' is for the sirtubulin protein.
+channel sted 561  from filename '2024 01 17 blockkcl adducin594 gptau488 ph635 cs1n4.msr' is for the adducin protein.
+channel sted 635  from filename 'psd95 star635p bassoon alexa594 c33.msr' is for the psd95 protein.
+channel sted 635p  from filename 'p8 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n1 02.msr' is for the psd95 protein.
+channel sted640  from filename '2023 08 25 sir actin cs1 after region7.msr' is for the siractin protein.
+channel sted 635p  from filename 'infdiv5 shfus 11dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma6 img6.msr' is for the psd95 protein.
+channel sted640  from filename '2023 05 18 test2 gcapm6f sir actin acsf+ttx cltp6min cs1n10.msr' is for the siractin protein.
+channel sted 635p  from filename 'p11 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n8 01.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv14 shfus moi10 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma9 img9.msr' is for the fus protein.
+channel sted640  from filename '2023 09 28 sir actin lam after region9.msr' is for the siractin protein.
+channel sted 640  from filename '2023 12 19 amparr star635p tranche aigu 1 500 n3.msr' is for the glur1 protein.
+channel sted 594  from filename 'infdiv5 plko 4dpi vglut1490 map2490ls fus594 psd95635 linksoma4 img4.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 plko 11dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma8 img8.msr' is for the psd95 protein.
+channel sted 594  from filename 'p6 div20 ctrl th488 asyn490ls vglut2 594 psd95 635 n3 01.msr' is for the vglut2 protein.
+channel sted 594  from filename 'infdiv5 shfus moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma5 img3.msr' is for the fus protein.
+channel sted 640  from filename '2024 01 18 blockkcl adducin594 gptau488 ph635 cs2n4.msr' is for the factin protein.
+channel sted 594  from filename 'psd95 star635p bassoon alexa594 c11.msr' is for the bassoon protein.
+channel sted 594  from filename 'infdiv5 plko 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma1 img1.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv5 shfus moi5 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma11 img8.msr' is for the fus protein.
+channel sted 640  from filename '2023 05 24 4colors taus488 bassonat490ls b2 spectrina594 ph635 488 n3.msr' is for the factin protein.
+channel sted 635p  from filename 'p6 div20 ctrl th488 asyn490ls vglut2 594 psd95 635 n1 02.msr' is for the psd95 protein.
+channel sted 640  from filename '6 kcl lam18 map2s488 smia594 ph635 cs1n4.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv14 shfus moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma9 img9.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 shfus 4dpi vglut1490 map2490ls fus594 psd95635 linksoma1 img1.msr' is for the psd95 protein.
+channel sted 640  from filename '2024 01 17 blockkcl adducin594 gptau488 ph635 cs1n2.msr' is for the factin protein.
+channel sted 594  from filename '2023 06 29 psd95 star635p bassoon alexa594 cs2 n3 from test n1.msr' is for the bassoon protein.
+channel sted 635p  from filename '25 2023 02 20 lam100k5k nt bloc ph635 bcamkiia594 taus488 cs1n12.msr' is for the factin protein.
+channel sted 594  from filename '25 2023 02 20 lam100k5k snap actin kcl snap647 bcamkiia594 taus488 cs1n12.msr' is for the betacamkii protein.
+channel sted 594  from filename 'infdiv5 shfus 7dpi vglut1490 map2490ls fus594 psd95635 linksoma10 img8.msr' is for the fus protein.
+channel sted 635  from filename '2023 06 02 map2 r star635p r vgatgp a594gp cs2 n1.msr' is for the map2 protein.
+channel sted 635p  from filename 'infdiv14 plko moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma3 img3.msr' is for the psd95 protein.
+channel sted 635p  from filename '27 rescue block lam gfp taus490l bcamkiia594 ph635 cs2n1.msr' is for the factin protein.
+channel sted 635  from filename 'psd95 star635p bassoon alexa594 c1.msr' is for the psd95 protein.
+channel sted 594  from filename '25 2023 02 20 lam100k5k snap actin kcl snap647 bcamkiia594 taus488 cs1n11.msr' is for the betacamkii protein.
+channel sted 594  from filename '12 rescue lam12 gfp taus460l bcamkiia594 ph635 cs1n1.msr' is for the betacamkii protein.
+channel sted 640  from filename '2023 12 13 ph635 adducina594 cs1n1.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv5 plko 11dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma5 img5.msr' is for the psd95 protein.
+channel sted 640  from filename '3 bloc+kcl prep1 cs2 lam neurons map2s488 smi31a594 phalloidins635 n4.msr' is for the factin protein.
+channel sted 635p  from filename 'infdiv5 shfus 11dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma11 img10.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv5 shfus 7dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma8 img6.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv5 plko moi10 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma2 img2.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv5 plko moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma3 img3.msr' is for the psd95 protein.
+channel sted 635p  from filename 'infdiv14 shfus 7dpi vglut1490 map2490ls fus594 psd95635 linksoma1 img1.msr' is for the psd95 protein.
+channel sted 635  from filename 'psd95 star635p bassoon alexa594 c36.msr' is for the psd95 protein.
+channel sted 635p  from filename 'p7 div20 ctl th488 asyn490ls vglut2 594 psd95 635 n1 01.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv14 plko 11dpi vglut1490 map2490ls fus594 psd95635 linksoma4 img4.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv14 plko moi10 11dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma6 img6.msr' is for the psd95 protein.
+channel sted 594  from filename 'infdiv14 plko moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma9 img9.msr' is for the fus protein.
+channel sted640  from filename '20 2022 11 21 sir actin647 lam18 cs2n8 post stim.msr' is for the siractin protein.
+channel sted 594  from filename 'infdiv14 plko moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma2 img2.msr' is for the fus protein.
+channel sted 635p  from filename 'infdiv5 plko moi10 7dpi vglut1488 map2490ls fus594 psd955635 axons linksoma6 img6.msr' is for the psd95 protein.
+channel sted640  from filename '2023 06 04 b2 spectrin s635 a594 cs1n5.msr' is for the beta2spectrin protein.
+channel sted 640  from filename 'e cs2 ms neurons map2s488 smi31s580 phalloidins647 n2.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv14 shfus 7dpi vglut1490 map2490ls fus594 psd95635 linksoma8 img7.msr' is for the fus protein.
+channel sted 635p  from filename '12 rescue lam12 gfp taus460l bcamkiia594 ph635 cs1n5.msr' is for the factin protein.
+channel sted 594  from filename 'infdiv5 shfus 11dpi vglut1490 map2490ls fus594 psd95635 linksoma8 img8.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv14 plko moi5 4dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma3 img3.msr' is for the fus protein.
+channel sted 594  from filename 'infdiv14 shfus moi10 7dpi vglut1488 map2490ls fus594 psd955635 dendrite linksoma6 img6.msr' is for the fus protein.
+channel sted640  from filename '17 2022 09 28 sir actin hd18 c4n6 timelapse.msr' is for the siractin protein.
+channel sted 635p  from filename '27 shrna block glugly lam gfp taus490l bcamkiia594 ph635 cs1n8.msr' is for the factin protein.
+channel sted 635p  from filename '27 rescue block lam gfp taus490l bcamkiia594 ph635 cs1n3.msr' is for the factin protein.
+channel sted 561  from filename '2024 01 19 block padducin594 gptau488 ph635 cs2n4.msr' is for the adducin protein.
+channel sted 594  from filename 'infdiv14 shfus 4dpi vglut1488 map2490ls fus594 psd95635 dendrites linksoma10 img10.msr' is for the fus protein.
+channel sted 640  from filename '2023 12 23 psd95 nano643+ampar(glur1)r 1 500 a594+vglut1gp 490ls n3.msr' is for the psd95 protein.
+channel sted 640  from filename '5 bloc cs1 lam neurons map2a594 taua488 phalloidins635 n4.msr' is for the factin protein.
+channel sted 594  from filename '27 gfp blockglugly lam gfp taus490l bcamkiia594 ph635 cs2n2.msr' is for the betacamkii protein.
+channel sted 594  from filename '2023 12 20 psd95 nano643+vglut1gp a594+vgatr 490ls+gephyrinm stargreen n2.msr' is for the vglut1 protein.
+channel sted 640  from filename 'e cs2 ms neurons map2s488 smi31a594 phalloidins647 n2.msr' is for the factin protein.
+channel sted 561  from filename '2024 01 17 blockkcl adducin594 gptau488 ph635 cs1n2.msr' is for the adducin protein.
+channel sted 594  from filename '27 nt block lam gfp taus490l bcamkiia594 ph635 cs1n1.msr' is for the betacamkii protein.
