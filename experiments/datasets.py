@@ -478,10 +478,14 @@ class OptimDataset(Dataset):
 
         random.seed(42)
         np.random.seed(42)
-        for class_name in classes:
+        self.labels = []
+        for i, class_name in enumerate(classes):
             class_folder = os.path.join(data_folder, class_name)
             self.class_files[class_name] = self._filter_files(class_folder)
             self.samples[class_name] = self._get_sampled_files(self.class_files[class_name], self.num_samples.get(class_name))
+            self.labels.extend([i] * len(self.samples[class_name]))
+
+
 
     def _filter_files(self, class_folder):
         SCORE = 0.70
@@ -538,6 +542,7 @@ class OptimDataset(Dataset):
         if self.transform:
             image = self.transform(image)
         
+        label = np.float64(label)
         return image, {"label" : label, "dataset-idx" : dataset_idx, "score" : quality_score}
 
     def __repr__(self):
@@ -553,35 +558,25 @@ class ProteinDataset(Dataset):
             class_ids: List[int] = None, 
             class_type: str = "protein", 
             transform = None,
-            n_channels: int = 1,
-            indices: List[int] = None) -> None:
+            n_channels: int = 1) -> None:
         self.h5file = h5file 
         self.class_ids = class_ids
         self.class_type = class_type
         self.n_channels = n_channels
-        self.indices = indices
 
-        if self.indices is None:
-            with h5py.File(h5file, "r") as hf:
-                self.dataset_size = int(hf["protein"].size)
-        else:
-            self.dataset_size = len(self.indices)
+        with h5py.File(h5file, "r") as hf:
+            self.dataset_size = int(hf["proteins"].size)
+            self.labels = hf["proteins"][()]
+
 
     def __len__(self):
         return self.dataset_size
     
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
-        # If we operate from a predetermined list of indices, 
-        # we need to convert the input index to the actual image index to be found in the hdf5
-        if self.indices is not None:
-            idx = self.indices[idx]
-
         with h5py.File(self.h5file, "r") as hf:
             img = hf["images"][idx]
-            protein = hf["protein"][idx]
-            if protein > 1:
-                protein = protein - 1 # Because we removed the NKCC2 (label = 2) protein from our dataset
-            condition = hf["condition"][idx]
+            protein = hf["proteins"][idx]
+            condition = hf["conditions"][idx]
             if self.n_channels == 3:
                 img = np.tile(img[np.newaxis], (3, 1, 1))
                 img = np.moveaxis(img, 0, -1)
@@ -589,7 +584,7 @@ class ProteinDataset(Dataset):
                 img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
             else:
                 img = transforms.ToTensor()(img)
-            return img, {"label": protein, "condition": condition}
+        return img, {"label": protein, "condition": condition}
 
 class CTCDataset(Dataset):
     """
@@ -634,7 +629,7 @@ class CTCDataset(Dataset):
         """
         with h5py.File(self.h5file, "r") as hf:
             img = hf["images"][idx]
-            protein = hf['protein'][idx]
+            protein = hf['proteins'][idx]
             condition = hf['condition'][idx]
 
             img = img[np.newaxis]
@@ -796,34 +791,3 @@ class TarFLCDataset(Dataset):
         state = dict(self.__dict__)
         state['tar_obj'] = {}
         return state
-    
-if __name__ == "__main__":
-
-    import tifffile, pandas
-    name = "factin"
-    dataset = get_dataset(name, None, transform=None)
-    df = pandas.DataFrame(columns=["Metadata_Plate","Metadata_Well","Metadata_Site","chan","gene_name","pert_name","broad_sample","pert_name_replicate","Split"])
-    for i in range(len(dataset)):
-        img, metadata = dataset[i]
-        img = img.squeeze()
-        img = img.cpu().data.numpy()
-
-        tifffile.imwrite(
-            "/home-local2/projects/deepprofiler/inputs/images/{}_{:04d}.tif".format(name, i),
-            (numpy.clip(img * 255, 0, 255)).astype(numpy.uint8)
-        )
-        df = pandas.concat([
-            df, 
-            pandas.DataFrame({
-                "Metadata_Plate" : [1],
-                "Metadata_Well" : [i],
-                "Metadata_Site" : [i],
-                "chan" : ["{}_{:04d}.tif".format(name, i)],
-                "gene_name" : [dataset.classes[metadata["label"]]],
-                "pert_name" : [1],
-                "broad_sample" : [1],
-                "pert_name_replicate" : [1],
-                "Split" : [1]
-            })
-        ], ignore_index=True)
-    df.to_csv(f"/home-local2/projects/deepprofiler/inputs/metadata/{name}_index.csv")

@@ -12,15 +12,38 @@ from DEFAULTS import BASE_PATH
 class ResNetWeights:
 
     RESNET18_IMAGENET1K_V1 = torchvision.models.ResNet18_Weights.IMAGENET1K_V1
+<<<<<<< HEAD
     RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet18", "result.pt")
     RESNET18_SSL_CTC = os.path.join(BASE_PATH, "baselines", "resnet18_CTC", "result.pt")
 
     RESNET50_IMAGENET1K_V1 = torchvision.models.ResNet50_Weights.IMAGENET1K_V1
     RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet50", "result.pt")
     RESNET50_SSL_CTC = os.path.join(BASE_PATH, "baselines", "resnet50_CTC", "result.pt")
+=======
+    RESNET18_SSL_CTC = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_CTC/result.pt"
+    RESNET18_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_STED/result.pt"
+    RESNET18_LINEARPROBE_IMAGENET_PROTEINS = None
+    RESNET18_LINEARPROBE_CTC_PROTEINS = None
+    RESNET18_LINEARPROBE_STED_PROTEINS = None 
+    RESNET18_LINEARPROBE_IMAGENET_OPTIM = None
+    RESNET18_LINEARPROBE_CTC_OPTIM = None
+    RESNET18_LINEARPROBE_STED_OPTIM = None 
+
+    RESNET50_IMAGENET1K_V1 = torchvision.models.ResNet50_Weights.IMAGENET1K_V1
+    RESNET50_SSL_CTC = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet50_CTC/result.pt"
+    RESNET50_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet50_STED/result.pt"
+    RESNET18_LINEARPROBE_IMAGENET_PROTEINS = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_ImageNet/optim/finetuned_4blocks_model.pth"
+    RESNET18_LINEARPROBE_CTC_PROTEINS = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_CTC/optim/finetuned_4blocks_model.pth"
+    RESNET18_LINEARPROBE_STED_PROTEINS = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_STED/synaptic-proteins/finetuned_4blocks_model.pth" 
+    RESNET18_LINEARPROBE_IMAGENET_OPTIM = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_ImageNet/optim/finetuned_4blocks_model.pth"
+    RESNET18_LINEARPROBE_CTC_OPTIM = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_CTC/optim/finetuned_4blocks_model.pth"
+    RESNET18_LINEARPROBE_STED_OPTIM = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_STED/optim/finetuned_4blocks_model.pth" 
+>>>>>>> 070162485de1449e9cc061f9f95e89f7c29fe901
 
     RESNET101_IMAGENET1K_V1 = torchvision.models.ResNet101_Weights.IMAGENET1K_V1
     RESNET101_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet101", "result.pt")
+
+
 
 @dataclass
 class ResNetConfiguration:
@@ -43,6 +66,8 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
 
         # Ignore the classification head as we only want the features.
         backbone.fc = torch.nn.Identity()
+        cfg.batch_size = 256
+        cfg.dim = 512
 
     elif name == "resnet50":
         # Use a resnet backbone.
