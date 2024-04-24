@@ -20,10 +20,24 @@ class LinearProbe(torch.nn.Module):
         
         if self.name.lower() == "mae" or self.name == "mae-small":
             feature_dim = 384
+            print(f"--- Freezing default vit pre-blocks ---")
+            self.backbone.backbone.mask_token.requires_grad = False
+            self.backbone.backbone.vit.cls_token.requires_grad = False
+            self.backbone.backbone.vit.pos_embed.requires_grad = False
+            for p in self.backbone.backbone.vit.patch_embed.parameters():
+                p.requires_grad = False
         elif self.name == "resnet18":
             feature_dim = 512
+            for p in self.backbone.conv1.parameters():
+                p.requires_grad = False
+            for p in self.backbone.bn1.parameters():
+                p.requires_grad = False
         elif self.name == "resnet50":
             feature_dim = 2048
+            for p in self.backbone.conv1.parameters():
+                p.requires_grad = False
+            for p in self.backbone.bn1.parameters():
+                p.requires_grad = False
         elif self.name == "micranet":
             pass 
         elif self.name == 'convnext':
@@ -51,21 +65,12 @@ class LinearProbe(torch.nn.Module):
     def _freeze_blocks(self, blocks):
         if self.name in ["MAE", "MAEClassifier", 'mae', 'vit-small']:
             print(f"--- Freezing {blocks} ViT blocks ---")
-            self.backbone.backbone.mask_token.requires_grad = False
-            self.backbone.backbone.vit.cls_token.requires_grad = False
-            self.backbone.backbone.vit.pos_embed.requires_grad = False
-            for p in self.backbone.backbone.vit.patch_embed.parameters():
-                p.requires_grad = False
             for bidx in blocks:
                 for p in self.backbone.backbone.vit.blocks[bidx].parameters():
                     p.requires_grad = False
                     
         elif "resnet" in self.name.lower():
             print(f"--- Freezing {blocks} ResNet layers ---")
-            for p in self.backbone.conv1.parameters():
-                p.requires_grad = False
-            for p in self.backbone.bn1.parameters():
-                p.requires_grad = False
             if len(blocks) == 1:
                 for p in self.backbone.layer1.parameters():
                     p.requires_grad = False
