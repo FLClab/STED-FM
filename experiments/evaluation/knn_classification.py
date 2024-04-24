@@ -56,7 +56,7 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
             out['labels'].extend(labels.cpu().detach().numpy())
 
     samples = np.array(out['features'])
-    labels = np.array(out['labels']).astype(np.int32)
+    labels = np.array(out['labels']).astype(np.int64)
     plot_PCA(samples=samples, labels=labels, savename=savename)
     neigh = NearestNeighbors(n_neighbors=6)
     neigh.fit(samples)

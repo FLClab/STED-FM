@@ -18,7 +18,7 @@ class LinearProbe(torch.nn.Module):
         self.global_pool = global_pool
         self.num_blocks = num_blocks
         
-        if self.name.lower() == "mae":
+        if self.name.lower() == "mae" or self.name == "mae-small":
             feature_dim = 384
         elif self.name == "resnet18":
             feature_dim = 512
