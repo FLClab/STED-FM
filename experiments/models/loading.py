@@ -19,7 +19,11 @@ MODELS = {
     "convnext-small" : ConvNextWeights,
     "convnext-base" : ConvNextWeights,
     'vit-small': None,
-    'mae': MAEWeights,
+    'mae-tiny': MAEWeights,
+    'mae': MAEWeights, # mae defaults to mae-small
+    'mae-small': MAEWeights,
+    'mae-base': MAEWeights,
+    'mae-large': MAEWeights
 }
 
 def load_weights(weights: Union[str, Enum]) -> dict:
@@ -38,7 +42,7 @@ def load_weights(weights: Union[str, Enum]) -> dict:
             return state_dict["model_state_dict"]
         else:
             raise KeyError(f"Not model found in checkpoint.") 
-        return state_dict
+        
     elif weights is None:
         print(f"--- None weights refer to ViT encoder of MAE ---")
         return None

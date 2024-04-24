@@ -173,3 +173,6 @@ experiments/vit_experiments/logs/
 experiments/vit_experiments/MAE_loss.png
 experiments/vit_experiments/results/
 experiments/logs/
+figures/*.pdf
+evaluation/results/
+experiments/scripts/

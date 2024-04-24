@@ -5,7 +5,7 @@ from tqdm import tqdm
 import argparse 
 import sys 
 sys.path.insert(0, "../")
-from model_builder import get_classifier 
+from model_builder import get_classifier, get_classifier_v2
 from loaders import get_dataset
 from utils import compute_Nary_accuracy
 
@@ -47,7 +47,7 @@ def make_plot(accuracies: dict) -> None:
     sted_data = list(reversed(accuracies["STED"]))
     x = np.arange(0, len(sted_data), 1)
     # ticklabels = [str(item) for item in x]
-    ticklabels = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
+    ticklabels = list(range(args.num_blocks + 1))
     fig = plt.figure()
     plt.plot(x, imnet_data, color='tab:red', marker='x', label="ImageNet")
     plt.plot(x, ctc_data, color='tab:green', marker='x', label='CTC')
@@ -56,13 +56,14 @@ def make_plot(accuracies: dict) -> None:
     plt.xlabel("# blocks fine-tuned")
     plt.ylabel("Accuracy")
     plt.legend()
-    fig.savefig(f'/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation/results/MAEClassifier/finetuned/{args.dataset}_acc_vs_blocks.pdf', bbox_inches='tight', dpi=1200)
+    fig.savefig(f'/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation/results/{args.model}/finetuned/{args.dataset}_acc_vs_blocks.pdf', bbox_inches='tight', dpi=1200)
 
 
 def main():
     blocks_list = list(range(args.num_blocks + 1))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
+    print(f"--- Evaluating on {args.dataset} ---")
     accuracies = {
         "ImageNet": [],
         "CTC": [],
@@ -71,21 +72,26 @@ def main():
 
     for pretraining in ["ImageNet", "CTC", "STED"]:
         n_channels = 3 if pretraining == "ImageNet" else 1 
-        for bnum in blocks_list[1:]:
+        for i, bnum in enumerate(blocks_list):
+            path = "allblocks" if i == blocks_list[-1] else f"{bnum}blocks"
             print(f"--- Evaluating {args.model}_{pretraining} with {bnum} frozen blocks ---")
-            model = get_classifier(
+            model,cfg = get_classifier_v2(
                 name=args.model,
-                pretraining=pretraining,
-                task='finetuned',
-                path=f"{bnum}blocks",
-                dataset=args.dataset
-            ).to(device)
+                weights=pretraining,
+                task='frozen',
+                path=path,
+                dataset=args.dataset,
+                in_channels=n_channels,
+                blocks=bnum
+            )
+            model = model.to(device)
             _, _, test_loader = get_dataset(
                 name=args.dataset,
                 transform=None,
                 path=None,
                 n_channels=n_channels,
-                training=True
+                training=True,
+                batch_size=cfg.batch_size
             )
             acc = evaluate(model=model, loader=test_loader, device=device)
             accuracies[pretraining].append(acc)

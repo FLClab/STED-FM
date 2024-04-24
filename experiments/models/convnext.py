@@ -6,7 +6,9 @@ from dataclasses import dataclass
 class ConvNextWeights:
 
     CONVNEXT_TINY_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Tiny_Weights.IMAGENET1K_V1
-    CONVNEXT_TINY_SSL_STED = "./data/SSL/baselines/convnext-tiny/result.pt"
+    CONVNEXT_SMALL_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Small_Weights.IMAGENET1K_V1
+    CONVNEXT_TINY_SSL_CTC = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/convnext-tiny_CTC/result.pt"
+    CONVNEXT_TINY_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/convnext-tiny_STED/result.pt"
 
     CONVNEXT_SMALL_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Small_Weights.IMAGENET1K_V1
 

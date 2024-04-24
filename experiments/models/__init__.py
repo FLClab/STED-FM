@@ -19,7 +19,11 @@ MODELS = {
     "naive" : get_naive_backbone,
     "vit-small" : get_vit_backbone,
     "vit-base": get_vit_backbone,
+    'mae-tiny': get_mae_backbone,
     "mae": get_mae_backbone,
+    "mae-small": get_mae_backbone,
+    'mae-base': get_mae_backbone,
+    'mae-large': get_mae_backbone
 }
 
 CLASSIFIERS = {
