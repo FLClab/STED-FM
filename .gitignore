@@ -175,4 +175,4 @@ experiments/vit_experiments/results/
 experiments/logs/
 figures/*.pdf
 evaluation/results/
-experiments/scripts/
+experiments/STED_mae-base_loss.png

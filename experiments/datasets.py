@@ -536,14 +536,21 @@ class OptimDataset(Dataset):
         m, M = np.quantile(image, [0.01, 0.995])
         m, M = image.min(), image.max()
         image = (image - m) / (M - m)
-        image = np.tile(image[np.newaxis], (self.n_channels, 1, 1))
-        image = torch.tensor(image, dtype=torch.float32)   
+        # image = np.tile(image[np.newaxis], (self.n_channels, 1, 1))
+        # image = torch.tensor(image, dtype=torch.float32)   
+        if self.n_channels == 3:
+                img = np.tile(image[np.newaxis], (3, 1, 1))
+                img = np.moveaxis(img, 0, -1)
+                img = transforms.ToTensor()(img)
+                img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+        else:
+            img = transforms.ToTensor()(image)
         
         if self.transform:
-            image = self.transform(image)
+            img = self.transform(img)
         
         label = np.float64(label)
-        return image, {"label" : label, "dataset-idx" : dataset_idx, "score" : quality_score}
+        return img, {"label" : label, "dataset-idx" : dataset_idx, "score" : quality_score}
 
     def __repr__(self):
         out = "\n"
