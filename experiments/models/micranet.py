@@ -1,13 +1,19 @@
 
+import os
 import torch
 import torchvision
 
 from torch import nn
 from dataclasses import dataclass
 
+import sys
+sys.path.insert(0, "../")
+from DEFAULTS import BASE_PATH
+
 class MICRANetWeights:
 
-    MICRANET_SSL_STED = "./data/SSL/baselines/micranet/result.pt"
+    MICRANET_SSL_STED = os.path.join(BASE_PATH, "baselines", "micranet", "result.pt")
+    MICRANET_SSL_CTC = os.path.join(BASE_PATH, "baselines", "micranet_CTC", "result.pt")
 
 @dataclass
 class MICRANetConfiguration:

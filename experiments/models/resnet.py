@@ -1,19 +1,26 @@
 
+import os
 import torch
 import torchvision
 
 from dataclasses import dataclass
 
+import sys
+sys.path.insert(0, "../")
+from DEFAULTS import BASE_PATH
+
 class ResNetWeights:
 
     RESNET18_IMAGENET1K_V1 = torchvision.models.ResNet18_Weights.IMAGENET1K_V1
-    RESNET18_SSL_STED = "./data/SSL/baselines/resnet18/result.pt"
+    RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet18", "result.pt")
+    RESNET18_SSL_CTC = os.path.join(BASE_PATH, "baselines", "resnet18_CTC", "result.pt")
 
     RESNET50_IMAGENET1K_V1 = torchvision.models.ResNet50_Weights.IMAGENET1K_V1
-    RESNET50_SSL_STED = "./data/SSL/baselines/resnet50/result.pt"
+    RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet50", "result.pt")
+    RESNET50_SSL_CTC = os.path.join(BASE_PATH, "baselines", "resnet50_CTC", "result.pt")
 
     RESNET101_IMAGENET1K_V1 = torchvision.models.ResNet101_Weights.IMAGENET1K_V1
-    RESNET101_SSL_STED = "./data/SSL/baselines/resnet101/result.pt"
+    RESNET101_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet101", "result.pt")
 
 @dataclass
 class ResNetConfiguration:
@@ -22,6 +29,7 @@ class ResNetConfiguration:
     batch_size: int = 256
     dim: int = 512
     in_channels: int = 1
+
 
 def get_backbone(name: str, **kwargs) -> torch.nn.Module:
     cfg = ResNetConfiguration()

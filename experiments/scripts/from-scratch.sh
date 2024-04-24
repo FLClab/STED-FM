@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=10:00:00
+#SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -23,10 +23,10 @@ cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started linear probing"
+echo "% Started training from scratch"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python from-scratch.py --dataset synaptic-proteins --model vit
+python from_scratch.py --dataset synaptic-proteins --model vit-small
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

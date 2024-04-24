@@ -8,6 +8,7 @@ from torch.hub import load_state_dict_from_url
 from .resnet import ResNetWeights
 from .micranet import MICRANetWeights
 from .convnext import ConvNextWeights
+from .lightly_mae import MAEWeights
 
 MODELS = {
     "resnet18" : ResNetWeights,
@@ -17,6 +18,8 @@ MODELS = {
     "convnext-tiny" : ConvNextWeights,
     "convnext-small" : ConvNextWeights,
     "convnext-base" : ConvNextWeights,
+    'vit-small': None,
+    'mae': MAEWeights,
 }
 
 def load_weights(weights: Union[str, Enum]) -> dict:
@@ -27,12 +30,24 @@ def load_weights(weights: Union[str, Enum]) -> dict:
         state_dict = torch.load(weights, map_location="cpu")
         if "model" in state_dict:
             # Model pretrained using SimCLR
-            return state_dict["model"]["backbone"]
+            try:
+                return state_dict["model"]["backbone"]
+            except KeyError:
+                return state_dict['model']
+        elif "model_state_dict" in state_dict:
+            return state_dict["model_state_dict"]
+        else:
+            raise KeyError(f"Not model found in checkpoint.") 
         return state_dict
+    elif weights is None:
+        print(f"--- None weights refer to ViT encoder of MAE ---")
+        return None
     else:
         raise NotImplementedError("Weights not implemented yet.")
 
 def get_weights(name : str, weights: str) -> torch.nn.Module:
+    if weights is None:
+        return None
     if not name in MODELS:
         raise NotImplementedError(f"`{name}` is not a valid option.")
     weights = getattr(MODELS[name], weights)
