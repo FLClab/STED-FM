@@ -15,7 +15,7 @@ def get_base_model(name: str, **kwargs):
 
 
 def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool = False, path: str = None, **kwargs):
-    if name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "vit-small", "mae", "mae-small", "mae-base"]:
+    if name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "vit-small", "mae", "mae-tiny", "mae-small", "mae-base"]:
         backbone, cfg = get_base_model(name, **kwargs)
         state_dict = get_weights(name, weights)
         # This is could lead to errors if the model is not exactly the same as the one used for pretraining
@@ -148,7 +148,7 @@ def get_classifier_v2(name: str, weights: str, task: str, path: str = None, data
         state_dict = get_weights(name, weights)
         model.load_state_dict(state_dict, strict=False)
         return model
-    elif name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "mae"]:
+    elif name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "mae", "mae-small"]:
         backbone, cfg = get_base_model(name, **kwargs)
         model = LinearProbe(
             backbone=backbone,

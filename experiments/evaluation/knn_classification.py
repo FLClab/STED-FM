@@ -41,7 +41,6 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
         for x, data_dict in tqdm(loader, desc="Extracting features..."):
             labels = data_dict['label']
             x, labels = x.to(device), labels.to(device)
-            print(f"In knn predict {labels.shape, type(labels), labels.dtype}")
             if "mae" in args.model.lower():
                 features = model.forward_encoder(x)
                 if args.global_pool == "token":
@@ -53,16 +52,16 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
             else:
                 features = model(x)
 
-            out['features'].extend(features.cpu().data.numpy())
-            out['labels'].extend(labels.cpu().data.numpy())
+            out['features'].extend(features.cpu().detach().numpy())
+            out['labels'].extend(labels.cpu().detach().numpy())
 
     samples = np.array(out['features'])
-    labels = np.array([int(item) for item in out['labels']])
+    labels = np.array(out['labels']).astype(np.int32)
     plot_PCA(samples=samples, labels=labels, savename=savename)
     neigh = NearestNeighbors(n_neighbors=6)
     neigh.fit(samples)
     neighbors = neigh.kneighbors(samples, return_distance=False)[:, 1:]
-    print(samples.shape, labels.shape, neighbors.shape)
+
     associated_labels = labels[neighbors]
 
     uniques = np.unique(labels)
@@ -121,7 +120,7 @@ def main():
         path=None, 
         n_channels=n_channels,
         training=False,
-        batch_size=cfg.batch_size,
+        batch_size=64,
         fewshot_pct=1.0
         )
     model = model.to(device)

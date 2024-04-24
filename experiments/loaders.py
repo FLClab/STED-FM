@@ -38,7 +38,7 @@ class BalancedSampler(Sampler):
         self.indices = [] 
         for i in range(self.num_classes):
             inds = np.argwhere(np.array(self.dataset.labels) == i)
-            inds = np.random.choice(inds.ravel(), size=self.num_samples, replace=False)
+            inds = np.random.choice(inds.ravel(), size=self.num_samples, replace=True)
             self.indices.append(inds)
 
     def __len__(self):
@@ -175,7 +175,7 @@ def get_optim_dataset(path: str, training: bool = False, batch_size=256, **kwarg
             classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
             **kwargs
         )
-        dataloader = DataLoader(dataset=dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
+        dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
         return dataloader
 
 def get_factin_rings_fibers_dataset(path: str, **kwargs):

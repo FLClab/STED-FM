@@ -4,10 +4,14 @@ import lightly.models.utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 
 class MAEWeights:
-    MAE_IMAGENET = None
+    MAE_TINY_IMAGENET = None
+    MAE_SMALL_IMAGENET = None
+    MAE_BASE_IMAGENET = None
+    MAE_LARGE_IMAGENET = None
     MAE_SSL_CTC = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth"
     MAE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_STED/mae-small/checkpoint-530.pth"
     MAE_BASE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_STED/mae-base/checkpoint-70.pth"
+
     MAE_LINEARPROBE_IMAGENET_PROTEINS = None
     MAE_LINEARPROBE_CTC_PROTEINS = None
     MAE_LINEARPROBE_STED_PROTEINS = None
@@ -26,11 +30,13 @@ class MAEConfiguration:
 def get_backbone(name: str, **kwargs) -> torch.nn.Module:
     cfg = MAEConfiguration()
     for key, value in kwargs.items():
+        print(key, value)
         setattr(cfg, key, value)
 
 
     if name == 'mae-tiny':
         cfg.dim = 192
+        cfg.batch_size=512
         vit = vit_tiny_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
         backbone = LightlyMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
     elif name == "mae-small" or name == "mae":
@@ -39,6 +45,7 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
         backbone = LightlyMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
     elif name == "mae-base":
         cfg.dim = 768
+        cfg.batch_size = 64
         vit = vit_base_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
         backbone = LightlyMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
     elif name == 'mae-large':

@@ -239,13 +239,15 @@ class UNet(torch.nn.Module):
         
         """
         x = self.backbone.images_to_tokens(x)
+        B, Hp, Wp = x.shape[0], x.shape[2], x.shape[3]
         x = self.backbone.add_prefix_tokens(x)
         x = self.backbone.add_pos_embed(x)
         x = self.backbone.vit.norm_pre(x)
         features = []
         for blk in self.vit.blocks:
             x  = blk(x)
-            features.append(x)
+            feat = x[:, 1:, :].permute(0, 2, 1).reshape(B, -1, Hp, Wp)
+            features.append(feat)
         return x, features
 
     def forward(self, x : torch.Tensor):

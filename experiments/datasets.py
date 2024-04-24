@@ -255,13 +255,12 @@ class OptimDataset(Dataset):
             image = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(image)
         else:
             image = image[np.newaxis]
-        image = torch.tensor(image, dtype=torch.float32)   
-        
+            image = transforms.ToTensor()(image)
+                    
         if self.transform:
             image = self.transform(image)
         
         label = np.float64(label)
-        print(type(label), label.shape, label.dtype)
         return image, {"label" : label, "dataset-idx" : dataset_idx, "score" : quality_score}
 
     def __repr__(self):
@@ -303,7 +302,6 @@ class ProteinDataset(Dataset):
                 img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
             else:
                 img = transforms.ToTensor()(img)
-        print(type(label), label.shape, label.dtype)
         return img, {"label": protein, "condition": condition}
 
 class CTCDataset(Dataset):
