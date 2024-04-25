@@ -13,11 +13,11 @@ class ProteinSegmentationDataset(Dataset):
         transform=None,
         n_channels=1,
     ) -> None:
-    self.h5file = h5file
-    self.transform = transform 
-    self.n_channels = n_channels 
-    with h5py.File(h5file, "r") as hf:
-        self.dataset_size = int(hf["images"].size)
+        self.h5file = h5file
+        self.transform = transform 
+        self.n_channels = n_channels 
+        with h5py.File(h5file, "r") as hf:
+            self.dataset_size = int(hf["images"].size)
 
     def __len__(self):
         return self.dataset_size 

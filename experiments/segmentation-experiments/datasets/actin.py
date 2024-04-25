@@ -10,6 +10,10 @@ from skimage import io
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
+import sys
+sys.path.insert(0, "..")
+from DEFAULTS import BASE_PATH
+
 @dataclass
 class FActinConfiguration:
 
@@ -131,7 +135,7 @@ class HDF5Dataset(Dataset):
     def __len__(self):
         return len(self.samples)
     
-def get_dataset(cfg:dataclass, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
+def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
 
     # Updates the configuration inplace
     cfg.dataset_cfg = FActinConfiguration()
@@ -140,22 +144,25 @@ def get_dataset(cfg:dataclass, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
     hdf5_validation_path = os.path.join(BASE_PATH, "segmentation-data", "factin", "validation_small-dataset_20240418.hdf5")
     hdf5_testing_path = os.path.join(BASE_PATH, "segmentation-data", "factin", "testing_EXP192-block-glugly.hdf5")
 
-    training_dataset = HDF5Dataset(
-        path=hdf5_training_path,
-        data_aug=0.5,
-        validation=False,
-        size=256,
-        step=0.75,
-        out_channels=cfg.in_channels
-    )
-    validation_dataset = HDF5Dataset(
-        file_path=hdf5_validation_path,
-        data_aug=0,
-        validation=True,
-        size=256,
-        step=0.75,
-        out_channels=cfg.in_channels
-    )
+    if test_only:
+        training_dataset, validation_dataset = None, None
+    else:
+        training_dataset = HDF5Dataset(
+            file_path=hdf5_training_path,
+            data_aug=0.5,
+            validation=False,
+            size=256,
+            step=0.75,
+            out_channels=cfg.in_channels
+        )
+        validation_dataset = HDF5Dataset(
+            file_path=hdf5_validation_path,
+            data_aug=0,
+            validation=True,
+            size=256,
+            step=0.75,
+            out_channels=cfg.in_channels
+        )
     testing_dataset = HDF5Dataset(
         file_path=hdf5_testing_path,
         data_aug=0,

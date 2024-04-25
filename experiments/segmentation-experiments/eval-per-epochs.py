@@ -33,7 +33,7 @@ import sys
 sys.path.insert(0, "..")
 
 from model_builder import get_base_model, get_pretrained_model
-from utils import update_cfg, save_cfg
+from utils import update_cfg, save_cfg, savefig
 
 def comptue_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> list:
     """
@@ -183,14 +183,49 @@ def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataL
 
     return all_scores
 
+def plot_scores(scores: dict, metric: str = "aupr", **kwargs):
+    """
+    Plots the scores from the evaluation of the model
+
+    :param scores: A `dict` of the scores to plot
+    :param metric: A `str` of the metric to plot
+
+    :returns : A `tuple` of the figure and axis
+    """
+    data = []
+    for ckpt, performance in scores.items():
+        values = numpy.array(performance[metric])
+        per_class_data = []
+        for i in range(values.shape[1]):
+            per_class_values = values[:, i]
+            # Remove -1 values as they are not valid
+            per_class_values = per_class_values[per_class_values != -1]
+            mean = numpy.mean(per_class_values, axis=0)
+            per_class_data.append(mean)
+        data.append(per_class_data)
+
+    x = numpy.array([int(ckpt) for ckpt in scores.keys()])
+    data = numpy.array(data)
+
+    classes = kwargs.get("classes", [str(i) for i in range(data.shape[-1])])
+
+    fig, ax = pyplot.subplots(figsize=(3, 3))
+    for i in range(data.shape[-1]):
+        ax.plot(x, data[:, i], label=classes[i], marker='o')
+    ax.set(
+        xlabel="Epochs", ylabel=metric,
+        ylim=(0, 1)
+    )
+    return fig, ax
+
 if __name__ == "__main__":
 
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, default=42,
                     help="Random seed")     
-    parser.add_argument("--restore-from", type=str, default="",
-                    help="Model from which to restore from") 
+    parser.add_argument("--restore-from", type=str, default="", required=True,
+                    help="Folder containing the models from which to restore from") 
     parser.add_argument("--dataset", required=True, type=str,
                     help="Name of the dataset to use")             
     parser.add_argument("--backbone", type=str, default="resnet18",
@@ -206,6 +241,10 @@ if __name__ == "__main__":
         args.opts = args.opts[0].split(" ")
     assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
 
+    # Makes sure that args.restore_from is a valid
+    if args.restore_from.endswith(os.path.sep):
+        args.restore_from = args.restore_from[:-1]    
+
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     numpy.random.seed(args.seed)
@@ -220,18 +259,6 @@ if __name__ == "__main__":
     # Loads dataset and dataset-specific configuration
     _, _, testing_dataset = get_dataset(name=args.dataset, cfg=cfg, test_only=True)
 
-    # Loads checkpoint
-    checkpoint = torch.load(args.restore_from)
-    OUTPUT_FOLDER = os.path.dirname(args.restore_from)
-
-    # Build the UNet model.
-    model = UNet(backbone, cfg)
-    ckpt = checkpoint.get("model", None)
-    if not ckpt is None:
-        print("Restoring model...")
-        model.load_state_dict(ckpt)
-    model = model.to(DEVICE)
-
     # Build a PyTorch dataloader.
     test_loader = torch.utils.data.DataLoader(
         testing_dataset,  # Pass the dataset to the dataloader.
@@ -240,35 +267,37 @@ if __name__ == "__main__":
         num_workers=4
     )
     
-    # Puts the model in evaluation mode
-    model.eval()
-    scores = evaluate_segmentation(model, test_loader)
+    scores = {}
+    for ckpt_idx in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]:
+        print("Evaluating checkpoint: ", ckpt_idx)
+        # Loads checkpoint
+        try:
+            checkpoint = torch.load(os.path.join(args.restore_from, f"checkpoint-{ckpt_idx}.pt"))
+        except FileNotFoundError:
+            continue
 
-    savedir = f"./results/{args.backbone}/{args.dataset}/{os.path.basename(OUTPUT_FOLDER)}"
+        # Build the UNet model.
+        model = UNet(backbone, cfg)
+        ckpt = checkpoint.get("model", None)
+        if not ckpt is None:
+            print("Restoring model...")
+            model.load_state_dict(ckpt)
+        model = model.to(DEVICE)
+
+        # Puts the model in evaluation mode
+        model.eval()
+        performance = evaluate_segmentation(model, test_loader)
+        scores[ckpt_idx] = performance
+
+        del model
+
+        print("Done evaluating checkpoint: ", ckpt_idx)
+
+    savedir = f"./results/{args.backbone}/{args.dataset}/{os.path.basename(args.restore_from)}"
     os.makedirs(savedir, exist_ok=True)
-    for key, values in scores.items():
-        print("Results for", key)
-        values = numpy.array(values)
-        
-        fig, ax = pyplot.subplots(figsize=(3, 3))
-        for i in range(values.shape[1]):
-            data = values[:, i]
-            
-            # Remove -1 values as they are not valid
-            data = data[data != -1]
+    
+    fig, ax = plot_scores(scores, metric="aupr", classes=testing_dataset.classes)
+    savefig(fig, os.path.join(savedir, "aupr-per-epochs"), save_white=True)
 
-            print(testing_dataset.classes[i])
-            print( 
-                  "avg : {:0.4f}".format(numpy.mean(data, axis=0)), 
-                  "std : {:0.4f}".format(numpy.std(data, axis=0)),
-                  "med : {:0.4f}".format(numpy.median(data, axis=0)),)
-
-            bplot = ax.boxplot(data, positions=[i], widths=0.8)
-            for element in ['boxes', 'whiskers', 'fliers', 'means', 'medians', 'caps']:
-                pyplot.setp(bplot[element], color='black')
-
-        ax.set(
-            xticks = numpy.arange(values.shape[1]), xticklabels = testing_dataset.classes,
-            ylim = (0, 1)
-        )
-        pyplot.savefig(os.path.join(savedir, f"{key}.pdf"), bbox_inches="tight", transparent=True)
+    fig, ax = plot_scores(scores, metric="auroc", classes=testing_dataset.classes)
+    savefig(fig, os.path.join(savedir, "auroc-per-epochs"), save_white=True)
