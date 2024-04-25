@@ -123,7 +123,12 @@ class UNet(torch.nn.Module):
         :returns : A `list` of the sizes of the intermediate layers
         """
         sizes = []
-        _, out = self.forward_encoder(torch.randn(1, self.cfg.in_channels, 224, 224))
+
+        # In cases where the backbone is already on the GPU, we need to create a random tensor on the GPU
+        rand_input = torch.randn(1, self.cfg.in_channels, 224, 224)
+        rand_input = rand_input.to(next(self.parameters()).device)
+
+        _, out = self.forward_encoder(rand_input)
         for o in out:
             sizes.append(o.shape[1:])
         return sizes
@@ -234,6 +239,22 @@ class UNet(torch.nn.Module):
             if ((i + 1) % 2) == 0:
                 out.append(x)
         return x, out
+    
+    def _forward_mae(self, x: torch.Tensor) -> tuple[torch.Tensor, list[torch.Tensor]]:
+        """
+        
+        """
+        x = self.backbone.images_to_tokens(x)
+        B, Hp, Wp = x.shape[0], x.shape[2], x.shape[3]
+        x = self.backbone.add_prefix_tokens(x)
+        x = self.backbone.add_pos_embed(x)
+        x = self.backbone.vit.norm_pre(x)
+        features = []
+        for blk in self.vit.blocks:
+            x  = blk(x)
+            feat = x[:, 1:, :].permute(0, 2, 1).reshape(B, -1, Hp, Wp)
+            features.append(feat)
+        return x, features
 
     def forward(self, x : torch.Tensor):
         """

@@ -1,4 +1,5 @@
 import torch
+import os
 
 from typing import Union, Any
 from enum import Enum
@@ -19,7 +20,11 @@ MODELS = {
     "convnext-small" : ConvNextWeights,
     "convnext-base" : ConvNextWeights,
     'vit-small': None,
-    'mae': MAEWeights,
+    'mae-tiny': MAEWeights,
+    'mae': MAEWeights, # mae defaults to mae-small
+    'mae-small': MAEWeights,
+    'mae-base': MAEWeights,
+    'mae-large': MAEWeights
 }
 
 def load_weights(weights: Union[str, Enum]) -> dict:
@@ -38,7 +43,7 @@ def load_weights(weights: Union[str, Enum]) -> dict:
             return state_dict["model_state_dict"]
         else:
             raise KeyError(f"Not model found in checkpoint.") 
-        return state_dict
+        
     elif weights is None:
         print(f"--- None weights refer to ViT encoder of MAE ---")
         return None
@@ -50,5 +55,9 @@ def get_weights(name : str, weights: str) -> torch.nn.Module:
         return None
     if not name in MODELS:
         raise NotImplementedError(f"`{name}` is not a valid option.")
+    
+    if os.path.isfile(weights):
+        return load_weights(weights)
+    
     weights = getattr(MODELS[name], weights)
     return load_weights(weights)

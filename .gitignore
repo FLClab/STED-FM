@@ -2,7 +2,7 @@
 experiments/simclr-experiments/data
 experiments/simclr-experiments/panels
 experiments/segmentation-experiments/data
-experiments/segmentation-experiments/data
+experiments/segmentation-experiments/results
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -173,3 +173,6 @@ experiments/vit_experiments/logs/
 experiments/vit_experiments/MAE_loss.png
 experiments/vit_experiments/results/
 experiments/logs/
+figures/*.pdf
+evaluation/results/
+experiments/scripts/

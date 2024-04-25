@@ -1,1 +1,0 @@
-channel sted 640 from filename '03 glu gly block 15 smi31 star580 map2 star488 phstar635 1.msr' is for the factin protein.

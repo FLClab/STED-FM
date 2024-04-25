@@ -78,7 +78,7 @@ def main():
         'beta2spectrin', 'adducin', 'vgat', 'psd95', 'glur1', 'livetubulin', 'bassoon',
         'map2', 'gephyrin', 'fus', 'sirtubulin', 'siractin', 'vglut2', 'vglut1',
         'betacamkii', 'alphacamkii', 'vimentin', 'factin', 'glun2b',
-        'nr2b', 'rim', 'tubulin', 'vgat', 
+        'nr2b', 'rim', 'tubulin', 'vgat', 'pt286', 'tom20', 'nup'
         'unknown'
     ])
     for text in datasets["train"]["text"]:

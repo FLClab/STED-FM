@@ -122,9 +122,9 @@ class FPDataset(Dataset):
                 if len(label) > 2:
                     print(file, label_name)
 
-                for j in range(0, image.shape[-2], int(self.size * self.step)):
-                    for i in range(0, image.shape[-1], int(self.size * self.step)):
-                        label_crop = numpy.sum(label[:, j:j+self.size, i:i+self.size], axis=0)
+                for j in range(0, image.shape[-2] - self.size, int(self.size * self.step)):
+                    for i in range(0, image.shape[-1] - self.size, int(self.size * self.step)):
+                        label_crop = numpy.sum(label[:, j : j + self.size, i : i + self.size], axis=0)
                         if numpy.any(label_crop):
                             sample = {
                                 "cache-key" : file,
@@ -217,7 +217,7 @@ class FPDataset(Dataset):
         y = torch.tensor(label_crop > 0, dtype=torch.float32)
         return x, y                
     
-def get_dataset(cfg:dataclass, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
+def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
 
     # Updates the configuration inplace
     cfg.dataset_cfg = FPConfiguration()
@@ -234,24 +234,27 @@ def get_dataset(cfg:dataclass, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
 
     testing_path = os.path.join(BASE_PATH, "segmentation-data", "footprocess", "test")
 
-    training_dataset = FPDataset(
-        path=training_path,
-        files=training_files,
-        data_aug=0.5,
-        validation=False,
-        size=224,
-        step=0.75,
-        out_channels=cfg.in_channels
-    )
-    validation_dataset = FPDataset(
-        path=validation_path,
-        files=validation_files,
-        data_aug=0,
-        validation=True,
-        size=224,
-        step=0.75,
-        out_channels=cfg.in_channels
-    )
+    if test_only:
+        training_dataset, validation_dataset = None, None 
+    else:
+        training_dataset = FPDataset(
+            path=training_path,
+            files=training_files,
+            data_aug=0.5,
+            validation=False,
+            size=224,
+            step=0.75,
+            out_channels=cfg.in_channels
+        )
+        validation_dataset = FPDataset(
+            path=validation_path,
+            files=validation_files,
+            data_aug=0,
+            validation=True,
+            size=224,
+            step=0.75,
+            out_channels=cfg.in_channels
+        )
     testing_dataset = FPDataset(
         path=testing_path,
         data_aug=0,
