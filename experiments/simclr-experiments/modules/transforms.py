@@ -115,7 +115,7 @@ class SimCLRTransform(MultiViewTransform):
         gaussian_noise_mu: float = 0.,
         gaussian_noise_std: float = 0.25,
         gaussian_noise_prob : float = 0.5,
-        poisson_noise_lambda : float = 0.1,
+        poisson_noise_lambda : float = 0.5,
         poisson_noise_prob : float = 0.5        
     ):
         view_transform = SimCLRViewTransform(
@@ -172,7 +172,7 @@ class SimCLRViewTransform:
         gaussian_noise_mu: float = 0.,
         gaussian_noise_std: float = 0.25,
         gaussian_noise_prob : float = 0.5,
-        poisson_noise_lambda : float = 0.1,
+        poisson_noise_lambda : float = 0.5,
         poisson_noise_prob : float = 0.5        
     ):
         # color_jitter = T.ColorJitter(
@@ -286,8 +286,10 @@ class PoissonNoise(torch.nn.Module):
     
     def forward(self, tensor : Tensor) -> Tensor:
         if random.random() < self.p:
-            rates = torch.rand(tensor.size()) * random.uniform(0, self._lambda)
-            return tensor + torch.poisson(rates)
+            # 255 is used to mimic typical acquisitions; the maximum 
+            # We divide by 255 since the images are normalized
+            rates = torch.rand(tensor.size()) * random.uniform(0, self._lambda) * 255.
+            return tensor + torch.poisson(rates) / 255.
         return tensor
 
     def __repr__(self):

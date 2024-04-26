@@ -35,7 +35,7 @@ sys.path.insert(0, "..")
 from model_builder import get_base_model, get_pretrained_model
 from utils import update_cfg, save_cfg, savefig
 
-def comptue_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> list:
+def comptue_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray, **kwargs) -> list:
     """
     Compute the intersection over union between the truth and the prediction
 
@@ -50,7 +50,7 @@ def comptue_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.nda
         t, p = t[mask].ravel(), p[mask].ravel()
         p = p > 0.25
 
-        if not numpy.any(t) and not numpy.any(p):
+        if (not numpy.any(t) and not numpy.any(p)) or numpy.sum(t) < 0.1 * t.size:
             iou_per_class.append(-1)
             continue 
         if numpy.unique(t).size == 1:
@@ -63,7 +63,7 @@ def comptue_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.nda
         iou_per_class.append(intersection / union)
     return iou_per_class
 
-def compute_aupr(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> list:
+def compute_aupr(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray, **kwargs) -> list:
     """
     Compute the area under the precision-recall curve between the truth and the prediction
 
@@ -77,7 +77,7 @@ def compute_aupr(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.nd
     for t, p in zip(truth, prediction):
         t, p = t[mask].ravel(), p[mask].ravel()
 
-        if not numpy.any(t):
+        if not numpy.any(t) or numpy.sum(t) < 0.1 * t.size:
             aupr_per_class.append(-1)
             continue
         if numpy.unique(t).size == 1:
@@ -85,10 +85,16 @@ def compute_aupr(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.nd
             continue
 
         precision, recall, _ = precision_recall_curve(t, p)
+        
+        # From the definition of AUPR, we need to compute the maximum precision for each recall value
+        ax = kwargs.get("ax", None)
+        if ax:
+            ax.plot(recall, precision, color="k", alpha=0.1, rasterized=True)
+
         aupr_per_class.append(auc(recall, precision))
     return aupr_per_class
 
-def compute_auroc(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> list:
+def compute_auroc(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray, **kwargs) -> list:
     """
     Compute the area under the receiver operating characteristic curve between the truth and the prediction
 
@@ -101,7 +107,7 @@ def compute_auroc(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.n
     auroc_per_class = []
     for t, p in zip(truth, prediction):
         t, p = t[mask].ravel(), p[mask].ravel()
-        if not numpy.any(t):
+        if not numpy.any(t) or numpy.sum(t) < 0.1 * t.size:
             auroc_per_class.append(-1)
             continue
         if numpy.unique(t).size == 1:
@@ -111,7 +117,7 @@ def compute_auroc(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.n
         auroc_per_class.append(roc_auc_score(t, p))
     return auroc_per_class
 
-def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
+def compute_scores(truth: torch.Tensor, prediction: torch.Tensor, **kwargs) -> dict:
     """
     Compute the prediction between the truth and the prediction
 
@@ -135,7 +141,7 @@ def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
         mask = mask > 0
 
         scores["iou"].append(comptue_iou(truth_, prediction_, mask))
-        scores["aupr"].append(compute_aupr(truth_, prediction_, mask))
+        scores["aupr"].append(compute_aupr(truth_, prediction_, mask, **kwargs))
         scores["auroc"].append(compute_auroc(truth_, prediction_, mask))
 
     return scores
@@ -149,6 +155,7 @@ def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataL
 
     :returns : A `dict` of the computed scores
     """
+    # fig, ax = pyplot.subplots(figsize=(3,3))
     all_scores = defaultdict(list)
     for i, (X, y) in enumerate(tqdm(loader, desc="[----] ")):
 
@@ -180,6 +187,8 @@ def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataL
             all_scores[key].extend(values)
 
         del X, y, pred
+
+    # savefig(fig, "./results/pr-curve", save_white=True)
 
     return all_scores
 
@@ -214,10 +223,11 @@ def plot_scores(scores: dict, metric: str = "aupr", **kwargs):
         ax.plot(x, data[:, i], label=classes[i], marker='o')
     ax.plot(x, numpy.mean(data, axis=-1), label="Mean", marker='o', linestyle='--', color="k")
     ax.set(
-        xlabel="Epochs", ylabel=metric,
+        xlabel="Percentage", ylabel=metric,
         ylim=(0, 1)
     )
     ax.legend()
+
     return fig, ax
 
 if __name__ == "__main__":
@@ -270,12 +280,14 @@ if __name__ == "__main__":
     )
     
     scores = {}
-    for ckpt_idx in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]:
-        print("Evaluating checkpoint: ", ckpt_idx)
+    for ckpt_idx in [1, 10, 25, 50, 100]:
+        print("Evaluating checkpoint: ", ckpt_idx)        
         # Loads checkpoint
         try:
-            checkpoint = torch.load(os.path.join(args.restore_from, f"checkpoint-{ckpt_idx}.pt"))
+            suffix = f"-{ckpt_idx}%-labels" if ckpt_idx != 100 else ""
+            checkpoint = torch.load(os.path.join(args.restore_from + suffix, f"result.pt"))
         except FileNotFoundError:
+            print("Checkpoint not found...")
             continue
 
         # Build the UNet model.
@@ -299,7 +311,7 @@ if __name__ == "__main__":
     os.makedirs(savedir, exist_ok=True)
     
     fig, ax = plot_scores(scores, metric="aupr", classes=testing_dataset.classes)
-    savefig(fig, os.path.join(savedir, "aupr-per-epochs"), save_white=True)
+    savefig(fig, os.path.join(savedir, "aupr-per-percentage"), save_white=True)
 
     fig, ax = plot_scores(scores, metric="auroc", classes=testing_dataset.classes)
-    savefig(fig, os.path.join(savedir, "auroc-per-epochs"), save_white=True)
+    savefig(fig, os.path.join(savedir, "auroc-per-percentage"), save_white=True)

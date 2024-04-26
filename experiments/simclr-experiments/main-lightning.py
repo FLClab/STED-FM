@@ -5,11 +5,17 @@ import numpy
 import os
 import typing
 import random
+import lightning
 
 from lightly import loss
 from lightly import transforms
 from lightly.data import LightlyDataset
 from lightly.models.modules import heads
+from lightning.pytorch import Trainer
+from lightning.pytorch.core import LightningModule
+from lightning.pytorch.loggers import TensorBoardLogger
+from lightning.pytorch.callbacks import ModelCheckpoint, ModelSummary
+
 from tqdm import tqdm
 from collections import defaultdict
 from collections.abc import Mapping
@@ -26,8 +32,9 @@ from model_builder import get_base_model
 from utils import update_cfg
 
 # Create a PyTorch module for the SimCLR model.
-class SimCLR(torch.nn.Module):
-    def __init__(self, backbone, cfg):
+class SimCLR(LightningModule):
+    def __init__(self, backbone, cfg, **kwargs):
+        print(kwargs)
         super().__init__()
         self.backbone = backbone
         self.cfg = cfg
@@ -38,6 +45,31 @@ class SimCLR(torch.nn.Module):
             hidden_dim=512,
             output_dim=128,
         )
+
+        self.criterion = loss.NTXentLoss(temperature=0.1, gather_distributed=True)
+
+    def training_step(self, batch, batch_idx):
+        view0, view1 = batch
+        z0 = self.forward(view0)
+        z1 = self.forward(view1)
+        loss = self.criterion(z0, z1)
+
+        # Logging
+        self.log("Loss/mean", loss, on_epoch=True, sync_dist=True)
+        self.log("Loss/min", loss, on_epoch=True, reduce_fx=torch.min, sync_dist=True)
+        self.log("Loss/max", loss, on_epoch=True, reduce_fx=torch.max, sync_dist=True)
+
+        # Logging images
+        writer = self.logger.experiment
+        if (batch_idx == 0) and isinstance(writer, SummaryWriter):
+            writer.add_images("Images/view0", view0[:5], self.current_epoch, dataformats="NCHW")
+            writer.add_images("Images/view1", view1[:5], self.current_epoch, dataformats="NCHW")        
+
+        return loss
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.SGD(self.parameters(), lr=0.1, weight_decay=1e-6)
+        return optimizer
 
     def load_state_dict(self, state_dict: Mapping[str, torch.Any], strict: bool = True, assign: bool = False):
         self.backbone.load_state_dict(state_dict["backbone"])
@@ -53,7 +85,6 @@ class SimCLR(torch.nn.Module):
         features = self.backbone(x)
         if features.dim() > 2:
             features = self.avg_pool(features)
-
         z = self.projection_head(features)
         return z
 
@@ -63,7 +94,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, default=42,
                     help="Random seed")     
-    parser.add_argument("--restore-from", type=str, default="",
+    parser.add_argument("--restore-from", type=str, default=None,
                     help="Model from which to restore from") 
     parser.add_argument("--save-folder", type=str, default="./data/SSL/baselines",
                     help="Model from which to restore from")     
@@ -81,8 +112,6 @@ if __name__ == "__main__":
                         help="Activates dryrun")        
     args = parser.parse_args()
 
-    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
     numpy.random.seed(args.seed)
     random.seed(args.seed)
     torch.manual_seed(args.seed)
@@ -93,32 +122,48 @@ if __name__ == "__main__":
     assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"    
 
     backbone, cfg = get_base_model(args.backbone)
-    # Updates configuration with additional options; performs inplace
     cfg.args = args
     update_cfg(cfg, args.opts)
    
     if args.restore_from:
-        checkpoint = torch.load(args.restore_from)
         OUTPUT_FOLDER = os.path.dirname(args.restore_from)
     else:
-        checkpoint = {}
         OUTPUT_FOLDER = os.path.join(args.save_folder, f"{args.backbone}_{args.dataset}")
     if args.dry_run:
         OUTPUT_FOLDER = os.path.join(args.save_folder, "debug")
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
     
+    logger = None
     if args.use_tensorboard:
-        writer = SummaryWriter(os.path.join(OUTPUT_FOLDER, "logs"))
+        logger = TensorBoardLogger(OUTPUT_FOLDER)
+
+    # Callbacks
+    last_model_callback = ModelCheckpoint(
+        dirpath=OUTPUT_FOLDER,
+        filename="result",
+        every_n_epochs=1,
+        enable_version_counter=False
+    )
+    last_model_callback.FILE_EXTENSION = ".pt"
+    checkpoint_callback = ModelCheckpoint(
+        dirpath=OUTPUT_FOLDER,
+        every_n_epochs=10,
+        filename="checkpoint-{epoch}",
+        save_top_k=-1,
+        auto_insert_metric_name=False,
+        enable_version_counter=False
+    )
+    checkpoint_callback.FILE_EXTENSION = ".pt"
+    callbacks = [last_model_callback, checkpoint_callback]
 
     # Build the SimCLR model.
     model = SimCLR(backbone, cfg)
-    ckpt = checkpoint.get("model", None)
-    if not ckpt is None:
+    if args.restore_from:
         print("Restoring model...")
-        model.load_state_dict(ckpt)
-    model = model.to(DEVICE)
+        model = SimCLR.load_from_checkpoint(args.restore_from, backbone=backbone, cfg=cfg)
 
-    summary(model, input_size=(1, 224, 224))
+    print("Training on device: ", model.device)
+    summary(model, input_size=(1, 224, 224), device=model.device.type)
 
     # Prepare transform that creates multiple random views for every image.
     transform = SimCLRTransform(
@@ -156,63 +201,15 @@ if __name__ == "__main__":
         num_workers=4
     )
 
-    # Lightly exposes building blocks such as loss functions.
-    criterion = loss.NTXentLoss(temperature=0.1)
-
-    # Get a PyTorch optimizer.
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.1, weight_decay=1e-6)
-    ckpt = checkpoint.get("optimizer", None)
-    if not ckpt is None:
-        print("Restoring optimizer...")
-        optimizer.load_state_dict(ckpt)
-
-    # Train the model.
-    stats = defaultdict(list)
-    ckpt = checkpoint.get("stats", None)
-    if not ckpt is None:
-        stats = ckpt
-    for epoch in range(len(stats["mean"]), 1000):
-        print(f"[----] Epoch: {epoch}")
-        pbar = tqdm(dataloader, leave=False)
-        stats_loss, running_loss, running_batches = [], 0, 0
-        for batch_idx, (view0, view1) in enumerate(pbar):
-
-            view0 = view0.to(DEVICE)
-            view1 = view1.to(DEVICE)
-
-            z0 = model(view0)
-            z1 = model(view1)
-            loss = criterion(z0, z1)
-            loss.backward()
-            optimizer.step()
-            optimizer.zero_grad()
-
-            running_batches += 1
-            running_loss += loss.item()
-            pbar.set_description(f"[----] loss: {running_loss / running_batches:0.4f}")
-
-            stats_loss.append(loss.item())
-
-            if (batch_idx == 0) and args.use_tensorboard:
-                writer.add_images("Images/view0", view0[:5], epoch, dataformats="NCHW")
-                writer.add_images("Images/view1", view1[:5], epoch, dataformats="NCHW")
-
-        print(f"[----] Epoch: {epoch}")
-        for key, func in zip(["mean", "std", "min", "max", "median"], 
-                            [numpy.mean, numpy.std, numpy.min, numpy.max, numpy.median]):
-            stats[key].append(func(stats_loss))
-
-            if args.use_tensorboard:
-                writer.add_scalar(f"Loss/{key}", stats[key][-1], epoch)
-        
-        torch.save({
-            "optimizer" : optimizer.state_dict(),
-            "model" : model.state_dict(),
-            "stats" : stats
-        }, os.path.join(OUTPUT_FOLDER, "result.pt"))
-        if epoch % 10 == 0:
-            torch.save({
-                "optimizer" : optimizer.state_dict(),
-                "model" : model.state_dict(),
-                "stats" : stats
-            }, os.path.join(OUTPUT_FOLDER, f"checkpoint-{epoch}.pt"))
+    trainer = Trainer(
+        max_epochs=1000,
+        devices="auto",
+        accelerator="gpu",
+        strategy="ddp",
+        sync_batchnorm=True,
+        use_distributed_sampler=True,
+        logger=logger,
+        callbacks=callbacks,
+    )
+    trainer.fit(
+            model, train_dataloaders=dataloader, ckpt_path=args.restore_from)
