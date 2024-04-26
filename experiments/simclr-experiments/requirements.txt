@@ -4,3 +4,4 @@ numpy
 scikit-image
 matplotlib
 torch-summary
+h5py
