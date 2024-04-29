@@ -151,7 +151,7 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset,
             file_path=hdf5_training_path,
             data_aug=0.5,
             validation=False,
-            size=256,
+            size=224,
             step=0.75,
             out_channels=cfg.in_channels
         )
@@ -159,7 +159,7 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset,
             file_path=hdf5_validation_path,
             data_aug=0,
             validation=True,
-            size=256,
+            size=224,
             step=0.75,
             out_channels=cfg.in_channels
         )
@@ -167,7 +167,7 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset,
         file_path=hdf5_testing_path,
         data_aug=0,
         validation=True,
-        size=256,
+        size=224,
         step=0.75,
         out_channels=cfg.in_channels,
         return_foregound=True
