@@ -23,10 +23,10 @@ cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started evaluation per blocks"
+echo "% Started evaluation per label percentage"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python eval_per_percentage.py --dataset synaptic-proteins --model mae-small --probe-type finetuning
+python eval_per_percentage.py --dataset optim --model mae-small --probe-type linear-probe
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

@@ -649,6 +649,27 @@ class CTCDataset(Dataset):
             return img, {"protein": protein, "condition": condition}
         return img
 
+class JUMPCPDataset(Dataset):
+    def __init__(self, h5file: str, n_channels: int = 1, transform: Any = None, **kwargs):
+        self.h5file = h5file 
+        self.n_channels = n_channels
+        self.transform = transform
+        self.dataset_size = 1300008
+
+
+    def __len__(self):
+        return self.dataset_size
+
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        with h5py.File(self.h5file, "r") as hf:
+            img = hf['images'][idx]
+        print(img.shape)
+        if self.transform is not None:
+            img = self.transform(img)
+        else:
+            img = transforms.ToTensor()(img)
+        return img
+
 
 class TarFLCDataset(Dataset):
     """

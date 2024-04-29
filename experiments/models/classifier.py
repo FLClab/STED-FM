@@ -63,7 +63,7 @@ class LinearProbe(torch.nn.Module):
         )
 
     def _freeze_blocks(self, blocks):
-        if self.name in ["MAE", "MAEClassifier", 'mae', 'vit-small']:
+        if self.name in ["MAE", "MAEClassifier", 'mae', 'vit-small', 'mae-small', 'mae-base', 'mae-tiny']:
             print(f"--- Freezing {blocks} ViT blocks ---")
             for bidx in blocks:
                 for p in self.backbone.backbone.vit.blocks[bidx].parameters():

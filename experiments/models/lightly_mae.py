@@ -9,8 +9,8 @@ class MAEWeights:
     MAE_BASE_IMAGENET = None
     MAE_LARGE_IMAGENET = None
     MAE_SSL_CTC = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth"
-    MAE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_STED/mae-small/checkpoint-530.pth"
-    MAE_BASE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_STED/mae-base/checkpoint-70.pth"
+    MAE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-small_STED/checkpoint-530.pth"
+    MAE_BASE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-base_STED/mae-base/checkpoint-70.pth"
 
     MAE_LINEARPROBE_IMAGENET_PROTEINS = None
     MAE_LINEARPROBE_CTC_PROTEINS = None

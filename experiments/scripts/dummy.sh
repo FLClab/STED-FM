@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=04:00:00
+#SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=32G
@@ -22,10 +22,10 @@ cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/
 
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started evaluation"
+echo "% Started creating JUMP-CP hdf5"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python dummy.py
+python handle_jumpcp.py
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
