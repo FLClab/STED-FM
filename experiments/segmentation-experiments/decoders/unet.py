@@ -302,3 +302,14 @@ class UNet(torch.nn.Module):
         x = torch.nn.functional.interpolate(x, size=size, mode="bilinear")
         
         return x
+    
+def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn.Module:
+    """
+    Creates a `UNet` model with the specified backbone and configuration
+
+    :param backbone: A `torch.nn.Module` of the backbone model
+    :param cfg: A configuration `dataclass` of the model
+
+    :returns : A `UNet` model
+    """
+    return UNet(backbone, cfg, **kwargs)

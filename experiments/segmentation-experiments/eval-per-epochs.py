@@ -26,13 +26,13 @@ from torchsummary import summary
 from sklearn.metrics import average_precision_score, auc, precision_recall_curve, roc_auc_score
 from matplotlib import pyplot
 
-from decoders.unet import UNet
+from decoders import get_decoder
 from datasets import get_dataset
 
 import sys 
 sys.path.insert(0, "..")
 
-from model_builder import get_base_model, get_pretrained_model
+from model_builder import get_pretrained_model_v2
 from utils import update_cfg, save_cfg, savefig
 
 def comptue_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> list:
@@ -254,7 +254,7 @@ if __name__ == "__main__":
     torch.manual_seed(args.seed)
 
     # Loads backbone model
-    backbone, cfg = get_pretrained_model(args.backbone, weights=args.backbone_weights)
+    backbone, cfg = get_pretrained_model_v2(args.backbone, weights=args.backbone_weights)
     cfg.freeze_backbone = False
     update_cfg(cfg, args.opts)
 
@@ -279,7 +279,7 @@ if __name__ == "__main__":
             continue
 
         # Build the UNet model.
-        model = UNet(backbone, cfg)
+        model = get_decoder(backbone, cfg)
         ckpt = checkpoint.get("model", None)
         if not ckpt is None:
             print("Restoring model...")
