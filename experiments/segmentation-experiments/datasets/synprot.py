@@ -2,9 +2,15 @@ import torch
 from torch.utils.data import Dataset
 from typing import Tuple
 from torchvision import transforms
+from dataclasses import dataclass
+import h5py
 
 DATAPATH = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/TheresaProteins"
 
+@dataclass
+class SynProtConfiguration:
+    num_classes=1
+    criterion: str = "MSELoss"
 
 class ProteinSegmentationDataset(Dataset):
     def __init__(
@@ -13,11 +19,11 @@ class ProteinSegmentationDataset(Dataset):
         transform=None,
         n_channels=1,
     ) -> None:
-    self.h5file = h5file
-    self.transform = transform 
-    self.n_channels = n_channels 
-    with h5py.File(h5file, "r") as hf:
-        self.dataset_size = int(hf["images"].size)
+        self.h5file = h5file
+        self.transform = transform 
+        self.n_channels = n_channels 
+        with h5py.File(h5file, "r") as hf:
+            self.dataset_size = hf["images"][()].shape[0] 
 
     def __len__(self):
         return self.dataset_size 
@@ -38,6 +44,8 @@ class ProteinSegmentationDataset(Dataset):
         return img, {"label": mask}
 
 def get_dataset(cfg, **kwargs):
+    cfg.dataset_cfg = SynProtConfiguration()
+    cfg.freeze_backbone = True
     train_dataset = ProteinSegmentationDataset(
         h5file=f"{DATAPATH}/train_segmentation.hdf5",
         transform=None, 
@@ -48,9 +56,12 @@ def get_dataset(cfg, **kwargs):
         transform=None, 
         n_channels=cfg.in_channels
     )
-    ProteinSegmentationDataset(
+    test_dataset = ProteinSegmentationDataset(
         h5file=f"{DATAPATH}/test_segmentation.hdf5",
         transform=None, 
         n_channels=cfg.in_channels
     )
+    print(f"Train dataset size: {len(train_dataset)}")
+    print(f"Valid dataset size: {len(valid_dataset)}")
+    print(f"Test dataset size: {len(test_dataset)}")
     return train_dataset, valid_dataset, test_dataset

@@ -49,8 +49,8 @@ def make_plot(accuracies: dict) -> None:
     x = np.arange(0, len(sted_data), 1)
     ticklabels = ["1", "10", "25", "50"]
     fig = plt.figure()
-    #plt.plot(x, imnet_data, color='tab:red', marker='x', label="ImageNet")
-    # plt.plot(x, ctc_data, color='tab:green', marker='x', label='CTC')
+    plt.plot(x, imnet_data, color='tab:red', marker='x', label="ImageNet")
+    plt.plot(x, ctc_data, color='tab:green', marker='x', label='CTC')
     plt.plot(x, sted_data, color='tab:blue', marker='x', label='STED')
     plt.xticks(x, ticklabels)
     plt.xlabel("Label %")
@@ -70,7 +70,7 @@ def main():
     blocks = 'all' if args.probe_type == 'linear-probe' else "0"
     percentages = ["1", "10", "25", "50"]
 
-    for pretraining in ["STED"]:
+    for pretraining in ["ImageNet", "CTC", "STED"]:
         n_channels = 3 if pretraining == "ImageNet" else 1
         for perc in percentages:
             path = f"{blocks}blocks_{perc}%-labels"
