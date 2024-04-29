@@ -218,7 +218,7 @@ if __name__ == "__main__":
     update_cfg(cfg, args.opts)
 
     # Loads dataset and dataset-specific configuration
-    _, _, testing_dataset = get_dataset(name=args.dataset, cfg=cfg)
+    _, _, testing_dataset = get_dataset(name=args.dataset, cfg=cfg, test_only=True)
 
     # Loads checkpoint
     checkpoint = torch.load(args.restore_from)
@@ -229,7 +229,6 @@ if __name__ == "__main__":
     ckpt = checkpoint.get("model", None)
     if not ckpt is None:
         print("Restoring model...")
-        # TODO: Remove the state_dict() call on the next in future evaluation
         model.load_state_dict(ckpt)
     model = model.to(DEVICE)
 

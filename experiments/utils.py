@@ -69,7 +69,7 @@ def savefig(fig, savepath, extension="pdf", save_white=False, **kwargs):
     if not os.path.isdir(dirname):
         os.makedirs(dirname, exist_ok=True)
     
-    fig.savefig(f"{savepath}.{extension}", bbox_inches="tight", transparent=True)
+    fig.savefig(f"{savepath}.{extension}", bbox_inches="tight", transparent=True, **kwargs)
     if save_white:
         
         # Creates empty directory
@@ -82,11 +82,11 @@ def savefig(fig, savepath, extension="pdf", save_white=False, **kwargs):
         fig = pickle.load(buf)
         
         change_figax_color(fig, **kwargs)
-        fig.savefig(f"{savepath}.{extension}", bbox_inches="tight", transparent=True, dpi=600)
+        fig.savefig(f"{savepath}.{extension}", bbox_inches="tight", transparent=True, dpi=600, **kwargs)
         
         plt.close(fig)
         
-def change_figax_color(fig):
+def change_figax_color(fig, **kwargs):
     """
     Utilitary function allowing to change the figure and 
     ax color from black to white

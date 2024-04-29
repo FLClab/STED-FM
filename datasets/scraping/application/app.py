@@ -14,13 +14,16 @@ pipe = pipeline("fill-mask", model=model, tokenizer=tokenizer, device=0)
 text_prompts = [
     data["text"] for data in dataset["test"]
 ]
+import random
+random.shuffle(text_prompts)
 
 text_prompts = text_prompts
 possible_options = list(sorted([
     'beta2spectrin', 'adducin', 'vgat', 'psd95', 'glur1', 'livetubulin', 'bassoon',
     'map2', 'gephyrin', 'fus', 'sirtubulin', 'siractin', 'vglut2', 'vglut1',
     'betacamkii', 'alphacamkii', 'vimentin', 'factin', 'glun2b',
-    'nr2b', 'rim', 'tubulin', 'vgat', 'pt286', 'tom20', 'nup'
+    'nr2b', 'rim', 'tubulin', 'vgat', 'pt286', 'tom20', 'nup',
+    'slitrk2', 'smi31'
 ]))
 possible_options += ["unknown"]
 

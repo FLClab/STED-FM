@@ -78,7 +78,8 @@ def main():
         'beta2spectrin', 'adducin', 'vgat', 'psd95', 'glur1', 'livetubulin', 'bassoon',
         'map2', 'gephyrin', 'fus', 'sirtubulin', 'siractin', 'vglut2', 'vglut1',
         'betacamkii', 'alphacamkii', 'vimentin', 'factin', 'glun2b',
-        'nr2b', 'rim', 'tubulin', 'vgat', 'pt286', 'tom20', 'nup'
+        'nr2b', 'rim', 'tubulin', 'vgat', 'pt286', 'tom20', 'nup',
+        'slitrk2', 'smi31', 'cba2', 'homer', 'vero'
         'unknown'
     ])
     for text in datasets["train"]["text"]:
@@ -122,7 +123,7 @@ def main():
         output_dir="./data/filename-converter",
         overwrite_output_dir=True,
         save_strategy="steps",
-        save_steps=100,
+        save_steps=1000,
         evaluation_strategy="steps",
         eval_steps=100,
         learning_rate=2e-5,
