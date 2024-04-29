@@ -40,6 +40,7 @@ def track_loss(train_loss: list, val_loss: list, lrates: list, save_dir: str) ->
     plt.close(fig)
 
 def display_predictions(imgs: torch.Tensor, masks: torch.Tensor, predictions: torch.Tensor):
+    SAVE_NAME = get_save_folder()
     counter = 0
     for img, mask, pred in zip(imgs, masks, predictions):
         if counter > 20:
@@ -56,7 +57,7 @@ def display_predictions(imgs: torch.Tensor, masks: torch.Tensor, predictions: to
                 ax.set_xticks([])
                 ax.set_yticks([])
                 ax.set_title(t)
-            fig.savefig(f"./results/mae-small/example_{counter}.png", dpi=1200, bbox_inches='tight')
+            fig.savefig(f"./results/mae-small_{SAVE_NAME}/example_{counter}.png", dpi=1200, bbox_inches='tight')
             plt.close(fig)
             counter += 1
         
@@ -161,7 +162,7 @@ def main():
 
     print(f"--- Loaded backbone ---")
     train_dataset, val_dataset, _ = get_dataset(
-        name=args.dataset, cfg=cfg)
+        name=args.dataset, cfg=cfg, n_channels=n_channels)
 
     train_loader = DataLoader(
         train_dataset, 
@@ -178,7 +179,7 @@ def main():
         num_workers=6,
     )
     cfg.backbone = "mae"
-    model = ViTDecoder(backbone=backbone, cfg=cfg, in_channels=1, out_channels=1, extract_layers=[3, 6, 9, 12])
+    model = ViTDecoder(backbone=backbone, cfg=cfg, in_channels=n_channels, out_channels=1, extract_layers=[3, 6, 9, 12])
     model = model.to(device)
 
 

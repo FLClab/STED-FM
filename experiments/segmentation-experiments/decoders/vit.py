@@ -54,6 +54,7 @@ class ViTDecoder(torch.nn.Module):
         embed_dim = self.backbone.vit.embed_dim
         self.cfg = cfg
         if self.cfg.freeze_backbone:
+            print(f"--- Freezing backbone ---")
             for p in self.backbone.parameters():
                 p.requires_grad = False
 
