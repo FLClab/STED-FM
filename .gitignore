@@ -176,3 +176,5 @@ experiments/logs/
 figures/*.pdf
 evaluation/results/
 experiments/STED_mae-base_loss.png
+experiments/segmentation-experiments/results/
+experiments/segmentation-experiments/logs/

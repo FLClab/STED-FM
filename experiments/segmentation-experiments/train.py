@@ -195,7 +195,7 @@ def main():
         criterion=criterion,
         optimizer=optimizer,
         scheduler=scheduler,
-        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/segmentation-baselines/mae_STED/{args.backbone}/{args.dataset}"
+        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/segmentation-baselines/mae_{SAVE_NAME}/{args.backbone}/{args.dataset}"
     )
 
 
