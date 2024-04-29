@@ -47,7 +47,7 @@ class DeconvBlock(torch.nn.Module):
         return self.block(x) 
 
 class ViTDecoder(torch.nn.Module):
-    def __init__(self,  backbone: torch.nn.Module, cfg: dataclass, in_channels: int = 1, out_channels: int = 1, extract_layers: List = [3, 6, 9, 12]):
+    def __init__(self,  backbone: torch.nn.Module, cfg: dataclass, extract_layers: List = [3, 6, 9, 12], **kwargs):
         super().__init__()
         self.backbone = backbone
         self.extract_layers = extract_layers
@@ -93,13 +93,13 @@ class ViTDecoder(torch.nn.Module):
         )
 
         self.decoder0 = torch.nn.Sequential(
-            ConvBlock(in_channels, 32, 3),
+            ConvBlock(self.cfg.in_channels, 32, 3),
             ConvBlock(32, 64, 3)
         )
         self.decoder0_predict = torch.nn.Sequential(
             ConvBlock(128, 64),
             ConvBlock(64, 64),
-            SingleConv(64, out_channels, 1)
+            SingleConv(64, self.cfg.dataset_cfg.num_classes, 1)
         )
 
     def forward_encoder(self, x: torch.Tensor):
@@ -134,3 +134,17 @@ class ViTDecoder(torch.nn.Module):
         pred = self.decoder0_predict(torch.cat([z0, z3], dim=1))
         return pred
 
+def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn.Module:
+    """
+    Creates a `ViTDecoder` instance
+
+    :param backbone: A `torch.nn.Module` instance
+    :param cfg: A `dataclass` instance
+
+    :returns : A `ViTDecoder` instance
+    """
+    if cfg.backbone in ["vit-small", "mae-small"]:
+        extract_layers = [3, 6, 9 ,12]
+        return ViTDecoder(backbone.backbone, cfg, extract_layers=extract_layers, **kwargs)
+    else:
+        raise ValueError(f"Backbone {cfg.backbone} for decoder is not supported")

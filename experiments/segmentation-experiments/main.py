@@ -24,13 +24,13 @@ from torch.utils.data import SubsetRandomSampler
 from torch.utils.tensorboard import SummaryWriter
 from torchsummary import summary
 
-from decoders.unet import UNet
+from decoders import get_decoder
 from datasets import get_dataset
 
 import sys 
 sys.path.insert(0, "..")
 
-from model_builder import get_base_model, get_pretrained_model
+from model_builder import get_base_model, get_pretrained_model_v2
 from utils import update_cfg, save_cfg
 
 def intensity_scale_(images: torch.Tensor) -> numpy.ndarray:
@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
     # Loads backbone model
     if args.backbone_weights:
-        backbone, cfg = get_pretrained_model(args.backbone, weights=args.backbone_weights)
+        backbone, cfg = get_pretrained_model_v2(args.backbone, weights=args.backbone_weights)
     else:
         backbone, cfg = get_base_model(args.backbone)
 
@@ -144,7 +144,7 @@ if __name__ == "__main__":
     save_cfg(cfg, os.path.join(OUTPUT_FOLDER, "config.json"))
 
     # Build the UNet model.
-    model = UNet(backbone, cfg)
+    model = get_decoder(backbone, cfg)
     ckpt = checkpoint.get("model", None)
     if not ckpt is None:
         print("Restoring model...")
