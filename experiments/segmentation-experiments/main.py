@@ -20,6 +20,7 @@ from tqdm import tqdm
 from collections import defaultdict
 from collections.abc import Mapping
 from multiprocessing import Manager
+from torch.utils.data import SubsetRandomSampler
 from torch.utils.tensorboard import SummaryWriter
 from torchsummary import summary
 
@@ -50,7 +51,7 @@ def intensity_scale_(images: torch.Tensor) -> numpy.ndarray:
 class SegmentationConfiguration:
     
     freeze_backbone: bool = False
-    num_epochs: int = 500
+    num_epochs: int = 100
     learning_rate: float = 1e-4
 
 if __name__ == "__main__":
@@ -71,6 +72,8 @@ if __name__ == "__main__":
                         help="Backbone model to load")    
     parser.add_argument("--use-tensorboard", action="store_true",
                         help="Logging using tensorboard")
+    parser.add_argument("--label-percentage", type=float, default=1.0,
+                        help="Percentage of labels to use")
     parser.add_argument("--opts", nargs="+", default=[], 
                         help="Additional configuration options")
     parser.add_argument("--dry-run", action="store_true",
@@ -125,8 +128,11 @@ if __name__ == "__main__":
             model_name += f"{args.backbone_weights}"
         else:
             model_name += "from-scratch"
+        if args.label_percentage < 1.0:
+            model_name += f"-{int(args.label_percentage * 100)}%-labels"
 
         OUTPUT_FOLDER = os.path.join(args.save_folder, args.backbone, args.dataset, model_name)
+    
     if args.dry_run:
         OUTPUT_FOLDER = os.path.join(args.save_folder, "debug")
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
@@ -158,12 +164,25 @@ if __name__ == "__main__":
     # Prints a summary of the model
     summary(model, input_size=(cfg.in_channels, 224, 224))
 
+    # Sampler definition
+    if args.label_percentage < 1.0:
+        # Ensures reporoducibility
+        rng = numpy.random.default_rng(seed=args.seed)
+        indices = list(range(len(training_dataset)))
+        rng.shuffle(indices)
+        split = int(numpy.floor(args.label_percentage * len(training_dataset)))
+        train_indices, _ = indices[:split], indices[split:]
+        sampler = SubsetRandomSampler(train_indices)
+    else:
+        sampler = None
+
     # Build a PyTorch dataloader.
     train_loader = torch.utils.data.DataLoader(
         training_dataset,  # Pass the dataset to the dataloader.
         batch_size=cfg.batch_size,  # A large batch size helps with the learning.
-        shuffle=True,  # Shuffling is important!
-        num_workers=4
+        shuffle=sampler is None,  # Shuffling is important!
+        num_workers=4,
+        sampler=sampler
     )
     valid_loader = torch.utils.data.DataLoader(
         validation_dataset,  # Pass the dataset to the dataloader.
@@ -176,7 +195,8 @@ if __name__ == "__main__":
     criterion = getattr(torch.nn, cfg.dataset_cfg.criterion)()
 
     # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience = 10, threshold = 0.01, min_lr=1e-5, factor=0.1,)
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.99)
+    # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.99)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=cfg.num_epochs)
     for epoch in range(start_epoch, cfg.num_epochs):
 
         start = time.time()
@@ -288,7 +308,7 @@ if __name__ == "__main__":
             del savedata
 
         # Save every 10 epochs
-        if epoch % 10 == 0:
+        if (epoch + 1) % 10 == 0:
             savedata = {
                 "model" : model.state_dict(),
                 "optimizer" : optimizer.state_dict(),
@@ -296,5 +316,5 @@ if __name__ == "__main__":
             }
             torch.save(
                 savedata, 
-                os.path.join(OUTPUT_FOLDER, f"checkpoint-{epoch}.pt"))
+                os.path.join(OUTPUT_FOLDER, f"checkpoint-{epoch + 1}.pt"))
             del savedata

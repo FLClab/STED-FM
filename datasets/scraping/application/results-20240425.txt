@@ -1,0 +1,60 @@
+channel sted 518 from filename '806 1 20percsted 10lines.msr' is for the unknown protein.
+channel sted 640 from filename 'phalloidin star635p 1 50  wo triton cs1 2 exc4.msr' is for the the factin protein.
+channel sted 561 from filename '7 camkiib star580 actin sir block mgfp 4a 2.msr' is for the the betacamkii protein.
+channel sted 561 from filename 'expcharleen 2012 02 10 slitrk5 atto647n control for bleedthrough 1.msr' is for the unknown protein.
+channel sted640 postbleach1 from filename '0mgglybic bcamkii star580 acamkii star635p cs2 4 testbleachin errorpw2exeme sted.msr' is for the alphacamkii protein.
+channel conf 561 40sted from filename '14 fixed staining 3um 3h region1.msr' is for the unknown protein.
+channel sted 485 from filename 'abberiorsolid block cs1 1.msr' is for the unknown protein.
+channel sted 561 from filename '08 r rim 12 1 250 gar star635p 1 1000 meoh 10 3.msr' is for the the unknown protein.
+channel sted 640 from filename '02 gcamp6s 835 snap camkii 0 7ug 3c with sted.msr' is for the unknown protein.
+channel sted 640 from filename '02 r rim 12 1 500 gar star635p 1 250 pfa meoh 10 1.msr' is for the the rim protein.
+channel sted 561 from filename '5 map2 r atto647 camkii a star580 stim 13 dendritic translo.msr' is for the alphacamkii protein.
+channel sted 640 from filename '1 nup star580 vero pfa sted40 2.msr' is for the vero protein.
+channel sted 561 from filename'm nr2bcterm star580gam r nr2bnterm atto647ngar block cs1 4.msr' is for the nr2b protein.
+channel sted 640 from filename '02 nr2b gfp homer ds red anti gfp q star635p anti rfp star580 3a.msr' is for the the homer protein.
+channel sted 640 from filename 'p camkii atto594 norm test rings 2.msr' is for the unknown protein.
+channel sted from filename '06 phalexa594 5.msr' is for the factin protein.
+channel sted 640 40sted from filename '14 fixed staining 3um 3h region5.msr' is for the unknown protein.
+channel sted 561 from filename '9 overexp a arac5um camkii a star580 actin phstar635 cs1 flavie 1b..msr' is for the alphacamkii protein.
+channel sted 640 40sted from filename '04 live staining 100nm 6hcamkiib star580 region5.msr' is for the unknown protein.
+channel sted 640 from filename 'd siractin block test6 2.msr' is for the siractin protein.
+channel sted 640 from filename'mda slitrk5 atto647n gephyrin star580 cs1 1.msr' is for the slitrk2 protein.
+channel sted 640 from filename 'r fus star580 gar m psd95 starred gam 1 250 1settings2.msr' is for the the psd95 protein.
+channel sted 640 from filename '3 r rim1 2 1 500 gar star 635p 1 250 m psd95 1 250 gam alexafluor594 1 500 10min meoh +4c kcl 3.msr' is for the rim protein.
+channel sted488 from filename 'psd96 fingr gfp mcitrine camkii block 5 linesteps.msr' is for the psd95 protein.
+channel sted 640 from filename '02 12 kcl psd95 alexa594 fus s635p 2b.msr' is for the fus protein.
+channel sted 561 from filename '5 map2 r atto647 camkii a star580 block 4.msr' is for the alphacamkii protein.
+channel sted 561 from filename'shrnaalpha mgfp kcl1min acamkii star580 phalloidin 635p cs2 3.msr' is for the alphacamkii protein.
+channel sted 485 cy3 from filename 'd siractin block test6 2.msr' is for the unknown protein.
+channel sted 561 from filename '6 rescue betaa303r arac5um camkii b star580 actin phstar635 cs1 flavie 3c..msr' is for the betacamkii protein.
+channel sted 561 from filename '1 apv block anti a tubulin m star580 gam 1 250 anti map2 r atto647 gar 4.msr' is for the tubulin protein.
+channel sted 561 from filename '1 apv block anti a tubulin m star580 gam 1 250 anti map2 r atto647 gar 2.msr' is for the tubulin protein.
+channel sted 561 from filename '3 kcl anti a camkii m star580 gam 1 250 anti map2 r atto647 gar 3b map2 rings.msr' is for the alphacamkii protein.
+channel sted 640 from filename '04 psd95 star580 1 good param.msr' is for the unknown protein.
+channel sted 640 from filename '3 psd95 star580 map2 atto647n stim 4b good.msr' is for the map2 protein.
+channel sted 561 from filename '08 phalloidin star635 new 1.msr' is for the unknown protein.
+channel conf 640 40sted from filename '03 live staining 1um 1h 10um  verapamil camkiib star580 region4.msr' is for the unknown protein.
+channel sted 561 from filename '3 kcl anti b camkii m star580 gam 1 250 anti map2 r atto647 gar 20.msr' is for the betacamkii protein.
+channel sted 561 30sted from filename '04 live staining 100nm 6hcamkiib star580 region2.msr' is for the betacamkii protein.
+channel sted 561 from filename '3 anti camkiib m star580 gam 1 200 561 10 640 15.msr' is for the the betacamkii protein.
+channel sted 640 30sted 30 640 from filename '13 fixed staining 3um 1h region1.msr' is for the unknown protein.
+channel sted 520 from filename 'gfp camkii 0mg live test2.msr' is for the alphacamkii protein.
+channel sted 640 from filename '4 overexp beta mcherry gfp actin sir cs1 flavie 1cb..msr' is for the siractin protein.
+channel conf 561 30sted from filename '01 live staining 1um 3h camkiib star580 region1.msr' is for the betacamkii protein.
+channel sted ex561 emcy5 from filename '487 mneptune block 2.msr' is for the unknown protein.
+channel sted 561 from filename '03 rescueb psd95 fingr gfp map2 star488 smi31 star580 phstar635 4a.msr' is for the smi31 protein.
+channel sted 561 from filename '2 shrna rescue psd fingr nogfp ab actin sir 0mg gly bic 02d.msr' is for the unknown protein.
+channel sted 640 from filename '01 10 kcl p0 alexa594 fus s635p 2.msr' is for the fus protein.
+channel conf 561 30sted from filename '06 live staining 2um 1h bcamkii star580 region1.msr' is for the betacamkii protein.
+channel sted 640 from filename 'a  camkii atto647n stim test evtlactinrings16b.msr' is for the alphacamkii protein.
+channel sted 485 from filename 'glugly2min map2 star488 biispectrin star580 phalloidin star635p cs1 4.msr' is for the map2 protein.
+channel sted 640 from filename 'pcdna mgfp 0mgglybic10min bcamkii star580 phalloidin 635p cs1 2.msr' is for the factin protein.
+channel sted 640 from filename'mouse map2 star580gam cba2 star635p fridge cs1 1.msr' is for the cba2 protein.
+channel sted 640 from filename '09 div13 glu gly 100um mdl smi31 star580 map2 star488 phstar635 2.msr' is for the factin protein.
+channel sted 640 from filename '1 shrnabeta gfp actin sir cs1 flavie 2b..msr' is for the siractin protein.
+channel sted 640 from filename '04 div8 glu gly smi31 s580 map2 s488 phs635 05a.msr' is for the factin protein.
+channel sted 640 from filename '1 shrnabeta actin sir cs1 flavie 2a..msr' is for the siractin protein.
+channel sted 640 from filename '7 rescue mgfp betacamkii actin sir cs2 mado 3..msr' is for the siractin protein.
+channel sted 640 from filename '9 rescuealpha gfp actin sir cs1 flavie 1a..msr' is for the siractin protein.
+channel sted 640 from filename '07 block 10 kn93  div13 smi31 star580 map2 star488 ph635 2.msr' is for the factin protein.
+channel sted 640 from filename '1 shrna psd fingr nogfp ab actin sir reg 02b.msr' is for the siractin protein.

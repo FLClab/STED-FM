@@ -1,4 +1,5 @@
 import torch
+import os
 
 from typing import Union, Any
 from enum import Enum
@@ -54,5 +55,9 @@ def get_weights(name : str, weights: str) -> torch.nn.Module:
         return None
     if not name in MODELS:
         raise NotImplementedError(f"`{name}` is not a valid option.")
+    
+    if os.path.isfile(weights):
+        return load_weights(weights)
+    
     weights = getattr(MODELS[name], weights)
     return load_weights(weights)

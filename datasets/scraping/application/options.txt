@@ -3,11 +3,13 @@ alphacamkii
 bassoon
 beta2spectrin
 betacamkii
+cba2
 factin
 fus
 gephyrin
 glun2b
 glur1
+homer
 livetubulin
 map2
 nr2b
@@ -17,8 +19,12 @@ pt286
 rim
 siractin
 sirtubulin
+slitrk2
+smi31
 tom20
 tubulin
+vero
+vgat
 vgat
 vglut1
 vglut2

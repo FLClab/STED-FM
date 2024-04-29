@@ -23,6 +23,7 @@ import sys
 sys.path.insert(0, "..")
 from datasets import get_dataset
 from model_builder import get_base_model
+from utils import update_cfg
 
 # Create a PyTorch module for the SimCLR model.
 class SimCLR(torch.nn.Module):
@@ -30,6 +31,8 @@ class SimCLR(torch.nn.Module):
         super().__init__()
         self.backbone = backbone
         self.cfg = cfg
+
+        self.avg_pool = torch.nn.AdaptiveAvgPool2d(1)
         self.projection_head = heads.SimCLRProjectionHead(
             input_dim=self.cfg.dim,
             hidden_dim=512,
@@ -47,7 +50,10 @@ class SimCLR(torch.nn.Module):
         }
 
     def forward(self, x):
-        features = self.backbone(x).flatten(start_dim=1)
+        features = self.backbone(x)
+        if features.dim() > 2:
+            features = self.avg_pool(features)
+
         z = self.projection_head(features)
         return z
 
@@ -69,6 +75,8 @@ if __name__ == "__main__":
                         help="Backbone model to load")
     parser.add_argument("--use-tensorboard", action="store_true",
                         help="Logging using tensorboard")    
+    parser.add_argument("--opts", nargs="+", default=[], 
+                        help="Additional configuration options")    
     parser.add_argument("--dry-run", action="store_true",
                         help="Activates dryrun")        
     args = parser.parse_args()
@@ -79,7 +87,15 @@ if __name__ == "__main__":
     random.seed(args.seed)
     torch.manual_seed(args.seed)
 
+    # Assert args.opts is a multiple of 2
+    if len(args.opts) == 1:
+        args.opts = args.opts[0].split(" ")
+    assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"    
+
     backbone, cfg = get_base_model(args.backbone)
+    # Updates configuration with additional options; performs inplace
+    cfg.args = args
+    update_cfg(cfg, args.opts)
    
     if args.restore_from:
         checkpoint = torch.load(args.restore_from)
