@@ -536,14 +536,21 @@ class OptimDataset(Dataset):
         m, M = np.quantile(image, [0.01, 0.995])
         m, M = image.min(), image.max()
         image = (image - m) / (M - m)
-        image = np.tile(image[np.newaxis], (self.n_channels, 1, 1))
-        image = torch.tensor(image, dtype=torch.float32)   
+        # image = np.tile(image[np.newaxis], (self.n_channels, 1, 1))
+        # image = torch.tensor(image, dtype=torch.float32)   
+        if self.n_channels == 3:
+                img = np.tile(image[np.newaxis], (3, 1, 1))
+                img = np.moveaxis(img, 0, -1)
+                img = transforms.ToTensor()(img)
+                img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+        else:
+            img = transforms.ToTensor()(image)
         
         if self.transform:
-            image = self.transform(image)
+            img = self.transform(img)
         
         label = np.float64(label)
-        return image, {"label" : label, "dataset-idx" : dataset_idx, "score" : quality_score}
+        return img, {"label" : label, "dataset-idx" : dataset_idx, "score" : quality_score}
 
     def __repr__(self):
         out = "\n"
@@ -640,6 +647,27 @@ class CTCDataset(Dataset):
                 img = transforms.ToTensor()(img)
         if self.return_metadata:
             return img, {"protein": protein, "condition": condition}
+        return img
+
+class JUMPCPDataset(Dataset):
+    def __init__(self, h5file: str, n_channels: int = 1, transform: Any = None, **kwargs):
+        self.h5file = h5file 
+        self.n_channels = n_channels
+        self.transform = transform
+        self.dataset_size = 1300008
+
+
+    def __len__(self):
+        return self.dataset_size
+
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        with h5py.File(self.h5file, "r") as hf:
+            img = hf['images'][idx]
+        print(img.shape)
+        if self.transform is not None:
+            img = self.transform(img)
+        else:
+            img = transforms.ToTensor()(img)
         return img
 
 

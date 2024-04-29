@@ -20,6 +20,7 @@ class DoubleConvolver(nn.Module):
     """
     def __init__(self, in_channels, out_channels):
         super(DoubleConvolver, self).__init__()
+      
         self.conv = nn.Sequential(
             nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_channels),
@@ -30,9 +31,17 @@ class DoubleConvolver(nn.Module):
         )
 
     def forward(self, x):
+        print(f"In double convolver: {x.shape}")
         x = self.conv(x)
         return x
 
+
+class SingleDeconv(nn.Module):
+    def __init__():
+        super(SingleDeconv).__init__()
+
+    def forward(x: torch.Tensor):
+        pass
 
 class Contracter(nn.Module):
     """
@@ -75,9 +84,14 @@ class Expander(nn.Module):
         return links[:, :, diff_y:(diff_y + target_size[0]), diff_x:(diff_x + target_size[1])]
 
     def forward(self, x, bridge):
+        print(f"In expander: {x.shape, bridge.shape}")
         x = self.expand(x)
+        print(f"After transpose2d: {x.shape, bridge.shape}")
+
         crop = self.center_crop(bridge, x.size()[2 : ])
+        print(f"After center crop: {x.shape, bridge.shape}")
         concat = torch.cat([x, crop], 1)
+        print(f"After concat: {concat.shape}")
         x = self.conv(concat)
         return x
 
@@ -102,19 +116,26 @@ class UNet(torch.nn.Module):
         super().__init__()
         self.backbone = backbone
         self.cfg = cfg
-
+        print(vars(self.cfg))
         if self.cfg.freeze_backbone:
             for param in self.backbone.parameters():
                 param.requires_grad = False
 
         with torch.no_grad():
             layer_sizes = self.get_layer_sizes()
+            print("---")
+            print(layer_sizes)
+            print("---")
+
 
         self.decoder = torch.nn.Sequential(*[
-            Expander(in_channels=layer_sizes[i + 1][0], out_channels=layer_sizes[i][0])
+            Expander(in_channels=layer_sizes[i + 1][0], out_channels=layer_sizes[i][0], backbone=self.cfg.backbone)
             for i in reversed(range(len(layer_sizes) - 1))
         ])
+
+        print("Built decoder")
         self.out_conv = torch.nn.Conv2d(in_channels=layer_sizes[0][0], out_channels=self.cfg.dataset_cfg.num_classes, kernel_size=1)
+        print("out conv")
 
     def get_layer_sizes(self) -> list[tuple[int, int, int]]:
         """
@@ -244,17 +265,19 @@ class UNet(torch.nn.Module):
         """
         
         """
-        x = self.backbone.images_to_tokens(x)
-        B, Hp, Wp = x.shape[0], x.shape[2], x.shape[3]
+        x = self.backbone.vit.patch_embed.proj(x)
+        Hp, Wp = x.shape[2], x.shape[3]
+        x = x.flatten(2).transpose(1 ,2)
+        B = x.shape[0]
         x = self.backbone.add_prefix_tokens(x)
         x = self.backbone.add_pos_embed(x)
         x = self.backbone.vit.norm_pre(x)
         features = []
-        for blk in self.vit.blocks:
+        for i, blk in enumerate(self.backbone.vit.blocks):
             x  = blk(x)
             feat = x[:, 1:, :].permute(0, 2, 1).reshape(B, -1, Hp, Wp)
             features.append(feat)
-        return x, features
+        return feat, features
 
     def forward(self, x : torch.Tensor):
         """
@@ -268,8 +291,11 @@ class UNet(torch.nn.Module):
         size = x.shape[-2:]
         # Forward pass through the encoder
         x, out = self.forward_encoder(x)
+        print(f"Before decoder: {x.shape}")
         for i, layer in enumerate(self.decoder):
+            print(f"Layer {i} before: {x.shape}")
             x = layer(x, out[-i-2])
+            print(f"Layer {i} after: {x.shape}")
         x = self.out_conv(x)
 
         x = torch.sigmoid(x)

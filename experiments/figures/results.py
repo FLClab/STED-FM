@@ -17,24 +17,33 @@ FEWSHOT = {
     "MAE_SMALL": {
         "synaptic-proteins": {
             "ImageNet": {
-                "linear-probing": [],
+                "linear-probing": [0.401, 0.451, 0.464, 0.477, 0.499],
                 "fine-tuning": [],
             },
             "CTC": {
-                "linear-probing": [],
+                "linear-probing": [0.380, 0.430, 0.435, 0.449, 0.501],
                 "fine-tuning": [],
             },
             "STED": {
-                "linear-probing": [],
-                "fine-tuning": [0.452, 0.550, 0.635, 0.748, 0.817],
+                "linear-probing": [0.660, 0.738, 0.757, 0.762, 0.780],
+                "fine-tuning": [],
             }
         },
         "optim": {
-            "linear-probing": [],
-            "fine-tuning": [],
+            "ImageNet": {
+                "linear-probing": [0.879, 0.872, 0.886, 0.865, 0.893],
+                "fine-tuning": [],
+            },
+            "CTC": {
+                "linear-probing": [0.906, 0.897, 0.916, 0.913, 0.909],
+                "fine-tuning": [],
+            },
+            "STED": {
+                "linear-probing": [0.973, 0.973, 0.975, 0.973, 0.975],
+                "fine-tuning": [],
+            }
         }
     }
-
 }
 
 RESULTS = {
