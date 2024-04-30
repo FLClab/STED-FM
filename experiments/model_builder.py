@@ -16,6 +16,8 @@ def get_base_model(name: str, **kwargs):
 
 def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool = False, path: str = None, **kwargs):
     if name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "vit-small", "mae", "mae-tiny", "mae-small", "mae-base"]:
+        if "in_channels" not in kwargs:
+            kwargs["in_channels"] = 3 if (weights is not None and "imagenet" in weights.lower()) else 1
         backbone, cfg = get_base_model(name, **kwargs)
         state_dict = get_weights(name, weights)
         # This is could lead to errors if the model is not exactly the same as the one used for pretraining
@@ -160,11 +162,11 @@ def get_classifier_v2(name: str, weights: str, task: str, path: str = None, data
         )
         if path is not None:
             if "imagenet" in weights.lower():
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{name.split('-')[0]}_ImageNet/{dataset}/{task}_{path}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{name}_ImageNet/{dataset}/{task}_{path}_model.pth")
             elif "ctc" in weights.lower():
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{name.split('-')[0]}_CTC/{dataset}/{task}_{path}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{name}_CTC/{dataset}/{task}_{path}_model.pth")
             elif "sted" in weights.lower():
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{name.split('-')[0]}_STED/{dataset}/{task}_{path}_model.pth")
+                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{name}_STED/{dataset}/{task}_{path}_model.pth")
             else:
                 raise NotImplementedError
             model.load_state_dict(checkpoint['model_state_dict'])

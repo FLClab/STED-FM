@@ -149,11 +149,11 @@ def main():
             i += 1
 
 
-if __name__ == "__main__":
-    try:
-        main()
-    except Exception as err:
-        javabridge.kill_vm()
-        raise err
-    javabridge.kill_vm()
+# if __name__ == "__main__":
+#     try:
+#         main()
+#     except Exception as err:
+#         javabridge.kill_vm()
+#         raise err
+#     javabridge.kill_vm()
     

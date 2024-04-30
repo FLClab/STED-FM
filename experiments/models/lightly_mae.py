@@ -1,16 +1,32 @@
 import torch
+import os
 from timm.models.vision_transformer import vit_small_patch16_224, vit_tiny_patch16_224, vit_base_patch16_224, vit_large_patch16_224
 import lightly.models.utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 
+from dataclasses import dataclass
+
+import sys
+sys.path.insert(0, "../")
+from DEFAULTS import BASE_PATH
+
 class MAEWeights:
+    # IMAGENET pretraining in timm refers to a model pretrained on ImageNet21K and finetuned on ImageNet1K
+    # For consistency across the library, we will refer to the model as IMAGENET1K_V1
     MAE_TINY_IMAGENET = None
     MAE_SMALL_IMAGENET = None
+    MAE_SMALL_IMAGENET1K_V1 = None
     MAE_BASE_IMAGENET = None
+    MAE_BASE_IMAGENET1K_V1 = None
     MAE_LARGE_IMAGENET = None
+    MAE_LARGE_IMAGENET1K_V1 = None
     MAE_SSL_CTC = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth"
-    MAE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_STED/mae-small/checkpoint-530.pth"
-    MAE_BASE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_STED/mae-base/checkpoint-70.pth"
+    MAE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-small_STED/checkpoint-530.pth"
+    
+    MAE_SSL_STED = os.path.join(BASE_PATH, "baselines", "vit-mae", "checkpoint-530.pth")
+    MAE_SMALL_SSL_STED = os.path.join(BASE_PATH, "baselines", "vit-mae", "checkpoint-530.pth")
+
+    MAE_BASE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-base_STED/mae-base/checkpoint-70.pth"
 
     MAE_LINEARPROBE_IMAGENET_PROTEINS = None
     MAE_LINEARPROBE_CTC_PROTEINS = None
@@ -19,7 +35,9 @@ class MAEWeights:
     MAE_LINEARPROBE_CTC_OPTIM = None
     MAE_LINEARPROBE_STED_OPTIM = None
 
+@dataclass
 class MAEConfiguration:
+
     backbone: str = "vit-small"
     batch_size: int = 256
     dim: int = 384
@@ -32,7 +50,7 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
     for key, value in kwargs.items():
         print(key, value)
         setattr(cfg, key, value)
-
+    cfg.pretrained = cfg.in_channels == 3
 
     if name == 'mae-tiny':
         cfg.dim = 192

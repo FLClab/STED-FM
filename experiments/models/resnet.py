@@ -12,7 +12,7 @@ from DEFAULTS import BASE_PATH
 class ResNetWeights:
 
     RESNET18_IMAGENET1K_V1 = torchvision.models.ResNet18_Weights.IMAGENET1K_V1
-    RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet18", "result.pt")
+    RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet18_STED", "result.pt")
     RESNET18_SSL_CTC = os.path.join(BASE_PATH, "baselines", "resnet18_CTC", "result.pt")
     RESNET18_LINEARPROBE_IMAGENET_PROTEINS = None
     RESNET18_LINEARPROBE_CTC_PROTEINS = None

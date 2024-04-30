@@ -53,6 +53,22 @@ class BalancedSampler(Sampler):
 
 from DEFAULTS import BASE_PATH
 
+def get_JUMP_dataset(h5file: str, n_channels: int = 1, transform=None, **kwargs):
+    dataset = datasets.JUMPCPDataset(
+        h5file=h5file,
+        n_channels=1, 
+        transform=None
+        )
+    dataloader = DataLoader(
+        dataset=dataset,
+        batch_size=256, 
+        shuffle=True, 
+        drop_last=False,
+        num_workers=6
+    )
+    return dataloader
+
+
 def get_STED_dataset(transform, path: str):
     dataset = datasets.TarFLCDataset(tar_path=path, transform=transform)
     dataloader = DataLoader(dataset=dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
