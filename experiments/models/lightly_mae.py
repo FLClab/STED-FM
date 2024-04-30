@@ -21,10 +21,11 @@ class MAEWeights:
     MAE_LARGE_IMAGENET = None
     MAE_LARGE_IMAGENET1K_V1 = None
     MAE_SSL_CTC = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth"
+    MAE_SSL_JUMP = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/baselines/mae-small/checkpoint-10.pth"
     MAE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-small_STED/checkpoint-530.pth"
     
-    MAE_SSL_STED = os.path.join(BASE_PATH, "baselines", "vit-mae", "checkpoint-530.pth")
-    MAE_SMALL_SSL_STED = os.path.join(BASE_PATH, "baselines", "vit-mae", "checkpoint-530.pth")
+    # MAE_SSL_STED = os.path.join(BASE_PATH, "baselines", "vit-mae", "checkpoint-530.pth")
+    # MAE_SMALL_SSL_STED = os.path.join(BASE_PATH, "baselines", "vit-mae", "checkpoint-530.pth")
 
     MAE_BASE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-base_STED/mae-base/checkpoint-70.pth"
 

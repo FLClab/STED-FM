@@ -7,6 +7,8 @@ DATASETS = {
 }
 
 def get_dataset(name: str, cfg: dataclass, **kwargs) -> Dataset:
+    for key, value in kwargs.items():
+        print(f"{key}: {value}")
     if not name in DATASETS:
         raise NotImplementedError(f"{name} is not a valid dataset.")
-    return DATASETS[name](cfg=cfg, *kwargs)
+    return DATASETS[name](cfg=cfg, **kwargs)

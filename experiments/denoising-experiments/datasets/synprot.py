@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import h5py
 import numpy as np
 
-DATAPATH = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/DenoisingDataset"
+DATAPATH = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/DenoisingDataset"
 
 @dataclass 
 class SynProtConfiguration:
@@ -30,7 +30,7 @@ class ProteinDenoisingDataset(Dataset):
         return self.dataset_size
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
-        with h5py.file(self.h5file, "r'") as hf:
+        with h5py.File(self.h5file, "r") as hf:
             confocal = hf["confocal"][idx]
             sted = hf['sted'][idx]
         if self.n_channels == 3:
@@ -38,10 +38,11 @@ class ProteinDenoisingDataset(Dataset):
             confocal = np.moveaxis(confocal, 0, -1)
             confocal = transforms.ToTensor()(confocal)
             confocal = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(confocal)
-            sted = np.tile(sted[np.newaxis], (3, 1, 1))
-            sted = np.moveaxis(sted, 0, -1)
+            # sted = np.tile(sted[np.newaxis], (3, 1, 1))
+            # sted = np.moveaxis(sted, 0, -1)
+            # sted = transforms.ToTensor()(sted)
+            # sted = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(sted)
             sted = transforms.ToTensor()(sted)
-            sted = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(sted)
         else:
             confocal = transforms.ToTensor()(confocal)
             sted = transforms.ToTensor()(sted)
@@ -49,7 +50,7 @@ class ProteinDenoisingDataset(Dataset):
     
 
 def get_dataset(cfg, **kwargs):
-    cfg.dataset_cgf = SynProtConfiguration()
+    cfg.dataset_cfg = SynProtConfiguration()
     if kwargs["n_channels"] == 3:
         cfg.in_channels = 3
     cfg.freeze_backbone = True

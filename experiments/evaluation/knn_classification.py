@@ -57,7 +57,7 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
             out['labels'].extend(labels.cpu().detach().numpy())
 
     samples = np.array(out['features'])
-    labels = np.array(out['labels']).astype(np.int64)
+    labels = np.array(out['labels'])
     plot_PCA(samples=samples, labels=labels, savename=savename)
     neigh = NearestNeighbors(n_neighbors=6)
     neigh.fit(samples)
@@ -97,6 +97,8 @@ def get_save_folder() -> str:
         return "ImageNet"
     elif "sted" in args.weights.lower():
         return "STED"
+    elif "jump" in args.weights.lower():
+        return "JUMP"
     else:
         return "CTC"
 
