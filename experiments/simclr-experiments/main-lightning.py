@@ -196,7 +196,7 @@ if __name__ == "__main__":
         dataset,  # Pass the dataset to the dataloader.
         batch_size=cfg.batch_size,  # A large batch size helps with the learning.
         shuffle=True,  # Shuffling is important!
-        num_workers=7
+        num_workers=8
     )
 
     trainer = Trainer(
