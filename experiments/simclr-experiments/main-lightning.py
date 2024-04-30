@@ -34,7 +34,6 @@ from utils import update_cfg
 # Create a PyTorch module for the SimCLR model.
 class SimCLR(LightningModule):
     def __init__(self, backbone, cfg, **kwargs):
-        print(kwargs)
         super().__init__()
         self.backbone = backbone
         self.cfg = cfg
@@ -162,7 +161,6 @@ if __name__ == "__main__":
         print("Restoring model...")
         model = SimCLR.load_from_checkpoint(args.restore_from, backbone=backbone, cfg=cfg)
 
-    print("Training on device: ", model.device)
     summary(model, input_size=(1, 224, 224), device=model.device.type)
 
     # Prepare transform that creates multiple random views for every image.
@@ -191,14 +189,14 @@ if __name__ == "__main__":
     manager = Manager()
     cache_system = manager.dict()
     dataset = get_dataset(args.dataset, args.dataset_path, transform=transform, 
-                          use_cache=True, cache_system=cache_system, max_cache_size=16e9)
+                          use_cache=False, cache_system=cache_system, max_cache_size=16e9)
 
     # Build a PyTorch dataloader.
     dataloader = torch.utils.data.DataLoader(
         dataset,  # Pass the dataset to the dataloader.
         batch_size=cfg.batch_size,  # A large batch size helps with the learning.
         shuffle=True,  # Shuffling is important!
-        num_workers=4
+        num_workers=7
     )
 
     trainer = Trainer(
