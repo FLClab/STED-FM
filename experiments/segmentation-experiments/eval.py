@@ -214,6 +214,9 @@ if __name__ == "__main__":
     if len(args.opts) == 1:
         args.opts = args.opts[0].split(" ")
     assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
+        # Ensure backbone weights are provided if necessary
+    if args.backbone_weights in (None, "null", "None", "none"):
+        args.backbone_weights = None
 
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     SAVE_NAME = get_save_folder()
@@ -266,7 +269,7 @@ if __name__ == "__main__":
         testing_dataset,  # Pass the dataset to the dataloader.
         batch_size=cfg.batch_size,  # A large batch size helps with the learning.
         shuffle=True,  # Shuffling is important!
-        num_workers=4
+        num_workers=0
     )
     
     # Puts the model in evaluation mode

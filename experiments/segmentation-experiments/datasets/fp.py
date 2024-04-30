@@ -33,7 +33,7 @@ def get_resolution(tif_fl, sh):
 class FPConfiguration:
 
     num_classes: int = 2
-    criterion: str = "BCELoss"
+    criterion: str = "MSELoss"
 
 class FPDataset(Dataset):
 
