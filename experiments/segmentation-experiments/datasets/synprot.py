@@ -4,6 +4,7 @@ from typing import Tuple
 from torchvision import transforms
 from dataclasses import dataclass
 import h5py
+import numpy as np
 
 DATAPATH = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/TheresaProteins"
 
@@ -45,6 +46,8 @@ class ProteinSegmentationDataset(Dataset):
 
 def get_dataset(cfg, **kwargs):
     cfg.dataset_cfg = SynProtConfiguration()
+    if kwargs['n_channels'] == 3:
+        cfg.in_channels = 3
     cfg.freeze_backbone = True
     train_dataset = ProteinSegmentationDataset(
         h5file=f"{DATAPATH}/train_segmentation.hdf5",

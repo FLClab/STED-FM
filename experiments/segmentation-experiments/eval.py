@@ -22,7 +22,7 @@ from collections import defaultdict
 from collections.abc import Mapping
 from multiprocessing import Manager
 from torch.utils.tensorboard import SummaryWriter
-from torchsummary import summary
+# from torchsummary import summary
 from sklearn.metrics import average_precision_score, auc, precision_recall_curve, roc_auc_score
 from matplotlib import pyplot
 
@@ -34,6 +34,14 @@ sys.path.insert(0, "..")
 
 from model_builder import get_pretrained_model_v2
 from utils import update_cfg, save_cfg
+
+def get_save_folder() -> str:
+    if "imagenet" in args.backbone_weights.lower():
+        return "ImageNet"
+    elif "sted" in args.backbone_weights.lower():
+        return "STED"
+    else:
+        return "CTC"
 
 def compute_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> list:
     """
@@ -151,6 +159,7 @@ def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataL
     """
     all_scores = defaultdict(list)
     for i, (X, y) in enumerate(tqdm(loader, desc="[----] ")):
+        y = y['label']
 
         # Reshape
         if isinstance(X, (list, tuple)):
@@ -210,29 +219,49 @@ if __name__ == "__main__":
         args.backbone_weights = None
 
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    SAVE_NAME = get_save_folder()
+    n_channels = 3 if SAVE_NAME == "ImageNet" else 1
     
     numpy.random.seed(args.seed)
     random.seed(args.seed)
     torch.manual_seed(args.seed)
 
     # Loads backbone model
-    backbone, cfg = get_pretrained_model_v2(args.backbone, weights=args.backbone_weights)
-    cfg.freeze_backbone = False
+    backbone, cfg = get_pretrained_model_v2(
+        name=args.backbone, 
+        weights=args.backbone_weights,
+        as_classifier=False,
+        blocks='all',
+        path=None,
+        mask_ratio=0.0,
+        pretrained=True if SAVE_NAME=="ImageNet" else 1,
+        in_channels=n_channels
+        )
+    cfg.freeze_backbone = True
     update_cfg(cfg, args.opts)
 
     # Loads dataset and dataset-specific configuration
-    _, _, testing_dataset = get_dataset(name=args.dataset, cfg=cfg, test_only=True)
+    _, _, testing_dataset = get_dataset(
+        name=args.dataset, 
+        cfg=cfg,
+        n_channels=n_channels
+    )
+
+    cfg.batch_size = 32
 
     # Loads checkpoint
     checkpoint = torch.load(args.restore_from)
+    print(checkpoint.keys())
     OUTPUT_FOLDER = os.path.dirname(args.restore_from)
 
     # Build the UNet model.
-    model = get_decoder(backbone, cfg)
+    model = get_decoder(backbone, cfg, in_channels=n_channels, out_channels=1)
     ckpt = checkpoint.get("model", None)
     if not ckpt is None:
         print("Restoring model...")
         model.load_state_dict(ckpt)
+    else:
+        raise ValueError
     model = model.to(DEVICE)
 
     # Build a PyTorch dataloader.
@@ -247,7 +276,8 @@ if __name__ == "__main__":
     model.eval()
     scores = evaluate_segmentation(model, test_loader)
 
-    savedir = f"./results/{args.backbone}/{args.dataset}/{os.path.basename(OUTPUT_FOLDER)}"
+    # savedir = f"./results/{args.backbone}_{SAVE_NAME}/{args.dataset}/{os.path.basename(OUTPUT_FOLDER)}"
+    savedir = f"./results/{args.backbone}_{SAVE_NAME}/{args.dataset}"
     os.makedirs(savedir, exist_ok=True)
     for key, values in scores.items():
         print("Results for", key)
@@ -260,7 +290,7 @@ if __name__ == "__main__":
             # Remove -1 values as they are not valid
             data = data[data != -1]
 
-            print(testing_dataset.classes[i])
+            # print(testing_dataset.classes[i])
             print( 
                   "avg : {:0.4f}".format(numpy.mean(data, axis=0)), 
                   "std : {:0.4f}".format(numpy.std(data, axis=0)),
@@ -271,7 +301,7 @@ if __name__ == "__main__":
                 pyplot.setp(bplot[element], color='black')
 
         ax.set(
-            xticks = numpy.arange(values.shape[1]), xticklabels = testing_dataset.classes,
+            xticks = numpy.arange(values.shape[1]), xticklabels =['synaptic-proteins'],
             ylim = (0, 1)
         )
         pyplot.savefig(os.path.join(savedir, f"{key}.pdf"), bbox_inches="tight", transparent=True)

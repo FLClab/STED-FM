@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=00:30:00
+#SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -18,16 +18,12 @@ source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-# Moves to working directory
-cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
-
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started KNN classification"
+echo "% Started training segmentation model"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python knn_classification.py --dataset optim --model mae-small --weights MAE_SSL_JUMP
-# python knn_classification.py --dataset synaptic-proteins --model mae-small --weights MAE_SSL_JUMP
+python train.py --dataset synaptic-denoising --backbone mae-small --weights MAE_SMALL_IMAGENET
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
