@@ -40,11 +40,13 @@ class MAEWeights:
 class MAEConfiguration:
 
     backbone: str = "vit-small"
+    backbone_weights: str = None
     batch_size: int = 256
     dim: int = 384
     in_channels: int = 1
     mask_ratio: float = 0.75
     pretrained: bool = False
+    freeze_backbone: bool = False
 
 def get_backbone(name: str, **kwargs) -> torch.nn.Module:
     cfg = MAEConfiguration()

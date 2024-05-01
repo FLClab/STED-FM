@@ -10,6 +10,7 @@ import time
 import json
 import argparse
 import uuid
+import tifffile
 
 from dataclasses import dataclass
 from collections import defaultdict
@@ -148,7 +149,7 @@ def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
 
     return scores
 
-def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataLoader) -> dict:
+def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataLoader, savefolder: str = None) -> dict:
     """
     Evaluates the segmentation model on the given loader
 
@@ -159,7 +160,6 @@ def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataL
     """
     all_scores = defaultdict(list)
     for i, (X, y) in enumerate(tqdm(loader, desc="[----] ")):
-        y = y['label']
 
         # Reshape
         if isinstance(X, (list, tuple)):
@@ -174,15 +174,17 @@ def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataL
 
         pred = model(X)
 
-        if i == 0:
+        if (i == 0) and (savefolder is not None):
             X_ = X.cpu().data.numpy()
             y_ = y.cpu().data.numpy()
             pred_ = pred.cpu().data.numpy()
 
-            # import tifffile
-            # tifffile.imwrite("./results/input.tif", X_.astype(numpy.float32))
-            # tifffile.imwrite("./results/label.tif", y_.astype(numpy.float32))
-            # tifffile.imwrite("./results/prediction.tif", pred_.astype(numpy.float32))
+            X_ = numpy.clip(X_ * 255, 0, 255)
+            tifffile.imwrite(os.path.join(savefolder, "input.tif"), X_.astype(numpy.uint8))
+            y_ = numpy.clip(y_ * 255, 0, 255)
+            tifffile.imwrite(os.path.join(savefolder, "label.tif"), y_.astype(numpy.uint8))
+            pred_ = numpy.clip(pred_ * 255, 0, 255)
+            tifffile.imwrite(os.path.join(savefolder, "prediction.tif"), pred_.astype(numpy.uint8))
         
         scores = compute_scores(y, pred)
         for key, values in scores.items():
@@ -202,7 +204,7 @@ if __name__ == "__main__":
                     help="Model from which to restore from") 
     parser.add_argument("--dataset", required=True, type=str,
                     help="Name of the dataset to use")             
-    parser.add_argument("--backbone", type=str, default="resnet18",
+    parser.add_argument("--backbone", type=str, default=None,
                         help="Backbone model to load")
     parser.add_argument("--backbone-weights", type=str, default=None,
                         help="Backbone model to load")    
@@ -219,43 +221,39 @@ if __name__ == "__main__":
         args.backbone_weights = None
 
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    SAVE_NAME = get_save_folder()
-    n_channels = 3 if SAVE_NAME == "ImageNet" else 1
     
     numpy.random.seed(args.seed)
     random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-    # Loads backbone model
+    # Try loading cfg file from restore-from arugments
+    config_file = os.path.join(os.path.dirname(args.restore_from), "config.json")
+    if os.path.isfile(config_file):
+        with open(config_file, "r") as f:
+            cfg = json.load(f)
+        args.backbone = cfg["args"]["backbone"]
+        args.backbone_weights = cfg["args"]["backbone_weights"]
+    else:
+        assert args.backbone is not None, "Backbone must be provided"
+
     backbone, cfg = get_pretrained_model_v2(
         name=args.backbone, 
         weights=args.backbone_weights,
-        as_classifier=False,
-        blocks='all',
-        path=None,
-        mask_ratio=0.0,
-        pretrained=True if SAVE_NAME=="ImageNet" else 1,
-        in_channels=n_channels
-        )
-    cfg.freeze_backbone = True
+    )
     update_cfg(cfg, args.opts)
 
     # Loads dataset and dataset-specific configuration
     _, _, testing_dataset = get_dataset(
         name=args.dataset, 
-        cfg=cfg,
-        n_channels=n_channels
+        cfg=cfg
     )
-
-    cfg.batch_size = 32
 
     # Loads checkpoint
     checkpoint = torch.load(args.restore_from)
-    print(checkpoint.keys())
     OUTPUT_FOLDER = os.path.dirname(args.restore_from)
 
     # Build the UNet model.
-    model = get_decoder(backbone, cfg, in_channels=n_channels, out_channels=1)
+    model = get_decoder(backbone, cfg)
     ckpt = checkpoint.get("model", None)
     if not ckpt is None:
         print("Restoring model...")
@@ -274,11 +272,11 @@ if __name__ == "__main__":
     
     # Puts the model in evaluation mode
     model.eval()
-    scores = evaluate_segmentation(model, test_loader)
 
-    # savedir = f"./results/{args.backbone}_{SAVE_NAME}/{args.dataset}/{os.path.basename(OUTPUT_FOLDER)}"
-    savedir = f"./results/{args.backbone}_{SAVE_NAME}/{args.dataset}"
+    savedir = f"./results/{args.backbone}_{args.backbone_weights}/{args.dataset}/{os.path.basename(OUTPUT_FOLDER)}"
     os.makedirs(savedir, exist_ok=True)
+
+    scores = evaluate_segmentation(model, test_loader, savefolder=savedir)
     for key, values in scores.items():
         print("Results for", key)
         values = numpy.array(values)
@@ -301,7 +299,7 @@ if __name__ == "__main__":
                 pyplot.setp(bplot[element], color='black')
 
         ax.set(
-            xticks = numpy.arange(values.shape[1]), xticklabels =['synaptic-proteins'],
+            xticks = numpy.arange(values.shape[1]), xticklabels=testing_dataset.classes,
             ylim = (0, 1)
         )
         pyplot.savefig(os.path.join(savedir, f"{key}.pdf"), bbox_inches="tight", transparent=True)

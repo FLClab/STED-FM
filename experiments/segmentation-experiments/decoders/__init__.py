@@ -6,10 +6,12 @@ from .unet import get_decoder as get_unet_decoder
 from .vit import get_decoder as get_vit_decoder
 
 MODELS = {
+    "resnet" : get_unet_decoder,
     "resnet18" : get_unet_decoder,
     "resnet50" : get_unet_decoder,
     "resnet101" : get_unet_decoder,
     "micranet" : get_unet_decoder,
+    "convnext" : get_unet_decoder,
     "convenext-tiny" : get_unet_decoder,
     "convenext-small" : get_unet_decoder,
     "convenext-base" : get_unet_decoder,
