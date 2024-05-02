@@ -26,8 +26,13 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started KNN classification"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python knn_classification.py --dataset optim --model mae-small --weights MAE_SSL_JUMP
-# python knn_classification.py --dataset synaptic-proteins --model mae-small --weights MAE_SSL_JUMP
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%% OPTIM %%%%%%%%%%%%%%%%%%"
+# python knn_classification.py --dataset optim --model mae-small --weights MAE_SSL_JUMP
+
+
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%% Synaptic Proteins %%%%%%%%%%%%%%%%%%"
+python knn_classification.py --dataset synaptic-proteins --model mae-small --weights MAE_SSL_JUMP
+python knn_classification.py --dataset synaptic-proteins --model mae-base --weights MAE_BASE_SSL_STED
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

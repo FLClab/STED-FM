@@ -158,7 +158,7 @@ def main():
         )
     backbone = backbone.backbone # We get the ViT encoder part of the LightlyMae
 
-    cfg.batch_size = 32
+    cfg.batch_size = 256
 
     print(f"--- Loaded backbone ---")
     train_dataset, val_dataset, _ = get_dataset(
@@ -181,6 +181,9 @@ def main():
     cfg.backbone = "mae"
     model = ViTDecoder(backbone=backbone, cfg=cfg, in_channels=n_channels, out_channels=1, extract_layers=[3, 6, 9, 12])
     model = model.to(device)
+
+    summary(model, input_size=(32, 1, 224, 224))
+    exit()
 
 
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)

@@ -549,7 +549,7 @@ class OptimDataset(Dataset):
         if self.transform:
             img = self.transform(img)
         
-        label = np.float64(label)
+        # label = np.float64(label)
         return img, {"label" : label, "dataset-idx" : dataset_idx, "score" : quality_score}
 
     def __repr__(self):
