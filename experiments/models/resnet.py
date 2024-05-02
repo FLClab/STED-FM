@@ -40,8 +40,10 @@ class ResNetWeights:
 class ResNetConfiguration:
     
     backbone: str = "resnet"
+    backbone_weights: str = None
     batch_size: int = 256
     dim: int = 512
+    freeze_backbone: bool = False
     in_channels: int = 1
 
 

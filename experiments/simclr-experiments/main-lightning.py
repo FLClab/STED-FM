@@ -12,22 +12,20 @@ from lightly import transforms
 from lightly.data import LightlyDataset
 from lightly.models.modules import heads
 from lightning.pytorch import Trainer
-from lightning.pytorch.core import LightningModule
+from lightning.pytorch.core import LightningModule, LightningDataModule
 from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import ModelCheckpoint, ModelSummary
 
 from tqdm import tqdm
 from collections import defaultdict
 from collections.abc import Mapping
-from multiprocessing import Manager
 from torch.utils.tensorboard import SummaryWriter
 from torchsummary import summary
 
-from modules.transforms import SimCLRTransform
-
 import sys 
 sys.path.insert(0, "..")
-from datasets import get_dataset
+from modules.datamodule import MultiprocessingDataModule
+from modules.transforms import SimCLRTransform
 from model_builder import get_base_model
 from utils import update_cfg
 
@@ -184,30 +182,16 @@ if __name__ == "__main__":
         normalize = False,
     )
 
-
-    # Create a dataset from your image folder.
-    manager = Manager()
-    cache_system = manager.dict()
-    dataset = get_dataset(args.dataset, args.dataset_path, transform=transform, 
-                          use_cache=False, cache_system=cache_system, max_cache_size=16e9)
-
-    # Build a PyTorch dataloader.
-    dataloader = torch.utils.data.DataLoader(
-        dataset,  # Pass the dataset to the dataloader.
-        batch_size=cfg.batch_size,  # A large batch size helps with the learning.
-        shuffle=True,  # Shuffling is important!
-        num_workers=8
-    )
+    datamodule = MultiprocessingDataModule(args, cfg, transform=transform)
 
     trainer = Trainer(
         max_epochs=1000,
         devices="auto",
         accelerator="gpu",
-        strategy="ddp",
+        strategy="ddp_spawn",
         sync_batchnorm=True,
         use_distributed_sampler=True,
         logger=logger,
         callbacks=callbacks,
     )
-    trainer.fit(
-            model, train_dataloaders=dataloader, ckpt_path=args.restore_from)
+    trainer.fit(model, train_dataloaders=datamodule, ckpt_path=args.restore_from)

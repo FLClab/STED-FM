@@ -19,8 +19,10 @@ class MICRANetWeights:
 class MICRANetConfiguration:
     
     backbone: str = "micranet"
+    backbone_weights: str = None
     batch_size: int = 128
     dim: int = 256
+    freeze_backbone: bool = False
     in_channels: int = 1
 
 class MICRANet(nn.Module):

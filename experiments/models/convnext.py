@@ -21,7 +21,9 @@ class ConvNextWeights:
 @dataclass
 class ConvNextConfiguration:
     
+    freeze_backbone: bool = False
     backbone: str = "convnext"
+    backbone_weights: str = None
     batch_size: int = 64
     dim: int = 768
     in_channels: int = 1

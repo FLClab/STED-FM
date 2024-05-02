@@ -31,17 +31,8 @@ class DoubleConvolver(nn.Module):
         )
 
     def forward(self, x):
-        print(f"In double convolver: {x.shape}")
         x = self.conv(x)
         return x
-
-
-class SingleDeconv(nn.Module):
-    def __init__():
-        super(SingleDeconv).__init__()
-
-    def forward(x: torch.Tensor):
-        pass
 
 class Contracter(nn.Module):
     """
@@ -72,9 +63,9 @@ class Expander(nn.Module):
     :param in_channels: Number of channels in the input tensor
     :param out_channels: Number of channels produced by the convolution
     """
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, kernel_size=2, stride=2):
         super(Expander, self).__init__()
-        self.expand = nn.ConvTranspose2d(in_channels=in_channels, out_channels=out_channels, kernel_size=2, stride=2)
+        self.expand = nn.ConvTranspose2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, stride=stride)
         self.conv = DoubleConvolver(in_channels=in_channels, out_channels=out_channels)
 
     def center_crop(self, links, target_size):
@@ -83,15 +74,13 @@ class Expander(nn.Module):
         diff_y = (links_width - target_size[1]) // 2
         return links[:, :, diff_y:(diff_y + target_size[0]), diff_x:(diff_x + target_size[1])]
 
-    def forward(self, x, bridge):
-        print(f"In expander: {x.shape, bridge.shape}")
+    def forward(self, x, bridge=None):
         x = self.expand(x)
-        print(f"After transpose2d: {x.shape, bridge.shape}")
-
-        crop = self.center_crop(bridge, x.size()[2 : ])
-        print(f"After center crop: {x.shape, bridge.shape}")
-        concat = torch.cat([x, crop], 1)
-        print(f"After concat: {concat.shape}")
+        if bridge is not None:
+            crop = self.center_crop(bridge, x.size()[2 : ])
+            concat = torch.cat([x, crop], 1)
+        else:
+            concat = x
         x = self.conv(concat)
         return x
 
@@ -127,15 +116,21 @@ class UNet(torch.nn.Module):
             print(layer_sizes)
             print("---")
 
-
         self.decoder = torch.nn.Sequential(*[
-            Expander(in_channels=layer_sizes[i + 1][0], out_channels=layer_sizes[i][0], backbone=self.cfg.backbone)
+            Expander(in_channels=layer_sizes[i + 1][0], out_channels=layer_sizes[i][0])
             for i in reversed(range(len(layer_sizes) - 1))
         ])
 
-        print("Built decoder")
-        self.out_conv = torch.nn.Conv2d(in_channels=layer_sizes[0][0], out_channels=self.cfg.dataset_cfg.num_classes, kernel_size=1)
-        print("out conv")
+        if layer_sizes[0][-1] != 224:
+            resizer = Expander(in_channels=layer_sizes[0][0], out_channels=layer_sizes[0][0], 
+                         kernel_size=224//layer_sizes[0][-1], stride=224//layer_sizes[0][-1])
+        else:
+            resizer = torch.nn.Identity()
+
+        self.out_conv = torch.nn.Sequential(*[
+            resizer,
+            torch.nn.Conv2d(in_channels=layer_sizes[0][0], out_channels=self.cfg.dataset_cfg.num_classes, kernel_size=1)
+        ])
 
     def get_layer_sizes(self) -> list[tuple[int, int, int]]:
         """
@@ -257,27 +252,9 @@ class UNet(torch.nn.Module):
         out = []
         for i, layer in enumerate(self.backbone.features):
             x = layer(x)
-            if ((i + 1) % 2) == 0:
+            if i % 2 == 0:
                 out.append(x)
         return x, out
-    
-    def _forward_mae(self, x: torch.Tensor) -> tuple[torch.Tensor, list[torch.Tensor]]:
-        """
-        
-        """
-        x = self.backbone.vit.patch_embed.proj(x)
-        Hp, Wp = x.shape[2], x.shape[3]
-        x = x.flatten(2).transpose(1 ,2)
-        B = x.shape[0]
-        x = self.backbone.add_prefix_tokens(x)
-        x = self.backbone.add_pos_embed(x)
-        x = self.backbone.vit.norm_pre(x)
-        features = []
-        for i, blk in enumerate(self.backbone.vit.blocks):
-            x  = blk(x)
-            feat = x[:, 1:, :].permute(0, 2, 1).reshape(B, -1, Hp, Wp)
-            features.append(feat)
-        return feat, features
 
     def forward(self, x : torch.Tensor):
         """
@@ -291,15 +268,11 @@ class UNet(torch.nn.Module):
         size = x.shape[-2:]
         # Forward pass through the encoder
         x, out = self.forward_encoder(x)
-        print(f"Before decoder: {x.shape}")
         for i, layer in enumerate(self.decoder):
-            print(f"Layer {i} before: {x.shape}")
             x = layer(x, out[-i-2])
-            print(f"Layer {i} after: {x.shape}")
-        x = self.out_conv(x)
 
+        x = self.out_conv(x)
         x = torch.sigmoid(x)
-        x = torch.nn.functional.interpolate(x, size=size, mode="bilinear")
         
         return x
     

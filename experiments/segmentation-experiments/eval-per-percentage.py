@@ -266,9 +266,20 @@ if __name__ == "__main__":
     random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-    # Loads backbone model
-    backbone, cfg = get_pretrained_model_v2(args.backbone, weights=args.backbone_weights)
-    cfg.freeze_backbone = False
+    # Try loading cfg file from restore-from arugments
+    config_file = os.path.join(os.path.dirname(args.restore_from), "config.json")
+    if os.path.isfile(config_file):
+        with open(config_file, "r") as f:
+            cfg = json.load(f)
+        args.backbone = cfg["args"]["backbone"]
+        args.backbone_weights = cfg["args"]["backbone_weights"]
+    else:
+        assert args.backbone is not None, "Backbone must be provided"
+
+    backbone, cfg = get_pretrained_model_v2(
+        name=args.backbone, 
+        weights=args.backbone_weights,
+    )
     update_cfg(cfg, args.opts)
 
     # Loads dataset and dataset-specific configuration

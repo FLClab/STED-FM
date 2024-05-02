@@ -23,6 +23,7 @@ class ProteinSegmentationDataset(Dataset):
         self.h5file = h5file
         self.transform = transform 
         self.n_channels = n_channels 
+        self.classes = ['synaptic-proteins']
         with h5py.File(h5file, "r") as hf:
             self.dataset_size = hf["images"][()].shape[0] 
 
@@ -42,7 +43,7 @@ class ProteinSegmentationDataset(Dataset):
         else:
             img = transforms.ToTensor()(img)
         mask = transforms.ToTensor()(mask)
-        return img, {"label": mask}
+        return img, mask
 
 def get_dataset(cfg, **kwargs):
     cfg.dataset_cfg = SynProtConfiguration()
