@@ -15,7 +15,7 @@ from skimage import filters
 from utils.msrreader import MSRReader
 
 BASEPATH = "/home-local2/projects/FLCDataset"
-OUTPATH = "/home-local2/projects/FLCDataset/20240430-dataset.tar"
+OUTPATH = "/home-local2/projects/FLCDataset/20240501-dataset.tar"
 CROP_SIZE = 224
 MINIMUM_FOREGROUND = 0.001
 
@@ -119,7 +119,7 @@ def from_datasets_original_metadata():
 def main():
 
     logging.basicConfig(
-        filename="dataset.log", filemode="w", encoding="utf-8", level=logging.DEBUG,
+        filename="dataset-other.log", filemode="w", encoding="utf-8", level=logging.DEBUG,
         format='%(asctime)s %(message)s', datefmt='[%Y%m%d-%H%M%S]'
     )
 
@@ -138,8 +138,8 @@ def main():
             image_ids = ["-".join(member.name.split("-")[:-2]) for member in members]       
 
     total_crops = 0
-    for key, info in tqdm(metadata.items(), desc="Images"):
-        with tarfile.open(OUTPATH, "a") as tf:
+    with tarfile.open(OUTPATH, "a") as tf:
+        for key, info in tqdm(metadata.items(), desc="Images"):
             if info["image-id"] in image_ids:
                 continue
                 
