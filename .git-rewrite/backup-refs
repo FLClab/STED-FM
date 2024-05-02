@@ -1,8 +1,0 @@
-95b1608367f4003eb528aa46e1bb637889a6b613 commit	refs/heads/mae-experiments
-82e6b98fd1d1323d7cf70078c1d99d99d2c4acf7 commit	refs/heads/main
-82e6b98fd1d1323d7cf70078c1d99d99d2c4acf7 commit	refs/remotes/origin/HEAD
-d4f5c59e712282ef4c037c33519828a0796cbfc6 commit	refs/remotes/origin/ab-dev
-c247ced5b1ebe6f9f1290f74ff84009b26d5ad75 commit	refs/remotes/origin/fred-dev
-8928f2f56c0854f6918c7669c887f2b5b98615ef commit	refs/remotes/origin/mae-experiments
-82e6b98fd1d1323d7cf70078c1d99d99d2c4acf7 commit	refs/remotes/origin/main
-a119223538171e65a0562677df0d847c11f8297a commit	refs/remotes/origin/proteins-experiments
