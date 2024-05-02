@@ -19,48 +19,15 @@ from lightning.pytorch.callbacks import ModelCheckpoint, ModelSummary
 from tqdm import tqdm
 from collections import defaultdict
 from collections.abc import Mapping
-from multiprocessing import Manager
 from torch.utils.tensorboard import SummaryWriter
 from torchsummary import summary
 
-from modules.transforms import SimCLRTransform
-
 import sys 
 sys.path.insert(0, "..")
-from datasets import get_dataset
+from modules.datamodule import MultiprocessingDataModule
+from modules.transforms import SimCLRTransform
 from model_builder import get_base_model
 from utils import update_cfg
-
-class MultiprocessingDataModule(LightningDataModule):
-    """
-    Implements a PyTorch Lightning DataModule that uses multiprocessing to load the data.
-
-    This follows the implementation steps from
-    https://lightning.ai/docs/pytorch/latest/advanced/training_tricks.html#sharing-datasets-across-process-boundaries
-    """
-    def __init__(self, args, cfg, **kwargs):
-        """
-        Instantiates the DataModule.
-
-        :param args: The arguments passed to the script.
-        :param cfg: The configuration object.
-        """
-        super(MultiprocessingDataModule, self).__init__()
-        self.cfg = cfg
-        manager = Manager()
-        cache_system = manager.dict()
-        self.dataset = get_dataset(args.dataset, args.dataset_path, use_cache=True, cache_system=cache_system, **kwargs)        
-        
-    def train_dataloader(self):
-        return torch.utils.data.DataLoader(
-            self.dataset, 
-            batch_size = self.cfg.batch_size,
-            shuffle=True,
-            num_workers=10,
-            pin_memory=True,
-            prefetch_factor=2,
-            persistent_workers=True,
-        )
 
 # Create a PyTorch module for the SimCLR model.
 class SimCLR(LightningModule):
