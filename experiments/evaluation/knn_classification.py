@@ -48,6 +48,7 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
                     features = features[:, 0, :] # class token
                 else:
                     features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens
+                    print(features.shape, features.min(), features.max())
             elif "convnext" in args.model.lower():
                 features = model(x).flatten(start_dim=1)
             else:
@@ -57,11 +58,14 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
             out['labels'].extend(labels.cpu().detach().numpy())
 
     samples = np.array(out['features'])
-    labels = np.array(out['labels'])
+    labels = np.array(out['labels']).astype(np.int64)
+    # samples, labels = out['features'], out['labels']
     plot_PCA(samples=samples, labels=labels, savename=savename)
     neigh = NearestNeighbors(n_neighbors=6)
     neigh.fit(samples)
-    neighbors = neigh.kneighbors(samples, return_distance=False)[:, 1:]
+    distances, neighbors = neigh.kneighbors(samples, return_distance=True)
+    
+    neighbors = neighbors[:, 1:]
 
     associated_labels = labels[neighbors]
 
@@ -111,18 +115,19 @@ def main():
     model, cfg = get_pretrained_model_v2(
         name=args.model,
         weights=args.weights,
+        path=None,
         mask_ratio=0.0,
         pretrained=True if SAVE_NAME == "ImageNet" else False,
         in_channels=n_channels,
         as_classifier=False, # KNN directly in the model's latent space
         blocks='0'
     )
-    loader = get_dataset(
+    _, _, loader = get_dataset(
         name=args.dataset, 
         transform=None, 
         path=None, 
         n_channels=n_channels,
-        training=False,
+        training=True,
         batch_size=64,
         fewshot_pct=1.0
         )

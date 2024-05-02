@@ -31,7 +31,7 @@ def create_hdf5(files: List[str]) -> None:
             if img.shape[0] < 224 or img.shape[1] < 224:
                 continue
             else:
-                img = normalize(img)
+                img = (normalize(img)*255).astype(np.int8)
                 num_y = np.floor(img.shape[0] / 224)
                 num_x = np.floor(img.shape[1] / 224)
                 ys = np.arange(0, num_y * 224, 224).astype(np.int64)
