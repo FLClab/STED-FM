@@ -178,3 +178,4 @@ evaluation/results/
 experiments/STED_mae-base_loss.png
 experiments/segmentation-experiments/results/
 experiments/segmentation-experiments/logs/
+experiments/denoising-experiments/results/inferred/

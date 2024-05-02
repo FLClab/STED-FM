@@ -38,7 +38,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-if test -e ./Datasets/FLCDataset/baselines//mae-base_STED/current_model.pth; then 
+if test -e ./Datasets/FLCDataset/baselines/mae-base_STED/current_model.pth; then 
 	python pretrain.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset.tar" --restore-from "./Datasets/FLCDataset/baselines/mae-base_STED/current_model.pth"
 else 
 	python pretrain.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset.tar"
