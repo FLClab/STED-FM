@@ -681,7 +681,9 @@ class TarFLCDataset(Dataset):
                  image_channels: int = 1, 
                  transform: Any = None, 
                  cache_system=None, 
-                 return_metadata: bool=False) -> None:
+                 return_metadata: bool=False,
+                 world_size: int = 1,
+                 rank: int = 0) -> None:
         """
         Instantiates a new ``TarFLCDataset`` object.
 
@@ -701,18 +703,37 @@ class TarFLCDataset(Dataset):
         self.transform = transform
         self.return_metadata = return_metadata
 
+        # Multiprocessing settings for multi-gpu training
+        self.world_size = world_size
+        self.rank = rank
+
         worker = get_worker_info()
         worker = worker.id if worker else None
         self.tar_obj = {worker: tarfile.open(self.tar_path, "r")}
 
         # store headers of all files and folders by name
-        self.members = list(sorted(self.tar_obj[worker].getmembers(), key=lambda m: m.name))
+        members = list(sorted(self.tar_obj[worker].getmembers(), key=lambda m: m.name))
+        self.members = self.__setup_multiprocessing(members)
 
         if use_cache and self.__max_cache_size > 0:
             self.__cache_size = 0
             if not cache_system is None:
                 self.__cache = cache_system
             self.__fill_cache()
+
+    def __setup_multiprocessing(self, members : list):
+        """
+        Setup multiprocessing for the dataset.
+
+        :param members: The list of members to setup multiprocessing for.
+
+        :returns : A `list` of members.
+        """
+        if self.world_size > 1:
+            num_members = len(members)
+            num_members_per_gpu = num_members // self.world_size
+            members = members[self.rank * num_members_per_gpu : (self.rank + 1) * num_members_per_gpu]
+        return members
 
     def __get_item_from_tar(self, member: tarfile.TarInfo):
         """
