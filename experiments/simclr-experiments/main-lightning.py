@@ -187,8 +187,9 @@ if __name__ == "__main__":
     trainer = Trainer(
         max_epochs=1000,
         devices="auto",
+        num_nodes=int(os.environ.get("SLURM_NNODES", 1)),
         accelerator="gpu",
-        strategy="ddp_spawn",
+        strategy="ddp",
         sync_batchnorm=True,
         use_distributed_sampler=True,
         logger=logger,
