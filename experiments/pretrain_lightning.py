@@ -17,15 +17,16 @@ from torchinfo import summary
 from models.lightly_mae import MAE
 from datasets import get_dataset
 from modules.transforms import RandomResizedCropMinimumForeground
+from modules.datamodule import MultiprocessingDataModule
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)
+parser.add_argument("--dataset", type=str, default="STED")
 parser.add_argument("--restore-from", type=str, default="")
 parser.add_argument("--model", type=str, default='mae-small')
 parser.add_argument("--save-folder", type=str, default='./Datasets/FLCDataset/baselines/mae_small_STED')
 parser.add_argument("--dataset-path", type=str, default="./Datasets/FLCDataset/dataset.tar")
-parser.add_argument("--modality", type=str, default="STED", choices=["STED", "JUMP"])
 parser.add_argument("--use-tensorboard", action='store_true')
 args = parser.parse_args()
 
@@ -70,22 +71,8 @@ if __name__=="__main__":
 
     manager = Manager()
     cache_system = manager.dict()
-    dataset = get_dataset(
-        name=args.dataset,
-        path=args.dataset_path,
-        transform=MAETransform,
-        use_cache=False,
-        cache_system=cache_system,
-        max_cache_size=16e9,
-    )
 
-    dataloader = torch.utils.data.DataLoader(
-        dataset=dataset,
-        batch_size=cfg.batch_size,
-        shuffle=True,
-        drop_last=False,
-        num_workers=8
-    )
+    datamodule = MultiprocessingDataModule(args, cfg, transform=MAETransform, max_cache_size=256e9)
 
     trainer = Trainer(
         max_epochs=1600,
@@ -98,7 +85,7 @@ if __name__=="__main__":
         callbacks=callbacks
     )
 
-    trainer.fit(model, train_dataloaders=dataloader, ckpt_path=args.restore_from)
+    trainer.fit(model, train_dataloaders=datamodule, ckpt_path=args.restore_from)
 
 
 
