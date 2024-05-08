@@ -51,13 +51,42 @@ class MAEConfiguration:
     freeze_backbone: bool = False
 
 def get_backbone(name: str, **kwargs) -> torch.nn.Module:
+    """
+    Note that for lightning modules we modify batch size and number of nodes so as to obtain an effective batch
+    size of 1024 for all models
+    """
     cfg = MAEConfiguration()
     for key, value in kwargs.items():
         print(key, value)
         setattr(cfg, key, value)
     cfg.pretrained = cfg.in_channels == 3
 
-    if name == 'mae-tiny':
+    if name == "mae-lightning-tiny":
+        cfg.dim = 192
+        cfg.batch_size = 256
+        vit = vit_tiny_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
+        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+
+    elif name == "mae-lightning-small":
+        cfg.dim = 384
+        cfg.batch_size = 256
+        vit = vit_small_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
+        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+
+    elif name == "mae-lightning-base":
+        cfg.dim = 768
+        cfg.batch_size = 128
+        vit = vit_base_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
+        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+
+    elif name == 'mae-lightning-large':
+        cfg.dim = 1024
+        cfg.batch_size = 64
+        vit = vit_large_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
+        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+
+
+    elif name == 'mae-tiny':
         cfg.dim = 192
         cfg.batch_size=512
         vit = vit_tiny_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
@@ -81,7 +110,7 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
 
 
 class MAE(LightningModule):
-    def __init__(self, vit, in_channels, mask_ratio) -> None:
+    def __init__(self, vit, in_channels, mask_ratio: float = 0.75) -> None:
         super().__init__()
         decoder_dim = 512
         self.mask_ratio = mask_ratio 
@@ -134,7 +163,7 @@ class MAE(LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=1.5e-4, weight_decat=0.05, betas=(0.9, 0.95))
+        optimizer = torch.optim.AdamW(self.parameters(), lr=1.5e-4, weight_decay=0.05, betas=(0.9, 0.95))
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
         return [optimizer], [scheduler]
 

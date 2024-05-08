@@ -23,7 +23,7 @@ from modules.datamodule import MultiprocessingDataModule
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--dataset", type=str, default="STED")
-parser.add_argument("--restore-from", type=str, default="")
+parser.add_argument("--restore-from", type=str, default=None)
 parser.add_argument("--model", type=str, default='mae-small')
 parser.add_argument("--save-folder", type=str, default='./Datasets/FLCDataset/baselines/mae_small_STED')
 parser.add_argument("--dataset-path", type=str, default="./Datasets/FLCDataset/dataset.tar")
@@ -40,15 +40,17 @@ if __name__=="__main__":
         model = MAE.load_from_checkpoint(args.restore_from)
     else:
         OUTPUT_FOLDER = args.save_folder
+    os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+    print(f"--- Loaded model {args.model} successfully ---")
 
    
     logger = TensorBoardLogger(OUTPUT_FOLDER) if args.use_tensorboard else None
     
     MAETransform = torchvision.transforms.Compose([
+        torchvision.transforms.ToTensor(),
         torchvision.transforms.RandomHorizontalFlip(),
         torchvision.transforms.RandomVerticalFlip(),
-        torchvision.transforms.ToTensor(),
-        RandomResizedCropMinimumForeground(size=224, scale=(0.3, 1.0)),
+        # RandomResizedCropMinimumForeground(size=224, scale=(0.3, 1.0)),
     ])
 
     last_model_callback = ModelCheckpoint(
@@ -57,6 +59,7 @@ if __name__=="__main__":
         filename="pl_current_model",
         enable_version_counter=False
     )
+    last_model_callback.FILE_EXTENSION = ".pth"
     checkpoint_callback = ModelCheckpoint(
         dirpath=OUTPUT_FOLDER,
         every_n_epochs=10,
@@ -68,17 +71,14 @@ if __name__=="__main__":
     checkpoint_callback.FILE_EXTENSION = ".pth"
     callbacks = [last_model_callback, checkpoint_callback]
 
-
-    manager = Manager()
-    cache_system = manager.dict()
-
-    datamodule = MultiprocessingDataModule(args, cfg, transform=MAETransform, max_cache_size=256e9)
+    datamodule = MultiprocessingDataModule(args, cfg, transform=MAETransform)
 
     trainer = Trainer(
         max_epochs=1600,
         devices='auto',
         accelerator='gpu',
-        strategy='ddp',
+        num_nodes=int(os.environ.get("SLURM_NNODES", 1)),
+        strategy='ddp_find_unused_parameters_true',
         sync_batchnorm=True,
         use_distributed_sampler=True,
         logger=logger,

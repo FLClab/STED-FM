@@ -23,6 +23,7 @@ MODELS = {
     'mae-tiny': MAEWeights,
     'mae': MAEWeights, # mae defaults to mae-small
     'mae-small': MAEWeights,
+    'mae-lightning-small': MAEWeights,
     'mae-base': MAEWeights,
     'mae-large': MAEWeights
 }

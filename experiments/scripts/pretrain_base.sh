@@ -2,7 +2,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --mem=0
-#SBATCH --nodes=1             
+#SBATCH --nodes=2         
 #SBATCH --gres=gpu:4
 #SBATCH --tasks-per-node=4   
 #SBATCH --cpus-per-task=10
@@ -18,11 +18,12 @@ source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 
 # export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-cp "./Datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
 
-restore="./Datasets/FLCDataset/baselines/mae-small_STED/pl_current_model.pth"
+srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 cp "./Datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
 
-savefolder="./Datasets/FLCDataset/baselines/mae-small_STED"
+restore="./Datasets/FLCDataset/baselines/mae-base_STED/pl_current_model.pth"
+
+savefolder="./Datasets/FLCDataset/baselines/mae-base_STED"
 
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
@@ -30,12 +31,12 @@ echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 
-if test -e ./Datasets/FLCDataset/baselines/mae-small_STED/pl_current_model.pth; then
+if test -e ./Datasets/FLCDataset/baselines/mae-base_STED/pl_current_model.pth; then
     tensorboard --logdir="./Datasets/FLCDataset/baselines" --host 0.0.0.0 --load_fast false & 
-    srun python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset STED --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/dataset.tar" --restore-from $restore 
+    srun python pretrain_lightning.py --seed 42 --model mae-lightning-base --dataset STED --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/dataset.tar" --restore-from $restore 
 else
     tensorboard --logdir="./Datasets/FLCDataset/baselines" --host 0.0.0.0 --load_fast false & 
-    srun python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset STED --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/dataset.tar"
+    srun python pretrain_lightning.py --seed 42 --model mae-lightning-base --dataset STED --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/dataset.tar"
 fi
 
 # Launch training 
