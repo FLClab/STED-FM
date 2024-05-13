@@ -11,12 +11,14 @@ from DEFAULTS import BASE_PATH
 class ConvNextWeights:
 
     CONVNEXT_TINY_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Tiny_Weights.IMAGENET1K_V1
-    CONVNEXT_TINY_SSL_STED = os.path.join(BASE_PATH, "baselines", "convnext-tiny", "result.pt")
+    CONVNEXT_TINY_SSL_STED = os.path.join(BASE_PATH, "baselines", "convnext-tiny_STED", "result.pt")
     CONVNEXT_TINY_SSL_CTC = os.path.join(BASE_PATH, "baselines", "convnext-tiny_CTC", "result.pt")
 
     CONVNEXT_SMALL_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Small_Weights.IMAGENET1K_V1
 
     CONVNEXT_BASE_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Base_Weights.IMAGENET1K_V1
+
+    CONVNEXT_LARGE_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Large_Weights.IMAGENET1K_V1
 
 @dataclass
 class ConvNextConfiguration:
@@ -49,6 +51,8 @@ def get_backbone(name: str, **kwargs) -> tuple[torch.nn.Module, ConvNextConfigur
         # Ignore the classification head as we only want the features.
         backbone.classifier = torch.nn.Identity()   
 
+        cfg.batch_size = 32
+
     elif name == "convnext-base":
         # Use a convnext backbone.
         backbone = torchvision.models.convnext_base()
@@ -58,6 +62,18 @@ def get_backbone(name: str, **kwargs) -> tuple[torch.nn.Module, ConvNextConfigur
         backbone.classifier = torch.nn.Identity()
 
         cfg.dim = 1024
+        cfg.batch_size = 32
+
+    elif name == "convnext-large":
+        # Use a convnext backbone.
+        backbone = torchvision.models.convnext_large()
+        backbone.features[0][0] = torch.nn.Conv2d(in_channels=cfg.in_channels, out_channels=192, kernel_size=(4, 4), stride=(4, 4))
+
+        # Ignore the classification head as we only want the features.
+        backbone.classifier = torch.nn.Identity()
+
+        cfg.dim = 1536
+        cfg.batch_size = 16        
     else:
         raise NotImplementedError(f"`{name}` not implemented")
     return backbone, cfg

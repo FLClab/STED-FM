@@ -82,6 +82,7 @@ class SimCLR(LightningModule):
         features = self.backbone(x)
         if features.dim() > 2:
             features = self.avg_pool(features)
+            features = torch.flatten(features, start_dim=1)
         z = self.projection_head(features)
         return z
 
