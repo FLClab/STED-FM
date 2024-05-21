@@ -15,10 +15,13 @@ class ConvNextWeights:
     CONVNEXT_TINY_SSL_CTC = os.path.join(BASE_PATH, "baselines", "convnext-tiny_CTC", "result.pt")
 
     CONVNEXT_SMALL_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Small_Weights.IMAGENET1K_V1
+    CONVNEXT_SMALL_SSL_STED = os.path.join(BASE_PATH, "baselines", "convnext-small_STED", "result.pt")
 
     CONVNEXT_BASE_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Base_Weights.IMAGENET1K_V1
+    CONVNEXT_BASE_SSL_STED = os.path.join(BASE_PATH, "baselines", "convnext-base_STED", "result.pt")
 
     CONVNEXT_LARGE_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Large_Weights.IMAGENET1K_V1
+    CONVNEXT_LARGE_SSL_STED = os.path.join(BASE_PATH, "baselines", "convnext-large_STED", "result.pt")
 
 @dataclass
 class ConvNextConfiguration:
@@ -62,7 +65,7 @@ def get_backbone(name: str, **kwargs) -> tuple[torch.nn.Module, ConvNextConfigur
         backbone.classifier = torch.nn.Identity()
 
         cfg.dim = 1024
-        cfg.batch_size = 32
+        cfg.batch_size = 16
 
     elif name == "convnext-large":
         # Use a convnext backbone.

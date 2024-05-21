@@ -59,5 +59,6 @@ class MultiprocessingDataModule(LightningDataModule):
             num_workers=10,
             pin_memory=True,
             prefetch_factor=4,
-            persistent_workers=True,
+            persistent_workers=False,
+            drop_last=True,
         )

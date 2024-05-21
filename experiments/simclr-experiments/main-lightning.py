@@ -1,4 +1,5 @@
 
+import math
 import torch
 import torchvision
 import numpy
@@ -11,10 +12,15 @@ from lightly import loss
 from lightly import transforms
 from lightly.data import LightlyDataset
 from lightly.models.modules import heads
+from lightly.models.utils import get_weight_decay_parameters
+from lightly.utils.lars import LARS
+from lightly.utils.scheduler import CosineWarmupScheduler
+from lightly.utils.benchmarking import MetricCallback
+
 from lightning.pytorch import Trainer
 from lightning.pytorch.core import LightningModule, LightningDataModule
 from lightning.pytorch.loggers import TensorBoardLogger
-from lightning.pytorch.callbacks import ModelCheckpoint, ModelSummary
+from lightning.pytorch.callbacks import ModelCheckpoint, ModelSummary, DeviceStatsMonitor, EarlyStopping, LearningRateMonitor
 
 from tqdm import tqdm
 from collections import defaultdict
@@ -31,10 +37,13 @@ from utils import update_cfg
 
 # Create a PyTorch module for the SimCLR model.
 class SimCLR(LightningModule):
-    def __init__(self, backbone, cfg, **kwargs):
+    def __init__(self, cfg, **kwargs):
         super().__init__()
-        self.backbone = backbone
+
+        self.save_hyperparameters()
+
         self.cfg = cfg
+        self.backbone, _ = get_base_model(self.cfg.args.backbone)
 
         self.avg_pool = torch.nn.AdaptiveAvgPool2d(1)
         self.projection_head = heads.SimCLRProjectionHead(
@@ -52,9 +61,10 @@ class SimCLR(LightningModule):
         loss = self.criterion(z0, z1)
 
         # Logging
-        self.log("Loss/mean", loss, on_epoch=True, sync_dist=True)
-        self.log("Loss/min", loss, on_epoch=True, reduce_fx=torch.min, sync_dist=True)
-        self.log("Loss/max", loss, on_epoch=True, reduce_fx=torch.max, sync_dist=True)
+        self.log("train_loss", loss, sync_dist=True, prog_bar=True)
+        self.log("Loss/mean", loss, sync_dist=True, prog_bar=True)
+        self.log("Loss/min", loss, reduce_fx=torch.min, sync_dist=True)
+        self.log("Loss/max", loss, reduce_fx=torch.max, sync_dist=True)
 
         # Logging images
         writer = self.logger.experiment
@@ -65,24 +75,53 @@ class SimCLR(LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.SGD(self.parameters(), lr=0.1, weight_decay=1e-6)
-        return optimizer
-
-    def load_state_dict(self, state_dict: Mapping[str, torch.Any], strict: bool = True, assign: bool = False):
-        self.backbone.load_state_dict(state_dict["backbone"])
-        self.projection_head.load_state_dict(state_dict["projection-head"])
-    
-    def state_dict(self):
-        return {
-            "backbone" : self.backbone.state_dict(),
-            "projection-head" : self.projection_head.state_dict()
+        # Don't use weight decay for batch norm, bias parameters, and classification
+        # head to improve performance.
+        params, params_no_weight_decay = get_weight_decay_parameters(
+            [self.backbone, self.projection_head]
+        )
+        optimizer = LARS(
+            [
+                {
+                    "name": "simclr", 
+                    "params": params
+                },
+                {
+                    "name": "simclr_no_weight_decay",
+                    "params": params_no_weight_decay,
+                    "weight_decay": 0.0,
+                }
+            ],
+            # Square root learning rate scaling improves performance for small
+            # batch sizes (<=2048) and few training epochs (<=200). Alternatively,
+            # linear scaling can be used for larger batches and longer training:
+            #   lr=0.3 * self.batch_size_per_device * self.trainer.world_size / 256
+            # See Appendix B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
+            lr=0.075 * math.sqrt(self.cfg.batch_size * self.trainer.world_size),
+            momentum=0.9,
+            # Note: Paper uses weight decay of 1e-6 but reference code 1e-4. See:
+            # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
+            weight_decay=1e-6,
+        )
+        scheduler = {
+            "scheduler": CosineWarmupScheduler(
+                optimizer=optimizer,
+                warmup_epochs=int(
+                    self.trainer.estimated_stepping_batches
+                    / self.trainer.max_epochs
+                    * 10
+                ),
+                max_epochs=int(self.trainer.estimated_stepping_batches),
+            ),
+            "interval": "step",
         }
+        return [optimizer], [scheduler]
 
     def forward(self, x):
         features = self.backbone(x)
         if features.dim() > 2:
             features = self.avg_pool(features)
-            features = torch.flatten(features, start_dim=1)
+        features = torch.flatten(features, start_dim=1)
         z = self.projection_head(features)
         return z
 
@@ -152,13 +191,22 @@ if __name__ == "__main__":
         enable_version_counter=False
     )
     checkpoint_callback.FILE_EXTENSION = ".pt"
-    callbacks = [last_model_callback, checkpoint_callback]
+
+    # metric_callback = MetricCallback()
+    callbacks = [
+        LearningRateMonitor(),
+        EarlyStopping(monitor="train_loss", patience=int(1e12), check_finite=True),
+        # DeviceStatsMonitor(),
+        # metric_callback,
+        last_model_callback, 
+        checkpoint_callback
+    ]
 
     # Build the SimCLR model.
-    model = SimCLR(backbone, cfg)
+    model = SimCLR(cfg)
     if args.restore_from:
         print("Restoring model...")
-        model = SimCLR.load_from_checkpoint(args.restore_from, backbone=backbone, cfg=cfg)
+        model = SimCLR.load_from_checkpoint(cfg)
 
     summary(model, input_size=(1, 224, 224), device=model.device.type)
 

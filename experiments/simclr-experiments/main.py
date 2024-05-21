@@ -146,7 +146,7 @@ if __name__ == "__main__":
     manager = Manager()
     cache_system = manager.dict()
     dataset = get_dataset(args.dataset, args.dataset_path, transform=transform, 
-                          use_cache=True, cache_system=cache_system, max_cache_size=16e9)
+                          use_cache=True, cache_system=cache_system, max_cache_size=80e9)
 
     # Build a PyTorch dataloader.
     dataloader = torch.utils.data.DataLoader(
@@ -157,7 +157,7 @@ if __name__ == "__main__":
     )
 
     # Lightly exposes building blocks such as loss functions.
-    criterion = loss.NTXentLoss(temperature=0.1)
+    criterion = loss.NTXentLoss(temperature=0.5)
 
     # Get a PyTorch optimizer.
     optimizer = torch.optim.SGD(model.parameters(), lr=0.1, weight_decay=1e-6)

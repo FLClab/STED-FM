@@ -14,6 +14,7 @@ class ResNetWeights:
     RESNET18_IMAGENET1K_V1 = torchvision.models.ResNet18_Weights.IMAGENET1K_V1
     RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet18_STED", "result.pt")
     RESNET18_SSL_CTC = os.path.join(BASE_PATH, "baselines", "resnet18_CTC", "result.pt")
+    
     RESNET18_LINEARPROBE_IMAGENET_PROTEINS = None
     RESNET18_LINEARPROBE_CTC_PROTEINS = None
     RESNET18_LINEARPROBE_STED_PROTEINS = None 
@@ -22,8 +23,9 @@ class ResNetWeights:
     RESNET18_LINEARPROBE_STED_OPTIM = None     
 
     RESNET50_IMAGENET1K_V1 = torchvision.models.ResNet50_Weights.IMAGENET1K_V1
-    RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet50", "result.pt")
+    RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet50_STED", "result.pt")
     RESNET50_SSL_CTC = os.path.join(BASE_PATH, "baselines", "resnet50_CTC", "result.pt")
+
     RESNET18_LINEARPROBE_IMAGENET_PROTEINS = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_ImageNet/optim/finetuned_4blocks_model.pth"
     RESNET18_LINEARPROBE_CTC_PROTEINS = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_CTC/optim/finetuned_4blocks_model.pth"
     RESNET18_LINEARPROBE_STED_PROTEINS = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_STED/synaptic-proteins/finetuned_4blocks_model.pth" 
