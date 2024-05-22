@@ -61,7 +61,7 @@ class SimCLR(LightningModule):
         loss = self.criterion(z0, z1)
 
         # Logging
-        self.log("train_loss", loss, sync_dist=True, prog_bar=True)
+        self.log("train_loss", loss, sync_dist=True, prog_bar=False)
         self.log("Loss/mean", loss, sync_dist=True, prog_bar=True)
         self.log("Loss/min", loss, reduce_fx=torch.min, sync_dist=True)
         self.log("Loss/max", loss, reduce_fx=torch.max, sync_dist=True)
@@ -97,7 +97,9 @@ class SimCLR(LightningModule):
             # linear scaling can be used for larger batches and longer training:
             #   lr=0.3 * self.batch_size_per_device * self.trainer.world_size / 256
             # See Appendix B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
-            lr=0.075 * math.sqrt(self.cfg.batch_size * self.trainer.world_size),
+            # lr=0.075 * math.sqrt(self.cfg.batch_size * self.trainer.world_size),
+            # lr=0.075 * math.sqrt(1024),
+            lr = 0.3,
             momentum=0.9,
             # Note: Paper uses weight decay of 1e-6 but reference code 1e-4. See:
             # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
