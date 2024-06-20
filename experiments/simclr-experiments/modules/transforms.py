@@ -188,7 +188,8 @@ class SimCLRViewTransform:
         )
 
         transform = [
-            RandomResizedCropMinimumForeground(size=input_size, scale=(min_scale, 1.0), min_fg=minimal_foreground),
+            RandomCropMinimumForeground(size=64, min_fg=minimal_foreground),
+            # RandomResizedCropMinimumForeground(size=224, scale=(min_scale, 1.0), min_fg=minimal_foreground),
             random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomVerticalFlip(p=vf_prob),
@@ -256,6 +257,24 @@ class MicroscopyColorJitter(torch.nn.Module):
             if random.random() < self.p:
                 tensor = self.options[i](tensor)
         return tensor
+    
+class RandomCropMinimumForeground(T.RandomCrop):
+    def __init__(self, size: int, min_fg=0.1) -> None:
+        super().__init__(size)
+        self.size = size 
+        self.max_tries = 50
+        self.min_fg = min_fg
+
+    def forward(self, img) -> Tensor:
+        img_array = img.numpy()
+        threshold = filters.threshold_otsu(img_array)
+        fg = img > threshold
+        for _ in range(self.max_tries):
+            i, j, h, w = self.get_params(img, (self.size, self.size))
+            crop = fg[:, j:j+w, i:i+w]
+            if crop.sum() > self.min_fg * torch.numel(crop):
+                break
+        return F.crop(img, i, j, h, w)
 
 class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
     def __init__(self, size, scale, min_fg=0.1) -> None:

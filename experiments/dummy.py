@@ -3,7 +3,7 @@ Script mostly used for displaying quick info or downloading torchvision models o
 """
 import torch
 import numpy as np
-from model_builder import get_pretrained_model, get_pretrained_model_v2, get_base_model
+from model_builder import get_pretrained_model_v2, get_base_model
 from timm.models.vision_transformer import vit_small_patch16_224, vit_base_patch16_224, vit_tiny_patch16_224, vit_large_patch16_224
 import argparse 
 import torchvision
@@ -127,6 +127,9 @@ def check_hdf5():
         counter += 1
 
 def main():
+    checkpoint = torch.load("/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/baselines/mae-tiny/pl_checkpoint-349.pth", map_location='cpu')
+    print(checkpoint['epoch'])
+    exit()
     check_hdf5()
 
 

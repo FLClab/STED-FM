@@ -4,7 +4,7 @@ import os
 USER = os.environ.get("USER")
 
 if USER == "frbea320":
-    BASE_PATH = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset"
+    BASE_PATH = "/home/frbea320/projects/def-flavielc/"
 elif USER == "anbil106":
     BASE_PATH = "/home/anbil106/scratch/anbil106/SSL"
 elif USER == "anthony":
