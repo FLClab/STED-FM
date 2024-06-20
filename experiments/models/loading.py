@@ -19,11 +19,15 @@ MODELS = {
     "convnext-tiny" : ConvNextWeights,
     "convnext-small" : ConvNextWeights,
     "convnext-base" : ConvNextWeights,
+    "convnext-large": ConvNextWeights,
     'vit-small': None,
     'mae-tiny': MAEWeights,
     'mae': MAEWeights, # mae defaults to mae-small
     'mae-small': MAEWeights,
+    'mae-lightning-tiny': MAEWeights,
     'mae-lightning-small': MAEWeights,
+    'mae-lightning-base': MAEWeights,
+    'mae-lightning-large': MAEWeights,
     'mae-base': MAEWeights,
     'mae-large': MAEWeights
 }
@@ -42,8 +46,16 @@ def load_weights(weights: Union[str, Enum]) -> dict:
                 return state_dict['model']
         elif "model_state_dict" in state_dict:
             return state_dict["model_state_dict"]
+        elif "state_dict" in state_dict:
+            # print(type(state_dict['state_dict']), state_dict['state_dict'].keys())
+            if "resnet" in weights.lower():
+                print("Editing state dict keys for ResNet...")
+                state_dict = {key.replace("backbone.", ""): values for key, values in state_dict["state_dict"].items() if "backbone" in key}
+                return state_dict 
+            else:
+                return state_dict['state_dict']
         else:
-            raise KeyError(f"Not model found in checkpoint.") 
+            raise KeyError(f"No model found in checkpoint.") 
         
     elif weights is None:
         print(f"--- None weights refer to ViT encoder of MAE ---")

@@ -159,7 +159,7 @@ if __name__ == "__main__":
         print("Restoring model...")
         model = SimCLR.load_from_checkpoint(args.restore_from, backbone=backbone, cfg=cfg)
 
-    summary(model, input_size=(1, 224, 224), device=model.device.type)
+    summary(model, input_size=(1, 64, 64), device=model.device.type)
 
     # Prepare transform that creates multiple random views for every image.
     transform = SimCLRTransform(
@@ -182,6 +182,7 @@ if __name__ == "__main__":
         normalize = False,
     )
 
+    cfg.batch_size = 1024
     datamodule = MultiprocessingDataModule(args, cfg, transform=transform)
 
     trainer = Trainer(

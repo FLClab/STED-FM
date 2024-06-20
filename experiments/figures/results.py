@@ -1,5 +1,5 @@
 SUPERVISED = {
-    "MAE" : {
+    "MAE_SMALL" : {
         "synaptic-proteins": 0.742,
         "optim": 0.909,
     },
@@ -62,7 +62,7 @@ RESULTS = {
                     "fine-tuning": 0.733,
                 },
                 "STED": {
-                    "KNN": 0.749,
+                    "KNN": 0.767,
                     "linear-probing": 0.780,
                     "fine-tuning": 0.817,
                 }

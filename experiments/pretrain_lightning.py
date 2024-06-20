@@ -37,7 +37,8 @@ if __name__=="__main__":
     if args.restore_from:
         OUTPUT_FOLDER = os.path.dirname(args.restore_from)
         print("--- Restoring model ---")
-        model = MAE.load_from_checkpoint(args.restore_from)
+        in_channels = cfg.in_channels
+        model = MAE.load_from_checkpoint(args.restore_from, vit=model.backbone.vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
     else:
         OUTPUT_FOLDER = args.save_folder
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)

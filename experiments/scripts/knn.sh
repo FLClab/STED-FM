@@ -31,8 +31,40 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%% OPTIM %%%%%%%%%%%%%%%%%%"
 
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%% Synaptic Proteins %%%%%%%%%%%%%%%%%%"
-python knn_classification.py --dataset synaptic-proteins --model mae-small --weights MAE_SSL_JUMP
-python knn_classification.py --dataset synaptic-proteins --model mae-base --weights MAE_BASE_SSL_STED
+
+# python knn_classification.py --dataset synaptic-proteins --model micranet --weights MICRANET_SSL_STED
+
+python knn_classification.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_IMAGENET1K_V1
+python knn_classification.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_SSL_STED
+
+
+# python knn_classification.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_IMAGENET1K_V1
+# python knn_classification.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_SSL_STED
+
+# python knn_classification.py --dataset synaptic-proteins --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
+
+# python knn_classification.py --dataset synaptic-proteins --model convnext-small --weights CONVNEXT_SMALL_SSL_STED
+
+# python knn_classification.py --dataset synaptic-proteins --model convnext-base --weights CONVNEXT_BASE_SSL_STED
+
+# python knn_classification.py --dataset synaptic-proteins --model convnext-large --weights CONVNEXT_LARGE_SSL_STED
+
+
+# python knn_classification.py --dataset synaptic-proteins --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1
+# python knn_classification.py --dataset synaptic-proteins --model mae-lightning-tiny --weights MAE_TINY_JUMP
+# python knn_classification.py --dataset synaptic-proteins --model mae-lightning-tiny --weights MAE_TINY_STED
+
+# python knn_classification.py --dataset synaptic-proteins --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
+# python knn_classification.py --dataset synaptic-proteins --model mae-lightning-small --weights MAE_SMALL_JUMP
+# python knn_classification.py --dataset synaptic-proteins --model mae-lightning-small --weights MAE_SMALL_STED
+
+# python knn_classification.py --dataset synaptic-proteins --model mae-lightning-base --weights MAE_BASE_IMAGENET1K_V1
+# python knn_classification.py --dataset synaptic-proteins --model mae-lightning-base --weights MAE_BASE_JUMP
+# python knn_classification.py --dataset synaptic-proteins --model mae-lightning-base --weights MAE_BASE_STED
+
+# python knn_classification.py --dataset synaptic-proteins --model mae-lightning-large --weights MAE_LARGE_IMAGENET1K_V1
+# python knn_classification.py --dataset synaptic-proteins --model mae-lightning-large --weights MAE_LARGE_JUMP
+# python knn_classification.py --dataset synaptic-proteins --model mae-lightning-large --weights MAE_LARGE_STED
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

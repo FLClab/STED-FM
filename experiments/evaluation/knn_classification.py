@@ -14,7 +14,7 @@ import pandas
 import sys 
 sys.path.insert(0, "../")
 from loaders import get_dataset
-from model_builder import get_pretrained_model, get_pretrained_model_v2
+from model_builder import get_pretrained_model_v2
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default='synaptic-proteins')
@@ -33,6 +33,8 @@ def plot_PCA(samples, labels, savename):
     df['Label'] = labels
     fig = plt.figure()
     seaborn.scatterplot(data=df, x='PCA-1', y='PCA-2', hue='Label', palette=seaborn.color_palette(colors, 4))
+    plt.xticks([])
+    plt.yticks([])
     fig.savefig(f"./results/{args.model}/{savename}_{args.dataset}_PCA.pdf", dpi=1200, bbox_inches='tight', transparent=True)
     plt.close(fig)
 
@@ -48,7 +50,6 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device: torch.device
                     features = features[:, 0, :] # class token
                 else:
                     features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens
-                    print(features.shape, features.min(), features.max())
             elif "convnext" in args.model.lower():
                 features = model(x).flatten(start_dim=1)
             else:

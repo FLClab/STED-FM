@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 #SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
-#SBATCH --mem=0
-#SBATCH --nodes=1             
-#SBATCH --gres=gpu:4
-#SBATCH --tasks-per-node=4   
+#SBATCH --mem=64Gb          
+#SBATCH --gres=gpu:1
+#SBATCH --tasks-per-node=1
 #SBATCH --cpus-per-task=10
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
@@ -20,9 +19,9 @@ source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 
 cp "/project/def-flavielc/datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
 
-restore="./Datasets/FLCDataset/baselines/mae-tiny_STED/pl_current_model.pth"
+restore="./Datasets/FLCDataset/baselines/resnet18_STED/pl_current_model.pth"
 
-savefolder="./Datasets/FLCDataset/baselines/mae-tiny_STED"
+savefolder="./Datasets/FLCDataset/baselines/resnet18_STED"
 
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
@@ -30,13 +29,9 @@ echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 
-if test -e ./Datasets/FLCDataset/baselines/mae-tiny_STED/pl_current_model.pth; then
-    tensorboard --logdir="./Datasets/FLCDataset/baselines" --host 0.0.0.0 --load_fast false & 
-    srun python pretrain_lightning.py --seed 42 --model mae-lightning-tiny --dataset STED --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/dataset.tar" --restore-from $restore 
-else
-    tensorboard --logdir="./Datasets/FLCDataset/baselines" --host 0.0.0.0 --load_fast false & 
-    srun python pretrain_lightning.py --seed 42 --model mae-lightning-tiny --dataset STED --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/dataset.tar"
-fi
+
+tensorboard --logdir="./Datasets/FLCDataset/baselines" --host 0.0.0.0 --load_fast false & 
+srun python main_lightning.py --seed 42 --backbone resnet18 --dataset STED --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/dataset.tar"
 
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

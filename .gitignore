@@ -1,3 +1,5 @@
+*.pdf
+*.png
 # data symlink
 experiments/simclr-experiments/data
 experiments/simclr-experiments/panels
@@ -179,3 +181,4 @@ experiments/STED_mae-base_loss.png
 experiments/segmentation-experiments/results/
 experiments/segmentation-experiments/logs/
 experiments/denoising-experiments/results/inferred/
+experiments/evaluation/results/*.pdf

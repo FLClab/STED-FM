@@ -3,7 +3,7 @@ import numpy
 import numpy as np
 import io
 import torch
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Callable
 from torch.utils.data import Dataset, get_worker_info
 from tqdm import tqdm
 from torchvision import transforms
@@ -23,6 +23,8 @@ LOCAL_CACHE = {}
 def get_dataset(name: str, path: str, **kwargs):
     if name == "CTC":
         dataset = CTCDataset(path, **kwargs)
+    elif name == "JUMP":
+        dataset = JUMPCPDataset(h5file=path, **kwargs)
     elif name == "STED": 
         dataset = TarFLCDataset(path, **kwargs)
     elif name == "optim":
@@ -650,24 +652,104 @@ class CTCDataset(Dataset):
         return img
 
 class JUMPCPDataset(Dataset):
-    def __init__(self, h5file: str, n_channels: int = 1, transform: Any = None, **kwargs):
+    def __init__(
+            self, 
+            h5file: str, 
+            n_channels: int = 1, 
+            transform: Callable = None, 
+            use_cache: bool = False,
+            max_cache_size: int = 128e9,
+            cache_system: str = None,
+            return_metadata: bool = None,
+            world_size: int =1, 
+            rank: int = 0,
+            **kwargs
+            ):
         self.h5file = h5file 
         self.n_channels = n_channels
         self.transform = transform
+        self.__cache = {}
+        self.__max_cache_size = max_cache_size 
+        self.return_metadata = return_metadata
+        self.world_size = world_size
+        self.rank = rank
         self.dataset_size = 1300008
 
+        worker = get_worker_info()
+        worker = worker.id if worker else None 
+        
+        indices = np.arange(0, self.dataset_size, 1)
+
+        self.members = self.__setup_multiprocessing(indices)
+        if use_cache and self.__max_cache_size >0:
+            self.__cache_size = 0
+            if cache_system is not None:
+                self.__cache = cache_system
+        self.__fill_cache()
+
+    def __getsizeof(self, obj: Any) -> int:
+        """
+        Implements a simple function to estimate the size of an object in memory.
+
+        :param obj: The object to estimate the size of.
+
+        :returns : The size of the object in bytes.
+        """
+        if isinstance(obj, dict):
+            return sum([self.__getsizeof(o) for o in obj.values()])
+        elif isinstance(obj, (list, tuple)):
+            return sum([self.__getsizeof(o) for o in obj])
+        elif isinstance(obj, str):
+            return len(str)
+        else:
+            return obj.size * obj.dtype.itemsize
+
+
+    def __setup_multiprocessing(self, members : np.ndarray):
+        """
+        Setup multiprocessing for the dataset.
+
+        :param members: The list of members to setup multiprocessing for.
+
+        :returns : A `list` of members.
+        """
+        if self.world_size > 1:
+            num_members = len(members)
+            num_members_per_gpu = num_members // self.world_size
+            members = members[self.rank * num_members_per_gpu : (self.rank + 1) * num_members_per_gpu]
+        return members
+    
+    def __fill_cache(self):
+        """
+        Implements a function to fill up the cache with data from the TarFile.
+        """
+        indices = np.arange(0, len(self.members), 1)
+        np.random.shuffle(indices)
+        print("Filling up the cache...")
+        pbar = tqdm(indices, total=indices.shape[0])
+        with h5py.File(self.h5file, "r") as hf:
+            for idx in pbar:
+                if self.__cache_size >= self.__max_cache_size:
+                    break
+                data = hf["images"][idx]
+                self.__cache[idx] = data
+                self.__cache_size += self.__getsizeof(data)
+                pbar.set_description(f"Cache size --> {self.__cache_size * 1e-9:0.2f}G")
 
     def __len__(self):
-        return self.dataset_size
+        return len(self.members)
 
     def __getitem__(self, idx: int) -> torch.Tensor:
-        with h5py.File(self.h5file, "r") as hf:
-            img = hf['images'][idx]
-        print(img.shape)
-        if self.transform is not None:
-            img = self.transform(img)
+        if idx in self.__cache:
+            img = self.__cache[idx]
         else:
-            img = transforms.ToTensor()(img)
+            with h5py.File(self.h5file, "r") as hf:
+                img = hf['images'][idx]
+        if self.transform is not None:
+            img = self.transform(img).float()
+        else:
+            img = img[np.newaxis]
+            img = torch.tensor(img, dtype=torch.float32)
         return img
 
 

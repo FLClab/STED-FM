@@ -19,7 +19,7 @@ source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 # export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 
-srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 cp "./Datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
+srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 cp "/project/def-flavielc/datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
 
 restore="./Datasets/FLCDataset/baselines/mae-base_STED/pl_current_model.pth"
 

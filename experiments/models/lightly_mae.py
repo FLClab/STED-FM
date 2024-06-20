@@ -15,28 +15,20 @@ from DEFAULTS import BASE_PATH
 class MAEWeights:
     # IMAGENET pretraining in timm refers to a model pretrained on ImageNet21K and finetuned on ImageNet1K
     # For consistency across the library, we will refer to the model as IMAGENET1K_V1
-    MAE_TINY_IMAGENET = None
-    MAE_SMALL_IMAGENET = None
+    MAE_TINY_IMAGENET1K_V1 = None
     MAE_SMALL_IMAGENET1K_V1 = None
-    MAE_BASE_IMAGENET = None
     MAE_BASE_IMAGENET1K_V1 = None
-    MAE_LARGE_IMAGENET = None
     MAE_LARGE_IMAGENET1K_V1 = None
-    MAE_SSL_CTC = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth"
-    MAE_SSL_JUMP = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/baselines/mae-small/checkpoint-20.pth"
-    MAE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-small_STED/checkpoint-530.pth"
-    
-    # MAE_SSL_STED = os.path.join(BASE_PATH, "baselines", "vit-mae", "checkpoint-530.pth")
-    # MAE_SMALL_SSL_STED = os.path.join(BASE_PATH, "baselines", "vit-mae", "checkpoint-530.pth")
 
-    MAE_BASE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-base_STED/checkpoint-340.pth"
+    MAE_TINY_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-tiny_STED/pl_checkpoint-999.pth"
+    MAE_SMALL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-small_STED/pl_checkpoint-999.pth"
+    MAE_BASE_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-base_STED/pl_checkpoint-999.pth"
+    MAE_LARGE_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-large_STED/pl_checkpoint-999.pth"
 
-    MAE_LINEARPROBE_IMAGENET_PROTEINS = None
-    MAE_LINEARPROBE_CTC_PROTEINS = None
-    MAE_LINEARPROBE_STED_PROTEINS = None
-    MAE_LINEARPROBE_IMAGENET_OPTIM = None
-    MAE_LINEARPROBE_CTC_OPTIM = None
-    MAE_LINEARPROBE_STED_OPTIM = None
+    MAE_TINY_JUMP = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/baselines/mae-tiny/pl_checkpoint-999.pth"
+    MAE_SMALL_JUMP = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/baselines/mae-small/pl_checkpoint-999.pth"
+    MAE_BASE_JUMP = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/baselines/mae-base/pl_checkpoint-999.pth"
+    MAE_LARGE_JUMP = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/baselines/mae-large/pl_checkpoint-999.pth"
 
 @dataclass
 class MAEConfiguration:

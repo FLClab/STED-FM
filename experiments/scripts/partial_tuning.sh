@@ -20,9 +20,9 @@ source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 WEIGHTS=(
-    "MAE_SMALL_IMAGENET"
-    "MAE_SSL_CTC"
-    "MAE_SSL_STED"
+    "MAE_TINY_IMAGENET1K_V1"
+    "MAE_TINY_JUMP"
+    "MAE_TINY_STED"
 )
 
 weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
@@ -35,7 +35,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started partial tuning"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune.py --dataset optim --model mae-small --weights $weight --blocks "0"
+python finetune.py --dataset synaptic-proteins --model mae-lightning-tiny --weights $weight --blocks "all"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

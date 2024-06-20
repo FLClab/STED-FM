@@ -15,16 +15,15 @@ def get_base_model(name: str, **kwargs):
 
 
 def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool = False, path: str = None, **kwargs):
-    if name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "vit-small", "mae", "mae-tiny", "mae-small", "mae-base"]:
+    if name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "vit-small", "mae", "mae-tiny", "mae-small", "mae-base", "mae-lightning-tiny", "mae-lightning-small", 'mae-lightning-base', 'mae-lightning-large']:
         if "in_channels" not in kwargs:
             kwargs["in_channels"] = 3 if (weights is not None and "imagenet" in weights.lower()) else 1
         backbone, cfg = get_base_model(name, **kwargs)
         state_dict = get_weights(name, weights)
-
         # This is could lead to errors if the model is not exactly the same as the one used for pretraining
         if state_dict is not None:
             print(f"--- Loading from state dict ---")
-            backbone.load_state_dict(state_dict, strict=False)
+            backbone.load_state_dict(state_dict, strict=True)
         print(f"--- Loaded model {name} with weights {weights} ---")
         if as_classifier:
             model = LinearProbe(
