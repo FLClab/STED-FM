@@ -188,7 +188,7 @@ class SimCLRViewTransform:
         )
 
         transform = [
-            RandomResizedCropMinimumForeground(size=input_size, scale=(min_scale, 1.0), min_fg=minimal_foreground),
+            # RandomResizedCropMinimumForeground(size=input_size, scale=(min_scale, 1.0), min_fg=minimal_foreground),
             random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomVerticalFlip(p=vf_prob),
