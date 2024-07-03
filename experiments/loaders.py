@@ -1,31 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import List
+from typing import List, Iterable
 import datasets
-from torch.utils.data import DataLoader
-from torch.utils.data import Sampler
-from torch.utils.data import Dataset
+from torch.utils.data import DataLoader, Sampler, Dataset
 import random
 
-# class BalancedSampler(Sampler):
-#     def __init__(self, dataset: torch.utils.data.Dataset, num_samples):
-#         self.dataset = dataset
-#         self.num_samples = num_samples
-#         self.ind0 = np.argwhere(self.dataset.labels == 0)
-#         self.ind0 = np.random.choice(self.ind0.ravel(), size=num_samples//2, replace=False)
-#         print(f"Indices 0 shape: {self.ind0.shape}")
-#         self.ind1 = np.argwhere(self.dataset.labels == 1)
-#         self.ind1 = np.random.choice(self.ind1.ravel(), size=num_samples//2, replace=False)
-#         print(f"Indices 1 shape: {self.ind1.shape}")
-        
-#     def __len__(self):
-#         return self.num_samples // 2 + self.num_samples // 2
-    
-#     def __iter__(self):
-#         ids = np.concatenate([self.ind0.ravel(), self.ind1.ravel()])
-#         print(f"All indices shape: {ids.shape}")
-#         random.shuffle(ids)
-#         return iter(ids)
 
 class BalancedSampler(Sampler):
     def __init__(self, dataset: Dataset, fewshot_pct: float = 0.01, num_classes: int = 4) -> None:
@@ -50,6 +29,25 @@ class BalancedSampler(Sampler):
         random.shuffle(ids)
         print(np.unique(np.array(self.dataset.labels)[ids], return_counts=True))
         return iter(ids)
+    
+class UltraSmallSampler(Sampler):
+    def __init__(self, dataset: Dataset, num_per_class: int = 5, num_classes: int = 4) -> None:
+        self.dataset = dataset
+        self.dataset_size = num_per_class * num_classes 
+        self.indices = []
+        for i in range(num_classes):
+            inds = np.argwhere(np.array(self.dataset.labels) == i)
+            inds = np.random.choice(inds.ravel(), size=num_per_class, replace=True)
+            self.indices.append(inds)
+
+    def __len__(self) -> int:
+        return self.dataset_size
+    
+    def __iter__(self) -> Iterable:
+        ids = np.concatenate([ids.ravel() for ids in self.indices]).astype(np.int64)
+        random.shuffle(ids)
+        return iter(ids)
+
 
 from DEFAULTS import BASE_PATH
 
@@ -84,57 +82,73 @@ def get_synaptic_proteins_dataset(
     transform,
     class_ids: List = None,
     batch_size: int = 256,
-    validation_size: float = 0.10,
-    class_type: str = 'protein',
+    class_type: str = 'proteins',
     n_channels: int = 1,
     training: bool = False,
-    fewshot_pct: float = 0.0,
+    num_samples: int = None,
 ):
     train_dataset = datasets.ProteinDataset(
-        h5file=f"{path}/train.hdf5",
+        h5file=f"{path}/train_v2.hdf5",
         class_ids=None,
         class_type=class_type,
         n_channels=n_channels,
         transform=transform,
     )
     validation_dataset = datasets.ProteinDataset(
-        h5file=f"{path}/validation.hdf5",
+        h5file=f"{path}/valid_v2.hdf5",
         class_ids=None,
         class_type=class_type,
         n_channels=n_channels,
         transform=transform,
     )
     test_dataset = datasets.ProteinDataset(
-        h5file=f"{path}/test.hdf5",
+        h5file=f"{path}/test_v2.hdf5",
         class_ids=None,
         class_type=class_type,
         n_channels=n_channels,
         transform=transform,
     )
 
+    print(np.unique(train_dataset.labels, return_counts=True))
+    print(np.unique(validation_dataset.labels, return_counts=True))
+    print(np.unique(test_dataset.labels, return_counts=True))
+
     print(f"Training size: {len(train_dataset)}")
     print(f"Validation size: {len(validation_dataset)}")
-    print(f"Test size: {len(test_dataset)}")
+    print(f"Test size: {len(test_dataset)}\n")
 
-    if fewshot_pct == 1.0:
-        train_loader = DataLoader(
-            dataset=train_dataset,
-            batch_size=batch_size,
-            shuffle=True,
-            drop_last=False,
-            num_workers=6,
-        )
-    else:
-        print(f"Loading balanced training set with {fewshot_pct * 100}% of labels")
-        sampler = BalancedSampler(dataset=train_dataset, fewshot_pct=fewshot_pct, num_classes=4)
-        train_loader = DataLoader(
-            dataset=train_dataset,
-            batch_size=batch_size,
-            shuffle=False,
-            drop_last=False,
-            num_workers=6,
-            sampler=sampler
-        )
+    ### Keeping code below if we want to revert back to sampling based on % of labels
+    # if fewshot_pct == 1.0:
+    #     train_loader = DataLoader(
+    #         dataset=train_dataset,
+    #         batch_size=batch_size,
+    #         shuffle=True,
+    #         drop_last=False,
+    #         num_workers=6,
+    #     )
+    # else:
+    #     print(f"Loading balanced training set with {fewshot_pct * 100}% of labels")
+    #     sampler = BalancedSampler(dataset=train_dataset, fewshot_pct=fewshot_pct, num_classes=4)
+    #     train_loader = DataLoader(
+    #         dataset=train_dataset,
+    #         batch_size=batch_size,
+    #         shuffle=False,
+    #         drop_last=False,
+    #         num_workers=6,
+    #         sampler=sampler
+    #     )
+
+    ## Switched to sampling based on # samples per class
+    sampler = UltraSmallSampler(dataset=train_dataset, num_per_class=num_samples, num_classes=4) if num_samples is not None else None
+
+    train_loader = DataLoader(
+        dataset=train_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        drop_last=False,
+        num_workers=6,
+        sampler=sampler
+    )
     valid_loader = DataLoader(
         dataset=validation_dataset,
         batch_size=batch_size,
@@ -205,7 +219,7 @@ def get_factin_block_glugly_dataset(path: str, **kwargs):
     dataloader = DataLoader(dataset=dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
     return dataset
 
-def get_dataset(name, path, fewshot_pct: float = 1.0, **kwargs):
+def get_dataset(name, path, **kwargs):
     if name == "optim":
         return get_optim_dataset(
             path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/optim-data", 
@@ -221,7 +235,7 @@ def get_dataset(name, path, fewshot_pct: float = 1.0, **kwargs):
             transform=kwargs['transform'],
             training=kwargs['training'],
             batch_size=kwargs['batch_size'],
-            fewshot_pct=fewshot_pct
+            num_samples=kwargs['num_samples']
             )
     elif name == "factin-rings-fibers":
         return get_factin_rings_fibers_dataset(path=path, transform=kwargs['transform'])

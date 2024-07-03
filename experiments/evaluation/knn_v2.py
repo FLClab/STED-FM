@@ -59,15 +59,8 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device:torch.device,
     distances, neighbors = neighbors_obj.kneighbors(X=pdistances, return_distance=True)
     neighbors = neighbors[:, 1:]
 
-    print("=== Debugging ===")
-    print(samples.shape, samples.dtype)
-    print(distances.shape, distances.dtype)
-    print(neighbors.shape, neighbors.dtype)
-    print(ground_truth.shape)
-
     associated_labels = ground_truth[neighbors]
     uniques = np.unique(ground_truth).astype(np.int64)
-    print("======")
     
     confusion_matrix = np.zeros((len(uniques), len(uniques)))
     for unique in tqdm(uniques, desc="Confusion matrix computation..."):
@@ -133,7 +126,7 @@ def main():
         n_channels=n_channels,
         training=True,
         batch_size=64,
-        fewshot_pct=1.0 # use all labels
+        num_samples=None # Not used when only getting test dataset
     )
 
     model = model.to(device)

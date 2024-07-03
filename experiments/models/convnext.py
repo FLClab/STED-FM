@@ -3,6 +3,7 @@ import os
 import torch
 import torchvision
 from dataclasses import dataclass
+from typing import Tuple
 
 import sys
 sys.path.insert(0, "../")
@@ -11,6 +12,8 @@ from DEFAULTS import BASE_PATH
 class ConvNextWeights:
 
     CONVNEXT_TINY_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Tiny_Weights.IMAGENET1K_V1
+    CONVNEXT_SMALL_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Small_Weights.IMAGENET1K_V1
+    CONVNEXT_BASE_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Base_Weights.IMAGENET1K_V1
     CONVNEXT_TINY_SSL_STED = os.path.join(BASE_PATH, "baselines", "convnext-tiny_STED", "checkpoint-999.pt")
     CONVNEXT_SMALL_SSL_STED = os.path.join(BASE_PATH, "baselines", "convnext-small_STED", "checkpoint-999.pt")
     CONVNEXT_BASE_SSL_STED = os.path.join(BASE_PATH, "baselines", "convnext-base_STED", "checkpoint-999.pt")
@@ -22,10 +25,6 @@ class ConvNextWeights:
 
     CONVNEXT_TINY_SSL_CTC = os.path.join(BASE_PATH, "baselines", "convnext-tiny_CTC", "result.pt")
 
-    CONVNEXT_SMALL_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Small_Weights.IMAGENET1K_V1
-
-    CONVNEXT_BASE_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Base_Weights.IMAGENET1K_V1
-
 @dataclass
 class ConvNextConfiguration:
     
@@ -36,7 +35,7 @@ class ConvNextConfiguration:
     dim: int = 768
     in_channels: int = 1
 
-def get_backbone(name: str, **kwargs) -> tuple[torch.nn.Module, ConvNextConfiguration]:
+def get_backbone(name: str, **kwargs) -> Tuple[torch.nn.Module, ConvNextConfiguration]:
     cfg = ConvNextConfiguration()
     for key, value in kwargs.items():
         setattr(cfg, key, value)

@@ -33,24 +33,29 @@ MODELS = {
 }
 
 def load_weights(weights: Union[str, Enum]) -> dict:
+    # TODO: Fix all the if branches that are currently here to satisfy the strict=true loading condition after returning
     # Most probably weights from pretrained torchvision models
     if isinstance(weights, Enum):
         return load_state_dict_from_url(weights.url, map_location="cpu")
     elif isinstance(weights, str):
         state_dict = torch.load(weights, map_location="cpu")
         if "model" in state_dict:
+            print(f"\t`model` state dict: {state_dict.keys()}")
             # Model pretrained using SimCLR
             try:
                 return state_dict["model"]["backbone"]
             except KeyError:
                 return state_dict['model']
         elif "model_state_dict" in state_dict:
+            print(f"\t`model_state_dict` state dict: {state_dict.keys()}")
             return state_dict["model_state_dict"]
         elif "state_dict" in state_dict:
+            print(f"\t`state_dict` state dict: {state_dict.keys()}")
             # print(type(state_dict['state_dict']), state_dict['state_dict'].keys())
             if "resnet" in weights.lower():
                 print("Editing state dict keys for ResNet...")
                 state_dict = {key.replace("backbone.", ""): values for key, values in state_dict["state_dict"].items() if "backbone" in key}
+                state_dict = {k: v for k, v in state_dict.items() if "fc" not in k}
                 return state_dict 
             else:
                 return state_dict['state_dict']
