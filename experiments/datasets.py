@@ -565,7 +565,7 @@ class ProteinDataset(Dataset):
             self, 
             h5file: str, 
             class_ids: List[int] = None, 
-            class_type: str = "protein", 
+            class_type: str = "proteins", 
             transform = None,
             n_channels: int = 1) -> None:
         self.h5file = h5file 

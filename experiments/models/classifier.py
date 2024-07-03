@@ -7,6 +7,7 @@ class LinearProbe(torch.nn.Module):
             self,
             backbone: torch.nn.Module,
             name: str,
+            cfg: dict,
             num_classes: int = 4,
             global_pool: str = 'avg',
             num_blocks: int = 0
@@ -18,8 +19,8 @@ class LinearProbe(torch.nn.Module):
         self.global_pool = global_pool
         self.num_blocks = num_blocks
         
-        if self.name.lower() == "mae" or self.name == "mae-small":
-            feature_dim = 384
+        if "mae" in self.name.lower():
+            feature_dim = cfg.dim
             print(f"--- Freezing default vit pre-blocks ---")
             self.backbone.backbone.mask_token.requires_grad = False
             self.backbone.backbone.vit.cls_token.requires_grad = False

@@ -30,6 +30,7 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
                 backbone=backbone,
                 name=name,
                 num_classes=4,
+                cfg=cfg,
                 num_blocks=kwargs['blocks'],
             )
             print(f"--- Added linear probe to {kwargs['blocks']} frozen blocks ---")
@@ -38,6 +39,25 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
             return backbone, cfg
     else:
         raise NotImplementedError(f"Model {name} not implemented yet.")
+    
+def get_classifier_v3(name: str, dataset: str, pretraining: str, **kwargs):
+    if "mae" in name.lower():
+        backbone, cfg = get_base_model(name, **kwargs)
+        probe = kwargs['probe']
+        num_blocks = "all" if probe == "linear-probe" else "0"
+        model = LinearProbe(
+            backbone=backbone,
+            name=name,
+            num_classes=4,
+            cfg=cfg,
+            num_blocks=num_blocks
+        )
+        modelname = name.replace("-lightning", "")
+        path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{pretraining}/{dataset}/{probe}.pth"
+        checkpoint = torch.load(path)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        return model, cfg
+
 
 
 def get_classifier_v2(name: str, weights: str, task: str, path: str = None, dataset: str = None, **kwargs):
@@ -46,6 +66,7 @@ def get_classifier_v2(name: str, weights: str, task: str, path: str = None, data
         state_dict = get_weights(name, weights)
         model.load_state_dict(state_dict, strict=False)
         return model
+        
     elif name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "mae", "mae-small"]:
         backbone, cfg = get_base_model(name, **kwargs)
         model = LinearProbe(
@@ -67,7 +88,7 @@ def get_classifier_v2(name: str, weights: str, task: str, path: str = None, data
             return model, cfg
         else:
             state_dict = get_weights(name, weights)
-            model.load_state_dict(state_dict, strict=False) # Loads the linear probe by default
+            model.load_state_dict(state_dict, strict=True) # Loads the linear probe by default
 
     else:
         raise NotImplementedError(f"Model {name} not implemented as a classifier yet.")
