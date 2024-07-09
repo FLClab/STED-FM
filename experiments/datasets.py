@@ -567,25 +567,49 @@ class ProteinDataset(Dataset):
             class_ids: List[int] = None, 
             class_type: str = "proteins", 
             transform = None,
-            n_channels: int = 1) -> None:
+            n_channels: int = 1,
+            num_samples: int = None,
+            num_classes : int = 4
+            ) -> None:
         self.h5file = h5file 
         self.class_ids = class_ids
         self.class_type = class_type
         self.n_channels = n_channels
+        self.num_samples = num_samples
+        self.num_classes = num_classes
 
-        with h5py.File(h5file, "r") as hf:
-            self.dataset_size = int(hf["proteins"].size)
-            self.labels = hf["proteins"][()]
-
-
+        if num_samples == None:
+            with h5py.File(h5file, "r") as hf:
+                self.dataset_size = int(hf[self.class_type].size)
+                self.labels = hf[self.class_type][()]
+        else:
+            with h5py.File(h5file, "r") as hf:
+                indices = []
+                labels = hf[self.class_type][()]
+                for i in range(num_classes):
+                    inds = np.argwhere(np.array(labels) == i)
+                    inds = np.random.choice(inds.ravel(), size=num_samples, replace=True)
+                    indices.append(inds)
+                    label_ids = np.sort(np.concatenate([ids.ravel() for ids in indices]).astype('int'))
+                    self.labels = hf["proteins"][label_ids]
+                    self.images = hf["images"][label_ids]
+                    self.conditions = hf["conditions"][label_ids]
+                    self.dataset_size = self.labels.shape[0]
+            
     def __len__(self):
         return self.dataset_size
     
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         with h5py.File(self.h5file, "r") as hf:
-            img = hf["images"][idx]
-            protein = hf["proteins"][idx]
-            condition = hf["conditions"][idx]
+            if self.num_samples == None:
+                img = hf["images"][idx]
+                protein = hf["proteins"][idx]
+                condition = hf["conditions"][idx]
+            else:
+                img = self.images[idx]
+                protein = self.labels[idx]
+                condition = self.conditions[idx]
+
             if self.n_channels == 3:
                 img = np.tile(img[np.newaxis], (3, 1, 1))
                 img = np.moveaxis(img, 0, -1)
@@ -593,7 +617,9 @@ class ProteinDataset(Dataset):
                 img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
             else:
                 img = transforms.ToTensor()(img)
-        return img, {"label": protein, "condition": condition}
+        l = protein if self.class_type == "proteins" else condition
+        other = condition if self.class_type == "proteins" else protein
+        return img, {"label": l, "condition": other}
 
 class CTCDataset(Dataset):
     """

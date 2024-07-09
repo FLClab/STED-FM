@@ -20,6 +20,7 @@ parser.add_argument("--dataset", type=str, default="synaptic-proteins")
 parser.add_argument("--model", type=str, default="mae-small")
 parser.add_argument("--weights", type=str, default="MAE_TINY_STED")
 parser.add_argument("--global-pool", type=str, default="avg")
+parser.add_argument("--label", type=str, default="proteins")
 parser.add_argument("--pca", action="store_true")
 args = parser.parse_args()
 
@@ -85,7 +86,7 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device:torch.device,
         xticks=uniques, yticks=uniques,  
     )
     ax.set_title(round(acc, 4))
-    fig.savefig(f"./results/{args.model}/{savename}_{args.dataset}_knn_results.pdf", dpi=1200, bbox_inches='tight', transparent=True)
+    fig.savefig(f"./results/{args.model}/{savename}_{args.dataset}_{args.label}_knn_results.pdf", dpi=1200, bbox_inches='tight', transparent=True)
     plt.close(fig)
 
 
@@ -116,7 +117,7 @@ def main():
         pretrained=True if SAVE_NAME == "ImageNet" else False,
         in_channels=n_channels,
         as_classifier=False,
-        blocks='0' # Not used with as_classifier = False
+        blocks='0', # Not used with as_classifier = False
     ) 
 
     _, _, loader = get_dataset(
@@ -126,7 +127,8 @@ def main():
         n_channels=n_channels,
         training=True,
         batch_size=64,
-        num_samples=None # Not used when only getting test dataset
+        num_samples=None, # Not used when only getting test dataset
+        class_type=args.label
     )
 
     model = model.to(device)

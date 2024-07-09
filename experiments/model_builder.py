@@ -57,6 +57,8 @@ def get_classifier_v3(name: str, dataset: str, pretraining: str, **kwargs):
         checkpoint = torch.load(path)
         model.load_state_dict(checkpoint["model_state_dict"])
         return model, cfg
+    else:
+        raise NotImplementedError(f"Cannot yet add a linear probe to `{name}`.")
 
 
 

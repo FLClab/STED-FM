@@ -4,7 +4,7 @@ Results are transcribed as hard-coded global variables here
 """
 import numpy as np 
 import matplotlib.pyplot as plt
-from results import RESULTS, SUPERVISED
+from experiments.figures.old_results import RESULTS, SUPERVISED
 plt.style.use("dark_background")
 
 def temporary_plot(results: dict, model: str, task: str) -> None:

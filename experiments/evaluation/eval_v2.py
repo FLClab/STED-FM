@@ -12,7 +12,7 @@ from utils import compute_Nary_accuracy
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mae-lightning-small")
 parser.add_argument("--pretraining", type=str, default="STED")
-parser.add_argument("--probe", type=str, default="linear-probe")
+parser.add_argument("--probe", type=str, default="linear-probe", choices=["linear-probe", "finetuned"])
 parser.add_argument("--dataset", type=str, default="synaptic-proteins")
 args = parser.parse_args()
 
@@ -28,7 +28,7 @@ def evaluate(
         for imgs, data_dict in tqdm(loader, desc="Evaluation..."):
             labels = data_dict['label']
             imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
-            predictions = model(imgs)
+            predictions, _ = model(imgs)
             correct, n = compute_Nary_accuracy(predictions, labels)
             big_correct = big_correct + correct
             big_n = big_n + n
@@ -46,6 +46,8 @@ def main():
     n_channels = 3 if args.pretraining == "ImageNet" else 1 
     model, cfg = get_classifier_v3(
         name=args.model,
+        in_channels=n_channels,
+        mask_ratio=0.0,
         dataset=args.dataset,
         pretraining=args.pretraining,
         probe=args.probe,
