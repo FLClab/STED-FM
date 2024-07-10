@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import List, Iterable
+from typing import List, Iterable, Callable
 import datasets
 from torch.utils.data import DataLoader, Sampler, Dataset
 import random
@@ -77,6 +77,68 @@ def get_CTC_dataset(transform, path: str):
     dataloader = DataLoader(dataset=dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
     return dataloader
 
+def get_neural_activity_states(
+        path:str,
+        transform: Callable,
+        batch_size: int = 256,
+        n_channels: int = 1,
+        num_samples: int = None,
+        protein_id: int = 3,
+):
+    train_dataset = datasets.NeuralActivityStates(
+        h5file=f"{path}/train_v2.hdf5",
+        transform=transform,
+        n_channels=n_channels,
+        num_samples=num_samples,
+        num_classes=4,
+        protein_id=protein_id
+    )
+    validation_dataset = datasets.NeuralActivityStates(
+        h5file=f"{path}/valid_v2.hdf5",
+        transform=transform,
+        n_channels=n_channels,
+        num_samples=num_samples,
+        num_classes=4,
+        protein_id=protein_id
+    )
+    test_dataset = datasets.NeuralActivityStates(
+        h5file=f"{path}/test_v2.hdf5",
+        transform=transform,
+        n_channels=n_channels,
+        num_samples=num_samples,
+        num_classes=4,
+        protein_id=protein_id
+    )
+    print(np.unique(train_dataset.labels, return_counts=True))
+    print(np.unique(validation_dataset.labels, return_counts=True))
+    print(np.unique(test_dataset.labels, return_counts=True))
+
+    print(f"Training size: {len(train_dataset)}")
+    print(f"Validation size: {len(validation_dataset)}")
+    print(f"Test size: {len(test_dataset)}\n")
+    train_loader = DataLoader(
+        dataset=train_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        drop_last=False,
+        num_workers=6,
+    )
+    valid_loader = DataLoader(
+        dataset=validation_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        drop_last=False,
+        num_workers=6,
+    )
+    test_loader = DataLoader(
+        dataset=test_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        drop_last=False,
+        num_workers=6,
+    )
+    return train_loader, valid_loader, test_loader
+
 def get_synaptic_proteins_dataset(
     path: str,
     transform,
@@ -84,7 +146,7 @@ def get_synaptic_proteins_dataset(
     batch_size: int = 256,
     class_type: str = 'proteins',
     n_channels: int = 1,
-    training: bool = False,
+    training: bool = True,
     num_samples: int = None,
 ):
     train_dataset = datasets.ProteinDataset(
@@ -239,10 +301,19 @@ def get_dataset(name, path, **kwargs):
             path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/TheresaProteins", 
             n_channels=kwargs['n_channels'], 
             transform=kwargs['transform'],
-            training=kwargs['training'],
             batch_size=kwargs['batch_size'],
             num_samples=kwargs['num_samples'],
             )
+    
+    elif name == "neural-activity-states":
+        return get_neural_activity_states(
+            path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/TheresaProteins", 
+            n_channels=kwargs['n_channels'], 
+            transform=kwargs['transform'],
+            batch_size=kwargs['batch_size'],
+            num_samples=kwargs['num_samples'],
+            protein_id=3
+        )
     elif name == "factin-rings-fibers":
         return get_factin_rings_fibers_dataset(path=path, transform=kwargs['transform'])
     elif name == "factin-block-glugly":

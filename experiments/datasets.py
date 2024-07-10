@@ -568,6 +568,7 @@ class NeuralActivityStates(Dataset):
         n_channels: int = 1,
         num_samples: int = None,
         num_classes: int = 4,
+        protein_id: int = 3
     ) -> None:
         self.h5file = h5file 
         self.transform = transform 
@@ -576,25 +577,64 @@ class NeuralActivityStates(Dataset):
         self.num_classes = num_classes 
         if self.num_samples is None:
             with h5py.File(h5file, "r") as handle:
-                self.dataset_size = int(handle["conditions"].size)
-                labels = handle["conditions"][()]
+                protein_ids = np.where(handle["proteins"][()] == protein_id)
+                labels = handle["conditions"][protein_ids]
+                images = handle["images"][protein_ids]
+                proteins = handle["proteins"][protein_ids]
+                self.labels, indices = self.__get_sample_ids(labels, method="max-TTX")
+               
+                indices = indices.astype(np.int64)
+                
+                self.images = images[indices]
+                self.proteins = proteins[indices]
+                self.dataset_size = self.labels.shape[0]
+                print(self.proteins.shape, self.images.shape, self.labels.shape, self.dataset_size)
+                
         else:
             raise NotImplementedError("Subset sampler not implemented yet for this dataset.")
         
 
-    def __reset_labels(self, method: str = "merge-TTX") -> np.ndarray:
+    def __get_sample_ids(self, labels: np.ndarray, method: str = "merge-TTX") -> np.ndarray:
+        indices = []
+        new_labels = []
         if method == "merge-TTX":
-            pass 
+            for i, l in enumerate(labels):
+                if l <= 3:
+                    indices.append(i)
+                    new_labels.append(l)
+                elif 4 <= l <= 6:
+                    indices.append(i)
+                    new_labels.append(3) # Not 4 b/c KCL (=3) was already removed
         elif method == "max-TTX":
-            pass 
+            for i, l in enumerate(labels):
+                if l <= 3:
+                    indices.append(i)
+                    new_labels.append(l)
+                elif l == 6:
+                    indices.append(i)
+                    new_labels.append(3)
         else:
             raise ValueError(f"Method `{method}` for resetting labels is not implemented yet.")
+
+        return np.array(new_labels), np.array(indices)
 
     def __len__(self):
         return self.dataset_size 
     
     def __getitem__(self, idx: int) -> torch.Tensor:
-        pass 
+        with h5py.File(self.h5file, "r") as handle:
+            img = self.images[idx]
+            label = self.labels[idx]
+        
+        if self.n_channels == 3:
+            img = np.tile(img[np.newaxis], (3, 1, 1))
+            img = np.moveaxis(img, 0, -1)
+            img = transforms.ToTensor()(img)
+            img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+        else:
+            img = transforms.ToTensor()(img)
+
+        return img, {"label": label, "protein": self.proteins[idx]}
 
 class ProteinDataset(Dataset):
     def __init__(

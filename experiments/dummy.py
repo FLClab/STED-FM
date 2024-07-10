@@ -129,13 +129,14 @@ def check_hdf5():
         counter += 1
 
 def main():
-    print(default_cfgs["vit_tiny_patch16_224"])
-    print("\n")
-    print(default_cfgs['vit_tiny_patch16_224'].cfgs['augreg_in21k_ft_in1k'])
-
-    print("\n\n")
-    data = np.load("Ti_16-i21k-300ep-lr_0.001-aug_none-wd_0.03-do_0.0-sd_0.0.npz")
-    print(data['Transformer/encoder_norm/bias'])
+    train_loader, val_loader, test_loader = get_dataset(
+        name="neural-activity-states",
+        transform=None,
+        path=None,
+        n_channels=1,
+        batch_size=64,
+        num_samples=None, 
+    )
     
 
 

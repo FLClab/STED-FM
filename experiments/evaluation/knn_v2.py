@@ -17,8 +17,8 @@ from model_builder import get_pretrained_model_v2
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default="synaptic-proteins")
-parser.add_argument("--model", type=str, default="mae-small")
-parser.add_argument("--weights", type=str, default="MAE_TINY_STED")
+parser.add_argument("--model", type=str, default="mae-lightning-small")
+parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--global-pool", type=str, default="avg")
 parser.add_argument("--pca", action="store_true")
 args = parser.parse_args()
@@ -31,6 +31,10 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device:torch.device,
     with torch.no_grad():
         for x, data_dict in tqdm(loader, desc="Extracting features..."):
             labels = data_dict['label']
+            if args.dataset == "neural-activity-states":
+                proteins = data_dict["protein"].data.numpy()
+                assert np.unique(proteins).shape[0] == 1
+
             x, labels = x.to(device), labels.to(device) 
             if "mae" in args.model.lower():
                 features = model.forward_encoder(x)
@@ -49,6 +53,9 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device:torch.device,
             samples.extend(feat)
     samples = np.array(samples)
     ground_truth = np.array(ground_truth).astype(np.int64)
+    print("---")
+    print(samples.shape, ground_truth.shape)
+    print("---")
 
     if args.pca:
         plot_PCA(samples=samples, labels=ground_truth, savename=savename)
@@ -69,6 +76,8 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device:torch.device,
             votes = np.sum((associated_labels[mask] == predicted_unique).astype(int), axis=-1)
             confusion_matrix[unique, predicted_unique] += np.sum(votes >= 3)
     accuracy = np.diag(confusion_matrix).sum() / np.sum(confusion_matrix)
+    print(f"Diag {np.diag(confusion_matrix).sum()}")
+    print(f"Total {np.sum(confusion_matrix)}")
     print(f"--- {args.dataset} ; {args.model} ; {savename} ---\n\tAccuracy: {accuracy * 100:0.2f}\n")
     acc = accuracy * 100
     fig, ax = plt.subplots()
@@ -124,7 +133,6 @@ def main():
         transform=None,
         path=None,
         n_channels=n_channels,
-        training=True,
         batch_size=64,
         num_samples=None, # Not used when only getting test dataset
     )
