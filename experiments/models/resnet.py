@@ -12,11 +12,13 @@ from DEFAULTS import BASE_PATH
 class ResNetWeights:
 
     RESNET18_IMAGENET1K_V1 = torchvision.models.ResNet18_Weights.IMAGENET1K_V1
+    RESNET18_SSL_HPA = os.path.join(BASE_PATH, "baselines", "resnet18_HPA", "result.pt")
     RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet18_STED", "result.pt")
     RESNET18_SSL_CTC = os.path.join(BASE_PATH, "baselines", "resnet18_CTC", "result.pt")
 
+    RESNET50_SSL_HPA = os.path.join(BASE_PATH, "baselines", "resnet50_HPA", "result.pt")
     RESNET50_IMAGENET1K_V1 = torchvision.models.ResNet50_Weights.IMAGENET1K_V1
-    RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet50_STED", "checkpoint-999.pt")
+    RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet50_STED", "result.pt")
     RESNET50_SSL_CTC = os.path.join(BASE_PATH, "baselines", "resnet50_CTC", "result.pt")
 
 

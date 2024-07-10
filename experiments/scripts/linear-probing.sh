@@ -20,9 +20,9 @@ source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 WEIGHTS=(
-    "MAE_BASE_IMAGENET1K_V1"
-    "MAE_BASE_JUMP"
-    "MAE_BASE_STED"
+    "MAE_LARGE_IMAGENET1K_V1"
+    "MAE_LARGE_JUMP"
+    "MAE_LARGE_STED"
 )
 
 DATASETS=(
@@ -52,7 +52,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset $dataset --model mae-lightning-base --weights $weight --blocks "all" 
+python finetune_v2.py --dataset $dataset --model mae-lightning-large --weights $weight --blocks "all" 
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

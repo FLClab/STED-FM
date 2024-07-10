@@ -143,10 +143,9 @@ def main():
         transform=None,
         path=None,
         n_channels=n_channels,
-        batch_size=cfg.batch_size,
+        batch_size=32,
         training=True,
         num_samples=args.num_per_class,
-        class_type="proteins" # not used if dataset is optim
     )
 
     num_epochs = 100

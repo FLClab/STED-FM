@@ -242,7 +242,6 @@ def get_dataset(name, path, **kwargs):
             training=kwargs['training'],
             batch_size=kwargs['batch_size'],
             num_samples=kwargs['num_samples'],
-            class_type=kwargs["class_type"]
             )
     elif name == "factin-rings-fibers":
         return get_factin_rings_fibers_dataset(path=path, transform=kwargs['transform'])

@@ -35,7 +35,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started evaluation on the test set"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python eval_v2.py --dataset synaptic-proteins --model mae-lightning-small --pretraining $pretraining --probe linear-probe
+python eval_v2.py --dataset synaptic-proteins --model mae-lightning-base --pretraining $pretraining --probe linear-probe
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

@@ -578,7 +578,7 @@ class ProteinDataset(Dataset):
         self.num_samples = num_samples
         self.num_classes = num_classes
 
-        if num_samples == None:
+        if self.num_samples is None:
             with h5py.File(h5file, "r") as hf:
                 self.dataset_size = int(hf[self.class_type].size)
                 self.labels = hf[self.class_type][()]

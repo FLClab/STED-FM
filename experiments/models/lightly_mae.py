@@ -5,6 +5,7 @@ from timm.models.vision_transformer import vit_small_patch16_224, vit_tiny_patch
 import lightly.models.utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 from lightning.pytorch.core import LightningModule
+import torchvision
 
 from dataclasses import dataclass
 
@@ -15,7 +16,7 @@ from DEFAULTS import BASE_PATH
 class MAEWeights:
     # IMAGENET pretraining in timm refers to a model pretrained on ImageNet21K and finetuned on ImageNet1K
     # For consistency across the library, we will refer to the model as IMAGENET1K_V1
-    MAE_TINY_IMAGENET1K_V1 = None
+    MAE_TINY_IMAGENET1K_V1 = "https://storage.googleapis.com/vit_models/augreg/Ti_16-i21k-300ep-lr_0.001-aug_none-wd_0.03-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.03-res_224.npz"
     MAE_SMALL_IMAGENET1K_V1 = None
     MAE_BASE_IMAGENET1K_V1 = None
     MAE_LARGE_IMAGENET1K_V1 = None
