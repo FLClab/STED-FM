@@ -20,12 +20,16 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
             kwargs["in_channels"] = 3 if (weights is not None and "imagenet" in weights.lower()) else 1
         backbone, cfg = get_base_model(name, **kwargs)
         state_dict = get_weights(name, weights)
+    
         # This is could lead to errors if the model is not exactly the same as the one used for pretraining
-        if state_dict is not None:
+        if state_dict is not None and not as_classifier:
             print(f"--- Loading from state dict ---")
             backbone.load_state_dict(state_dict, strict=True)
-        print(f"--- Loaded model {name} with weights {weights} ---")
-        if as_classifier:
+            print(f"--- Loaded model {name} with weights {weights} ---")
+            return backbone, cfg
+        elif state_dict is None and not as_classifier:
+            return backbone, cfg
+        elif as_classifier:
             model = LinearProbe(
                 backbone=backbone,
                 name=name,
@@ -35,8 +39,6 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
             )
             print(f"--- Added linear probe to {kwargs['blocks']} frozen blocks ---")
             return model, cfg
-        else:
-            return backbone, cfg
     else:
         raise NotImplementedError(f"Model {name} not implemented yet.")
     
@@ -57,6 +59,8 @@ def get_classifier_v3(name: str, dataset: str, pretraining: str, **kwargs):
         checkpoint = torch.load(path)
         model.load_state_dict(checkpoint["model_state_dict"])
         return model, cfg
+    else:
+        raise NotImplementedError(f"Cannot yet add a linear probe to `{name}`.")
 
 
 

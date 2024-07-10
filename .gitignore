@@ -182,3 +182,4 @@ experiments/segmentation-experiments/results/
 experiments/segmentation-experiments/logs/
 experiments/denoising-experiments/results/inferred/
 experiments/evaluation/results/*.pdf
+experiments/evaluation/results/

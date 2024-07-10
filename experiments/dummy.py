@@ -15,6 +15,8 @@ from typing import List
 import h5py
 import glob
 import random
+from timm.models.vision_transformer import default_cfgs
+import timm
 
 PATH = "/home/frbea320/scratch/Datasets/SynapticProteins/dataset"
 OUTPATH = "/home/frbea320/scratch/Datasets/FLCDataset/TheresaProteins"
@@ -127,10 +129,14 @@ def check_hdf5():
         counter += 1
 
 def main():
-    checkpoint = torch.load("/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/baselines/mae-tiny/pl_checkpoint-349.pth", map_location='cpu')
-    print(checkpoint['epoch'])
-    exit()
-    check_hdf5()
+    print(default_cfgs["vit_tiny_patch16_224"])
+    print("\n")
+    print(default_cfgs['vit_tiny_patch16_224'].cfgs['augreg_in21k_ft_in1k'])
+
+    print("\n\n")
+    data = np.load("Ti_16-i21k-300ep-lr_0.001-aug_none-wd_0.03-do_0.0-sd_0.0.npz")
+    print(data['Transformer/encoder_norm/bias'])
+    
 
 
 if __name__=="__main__":

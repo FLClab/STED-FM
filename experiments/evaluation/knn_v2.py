@@ -116,7 +116,7 @@ def main():
         pretrained=True if SAVE_NAME == "ImageNet" else False,
         in_channels=n_channels,
         as_classifier=False,
-        blocks='0' # Not used with as_classifier = False
+        blocks='0', # Not used with as_classifier = False
     ) 
 
     _, _, loader = get_dataset(
@@ -126,7 +126,7 @@ def main():
         n_channels=n_channels,
         training=True,
         batch_size=64,
-        num_samples=None # Not used when only getting test dataset
+        num_samples=None, # Not used when only getting test dataset
     )
 
     model = model.to(device)

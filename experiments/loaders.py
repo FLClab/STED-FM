@@ -93,6 +93,7 @@ def get_synaptic_proteins_dataset(
         class_type=class_type,
         n_channels=n_channels,
         transform=transform,
+        num_samples=num_samples
     )
     validation_dataset = datasets.ProteinDataset(
         h5file=f"{path}/valid_v2.hdf5",
@@ -116,7 +117,6 @@ def get_synaptic_proteins_dataset(
     print(f"Training size: {len(train_dataset)}")
     print(f"Validation size: {len(validation_dataset)}")
     print(f"Test size: {len(test_dataset)}\n")
-
     ### Keeping code below if we want to revert back to sampling based on % of labels
     # if fewshot_pct == 1.0:
     #     train_loader = DataLoader(
@@ -138,16 +138,13 @@ def get_synaptic_proteins_dataset(
     #         sampler=sampler
     #     )
 
-    ## Switched to sampling based on # samples per class
-    sampler = UltraSmallSampler(dataset=train_dataset, num_per_class=num_samples, num_classes=4) if num_samples is not None else None
 
     train_loader = DataLoader(
         dataset=train_dataset,
         batch_size=batch_size,
-        shuffle=False,
+        shuffle=True,
         drop_last=False,
         num_workers=6,
-        sampler=sampler
     )
     valid_loader = DataLoader(
         dataset=validation_dataset,
@@ -168,11 +165,19 @@ def get_synaptic_proteins_dataset(
     else:
         return test_loader
 
-def get_optim_dataset(path: str, training: bool = False, batch_size=256, **kwargs):
+def get_optim_dataset(path: str, training: bool = False, batch_size=256, num_samples=None, **kwargs):
+    
+    samples_dict = {
+        "actin": num_samples,
+        "tubulin": num_samples,
+        "CaMKII_Neuron": num_samples,
+        "PSD95_Neuron": num_samples
+    }
+
     if training: # Disregards the provided path
         train_dataset = datasets.OptimDataset(
             data_folder="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/optim_train",
-            num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
+            num_samples=samples_dict,
             apply_filter=True,
             classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
             **kwargs
@@ -226,7 +231,8 @@ def get_dataset(name, path, **kwargs):
             n_channels=kwargs['n_channels'],
             transform=kwargs['transform'],
             training=kwargs['training'],
-            batch_size=kwargs['batch_size']
+            batch_size=kwargs['batch_size'],
+            num_samples=kwargs["num_samples"],
             )
     elif name == "synaptic-proteins":
         return get_synaptic_proteins_dataset(
@@ -235,7 +241,7 @@ def get_dataset(name, path, **kwargs):
             transform=kwargs['transform'],
             training=kwargs['training'],
             batch_size=kwargs['batch_size'],
-            num_samples=kwargs['num_samples']
+            num_samples=kwargs['num_samples'],
             )
     elif name == "factin-rings-fibers":
         return get_factin_rings_fibers_dataset(path=path, transform=kwargs['transform'])

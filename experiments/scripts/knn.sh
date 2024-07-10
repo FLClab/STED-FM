@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=01:00:00
+#SBATCH --time=02:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -27,6 +27,31 @@ echo "% Started KNN classification"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 echo "==================== OPTIM ===================="
+
+# python knn_v2.py --dataset optim --model micranet --weights MICRANET_SSL_HPA
+# python knn_v2.py --dataset optim --model micranet --weights MICRANET_SSL_STED
+
+# python knn_v2.py --dataset optim --model resnet18 --weights RESNET18_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model resnet18 --weights RESNET18_SSL_HPA
+# python knn_v2.py --dataset optim --model resnet18 --weights RESNET18_SSL_STED
+
+
+# python knn_v2.py --dataset optim --model resnet50 --weights RESNET50_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model resnet50 --weights RESNET50_SSL_HPA
+# python knn_v2.py --dataset optim --model resnet50 --weights RESNET50_SSL_STED
+
+python knn_v2.py --dataset optim --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
+python knn_v2.py --dataset optim --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
+
+python knn_v2.py --dataset optim --model convnext-small --weights CONVNEXT_SMALL_IMAGENET1K_V1
+python knn_v2.py --dataset optim --model convnext-small --weights CONVNEXT_SMALL_SSL_STED
+
+python knn_v2.py --dataset optim --model convnext-base --weights CONVNEXT_BASE_IMAGENET1K_V1
+python knn_v2.py --dataset optim --model convnext-base --weights CONVNEXT_BASE_SSL_STED
+
+python knn_v2.py --dataset optim --model convnext-large --weights CONVNEXT_LARGE_IMAGENET1K_V1
+python knn_v2.py --dataset optim --model convnext-large --weights CONVNEXT_LARGE_SSL_STED
+
 # python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1
 # python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_JUMP
 # python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_STED
@@ -46,29 +71,32 @@ echo "==================== OPTIM ===================="
 
 echo "==================== Synaptic Proteins ===================="
 
+# python knn_v2.py --dataset synaptic-proteins --model micranet --weights MICRANET_SSL_HPA
 # python knn_v2.py --dataset synaptic-proteins --model micranet --weights MICRANET_SSL_STED
 
 # python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_SSL_HPA
 # python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_SSL_STED
 
 
 # python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_SSL_HPA
 # python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_SSL_STED
 
-# python knn_v2.py --dataset synaptic-proteins --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
+python knn_v2.py --dataset synaptic-proteins --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
+python knn_v2.py --dataset synaptic-proteins --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
 
-# python knn_v2.py --dataset synaptic-proteins --model convnext-small --weights CONVNEXT_SMALL_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model convnext-small --weights CONVNEXT_SMALL_SSL_STED
+python knn_v2.py --dataset synaptic-proteins --model convnext-small --weights CONVNEXT_SMALL_IMAGENET1K_V1
+python knn_v2.py --dataset synaptic-proteins --model convnext-small --weights CONVNEXT_SMALL_SSL_STED
 
-# python knn_v2.py --dataset synaptic-proteins --model convnext-base --weights CONVNEXT_BASE_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model convnext-base --weights CONVNEXT_BASE_SSL_STED
+python knn_v2.py --dataset synaptic-proteins --model convnext-base --weights CONVNEXT_BASE_IMAGENET1K_V1
+python knn_v2.py --dataset synaptic-proteins --model convnext-base --weights CONVNEXT_BASE_SSL_STED
 
-# python knn_v2.py --dataset synaptic-proteins --model convnext-large --weights CONVNEXT_LARGE_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model convnext-large --weights CONVNEXT_LARGE_SSL_STED
+python knn_v2.py --dataset synaptic-proteins --model convnext-large --weights CONVNEXT_LARGE_IMAGENET1K_V1
+python knn_v2.py --dataset synaptic-proteins --model convnext-large --weights CONVNEXT_LARGE_SSL_STED
 
 
-# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1 
 # python knn_v2.py --dataset synaptic-proteins --model mae-lightning-tiny --weights MAE_TINY_JUMP
 # python knn_v2.py --dataset synaptic-proteins --model mae-lightning-tiny --weights MAE_TINY_STED
 

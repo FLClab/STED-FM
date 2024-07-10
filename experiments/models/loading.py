@@ -32,35 +32,80 @@ MODELS = {
     'mae-large': MAEWeights
 }
 
-def load_weights(weights: Union[str, Enum]) -> dict:
+def handle_url_state_dict(name: str, weights: Union[str, Enum]) -> dict:
+    if "mae" in name.lower():
+        state_dict = load_state_dict_from_url(weights.url, map_location="cpu")
+        return state_dict
+    elif "convnext" in name.lower():
+        state_dict = load_state_dict_from_url(weights.url, map_location="cpu")
+        state_dict = {k: v for k, v in state_dict.items() if "classifier" not in k}
+    else:
+        state_dict = load_state_dict_from_url(weights.url, map_location="cpu")
+        print(f"--- {name} | {weights} ---\n")
+        state_dict = {k: v for k, v in state_dict.items() if "fc" not in k}
+        return state_dict
+
+def handle_str_state_dict(name: str, weights: Union[str, Enum]) -> dict:
+    state_dict = torch.load(weights, map_location="cpu")
+
+    if "mae" in name.lower():
+        return state_dict["state_dict"] 
+    
+    elif "micranet" in name.lower():
+        print(f"--- {name} | {weights} ---\n")
+        print(f"\t{state_dict.keys()}") 
+        return state_dict["state_dict"]["backbone"]
+
+    elif "resnet18" in name.lower():
+        print(f"--- {name} | {weights} ---\n")
+        if "hpa" in weights.lower():
+            return state_dict["state_dict"]["backbone"]
+        elif "sted" in weights.lower():     
+            return {key.replace("backbone.", ""): values for key, values in state_dict["state_dict"].items() if "backbone" in key}
+
+    elif "resnet50" in name.lower():
+        print(f"--- {name} | {weights} ---\n")
+        return state_dict["state_dict"]["backbone"]
+
+    elif "convnext" in name.lower():
+        return state_dict["state_dict"]["backbone"]
+
+    else:
+        raise NotImplementedError(f"Weights `{weights}` not supported.")
+
+def load_weights(name: str, weights: Union[str, Enum, None]) -> dict:
     # TODO: Fix all the if branches that are currently here to satisfy the strict=true loading condition after returning
     # Most probably weights from pretrained torchvision models
     if isinstance(weights, Enum):
-        return load_state_dict_from_url(weights.url, map_location="cpu")
+        state_dict = handle_url_state_dict(name, weights=weights)
+        return state_dict
     elif isinstance(weights, str):
-        state_dict = torch.load(weights, map_location="cpu")
-        if "model" in state_dict:
-            print(f"\t`model` state dict: {state_dict.keys()}")
-            # Model pretrained using SimCLR
-            try:
-                return state_dict["model"]["backbone"]
-            except KeyError:
-                return state_dict['model']
-        elif "model_state_dict" in state_dict:
-            print(f"\t`model_state_dict` state dict: {state_dict.keys()}")
-            return state_dict["model_state_dict"]
-        elif "state_dict" in state_dict:
-            print(f"\t`state_dict` state dict: {state_dict.keys()}")
-            # print(type(state_dict['state_dict']), state_dict['state_dict'].keys())
-            if "resnet" in weights.lower():
-                print("Editing state dict keys for ResNet...")
-                state_dict = {key.replace("backbone.", ""): values for key, values in state_dict["state_dict"].items() if "backbone" in key}
-                state_dict = {k: v for k, v in state_dict.items() if "fc" not in k}
-                return state_dict 
-            else:
-                return state_dict['state_dict']
-        else:
-            raise KeyError(f"No model found in checkpoint.") 
+        state_dict = handle_str_state_dict(name=name, weights=weights)
+        return state_dict
+
+        # state_dict = torch.load(weights, map_location="cpu")
+        # if "model" in state_dict:
+        #     print(f"\t`model` state dict: {state_dict.keys()}")
+        #     # Model pretrained using SimCLR
+        #     try:
+        #         return state_dict["model"]["backbone"]
+        #     except KeyError:
+        #         return state_dict['model']
+        # elif "model_state_dict" in state_dict:
+        #     print(f"\t`model_state_dict` state dict: {state_dict.keys()}")
+        #     return state_dict["model_state_dict"]
+        # elif "state_dict" in state_dict:
+        #     print(f"\t`state_dict` state dict: {state_dict.keys()}")
+        #     # print(type(state_dict['state_dict']), state_dict['state_dict'].keys())
+        #     if "resnet" in weights.lower():
+        #         print("Editing state dict keys for ResNet...")
+        #         state_dict = {key.replace("backbone.", ""): values for key, values in state_dict["state_dict"].items() if "backbone" in key}
+        #         state_dict = {k: v for k, v in state_dict.items() if "fc" not in k}
+        #         return state_dict 
+        #     else:
+        #         return state_dict['state_dict']
+        # else:
+        #     raise KeyError(f"No model found in checkpoint.") 
         
     elif weights is None:
         print(f"--- None weights refer to ViT encoder of MAE ---")
@@ -68,14 +113,14 @@ def load_weights(weights: Union[str, Enum]) -> dict:
     else:
         raise NotImplementedError("Weights not implemented yet.")
 
-def get_weights(name : str, weights: str) -> torch.nn.Module:
+def get_weights(name : str, weights: Union[str, None]) -> torch.nn.Module:
     if weights is None:
         return None
     if not name in MODELS:
         raise NotImplementedError(f"`{name}` is not a valid option.")
     
     if os.path.isfile(weights):
-        return load_weights(weights)
+        return load_weights(name, weights)
     
     weights = getattr(MODELS[name], weights)
-    return load_weights(weights)
+    return load_weights(name, weights)

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=0:59:00
+#SBATCH --time=2:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -19,23 +19,22 @@ source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-PRETRAIN=(
-    "ImageNet"
-    "JUMP"
-    "STED"
+WEIGHTS=(
+    "MAE_TINY_IMAGENET1K_V1"
+    "MAE_TINY_JUMP"
+    "MAE_TINY_STED"
 )
 
-
-
-pretraining=${PRETRAIN[${SLURM_ARRAY_TASK_ID}]}
+weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
 
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started evaluation on the test set"
+echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python eval_v2.py --dataset synaptic-proteins --model mae-lightning-base --pretraining $pretraining --probe linear-probe
+python finetune_v2.py --dataset synaptic-proteins --model mae-lightning-tiny --weights $weight --blocks "0" --num-per-class 25
+
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
