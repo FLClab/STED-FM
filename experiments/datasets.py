@@ -560,6 +560,42 @@ class OptimDataset(Dataset):
             out += f"{key} - {len(values)}\n"        
         return "Dataset(optim) -- length: {}".format(len(self)) + out
 
+class NeuralActivityStates(Dataset):
+    def __init__(
+        self, 
+        h5file: str,
+        transform: Callable = None,
+        n_channels: int = 1,
+        num_samples: int = None,
+        num_classes: int = 4,
+    ) -> None:
+        self.h5file = h5file 
+        self.transform = transform 
+        self.n_channels = n_channels 
+        self.num_samples = num_samples 
+        self.num_classes = num_classes 
+        if self.num_samples is None:
+            with h5py.File(h5file, "r") as handle:
+                self.dataset_size = int(handle["conditions"].size)
+                labels = handle["conditions"][()]
+        else:
+            raise NotImplementedError("Subset sampler not implemented yet for this dataset.")
+        
+
+    def __reset_labels(self, method: str = "merge-TTX") -> np.ndarray:
+        if method == "merge-TTX":
+            pass 
+        elif method == "max-TTX":
+            pass 
+        else:
+            raise ValueError(f"Method `{method}` for resetting labels is not implemented yet.")
+
+    def __len__(self):
+        return self.dataset_size 
+    
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        pass 
+
 class ProteinDataset(Dataset):
     def __init__(
             self, 
