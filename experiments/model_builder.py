@@ -15,22 +15,24 @@ def get_base_model(name: str, **kwargs):
 
 
 def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool = False, path: str = None, **kwargs):
-    if name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "vit-small", "mae", "mae-tiny", "mae-small", "mae-base"]:
+    if name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "vit-small", "mae", "mae-tiny", "mae-small", "mae-base", "mae-lightning-tiny", "mae-lightning-small", 'mae-lightning-base', 'mae-lightning-large']:
         if "in_channels" not in kwargs:
             kwargs["in_channels"] = 3 if (weights is not None and "imagenet" in weights.lower()) else 1
         backbone, cfg = get_base_model(name, **kwargs)
         state_dict = get_weights(name, weights)
-
+    
         # This is could lead to errors if the model is not exactly the same as the one used for pretraining
         if state_dict is not None:
             print(f"--- Loading from state dict ---")
-            backbone.load_state_dict(state_dict, strict=False)
-        print(f"--- Loaded model {name} with weights {weights} ---")
+            backbone.load_state_dict(state_dict, strict=True)
+            print(f"--- Loaded model {name} with weights {weights} ---")
+     
         if as_classifier:
             model = LinearProbe(
                 backbone=backbone,
                 name=name,
                 num_classes=4,
+                cfg=cfg,
                 num_blocks=kwargs['blocks'],
             )
             print(f"--- Added linear probe to {kwargs['blocks']} frozen blocks ---")
@@ -39,113 +41,28 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
             return backbone, cfg
     else:
         raise NotImplementedError(f"Model {name} not implemented yet.")
-
-def get_pretrained_model(name: str, weights: str = None, path: str = None, **kwargs):
-    print("Query: ", name, weights)
-    if name == "MAE":
-        if weights == "ImageNet":
-            vit = vit_small_patch16_224(in_chans=3, pretrained=True)
-            model = LightlyMAE(vit=vit, in_channels=3, mask_ratio=0.0)
-        elif weights == "CTC":
-            vit = vit_small_patch16_224(in_chans=1)
-            model = LightlyMAE(vit=vit, in_channels=1, mask_ratio=0.0)
-            checkpoint = torch.load("/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth")
-            model.load_state_dict(checkpoint['model'])
-        elif weights == "STED":
-            vit = vit_small_patch16_224(in_chans=1)
-            model = LightlyMAE(vit=vit, in_channels=1, mask_ratio=0.0)
-            checkpoint = torch.load("/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_STED/checkpoint-530.pth")
-            model.load_state_dict(checkpoint['model'])
-        else:
-            raise NotImplementedError(f"Weights {weights} not supported yet for model {name}.")
-
-    elif name == "MAEClassifier":
-        if weights == "ImageNet":
-            print("-- Loading ImageNet ViT ---")
-            vit = vit_small_patch16_224(in_chans=3, pretrained=True)
-            backbone = LightlyMAE(vit=vit, in_channels=3, mask_ratio=0.0)
-            # No need to load any checkpoint into the full MAE because the Decoder is never used in fine-tuning
-            # So only need to load the encoder checkpoint (pretrained weights)
-            model = LinearProbe(
-                backbone=backbone, 
-                name="MAE",
-                num_classes=4,
-                num_blocks=kwargs['blocks'],
-                global_pool='avg'
-            )
-        elif weights == "CTC":
-            print("-- Loading CTC ViT ---")
-            vit = vit_small_patch16_224(in_chans=1)
-            backbone = LightlyMAE(vit=vit, in_channels=1, mask_ratio=0.0)
-            checkpoint = torch.load("/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth")
-            backbone.load_state_dict(checkpoint['model'])
-            model = LinearProbe(
-                backbone=backbone,
-                name="MAE",
-                num_classes=4,
-                num_blocks=kwargs['blocks'],
-                global_pool="avg"
-            )
-        elif weights == "STED":
-            print("--- Loading STED ViT ---")
-            vit = vit_small_patch16_224(in_chans=1)
-            backbone = LightlyMAE(vit=vit, in_channels=1, mask_ratio=0.0)
-            checkpoint = torch.load("/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_STED/checkpoint-530.pth")
-            backbone.load_state_dict(checkpoint['model'])
-            model = LinearProbe(
-                backbone=backbone,
-                name="MAE",
-                num_classes=4,
-                num_blocks=kwargs['blocks'],
-                global_pool="avg"
-            )
-        else:
-            raise NotImplementedError(f"Weights {weights} not supported yet for model {name}.")
-
-    # elif name == "resnet18":
-    #     if weights == "ImageNet":
-    #         print("--- Loading ImageNet ResNet-18 ---")
-    #         backbone = torchvision.models.resnet18(weights="IMAGENET1K_V1")
-    #         backbone.fc = torch.nn.Identity()
-    #         model = LinearProbe(
-    #             backbone=backbone, 
-    #             name="resnet18",
-    #             num_classes=4,
-    #             freeze=kwargs['freeze'],
-    #             global_pool=None,
-    #         )
-    #     elif weights == "CTC":
-    #         raise NotImplementedError
-    #     elif weights == "STED":
-    #         print("Loading STED ResNet-18")
-    #         backbone = torchvision.models.resnet18(weights=None)
-    #         backbone.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-    #         backbone.fc = torch.nn.Identity()
-    #         checkpoint = torch.load("/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_STED/result.pt")
-    #         backbone.load_state_dict(checkpoint['model']['backbone'])
-    #         model = LinearProbe(
-    #             backbone=backbone,
-    #             name='resnet18',
-    #             num_classes=4,
-    #             freeze=kwargs['freeze'],
-    #             global_pool=None
-    #         )
-    #     else:
-    #         raise NotImplementedError(f"Weights {weights} not supported yet for model {name}.")
-
-    # elif name == "resnet50":
-    #     pass
-    elif name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base"]:
-        model, cfg = get_base_model(name, in_channels=3 if (weights is not None and "imagenet" in weights.lower()) else 1)
-        state_dict = get_weights(name, weights)
-        # This is could lead to errors if the model is not exactly the same as the one used for pretraining
-        if isinstance(state_dict, dict):
-            model.load_state_dict(state_dict, strict=False)
-        print(f"--- Loaded model {name} with weights {weights} ---")
+    
+def get_classifier_v3(name: str, dataset: str, pretraining: str, **kwargs):
+    if "mae" in name.lower():
+        backbone, cfg = get_base_model(name, **kwargs)
+        probe = kwargs['probe']
+        num_blocks = "all" if probe == "linear-probe" else "0"
+        model = LinearProbe(
+            backbone=backbone,
+            name=name,
+            num_classes=4,
+            cfg=cfg,
+            num_blocks=num_blocks
+        )
+        modelname = name.replace("-lightning", "")
+        path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{pretraining}/{dataset}/{probe}.pth"
+        checkpoint = torch.load(path)
+        model.load_state_dict(checkpoint["model_state_dict"])
         return model, cfg
     else:
-        raise NotImplementedError(f"Model {name} not implemented yet.")
-    return model
+        raise NotImplementedError(f"Cannot yet add a linear probe to `{name}`.")
+
+
 
 def get_classifier_v2(name: str, weights: str, task: str, path: str = None, dataset: str = None, **kwargs):
     if name in ['vit-small', 'vit-base']:
@@ -153,6 +70,7 @@ def get_classifier_v2(name: str, weights: str, task: str, path: str = None, data
         state_dict = get_weights(name, weights)
         model.load_state_dict(state_dict, strict=False)
         return model
+        
     elif name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "mae", "mae-small"]:
         backbone, cfg = get_base_model(name, **kwargs)
         model = LinearProbe(
@@ -174,7 +92,7 @@ def get_classifier_v2(name: str, weights: str, task: str, path: str = None, data
             return model, cfg
         else:
             state_dict = get_weights(name, weights)
-            model.load_state_dict(state_dict, strict=False) # Loads the linear probe by default
+            model.load_state_dict(state_dict, strict=True) # Loads the linear probe by default
 
     else:
         raise NotImplementedError(f"Model {name} not implemented as a classifier yet.")

@@ -3,7 +3,7 @@ Script mostly used for displaying quick info or downloading torchvision models o
 """
 import torch
 import numpy as np
-from model_builder import get_pretrained_model, get_pretrained_model_v2, get_base_model
+from model_builder import get_pretrained_model_v2, get_base_model
 from timm.models.vision_transformer import vit_small_patch16_224, vit_base_patch16_224, vit_tiny_patch16_224, vit_large_patch16_224
 import argparse 
 import torchvision
@@ -15,6 +15,8 @@ from typing import List
 import h5py
 import glob
 import random
+from timm.models.vision_transformer import default_cfgs
+import timm
 
 PATH = "/home/frbea320/scratch/Datasets/SynapticProteins/dataset"
 OUTPATH = "/home/frbea320/scratch/Datasets/FLCDataset/TheresaProteins"
@@ -127,7 +129,15 @@ def check_hdf5():
         counter += 1
 
 def main():
-    check_hdf5()
+    train_loader, val_loader, test_loader = get_dataset(
+        name="neural-activity-states",
+        transform=None,
+        path=None,
+        n_channels=1,
+        batch_size=64,
+        num_samples=None, 
+    )
+    
 
 
 if __name__=="__main__":

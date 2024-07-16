@@ -5,6 +5,7 @@ from timm.models.vision_transformer import vit_small_patch16_224, vit_tiny_patch
 import lightly.models.utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 from lightning.pytorch.core import LightningModule
+import torchvision
 
 from dataclasses import dataclass
 
@@ -15,28 +16,20 @@ from DEFAULTS import BASE_PATH
 class MAEWeights:
     # IMAGENET pretraining in timm refers to a model pretrained on ImageNet21K and finetuned on ImageNet1K
     # For consistency across the library, we will refer to the model as IMAGENET1K_V1
-    MAE_TINY_IMAGENET = None
-    MAE_SMALL_IMAGENET = None
+    MAE_TINY_IMAGENET1K_V1 = None
     MAE_SMALL_IMAGENET1K_V1 = None
-    MAE_BASE_IMAGENET = None
     MAE_BASE_IMAGENET1K_V1 = None
-    MAE_LARGE_IMAGENET = None
     MAE_LARGE_IMAGENET1K_V1 = None
-    MAE_SSL_CTC = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/Cell-Tracking-Challenge/baselines/checkpoint-530.pth"
-    MAE_SSL_JUMP = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/baselines/mae-small/checkpoint-20.pth"
-    MAE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-small_STED/checkpoint-530.pth"
-    
-    # MAE_SSL_STED = os.path.join(BASE_PATH, "baselines", "vit-mae", "checkpoint-530.pth")
-    # MAE_SMALL_SSL_STED = os.path.join(BASE_PATH, "baselines", "vit-mae", "checkpoint-530.pth")
 
-    MAE_BASE_SSL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-base_STED/checkpoint-340.pth"
+    MAE_TINY_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-tiny_STED/pl_checkpoint-999.pth"
+    MAE_SMALL_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-small_STED/pl_checkpoint-999.pth"
+    MAE_BASE_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-base_STED/pl_checkpoint-999.pth"
+    MAE_LARGE_STED = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae-large_STED/pl_checkpoint-999.pth"
 
-    MAE_LINEARPROBE_IMAGENET_PROTEINS = None
-    MAE_LINEARPROBE_CTC_PROTEINS = None
-    MAE_LINEARPROBE_STED_PROTEINS = None
-    MAE_LINEARPROBE_IMAGENET_OPTIM = None
-    MAE_LINEARPROBE_CTC_OPTIM = None
-    MAE_LINEARPROBE_STED_OPTIM = None
+    MAE_TINY_JUMP = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/baselines/mae-tiny/pl_checkpoint-999.pth"
+    MAE_SMALL_JUMP = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/baselines/mae-small/pl_checkpoint-999.pth"
+    MAE_BASE_JUMP = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/baselines/mae-base/pl_checkpoint-999.pth"
+    MAE_LARGE_JUMP = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/baselines/mae-large/pl_checkpoint-999.pth"
 
 @dataclass
 class MAEConfiguration:
@@ -51,13 +44,42 @@ class MAEConfiguration:
     freeze_backbone: bool = False
 
 def get_backbone(name: str, **kwargs) -> torch.nn.Module:
+    """
+    Note that for lightning modules we modify batch size and number of nodes so as to obtain an effective batch
+    size of 1024 for all models
+    """
     cfg = MAEConfiguration()
     for key, value in kwargs.items():
         print(key, value)
         setattr(cfg, key, value)
     cfg.pretrained = cfg.in_channels == 3
 
-    if name == 'mae-tiny':
+    if name == "mae-lightning-tiny":
+        cfg.dim = 192
+        cfg.batch_size = 256
+        vit = vit_tiny_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
+        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+
+    elif name == "mae-lightning-small":
+        cfg.dim = 384
+        cfg.batch_size = 256
+        vit = vit_small_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
+        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+
+    elif name == "mae-lightning-base":
+        cfg.dim = 768
+        cfg.batch_size = 128
+        vit = vit_base_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
+        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+
+    elif name == 'mae-lightning-large':
+        cfg.dim = 1024
+        cfg.batch_size = 64
+        vit = vit_large_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
+        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+
+
+    elif name == 'mae-tiny':
         cfg.dim = 192
         cfg.batch_size=512
         vit = vit_tiny_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
@@ -81,7 +103,7 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
 
 
 class MAE(LightningModule):
-    def __init__(self, vit, in_channels, mask_ratio) -> None:
+    def __init__(self, vit, in_channels, mask_ratio: float = 0.75) -> None:
         super().__init__()
         decoder_dim = 512
         self.mask_ratio = mask_ratio 
@@ -134,7 +156,7 @@ class MAE(LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=1.5e-4, weight_decat=0.05, betas=(0.9, 0.95))
+        optimizer = torch.optim.AdamW(self.parameters(), lr=1.5e-4, weight_decay=0.05, betas=(0.9, 0.95))
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
         return [optimizer], [scheduler]
 

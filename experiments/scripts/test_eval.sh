@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=8:00:00
+#SBATCH --time=0:59:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -11,32 +11,31 @@
 #SBATCH --array=0-2
 
 #### PARAMETERS
-
 # Use this directory venv, reusable across RUNs
 module load python/3.10 scipy-stack
 module load cuda cudnn
 source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 
+
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-WEIGHTS=(
-    "MAE_TINY_IMAGENET1K_V1"
-    "MAE_TINY_JUMP"
-    "MAE_TINY_STED"
+PRETRAIN=(
+    "ImageNet"
+    "JUMP"
+    "STED"
 )
 
-weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
 
-# Moves to working directory
+
+pretraining=${PRETRAIN[${SLURM_ARRAY_TASK_ID}]}
+
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
-# Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started partial tuning"
+echo "% Started evaluation on the test set"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune.py --dataset synaptic-proteins --model mae-lightning-tiny --weights $weight --blocks "all"
-
+python eval_v2.py --dataset optim --model mae-lightning-large --pretraining $pretraining --probe linear-probe
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

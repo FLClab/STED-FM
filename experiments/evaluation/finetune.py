@@ -179,7 +179,7 @@ def main():
         
     scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=100)
     criterion = torch.nn.CrossEntropyLoss()
-    modelname = "MAE" if args.model == "MAEClassifier" else args.model
+    modelname = args.model.replace("-lightning", "")
     train(
         model=model,
         train_loader=train_loader,
@@ -189,7 +189,7 @@ def main():
         criterion=criterion,
         optimizer=optimizer,
         scheduler=scheduler,
-        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{args.model}_{SAVE_NAME}/{args.dataset}"
+        model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{SAVE_NAME}/{args.dataset}"
     )
     
 if __name__=="__main__":

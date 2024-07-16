@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=00:30:00
+#SBATCH --time=01:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -26,13 +26,134 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started KNN classification"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%% OPTIM %%%%%%%%%%%%%%%%%%"
-# python knn_classification.py --dataset optim --model mae-small --weights MAE_SSL_JUMP
+echo -e "==================== OPTIM ===================="
+
+# python knn_v2.py --dataset optim --model micranet --weights MICRANET_SSL_HPA
+# python knn_v2.py --dataset optim --model micranet --weights MICRANET_SSL_STED
+
+# python knn_v2.py --dataset optim --model resnet18 --weights RESNET18_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model resnet18 --weights RESNET18_SSL_HPA
+# python knn_v2.py --dataset optim --model resnet18 --weights RESNET18_SSL_STED
 
 
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%% Synaptic Proteins %%%%%%%%%%%%%%%%%%"
-python knn_classification.py --dataset synaptic-proteins --model mae-small --weights MAE_SSL_JUMP
-python knn_classification.py --dataset synaptic-proteins --model mae-base --weights MAE_BASE_SSL_STED
+# python knn_v2.py --dataset optim --model resnet50 --weights RESNET50_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model resnet50 --weights RESNET50_SSL_HPA
+# python knn_v2.py --dataset optim --model resnet50 --weights RESNET50_SSL_STED
+
+# python knn_v2.py --dataset optim --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
+
+# python knn_v2.py --dataset optim --model convnext-small --weights CONVNEXT_SMALL_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model convnext-small --weights CONVNEXT_SMALL_SSL_STED
+
+# python knn_v2.py --dataset optim --model convnext-base --weights CONVNEXT_BASE_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model convnext-base --weights CONVNEXT_BASE_SSL_STED
+
+# python knn_v2.py --dataset optim --model convnext-large --weights CONVNEXT_LARGE_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model convnext-large --weights CONVNEXT_LARGE_SSL_STED
+
+# python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_JUMP
+# python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_STED
+
+# python knn_v2.py --dataset optim --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model mae-lightning-small --weights MAE_SMALL_JUMP
+# python knn_v2.py --dataset optim --model mae-lightning-small --weights MAE_SMALL_STED
+
+# python knn_v2.py --dataset optim --model mae-lightning-base --weights MAE_BASE_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model mae-lightning-base --weights MAE_BASE_JUMP
+# python knn_v2.py --dataset optim --model mae-lightning-base --weights MAE_BASE_STED
+
+# python knn_v2.py --dataset optim --model mae-lightning-large --weights MAE_LARGE_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model mae-lightning-large --weights MAE_LARGE_JUMP
+# python knn_v2.py --dataset optim --model mae-lightning-large --weights MAE_LARGE_STED
+
+
+echo -e "\n\n==================== Synaptic Proteins ===================="
+
+# python knn_v2.py --dataset synaptic-proteins --model micranet --weights MICRANET_SSL_HPA
+# python knn_v2.py --dataset synaptic-proteins --model micranet --weights MICRANET_SSL_STED
+
+# python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_SSL_HPA
+# python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_SSL_STED
+
+
+# python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_SSL_HPA
+# python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_SSL_STED
+
+# python knn_v2.py --dataset synaptic-proteins --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
+
+# python knn_v2.py --dataset synaptic-proteins --model convnext-small --weights CONVNEXT_SMALL_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model convnext-small --weights CONVNEXT_SMALL_SSL_STED
+
+# python knn_v2.py --dataset synaptic-proteins --model convnext-base --weights CONVNEXT_BASE_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model convnext-base --weights CONVNEXT_BASE_SSL_STED
+
+# python knn_v2.py --dataset synaptic-proteins --model convnext-large --weights CONVNEXT_LARGE_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model convnext-large --weights CONVNEXT_LARGE_SSL_STED
+
+
+# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1 
+# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-tiny --weights MAE_TINY_JUMP
+# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-tiny --weights MAE_TINY_STED
+
+# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-small --weights MAE_SMALL_JUMP
+# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-small --weights MAE_SMALL_STED
+
+# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-base --weights MAE_BASE_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-base --weights MAE_BASE_JUMP
+# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-base --weights MAE_BASE_STED
+
+# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-large --weights MAE_LARGE_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-large --weights MAE_LARGE_JUMP
+# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-large --weights MAE_LARGE_STED
+
+echo -e "\n\n==================== Neural Activity States ===================="
+
+# python knn_v2.py --dataset synaptic-proteins --model micranet --weights MICRANET_SSL_HPA
+# python knn_v2.py --dataset synaptic-proteins --model micranet --weights MICRANET_SSL_STED
+
+# python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_SSL_HPA
+# python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_SSL_STED
+
+
+# python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_SSL_HPA
+# python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_SSL_STED
+
+# python knn_v2.py --dataset synaptic-proteins --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
+
+# python knn_v2.py --dataset synaptic-proteins --model convnext-small --weights CONVNEXT_SMALL_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model convnext-small --weights CONVNEXT_SMALL_SSL_STED
+
+# python knn_v2.py --dataset synaptic-proteins --model convnext-base --weights CONVNEXT_BASE_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model convnext-base --weights CONVNEXT_BASE_SSL_STED
+
+# python knn_v2.py --dataset synaptic-proteins --model convnext-large --weights CONVNEXT_LARGE_IMAGENET1K_V1
+# python knn_v2.py --dataset synaptic-proteins --model convnext-large --weights CONVNEXT_LARGE_SSL_STED
+
+
+python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1 
+python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_JUMP
+python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_STED
+
+python knn_v2.py --dataset neural-activity-states --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
+python knn_v2.py --dataset neural-activity-states --model mae-lightning-small --weights MAE_SMALL_JUMP
+python knn_v2.py --dataset neural-activity-states --model mae-lightning-small --weights MAE_SMALL_STED
+
+python knn_v2.py --dataset neural-activity-states --model mae-lightning-base --weights MAE_BASE_IMAGENET1K_V1
+python knn_v2.py --dataset neural-activity-states --model mae-lightning-base --weights MAE_BASE_JUMP
+python knn_v2.py --dataset neural-activity-states --model mae-lightning-base --weights MAE_BASE_STED
+
+python knn_v2.py --dataset neural-activity-states --model mae-lightning-large --weights MAE_LARGE_IMAGENET1K_V1
+python knn_v2.py --dataset neural-activity-states --model mae-lightning-large --weights MAE_LARGE_JUMP
+python knn_v2.py --dataset neural-activity-states --model mae-lightning-large --weights MAE_LARGE_STED
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

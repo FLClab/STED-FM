@@ -1,12 +1,65 @@
 import torch
-from typing import List
-
+from typing import List, Union
 
 class LinearProbe(torch.nn.Module):
+    def __init__(
+        self,
+        backbone: torch.nn.Module,
+        name: str, 
+        cfg: dict,
+        num_classes: int = 4, 
+        global_pool: str = "avg",
+        num_blocks: int = 0,
+    ) -> None:
+        super().__init__()
+        self.backbone = backbone
+        self.name = name 
+        self.num_classes = num_classes 
+        self.global_pool = global_pool
+        self.frozen_blocks = num_blocks 
+
+        if self.frozen_blocks == "all":
+            print(f"--- Freezing every parameter in {name} ---")
+            for p in self.backbone.parameters():
+                p.requires_grad = False
+
+        elif self.frozen_blocks == "0":
+            print(f"--- Not freezing any parameters in {name} ---")
+        
+        else:
+            blk_list = list(range(int(num_blocks)))
+            self._freeze_blocks(blk_list)
+
+        self.classification_head = torch.nn.Sequential(
+            torch.nn.BatchNorm1d(num_features=cfg.dim, affine=False, eps=1e-6),
+            torch.nn.Linear(in_features=cfg.dim, out_features=num_classes)
+        )
+
+    def _freeze_blocks(self, blocks: Union[List, int]) -> None:
+        raise NotImplementedError("Partial fine-tuning not yet implemented.") 
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if "mae" in self.name.lower():
+            features = self.backbone.forward_encoder(x)
+            if self.global_pool == "token":
+                features = features[:, 0, :] # class token 
+            elif self.global_pool == "avg":
+                features = torch.mean(features[:, 1:, :], dim=1) # Average patch tokens
+            else:
+                raise NotImplementedError(f"Invalid `{self.global_pool}` pooling function.")
+        else:
+            features = self.backbone.forward(x)
+
+        out = self.classification_head(features)
+        return out, features
+
+
+class OldLinearProbe(torch.nn.Module):
     def __init__(
             self,
             backbone: torch.nn.Module,
             name: str,
+            cfg: dict,
             num_classes: int = 4,
             global_pool: str = 'avg',
             num_blocks: int = 0
@@ -18,8 +71,8 @@ class LinearProbe(torch.nn.Module):
         self.global_pool = global_pool
         self.num_blocks = num_blocks
         
-        if self.name.lower() == "mae" or self.name == "mae-small":
-            feature_dim = 384
+        if "mae" in self.name.lower():
+            feature_dim = cfg.dim
             print(f"--- Freezing default vit pre-blocks ---")
             self.backbone.backbone.mask_token.requires_grad = False
             self.backbone.backbone.vit.cls_token.requires_grad = False

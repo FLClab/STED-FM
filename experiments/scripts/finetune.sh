@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=8:00:00
+#SBATCH --time=2:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -11,11 +11,11 @@
 #SBATCH --array=0-2
 
 #### PARAMETERS
-
 # Use this directory venv, reusable across RUNs
 module load python/3.10 scipy-stack
 module load cuda cudnn
 source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
+
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
@@ -27,15 +27,13 @@ WEIGHTS=(
 
 weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
 
-# Moves to working directory
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
-# Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started partial tuning"
+echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune.py --dataset synaptic-proteins --model mae-lightning-tiny --weights $weight --blocks "all"
+python finetune_v2.py --dataset synaptic-proteins --model mae-lightning-tiny --weights $weight --blocks "0" --num-per-class 25
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

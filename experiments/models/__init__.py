@@ -22,6 +22,10 @@ MODELS = {
     "vit-base": get_vit_backbone,
     'mae-tiny': get_mae_backbone,
     "mae": get_mae_backbone,
+    "mae-lightning-tiny": get_mae_backbone,
+    "mae-lightning-small": get_mae_backbone,
+    "mae-lightning-base": get_mae_backbone,
+    "mae-lightning-large": get_mae_backbone,
     "mae-small": get_mae_backbone,
     'mae-base': get_mae_backbone,
     'mae-large': get_mae_backbone

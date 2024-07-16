@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=8:00:00
+#SBATCH --time=4:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
-#SBATCH --gpus-per-node=1
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-2
 
 #### PARAMETERS
 
@@ -19,23 +17,15 @@ source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-WEIGHTS=(
-    "MAE_TINY_IMAGENET1K_V1"
-    "MAE_TINY_JUMP"
-    "MAE_TINY_STED"
-)
-
-weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
-
 # Moves to working directory
-cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
+cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/
 
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started partial tuning"
+echo "% Started synaptic proteins dataset"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune.py --dataset synaptic-proteins --model mae-lightning-tiny --weights $weight --blocks "all"
+python dataset_builder.py
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

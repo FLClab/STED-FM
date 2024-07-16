@@ -3,6 +3,7 @@ import os
 import torch
 import torchvision
 from dataclasses import dataclass
+from typing import Tuple
 
 import sys
 sys.path.insert(0, "../")
@@ -33,7 +34,7 @@ class ConvNextConfiguration:
     dim: int = 768
     in_channels: int = 1
 
-def get_backbone(name: str, **kwargs) -> tuple[torch.nn.Module, ConvNextConfiguration]:
+def get_backbone(name: str, **kwargs) -> Tuple[torch.nn.Module, ConvNextConfiguration]:
     cfg = ConvNextConfiguration()
     for key, value in kwargs.items():
         setattr(cfg, key, value)

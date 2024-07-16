@@ -45,12 +45,11 @@ class MultiprocessingDataModule(LightningDataModule):
         self.dataset = get_dataset(
             self.dataset_name, self.dataset_path, 
             use_cache=True, cache_system=cache_system, 
-            max_cache_size=256e9,
+            max_cache_size=8e9,
             world_size = self.world_size, rank = self.rank,
             **self.kwargs
         )        
         
-
     def train_dataloader(self):
         return torch.utils.data.DataLoader(
             self.dataset, 

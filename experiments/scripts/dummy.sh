@@ -1,32 +1,33 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=24:00:00
+#SBATCH --time=0:10:00
 #SBATCH --account=def-flavielc
-#SBATCH --cpus-per-task=6
-#SBATCH --mem=32G
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=16G
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
 
 #### PARAMETERS
-
 # Use this directory venv, reusable across RUNs
 module load python/3.10 scipy-stack
 module load cuda cudnn
 source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 
+
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-# Moves to working directory
+
+
+pretraining=${PRETRAIN[${SLURM_ARRAY_TASK_ID}]}
+
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/
 
-# Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started creating JUMP-CP hdf5"
+echo "% Started evaluation on the test set"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python handle_jumpcp.py
-
+python dummy.py
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

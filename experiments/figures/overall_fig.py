@@ -4,6 +4,29 @@ Results are transcribed as hard-coded global variables here
 """
 import numpy as np 
 import matplotlib.pyplot as plt
+from experiments.figures.old_results import RESULTS, SUPERVISED
+plt.style.use("dark_background")
+
+def temporary_plot(results: dict, model: str, task: str) -> None:
+    data = [
+        list(results[model][task]["ImageNet"].values())[0],
+        list(results[model][task]["CTC"].values())[0],
+        list(results[model][task]["STED"].values())[0],
+        ]
+    w = 0.5
+    x1 = np.arange(0, len(data), 1)
+    fig = plt.figure()
+    plt.bar(x1, data, color='gainsboro', width=w, edgecolor='white')
+    if SUPERVISED[model][task] is not None:
+        plt.axhline(y=SUPERVISED[model][task], xmin=0, xmax=x1[-1]+w, color='white', ls='--', label='Fully supervised')
+    plt.xticks(x1, ['ImageNet', "CTC", "STED"])
+    plt.ylabel("Accuracy")
+    plt.xlabel("Pretraining data")
+    plt.ylim([0.0, 1.0])
+    plt.legend()
+    plt.title(f"{model} KNN classification on {task}")
+    fig.savefig(f"./overall/only_KNN_{model}_{task}.pdf", dpi=1200)
+    plt.close(fig)
 
 def make_plot(results: dict, model: str = "MAE", task: str = "synaptic-proteins") -> None:
     imnet_data = list(results[model][task]["ImageNet"].values())
@@ -30,12 +53,12 @@ def make_plot(results: dict, model: str = "MAE", task: str = "synaptic-proteins"
     plt.ylim([0.0, 1.0])
     plt.legend(loc='lower left')
     plt.title(f"{model} on {task}")
-    fig.savefig(f"./overall/{model}_{task}.pdf", dpi=1200)
+    fig.savefig(f"./overall/only_KNN_{model}_{task}.pdf", dpi=1200)
     plt.close(fig)
 
 def main():
-    # make_plot(results=RESULTS, model="RESNET18", task='synaptic-proteins')
-    make_plot(results=RESULTS, model="RESNET50", task='optim')
+    temporary_plot(results=RESULTS, model="MAE_SMALL", task="synaptic-proteins")
+    # make_plot(results=RESULTS, model="MAE_SMALL", task='synaptic-proteins')
 
 if __name__=="__main__":
     main()

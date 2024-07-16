@@ -8,10 +8,11 @@ import json
 import dataclasses
 import matplotlib.pyplot as plt
 import numpy as np
+from typing import List
 
 from dataclasses import dataclass
 
-def update_cfg(cfg: dataclass, opts: list[str]) -> dataclass:
+def update_cfg(cfg: dataclass, opts: List[str]) -> dataclass:
     """
     Updates the configuration with additional options inplace
 
