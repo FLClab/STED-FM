@@ -588,7 +588,6 @@ class NeuralActivityStates(Dataset):
                 self.images = images[indices]
                 self.proteins = proteins[indices]
                 self.dataset_size = self.labels.shape[0]
-                print(self.proteins.shape, self.images.shape, self.labels.shape, self.dataset_size)
                 
         else:
             raise NotImplementedError("Subset sampler not implemented yet for this dataset.")
@@ -622,9 +621,8 @@ class NeuralActivityStates(Dataset):
         return self.dataset_size 
     
     def __getitem__(self, idx: int) -> torch.Tensor:
-        with h5py.File(self.h5file, "r") as handle:
-            img = self.images[idx]
-            label = self.labels[idx]
+        img = self.images[idx]
+        label = self.labels[idx]
         
         if self.n_channels == 3:
             img = np.tile(img[np.newaxis], (3, 1, 1))

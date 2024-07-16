@@ -53,9 +53,6 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device:torch.device,
             samples.extend(feat)
     samples = np.array(samples)
     ground_truth = np.array(ground_truth).astype(np.int64)
-    print("---")
-    print(samples.shape, ground_truth.shape)
-    print("---")
 
     if args.pca:
         plot_PCA(samples=samples, labels=ground_truth, savename=savename)
@@ -76,8 +73,7 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device:torch.device,
             votes = np.sum((associated_labels[mask] == predicted_unique).astype(int), axis=-1)
             confusion_matrix[unique, predicted_unique] += np.sum(votes >= 3)
     accuracy = np.diag(confusion_matrix).sum() / np.sum(confusion_matrix)
-    print(f"Diag {np.diag(confusion_matrix).sum()}")
-    print(f"Total {np.sum(confusion_matrix)}")
+
     print(f"--- {args.dataset} ; {args.model} ; {savename} ---\n\tAccuracy: {accuracy * 100:0.2f}\n")
     acc = accuracy * 100
     fig, ax = plt.subplots()

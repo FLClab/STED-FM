@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=4:00:00
+#SBATCH --time=2:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G

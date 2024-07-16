@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=2:00:00
+#SBATCH --time=8:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -8,7 +8,7 @@
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-2
+#SBATCH --array=0-5
 
 #### PARAMETERS
 # Use this directory venv, reusable across RUNs
@@ -20,12 +20,32 @@ source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 WEIGHTS=(
-    "MAE_TINY_IMAGENET1K_V1"
-    "MAE_TINY_JUMP"
-    "MAE_TINY_STED"
+    "MAE_SMALL_IMAGENET1K_V1"
+    "MAE_SMALL_JUMP"
+    "MAE_SMALL_STED"
 )
 
-weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
+DATASETS=(
+    "optim"
+    "neural-activity-states"
+)
+
+opts=()
+for weight in "${WEIGHTS[@]}"
+do
+    for dataset in "${DATASETS[@]}"
+    do
+        opts+=("$weight;$dataset")
+    done
+done
+
+# Reads a specific item in the array and asign the values
+# to the opt variable
+IFS=';' read -r -a opt <<< "${opts[${SLURM_ARRAY_TASK_ID}]}"
+weight="${opt[0]}"
+dataset="${opt[1]}"
+
+# weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
 
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
@@ -33,8 +53,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset synaptic-proteins --model mae-lightning-tiny --weights $weight --blocks "0" --num-per-class 25
-
+python finetune_v2.py --dataset $dataset --model mae-lightning-small --weights $weight --blocks "0" 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

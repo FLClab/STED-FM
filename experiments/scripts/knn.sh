@@ -114,29 +114,29 @@ echo -e "\n\n==================== Synaptic Proteins ===================="
 
 echo -e "\n\n==================== Neural Activity States ===================="
 
-# python knn_v2.py --dataset synaptic-proteins --model micranet --weights MICRANET_SSL_HPA
-# python knn_v2.py --dataset synaptic-proteins --model micranet --weights MICRANET_SSL_STED
+# python knn_v2.py --dataset neural-activity-states --model micranet --weights MICRANET_SSL_HPA
+# python knn_v2.py --dataset neural-activity-states --model micranet --weights MICRANET_SSL_STED
 
-# python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_SSL_HPA
-# python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_SSL_STED
+# python knn_v2.py --dataset neural-activity-states --model resnet18 --weights RESNET18_IMAGENET1K_V1
+# python knn_v2.py --dataset neural-activity-states --model resnet18 --weights RESNET18_SSL_HPA
+# python knn_v2.py --dataset neural-activity-states --model resnet18 --weights RESNET18_SSL_STED
 
 
-# python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_SSL_HPA
-# python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_SSL_STED
+# python knn_v2.py --dataset neural-activity-states --model resnet50 --weights RESNET50_IMAGENET1K_V1
+# python knn_v2.py --dataset neural-activity-states --model resnet50 --weights RESNET50_SSL_HPA
+# python knn_v2.py --dataset neural-activity-states --model resnet50 --weights RESNET50_SSL_STED
 
-# python knn_v2.py --dataset synaptic-proteins --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
+# python knn_v2.py --dataset neural-activity-states --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
+# python knn_v2.py --dataset neural-activity-states --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
 
-# python knn_v2.py --dataset synaptic-proteins --model convnext-small --weights CONVNEXT_SMALL_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model convnext-small --weights CONVNEXT_SMALL_SSL_STED
+# python knn_v2.py --dataset neural-activity-states --model convnext-small --weights CONVNEXT_SMALL_IMAGENET1K_V1
+# python knn_v2.py --dataset neural-activity-states --model convnext-small --weights CONVNEXT_SMALL_SSL_STED
 
-# python knn_v2.py --dataset synaptic-proteins --model convnext-base --weights CONVNEXT_BASE_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model convnext-base --weights CONVNEXT_BASE_SSL_STED
+# python knn_v2.py --dataset neural-activity-states --model convnext-base --weights CONVNEXT_BASE_IMAGENET1K_V1
+# python knn_v2.py --dataset neural-activity-states --model convnext-base --weights CONVNEXT_BASE_SSL_STED
 
-# python knn_v2.py --dataset synaptic-proteins --model convnext-large --weights CONVNEXT_LARGE_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model convnext-large --weights CONVNEXT_LARGE_SSL_STED
+# python knn_v2.py --dataset neural-activity-states --model convnext-large --weights CONVNEXT_LARGE_IMAGENET1K_V1
+# python knn_v2.py --dataset neural-activity-states --model convnext-large --weights CONVNEXT_LARGE_SSL_STED
 
 
 python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1 

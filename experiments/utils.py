@@ -8,6 +8,7 @@ import json
 import dataclasses
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.metrics import average_precision_score
 from typing import List
 
 from dataclasses import dataclass
@@ -177,6 +178,18 @@ def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4)
         # temp = ( (preds == labels) * (labels == n)).float().sum() / (labels == n).float().sum()
         # accuracies.append(temp.cpu().detach().numpy())
     return np.array(correct), np.array(big_n)
+
+def compute_mean_average_precision(preds: np.ndarray, labels: np.ndarray) -> float:
+    y_score = preds.permute(1, 0, 2, 3).cpu().detach().numpy()
+    y_true = labels.permute(1, 0, 2, 3).cpu().detach().numpy()
+    assert y_score.shape == y_true.shape
+    mAP = []
+    for i in range(y_score.shape[0]):
+        c_score, c_true = y_score[i].ravel(), y_true[i].ravel()
+        c_mAP = average_precision_score(y_true=c_true, y_score=c_score)
+        mAP.append(c_mAP)
+    return np.array(mAP)
+
 
 def track_loss(train_loss: list, val_loss: list, val_acc: list, lrates: list, save_dir: str) -> None:
     fig, axs = plt.subplots(2, 1, sharex=True)

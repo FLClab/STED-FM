@@ -28,7 +28,10 @@ def evaluate(
         for imgs, data_dict in tqdm(loader, desc="Evaluation..."):
             labels = data_dict['label']
             imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
-            predictions, _ = model(imgs)
+            if "supervised" in args.model.lower():
+                predictions = model(imgs)
+            else:
+                predictions, _ = model(imgs)
             correct, n = compute_Nary_accuracy(predictions, labels)
             big_correct = big_correct + correct
             big_n = big_n + n

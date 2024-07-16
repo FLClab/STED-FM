@@ -43,7 +43,17 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
         raise NotImplementedError(f"Model {name} not implemented yet.")
     
 def get_classifier_v3(name: str, dataset: str, pretraining: str, **kwargs):
-    if "mae" in name.lower():
+    if "supervised" in name.lower() and "mae" in name.lower():
+        modelname = name.replace("supervised-", "")
+        backbone, cfg = get_base_model(modelname, **kwargs)
+        backbone = backbone.backbone.vit
+        modelname = modelname.replace("-lightning", "")
+        path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/supervised/{modelname}/{dataset}/supervised.pth"
+        checkpoint = torch.load(path)
+        backbone.load_state_dict(checkpoint["model_state_dict"])
+        return backbone, cfg
+
+    elif "mae" in name.lower():
         backbone, cfg = get_base_model(name, **kwargs)
         probe = kwargs['probe']
         num_blocks = "all" if probe == "linear-probe" else "0"

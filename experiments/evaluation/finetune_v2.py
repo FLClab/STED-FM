@@ -143,7 +143,7 @@ def main():
         transform=None,
         path=None,
         n_channels=n_channels,
-        batch_size=32,
+        batch_size=cfg.batch_size,
         training=True,
         num_samples=args.num_per_class,
     )
