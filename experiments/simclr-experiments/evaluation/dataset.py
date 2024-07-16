@@ -544,7 +544,7 @@ class CreateMitoDataset(Dataset):
 def get_dataset(name, **kwargs):
     if name == "optim":
         dataset = CreateOptimDataset(
-            "./data/ssl/testdata", 
+            "./data/SSL/testdata", 
             num_samples={'actin':None, 'tubulin':None, 'CaMKII_Neuron':None, 'PSD95_Neuron':None}, 
             apply_filter=True,
             classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],

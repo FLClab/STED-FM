@@ -52,7 +52,7 @@ class SegmentationConfiguration:
     
     freeze_backbone: bool = False
     num_epochs: int = 100
-    learning_rate: float = 1e-4
+    learning_rate: float = 0.1
 
 if __name__ == "__main__":
 
@@ -162,7 +162,7 @@ if __name__ == "__main__":
         start_epoch = 0
 
     # Prints a summary of the model
-    summary(model, input_size=(cfg.in_channels, 224, 224))
+    # summary(model, input_size=(cfg.in_channels, 224, 224))
 
     # Sampler definition
     if args.label_percentage < 1.0:
@@ -196,7 +196,7 @@ if __name__ == "__main__":
 
     # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience = 10, threshold = 0.01, min_lr=1e-5, factor=0.1,)
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.99)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=cfg.num_epochs)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=cfg.num_epochs, eta_min=1e-5)
     for epoch in range(start_epoch, cfg.num_epochs):
 
         start = time.time()

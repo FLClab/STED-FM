@@ -897,6 +897,8 @@ class TarFLCDataset(Dataset):
 
         # store headers of all files and folders by name
         members = list(sorted(self.tar_obj[worker].getmembers(), key=lambda m: m.name))
+        # members = [self.tar_obj[worker].next() for _ in range(10000)]
+        # members = list(self.tar_obj[worker].getmembers())
         self.members = self.__setup_multiprocessing(members)
 
         if use_cache and self.__max_cache_size > 0:

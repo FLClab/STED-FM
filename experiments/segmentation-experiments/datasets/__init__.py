@@ -11,10 +11,13 @@ DATASETS = {
     "factin" : get_actin_dataset,
     "footprocess" : get_fp_dataset,
     'synaptic-segmentation': get_synaptic_protein_dataset,
+    "synaptic-semantic-segmentation" : get_synaptic_protein_dataset,
+    "perforated-segmentation" : get_synaptic_protein_dataset,
+    "multidomain-detection" : get_synaptic_protein_dataset,
     "lioness" : get_lioness_dataset
 }
 
 def get_dataset(name: str, cfg: dataclass, **kwargs) -> Dataset:
     if not name in DATASETS:
         raise NotImplementedError(f"`{name}` is not a valid option.")
-    return DATASETS[name](cfg=cfg, **kwargs)
+    return DATASETS[name](name=name, cfg=cfg, **kwargs)
