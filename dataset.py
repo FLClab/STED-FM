@@ -15,9 +15,9 @@ from skimage import filters
 from utils.msrreader import MSRReader
 
 BASEPATH = "/home-local2/projects/FLCDataset"
-OUTPATH = "/home-local2/projects/FLCDataset/20240501-dataset.tar"
+OUTPATH = "/home-local2/projects/FLCDataset/20240524-dataset.tar"
 CROP_SIZE = 224
-MINIMUM_FOREGROUND = 0.001
+MINIMUM_FOREGROUND = 0.01
 
 def from_datasets_original_metadata():
 
