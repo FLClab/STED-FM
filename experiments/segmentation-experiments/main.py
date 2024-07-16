@@ -104,7 +104,7 @@ if __name__ == "__main__":
     cache_manager = Manager()
     cache_system = cache_manager.dict()
     training_dataset, validation_dataset, testing_dataset = get_dataset(name=args.dataset, cfg=cfg, cache_system=cache_system)
-    
+
     # Updates configuration with additional options; performs inplace
     cfg.args = args
     segmentation_cfg = SegmentationConfiguration()

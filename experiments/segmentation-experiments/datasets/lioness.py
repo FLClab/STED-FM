@@ -20,7 +20,7 @@ from DEFAULTS import BASE_PATH
 class LionessConfiguration:
 
     num_classes: int = 2
-    criterion: str = "BCELoss"
+    criterion: str = "MSELoss"
 
 def convert_to_semantic_segmentation(label, tickness=1):
     """
