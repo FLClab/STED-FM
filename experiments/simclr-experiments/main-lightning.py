@@ -208,7 +208,7 @@ if __name__ == "__main__":
     model = SimCLR(cfg)
     if args.restore_from:
         print("Restoring model...")
-        model = SimCLR.load_from_checkpoint(cfg)
+        model = SimCLR.load_from_checkpoint(args.restore_from, cfg=cfg)
 
     summary(model, input_size=(1, 224, 224), device=model.device.type)
 
