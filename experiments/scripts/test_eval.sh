@@ -34,7 +34,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started evaluation on the test set"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python eval_v2.py --dataset neural-activity-states --model mae-lightning-small --pretraining $pretraining --probe finetuned
+python eval_v2.py --dataset optim --model mae-lightning-tiny --pretraining $pretraining --probe linear-probe
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

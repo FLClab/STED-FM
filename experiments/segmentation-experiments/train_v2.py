@@ -73,7 +73,7 @@ def display_predictions(imgs: torch.Tensor, masks: torch.Tensor, predictions: to
             axs["p_perforated"].imshow(pred[4], cmap='gray')
             axs["p_noise"].imshow(pred[5], cmap='gray')
            
-            fig.savefig(f"./temp_{counter}.png", dpi=1200, bbox_inches='tight')
+            fig.savefig(f"./results/{args.backbone.replace('-lightning', '')}_{SAVE_NAME}/temp_{counter}.png", dpi=1200, bbox_inches='tight')
             plt.close(fig)
             counter += 1
     
@@ -114,7 +114,7 @@ def main():
         blocks='all',
         path=None,
         mask_ratio=0.0, 
-        pretrained=True if "imagenet" in args.weights.lower() else 1,
+        pretrained=True if "imagenet" in args.weights.lower() else False,
         in_channels=n_channels,
         )
     backbone = backbone.backbone

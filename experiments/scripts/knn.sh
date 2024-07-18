@@ -143,17 +143,17 @@ python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --w
 python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_JUMP
 python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_STED
 
-python knn_v2.py --dataset neural-activity-states --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
-python knn_v2.py --dataset neural-activity-states --model mae-lightning-small --weights MAE_SMALL_JUMP
-python knn_v2.py --dataset neural-activity-states --model mae-lightning-small --weights MAE_SMALL_STED
+# python knn_v2.py --dataset neural-activity-states --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
+# python knn_v2.py --dataset neural-activity-states --model mae-lightning-small --weights MAE_SMALL_JUMP
+# python knn_v2.py --dataset neural-activity-states --model mae-lightning-small --weights MAE_SMALL_STED
 
-python knn_v2.py --dataset neural-activity-states --model mae-lightning-base --weights MAE_BASE_IMAGENET1K_V1
-python knn_v2.py --dataset neural-activity-states --model mae-lightning-base --weights MAE_BASE_JUMP
-python knn_v2.py --dataset neural-activity-states --model mae-lightning-base --weights MAE_BASE_STED
+# python knn_v2.py --dataset neural-activity-states --model mae-lightning-base --weights MAE_BASE_IMAGENET1K_V1
+# python knn_v2.py --dataset neural-activity-states --model mae-lightning-base --weights MAE_BASE_JUMP
+# python knn_v2.py --dataset neural-activity-states --model mae-lightning-base --weights MAE_BASE_STED
 
-python knn_v2.py --dataset neural-activity-states --model mae-lightning-large --weights MAE_LARGE_IMAGENET1K_V1
-python knn_v2.py --dataset neural-activity-states --model mae-lightning-large --weights MAE_LARGE_JUMP
-python knn_v2.py --dataset neural-activity-states --model mae-lightning-large --weights MAE_LARGE_STED
+# python knn_v2.py --dataset neural-activity-states --model mae-lightning-large --weights MAE_LARGE_IMAGENET1K_V1
+# python knn_v2.py --dataset neural-activity-states --model mae-lightning-large --weights MAE_LARGE_JUMP
+# python knn_v2.py --dataset neural-activity-states --model mae-lightning-large --weights MAE_LARGE_STED
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

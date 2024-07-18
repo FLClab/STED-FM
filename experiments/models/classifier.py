@@ -32,7 +32,7 @@ class LinearProbe(torch.nn.Module):
 
         self.classification_head = torch.nn.Sequential(
             torch.nn.BatchNorm1d(num_features=cfg.dim, affine=False, eps=1e-6),
-            torch.nn.Linear(in_features=cfg.dim, out_features=num_classes)
+            torch.nn.Linear(in_features=cfg.dim, out_features=self.num_classes)
         )
 
     def _freeze_blocks(self, blocks: Union[List, int]) -> None:

@@ -63,13 +63,12 @@ def main():
     
     batch_size = cfg.batch_size 
 
-    train_loader, valid_loader, test_loader = get_dataset(
+    train_loader, valid_loader, _ = get_dataset(
         name=args.dataset,
         transform=None,
         path=None,
         n_channels=1, 
         batch_size=batch_size,
-        training=True,
         num_samples=args.num_per_class
     )
 

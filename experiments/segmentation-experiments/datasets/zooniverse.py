@@ -51,17 +51,17 @@ def get_dataset(cfg, **kwargs):
         cfg.in_channels=3
     cfg.freeze_backbone = True 
     train_dataset = SemanticZooniverseDataset(
-        h5file=f"{DATAPATH}/train.hdf5",
+        h5file=f"{DATAPATH}/train_semantic.hdf5",
         transform=None,
         n_channels=cfg.in_channels
     )
     valid_dataset = SemanticZooniverseDataset(
-        h5file=f"{DATAPATH}/valid.hdf5",
+        h5file=f"{DATAPATH}/valid_semantic.hdf5",
         transform=None,
         n_channels=cfg.in_channels,
     )
     test_dataset = SemanticZooniverseDataset(
-        h5file=f"{DATAPATH}/test.hdf5",
+        h5file=f"{DATAPATH}/test_semantic.hdf5",
         transform=None,
         n_channels=cfg.in_channels,
     )

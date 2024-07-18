@@ -4,19 +4,28 @@ import glob
 import random
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+import argparse 
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--one-per-set", action="store_true")
+args = parser.parse_args()
 
 OUTPATH = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/zooniverse/"
 
 def get_files():
-    path = f"{OUTPATH}/raw" 
+    path = f"{OUTPATH}/processed" 
     files = glob.glob(f"{path}/*.npz")
     files = list(set(files))
+    if args.one_per_set:
+        assert len(files) == 3
+        random.shuffle(files)
+        return files
     return files
 
 def normalize(data):
     return (data - np.min(data)) / (np.max(data) - np.min(data))
 
-def main():
+def old_main():
     files = get_files()
     crop_size = 224
 
@@ -81,6 +90,79 @@ def main():
                                 test_masks[-1:] = mask_crop
 
 
+def main():
+    train_file, valid_file, test_file = get_files()
+    crop_size = 224
+    
+    with h5py.File(f"{OUTPATH}/train_semantic.hdf5", "a") as train_handle:
+        train_imgs = train_handle.create_dataset(name="images", shape=(0, 224, 224), maxshape=(None, 224, 224))
+        train_masks = train_handle.create_dataset(name="masks", shape=(0, 6, 224, 224), maxshape=(None, 6, 224, 224))
+
+        data = np.load(train_file)
+        img, mask = data['img'], data["semantic_mask"]
+
+        if img.max() != 1.0 or img.min() != 0.0:
+            print(img.max(), img.min())
+            img = normalize(img)
+        
+        Y, X = img.shape 
+        ys = np.arange(0, Y - crop_size, crop_size)
+        xs = np.arange(0, X - crop_size, crop_size)
+        for y in tqdm(ys, desc="...Train set..."):
+            for x in xs:
+                crop = img[y:y+crop_size, x:x+crop_size]
+                mask_crop = mask[:, y:y+crop_size, x:x+crop_size]
+                train_imgs.resize(train_imgs.shape[0] + 1, axis=0)
+                train_masks.resize(train_masks.shape[0] + 1 , axis=0)
+                train_imgs[-1:] = crop
+                train_masks[-1:] = mask_crop 
+
+
+    with h5py.File(f"{OUTPATH}/valid_semantic.hdf5", "a") as valid_handle:
+        valid_imgs = valid_handle.create_dataset(name="images", shape=(0, 224, 224), maxshape=(None, 224, 224))
+        valid_masks = valid_handle.create_dataset(name="masks", shape=(0, 6, 224, 224), maxshape=(None, 6, 224, 224))
+
+        data = np.load(valid_file)
+        img, mask = data['img'], data["semantic_mask"]
+
+        if img.max() != 1.0 or img.min() != 0.0:
+            print(img.max(), img.min())
+            img = normalize(img)
+        
+        Y, X = img.shape 
+        ys = np.arange(0, Y - crop_size, crop_size)
+        xs = np.arange(0, X - crop_size, crop_size)
+        for y in tqdm(ys, desc="...Valid set..."):
+            for x in xs:
+                crop = img[y:y+crop_size, x:x+crop_size]
+                mask_crop = mask[:, y:y+crop_size, x:x+crop_size]
+                valid_imgs.resize(valid_imgs.shape[0] + 1, axis=0)
+                valid_masks.resize(valid_masks.shape[0] + 1 , axis=0)
+                valid_imgs[-1:] = crop
+                valid_masks[-1:] = mask_crop 
+
+    with h5py.File(f"{OUTPATH}/test_semantic.hdf5", "a") as valid_handle:
+        test_imgs = valid_handle.create_dataset(name="images", shape=(0, 224, 224), maxshape=(None, 224, 224))
+        test_masks = valid_handle.create_dataset(name="masks", shape=(0, 6, 224, 224), maxshape=(None, 6, 224, 224))
+
+        data = np.load(test_file)
+        img, mask = data['img'], data["semantic_mask"]
+
+        if img.max() != 1.0 or img.min() != 0.0:
+            print(img.max(), img.min())
+            img = normalize(img)
+        
+        Y, X = img.shape 
+        ys = np.arange(0, Y - crop_size, crop_size)
+        xs = np.arange(0, X - crop_size, crop_size)
+        for y in tqdm(ys, desc="...Test set..."):
+            for x in xs:
+                crop = img[y:y+crop_size, x:x+crop_size]
+                mask_crop = mask[:, y:y+crop_size, x:x+crop_size]
+                test_imgs.resize(test_imgs.shape[0] + 1, axis=0)
+                test_masks.resize(test_masks.shape[0] + 1 , axis=0)
+                test_imgs[-1:] = crop
+                test_masks[-1:] = mask_crop 
 
 if __name__=="__main__":
     main()

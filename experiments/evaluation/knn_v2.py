@@ -65,16 +65,38 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device:torch.device,
 
     associated_labels = ground_truth[neighbors]
     uniques = np.unique(ground_truth).astype(np.int64)
-    
+
     confusion_matrix = np.zeros((len(uniques), len(uniques)))
-    for unique in tqdm(uniques, desc="Confusion matrix computation..."):
-        mask = ground_truth == unique
-        for predicted_unique in uniques:
-            votes = np.sum((associated_labels[mask] == predicted_unique).astype(int), axis=-1)
-            confusion_matrix[unique, predicted_unique] += np.sum(votes >= 3)
-    accuracy = np.diag(confusion_matrix).sum() / np.sum(confusion_matrix)
+
+    for neighbor_labels, truth in zip(associated_labels, ground_truth):
+        votes, vote_counts = np.unique(neighbor_labels, return_counts=True)
+        max_idx = np.argmax(vote_counts)
+        max_vote = votes[max_idx]
+        vote_count = vote_counts[max_idx]
+        if vote_count > 1: # Given our 4-class problems, this should always be true, but useful if ever we do more than 4 classes
+            confusion_matrix[truth, max_vote] += 1 
+            
+    accuracy = np.diag(confusion_matrix).sum() / ground_truth.shape[0]
 
     print(f"--- {args.dataset} ; {args.model} ; {savename} ---\n\tAccuracy: {accuracy * 100:0.2f}\n")
+        
+    
+
+    ### NOTE: Below is old way of building confusion matrix which only considered correct classification as those with votes >=3 
+    #           This was problematic because in the 4 class setting w/ 5 neighbors, we could have votes for classes as, for example: [2, 1, 1, 1];
+    #           In which case the majority vote is class 0 but the below code does not add anything to the confusion matrix
+    # confusion_matrix = np.zeros((len(uniques), len(uniques)))
+    # for unique in tqdm(uniques, desc="Confusion matrix computation..."):
+    #     mask = ground_truth == unique
+    #     for predicted_unique in uniques:
+    #         votes = np.sum((associated_labels[mask] == predicted_unique).astype(int), axis=-1)
+    #         print(votes.shape)
+    #         confusion_matrix[unique, predicted_unique] += np.sum(votes >= 3)
+    #         total = np.sum(votes >= 3) 
+    #         print(total.shape)
+
+
+
     acc = accuracy * 100
     fig, ax = plt.subplots()
     cm = confusion_matrix / np.sum(confusion_matrix, axis=-1)[np.newaxis]

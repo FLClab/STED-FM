@@ -4,6 +4,8 @@ from typing import List, Iterable, Callable
 import datasets
 from torch.utils.data import DataLoader, Sampler, Dataset
 import random
+import os
+from DEFAULTS import BASE_PATH
 
 
 class BalancedSampler(Sampler):
@@ -31,7 +33,7 @@ class BalancedSampler(Sampler):
         return iter(ids)
     
 class UltraSmallSampler(Sampler):
-    def __init__(self, dataset: Dataset, num_per_class: int = 5, num_classes: int = 4) -> None:
+    def __init__(self, dataset: Dataset, num_per_class: int = 400, num_classes: int = 4) -> None:
         self.dataset = dataset
         self.dataset_size = num_per_class * num_classes 
         self.indices = []
@@ -86,7 +88,7 @@ def get_neural_activity_states(
         protein_id: int = 3,
 ):
     train_dataset = datasets.NeuralActivityStates(
-        h5file=f"{path}/train_v2.hdf5",
+        h5file=f"{path}/NAS_train.hdf5",
         transform=transform,
         n_channels=n_channels,
         num_samples=num_samples,
@@ -94,7 +96,7 @@ def get_neural_activity_states(
         protein_id=protein_id
     )
     validation_dataset = datasets.NeuralActivityStates(
-        h5file=f"{path}/valid_v2.hdf5",
+        h5file=f"{path}/NAS_valid.hdf5",
         transform=transform,
         n_channels=n_channels,
         num_samples=num_samples,
@@ -102,13 +104,14 @@ def get_neural_activity_states(
         protein_id=protein_id
     )
     test_dataset = datasets.NeuralActivityStates(
-        h5file=f"{path}/test_v2.hdf5",
+        h5file=f"{path}/NAS_test.hdf5",
         transform=transform,
         n_channels=n_channels,
         num_samples=num_samples,
         num_classes=4,
         protein_id=protein_id
     )
+    print("\n=== NAS dataset ===")
     print(np.unique(train_dataset.labels, return_counts=True))
     print(np.unique(validation_dataset.labels, return_counts=True))
     print(np.unique(test_dataset.labels, return_counts=True))
@@ -116,6 +119,7 @@ def get_neural_activity_states(
     print(f"Training size: {len(train_dataset)}")
     print(f"Validation size: {len(validation_dataset)}")
     print(f"Test size: {len(test_dataset)}\n")
+    print("======\n")
     train_loader = DataLoader(
         dataset=train_dataset,
         batch_size=batch_size,
@@ -146,7 +150,6 @@ def get_synaptic_proteins_dataset(
     batch_size: int = 256,
     class_type: str = 'proteins',
     n_channels: int = 1,
-    training: bool = True,
     num_samples: int = None,
 ):
     train_dataset = datasets.ProteinDataset(
@@ -222,10 +225,8 @@ def get_synaptic_proteins_dataset(
         drop_last=False,
         num_workers=6,
     )
-    if training: 
-        return train_loader, valid_loader, test_loader
-    else:
-        return test_loader
+    return train_loader, valid_loader, test_loader
+  
 
 def get_optim_dataset(path: str, training: bool = False, batch_size=256, num_samples=None, **kwargs):
     
@@ -292,7 +293,7 @@ def get_dataset(name, path, **kwargs):
             path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/optim-data", 
             n_channels=kwargs['n_channels'],
             transform=kwargs['transform'],
-            training=kwargs['training'],
+            training=True,
             batch_size=kwargs['batch_size'],
             num_samples=kwargs["num_samples"],
             )
@@ -307,7 +308,8 @@ def get_dataset(name, path, **kwargs):
     
     elif name == "neural-activity-states":
         return get_neural_activity_states(
-            path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/TheresaProteins", 
+            path=os.path.join(BASE_PATH, "evaluation-data", "NeuralActivityStates"),
+            #path="/home/frbea320/projects/def-flavielc/evaluation-data/NeuralActivityStates",
             n_channels=kwargs['n_channels'], 
             transform=kwargs['transform'],
             batch_size=kwargs['batch_size'],

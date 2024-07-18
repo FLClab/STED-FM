@@ -86,6 +86,7 @@ def knn_sanity_check(
         mask = ground_truth == unique
         for predicted_unique in uniques:
             votes = np.sum((associated_labels[mask] == predicted_unique).astype(int), axis=-1)
+            print(votes)
             confusion_matrix[unique, predicted_unique] += np.sum(votes >= 3)
     accuracy = np.diag(confusion_matrix).sum() / np.sum(confusion_matrix)
     print(f"--- Epoch {epoch} --> {args.dataset} ; {args.model} ; {savename} ---\n\tAccuracy: {accuracy * 100:0.2f}\n")
@@ -118,7 +119,7 @@ def validation_step(model, valid_loader, criterion, epoch, device):
 
 
 def main():
-    set_seeds()
+    # set_seeds()
     SAVENAME = get_save_folder()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
@@ -129,16 +130,15 @@ def main():
         weights=args.weights,
         path=None,
         mask_ratio=0.0, 
-        pretrained=True if n_channels==3 else 1,
+        pretrained=True if n_channels==3 else False,
         in_channels=n_channels,
         as_classifier=True,
         blocks=args.blocks
     )
 
-    batch_size = cfg.batch_size
-    summary(model, input_size=(batch_size, n_channels, 224, 224))
+    summary(model, input_size=(cfg.batch_size, n_channels, 224, 224))
 
-    train_loader, valid_loader, test_loader = get_dataset(
+    train_loader, valid_loader, _ = get_dataset(
         name=args.dataset,
         transform=None,
         path=None,
@@ -150,10 +150,12 @@ def main():
 
     num_epochs = 100
     model = model.to(device)
-    if args.blocks == "all":
-        optimizer = torch.optim.SGD(model.parameters(), lr=0.1, weight_decay=0, momentum=0.9) 
-    else:
-        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.99))
+
+
+    # if args.blocks == "all":
+    #     optimizer = torch.optim.SGD(model.parameters(), lr=0.1, weight_decay=0, momentum=0.9) 
+    # else:
+    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.99))
     # scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=num_epochs)
     scheduler = ReduceLROnPlateau(optimizer=optimizer, patience=5)
     criterion = torch.nn.CrossEntropyLoss()
@@ -170,9 +172,9 @@ def main():
     # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=0)
 
     for epoch in tqdm(range(num_epochs), desc="Epochs..."):
+        model.train()
         loss_meter = AverageMeter()
         for imgs, data_dict in tqdm(train_loader, desc="Training..."):
-            model.train()
             labels = data_dict['label']
             imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
             optimizer.zero_grad()
@@ -182,6 +184,8 @@ def main():
             loss.backward()
             optimizer.step()
             loss_meter.update(loss.item())
+
+
         v_loss, v_acc = validation_step(
             model=model,
             valid_loader=valid_loader,
