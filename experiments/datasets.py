@@ -559,82 +559,68 @@ class OptimDataset(Dataset):
         for key, values in self.samples.items():
             out += f"{key} - {len(values)}\n"        
         return "Dataset(optim) -- length: {}".format(len(self)) + out
+    
 
 class NeuralActivityStates(Dataset):
     def __init__(
-        self, 
-        h5file: str,
-        transform: Callable = None,
-        n_channels: int = 1,
-        num_samples: int = None,
-        num_classes: int = 4,
-        protein_id: int = 3
+            self,
+            h5file: str,
+            transform: Callable = None,
+            n_channels: int = 1,
+            num_samples: int = None,
+            num_classes: int = 4,
+            protein_id: int = 3,
+            balance: bool = True,
     ) -> None:
         self.h5file = h5file 
         self.transform = transform 
-        self.n_channels = n_channels 
+        self.n_channels = n_channels
         self.num_samples = num_samples 
         self.num_classes = num_classes 
-        if self.num_samples is None:
-            with h5py.File(h5file, "r") as handle:
-                protein_ids = np.where(handle["proteins"][()] == protein_id)
-                labels = handle["conditions"][protein_ids]
-                images = handle["images"][protein_ids]
-                proteins = handle["proteins"][protein_ids]
-                self.labels, indices = self.__get_sample_ids(labels, method="max-TTX")
-               
-                indices = indices.astype(np.int64)
-                
-                self.images = images[indices]
-                self.proteins = proteins[indices]
-                self.dataset_size = self.labels.shape[0]
-                print(self.proteins.shape, self.images.shape, self.labels.shape, self.dataset_size)
-                
-        else:
-            raise NotImplementedError("Subset sampler not implemented yet for this dataset.")
+
+        with h5py.File(h5file, "r") as handle:
+            images = handle["images"][()]
+            conditions = handle["conditions"][()]
+            proteins = handle["proteins"][()]
+
+        protein_mask = np.where(proteins == protein_id)
+        self.images = images[protein_mask]
+        self.labels = conditions[protein_mask]
+        self.proteins = proteins[protein_mask]
+        assert self.images.shape[0] == self.labels.shape[0] == self.proteins.shape[0]
         
+        if balance:
+            self.__balance_classes()
+        self.dataset_size = self.images.shape[0]
 
-    def __get_sample_ids(self, labels: np.ndarray, method: str = "merge-TTX") -> np.ndarray:
+    def __balance_classes(self) -> None:
+        uniques, counts = np.unique(self.labels, return_counts=True) 
+        minority_count, minority_class = np.min(counts), np.argmin(counts)
         indices = []
-        new_labels = []
-        if method == "merge-TTX":
-            for i, l in enumerate(labels):
-                if l <= 3:
-                    indices.append(i)
-                    new_labels.append(l)
-                elif 4 <= l <= 6:
-                    indices.append(i)
-                    new_labels.append(3) # Not 4 b/c KCL (=3) was already removed
-        elif method == "max-TTX":
-            for i, l in enumerate(labels):
-                if l <= 3:
-                    indices.append(i)
-                    new_labels.append(l)
-                elif l == 6:
-                    indices.append(i)
-                    new_labels.append(3)
-        else:
-            raise ValueError(f"Method `{method}` for resetting labels is not implemented yet.")
+        for unique in uniques:
+            ids = np.where(self.labels == unique)[0]
+            ids = np.random.choice(ids, size=minority_count)
+            indices.extend(ids)
+        indices = np.sort(indices)
+        self.images = self.images[indices]
+        self.labels = self.labels[indices]
+        self.proteins = self.proteins[indices]
 
-        return np.array(new_labels), np.array(indices)
-
-    def __len__(self):
+    def __len__(self) -> int:
         return self.dataset_size 
     
-    def __getitem__(self, idx: int) -> torch.Tensor:
-        with h5py.File(self.h5file, "r") as handle:
-            img = self.images[idx]
-            label = self.labels[idx]
-        
-        if self.n_channels == 3:
-            img = np.tile(img[np.newaxis], (3, 1, 1))
-            img = np.moveaxis(img, 0, -1)
-            img = transforms.ToTensor()(img)
-            img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
-        else:
-            img = transforms.ToTensor()(img)
 
-        return img, {"label": label, "protein": self.proteins[idx]}
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, dict]:
+        img, protein, label = self.images[idx], self.proteins[idx], self.labels[idx]
+        if self.n_channels == 3:
+            img = np.tile(img[np.newaxis, :], (3, 1, 1))
+            img = torch.tensor(img, dtype=torch.float32)
+            img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+
+        else:
+            img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
+            img = self.transform(img) if self.transform is not None else img 
+        return img, {"label": label, "protein": protein}
 
 class ProteinDataset(Dataset):
     def __init__(

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=00:30:00
+#SBATCH --time=02:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -8,6 +8,7 @@
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
+#SBATCH --array=0-2
 
 #### PARAMETERS
 
@@ -18,12 +19,20 @@ source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
+WEIGHTS=(
+    "MAE_TINY_IMAGENET1K_V1"
+    "MAE_TINY_JUMP"
+    "MAE_TINY_STED"
+)
+
+weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
+
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training segmentation model"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python train.py
+python train_v2.py --dataset zooniverse --backbone mae-lightning-tiny --weights $weight
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

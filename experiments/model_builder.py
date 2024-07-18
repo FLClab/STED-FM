@@ -43,7 +43,17 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
         raise NotImplementedError(f"Model {name} not implemented yet.")
     
 def get_classifier_v3(name: str, dataset: str, pretraining: str, **kwargs):
-    if "mae" in name.lower():
+    if "supervised" in name.lower() and "mae" in name.lower():
+        modelname = name.replace("supervised-", "")
+        backbone, cfg = get_base_model(modelname, **kwargs)
+        backbone = backbone.backbone.vit
+        modelname = modelname.replace("-lightning", "")
+        path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/supervised/{modelname}/{dataset}/supervised.pth"
+        checkpoint = torch.load(path)
+        backbone.load_state_dict(checkpoint["model_state_dict"])
+        return backbone, cfg
+
+    elif "mae" in name.lower():
         backbone, cfg = get_base_model(name, **kwargs)
         probe = kwargs['probe']
         num_blocks = "all" if probe == "linear-probe" else "0"
@@ -58,6 +68,7 @@ def get_classifier_v3(name: str, dataset: str, pretraining: str, **kwargs):
         path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{pretraining}/{dataset}/{probe}.pth"
         checkpoint = torch.load(path)
         model.load_state_dict(checkpoint["model_state_dict"])
+        print(f"--- Loaded linear probe weights onto {name} ---")
         return model, cfg
     else:
         raise NotImplementedError(f"Cannot yet add a linear probe to `{name}`.")
@@ -97,68 +108,3 @@ def get_classifier_v2(name: str, weights: str, task: str, path: str = None, data
     else:
         raise NotImplementedError(f"Model {name} not implemented as a classifier yet.")
 
-
-
-def get_classifier(name: str, pretraining: str, task:str, path: str = None, dataset: str = None, **kwargs):
-    if name == "vit-small":
-        print(f"--- Loading ViT-S/16 trained from scratch on {dataset}---")
-        model = vit_small_patch16_224(in_chans=1)
-        checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/MAE_fully-supervised/{dataset}/vit-small_from-scratch_model.pth")
-        model.load_state_dict(checkpoint['model_state_dict'])
-        return model
-    elif name == "MAE":
-        if pretraining == "ImageNet":
-            print("--- Loading ImageNet ViT fine-tuned ---")
-            vit = vit_small_patch16_224(in_chans=3, pretrained=True)
-            backbone = LightlyMAE(vit=vit, in_channels=3, mask_ratio=0.0)
-            model = LinearProbe(
-                backbone=backbone,
-                name="MAE",
-                num_classes=4,
-                num_blocks=0,
-                global_pool='avg'
-            )
-            if path is not None:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_ImageNet/{dataset}/{task}_{path}_model.pth")
-            else:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_ImageNet/{dataset}/{task}_model.pth")
-            model.load_state_dict(checkpoint["model_state_dict"])
-            return model
-        elif pretraining == "CTC":
-            print("-- Loading CTC ViT fine-tuned---")
-            vit = vit_small_patch16_224(in_chans=1)
-            backbone = LightlyMAE(vit=vit, in_channels=1, mask_ratio=0.0)
-            model = LinearProbe(
-                backbone=backbone,
-                name="MAE",
-                num_classes=4,
-                num_blocks=0,
-                global_pool="avg"
-            )
-            if path is not None:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_CTC/{dataset}/{task}_{path}_model.pth")
-            else:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_CTC/{dataset}/{task}_model.pth")
-            model.load_state_dict(checkpoint['model_state_dict'])
-            return model
-        elif pretraining == "STED":
-            print("--- Loading STED ViT ---")
-            vit = vit_small_patch16_224(in_chans=1)
-            backbone = LightlyMAE(vit=vit, in_channels=1, mask_ratio=0.0)
-            model = LinearProbe(
-                backbone=backbone,
-                name="MAE",
-                num_classes=4,
-                num_blocks=0,
-                global_pool="avg"
-            )
-            if path is not None:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_STED/{dataset}/{task}_{path}_model.pth")
-            else:
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/mae_STED/{dataset}/{task}_model.pth")
-            model.load_state_dict(checkpoint['model_state_dict'])
-            return model
-        else:
-            raise NotImplementedError(f"Pretraining {pretraining} not supported.")
-    else: 
-        raise not NotImplementedError(f"Model {name} not implemented yet.")

@@ -78,25 +78,6 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
         vit = vit_large_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
         backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
-
-    elif name == 'mae-tiny':
-        cfg.dim = 192
-        cfg.batch_size=512
-        vit = vit_tiny_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
-        backbone = LightlyMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
-    elif name == "mae-small" or name == "mae":
-        cfg.dim = 384
-        vit = vit_small_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
-        backbone = LightlyMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
-    elif name == "mae-base":
-        cfg.dim = 768
-        cfg.batch_size = 64
-        vit = vit_base_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
-        backbone = LightlyMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
-    elif name == 'mae-large':
-        cfg.dim = 1024
-        vit = vit_large_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
-        backbone = LightlyMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
     else:
         raise NotImplementedError(f"`{name}` not implemented")
     return backbone, cfg

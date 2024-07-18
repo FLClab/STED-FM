@@ -8,34 +8,33 @@
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-2
+#SBATCH --array=0-1
 
 #### PARAMETERS
-
 # Use this directory venv, reusable across RUNs
 module load python/3.10 scipy-stack
 module load cuda cudnn
 source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
 
+
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-WEIGHTS=(
-    "MAE_TINY_IMAGENET1K_V1"
-    "MAE_TINY_JUMP"
-    "MAE_TINY_STED"
+MODELS=(
+    "mae-lightning-tiny"
+    "mae-lightning-small"
+    # "mae-lightning-base" # This model (and all below) is too large for the number of GPUs requested, need a separate script
+    # "mae-lightning-large" 
 )
 
-weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
+model=${MODELS[${SLURM_ARRAY_TASK_ID}]}
 
-# Moves to working directory
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
-# Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started partial tuning"
+echo "% Started supervised training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune.py --dataset synaptic-proteins --model mae-lightning-tiny --weights $weight --blocks "all"
+python supervised.py --dataset optim --model $model
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
