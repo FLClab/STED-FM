@@ -136,8 +136,8 @@ def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
     if truth.shape[1] != prediction.shape[1]:
         truth, foreground = truth[:, :-1], truth[:, -1]
     else:
-        foreground = numpy.ones(truth.shape[-2:])
-    
+        foreground = numpy.ones((len(truth), *truth.shape[-2:]))
+
     scores = defaultdict(list)
     for truth_, prediction_, mask in zip(truth, prediction, foreground):
         # Convert to binary mask
@@ -146,7 +146,6 @@ def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
         scores["iou"].append(compute_iou(truth_, prediction_, mask))
         scores["aupr"].append(compute_aupr(truth_, prediction_, mask))
         scores["auroc"].append(compute_auroc(truth_, prediction_, mask))
-
     return scores
 
 def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataLoader, savefolder: str = None) -> dict:
@@ -180,11 +179,11 @@ def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataL
             pred_ = pred.cpu().data.numpy()
 
             X_ = numpy.clip(X_ * 255, 0, 255)
-            tifffile.imwrite(os.path.join(savefolder, "input.tif"), X_.astype(numpy.uint8))
+            tifffile.imwrite(os.path.join(savefolder, "input.tif"), X_.astype(numpy.uint8), imagej=True, metadata={"mode" : "composite"})
             y_ = numpy.clip(y_ * 255, 0, 255)
-            tifffile.imwrite(os.path.join(savefolder, "label.tif"), y_.astype(numpy.uint8))
+            tifffile.imwrite(os.path.join(savefolder, "label.tif"), y_.astype(numpy.uint8), imagej=True, metadata={"mode" : "composite"})
             pred_ = numpy.clip(pred_ * 255, 0, 255)
-            tifffile.imwrite(os.path.join(savefolder, "prediction.tif"), pred_.astype(numpy.uint8))
+            tifffile.imwrite(os.path.join(savefolder, "prediction.tif"), pred_.astype(numpy.uint8), imagej=True, metadata={"mode" : "composite"})
         
         scores = compute_scores(y, pred)
         for key, values in scores.items():

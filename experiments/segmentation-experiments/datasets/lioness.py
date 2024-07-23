@@ -288,12 +288,13 @@ def get_dataset(cfg : dataclass, test_only : bool = False, **kwargs) -> tuple[Da
             step=0.75,
             out_channels=cfg.in_channels
         )
-    testing_dataset = TestingLionessDataset(
+    testing_dataset = LionessDataset(
         path = testing_path,
+        validation=True,
         size = 224,
         step = 0.75,
         out_channels = cfg.in_channels,
-        return_foregound=True
+        return_foregound=False
     )
     return training_dataset, validation_dataset, testing_dataset
 
