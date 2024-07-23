@@ -101,7 +101,7 @@ class SimCLRTransform(MultiViewTransform):
         cj_sat: float = 0.8,
         cj_hue: float = 0.2,
         cj_gamma: float = 0.8,
-        min_scale: float = 0.08,
+        scale: Tuple[float, float] = (0.75, 1.25),
         minimal_foreground : float = 0.05,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
@@ -128,7 +128,7 @@ class SimCLRTransform(MultiViewTransform):
             cj_hue=cj_hue,
             cj_gamma=cj_gamma,
             minimal_foreground = minimal_foreground,
-            min_scale=min_scale,
+            scale=scale,
             random_gray_scale=random_gray_scale,
             gaussian_blur=gaussian_blur,
             kernel_size=kernel_size,
@@ -158,7 +158,7 @@ class SimCLRViewTransform:
         cj_sat: float = 0.8,
         cj_hue: float = 0.2,
         cj_gamma: float = 0.8,
-        min_scale: float = 0.08,
+        scale: Tuple[float, float] = (0.75, 1.25),
         minimal_foreground : float = 0.05,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
@@ -188,7 +188,8 @@ class SimCLRViewTransform:
         )
 
         transform = [
-            # RandomResizedCropMinimumForeground(size=input_size, scale=(min_scale, 1.0), min_fg=minimal_foreground),
+            T.ToTensor(),
+            RandomResizedCropMinimumForeground(size=input_size, scale=scale, min_fg=minimal_foreground),
             random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomVerticalFlip(p=vf_prob),
@@ -197,7 +198,6 @@ class SimCLRViewTransform:
             GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
             GaussianNoise(p=gaussian_noise_prob, mu=gaussian_noise_mu, std=gaussian_noise_std),
             PoissonNoise(p=poisson_noise_prob, _lambda=poisson_noise_lambda)
-            # T.ToTensor(),
         ]
         if normalize:
             transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]
@@ -264,6 +264,25 @@ class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
         self.min_fg = min_fg
         self.max_tries = 10
 
+    def get_params(self, image, scale, ratio):
+        """
+        Reimplements the get_params method from torchvision.transforms.RandomResizedCrop
+        """
+
+        image_height, image_width = image.size()[1], image.size()[2]
+
+        s = random.uniform(*scale)
+        h = int(round(self.size[0] * s))
+        w = int(round(self.size[0] * s))
+
+        if w <= image_width and h <= image_height:
+            i = random.randint(0, image_width - w)
+            j = random.randint(0, image_height - h)
+            return i, j, h, w
+        else:
+            w = min(image_height, image_width)
+            return 0, 0, w, w
+
     def forward(self, img) -> Tensor:
         """
         Implements a random resized crop with a minimum foreground
@@ -277,6 +296,27 @@ class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
             if crop.sum() > self.min_fg * torch.numel(crop):
                 break
         return F.resized_crop(img, i, j, h, w, self.size, self.interpolation, antialias=self.antialias)
+
+# class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
+#     def __init__(self, size, scale, min_fg=0.1) -> None:
+#         super().__init__(size, scale)
+
+#         self.min_fg = min_fg
+#         self.max_tries = 10
+
+#     def forward(self, img) -> Tensor:
+#         """
+#         Implements a random resized crop with a minimum foreground
+#         """
+#         img_array = img.numpy()
+#         threshold = filters.threshold_otsu(img_array)
+#         fg = img > threshold
+#         for _ in range(self.max_tries):
+#             i, j, h, w = self.get_params(img, self.scale, self.ratio)
+#             crop = fg[:, j : j + w, i : i + w]
+#             if crop.sum() > self.min_fg * torch.numel(crop):
+#                 break
+#         return F.resized_crop(img, i, j, h, w, self.size, self.interpolation, antialias=self.antialias)
 
 class PoissonNoise(torch.nn.Module):
     def __init__(self, p: float, _lambda: float) -> None:

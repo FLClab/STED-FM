@@ -16,8 +16,9 @@ from lightly.models.utils import get_weight_decay_parameters
 from lightly.utils.lars import LARS
 from lightly.utils.scheduler import CosineWarmupScheduler
 from lightly.utils.benchmarking import MetricCallback
+from torch.optim import SGD
 
-from lightning.pytorch import Trainer
+from lightning.pytorch import Trainer, seed_everything
 from lightning.pytorch.core import LightningModule, LightningDataModule
 from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import ModelCheckpoint, ModelSummary, DeviceStatsMonitor, EarlyStopping, LearningRateMonitor
@@ -61,8 +62,8 @@ class SimCLR(LightningModule):
         loss = self.criterion(z0, z1)
 
         # Logging
-        self.log("train_loss", loss, sync_dist=True, prog_bar=False)
-        self.log("Loss/mean", loss, sync_dist=True, prog_bar=True)
+        self.log("train_loss", loss, sync_dist=True, prog_bar=True, batch_size=len(view0))
+        self.log("Loss/mean", loss, sync_dist=True, prog_bar=False)
         self.log("Loss/min", loss, reduce_fx=torch.min, sync_dist=True)
         self.log("Loss/max", loss, reduce_fx=torch.max, sync_dist=True)
 
@@ -95,7 +96,7 @@ class SimCLR(LightningModule):
             # Square root learning rate scaling improves performance for small
             # batch sizes (<=2048) and few training epochs (<=200). Alternatively,
             # linear scaling can be used for larger batches and longer training:
-            #   lr=0.3 * self.batch_size_per_device * self.trainer.world_size / 256
+            # lr=0.3 * self.batch_size_per_device * self.trainer.world_size / 256,
             # See Appendix B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
             # lr=0.075 * math.sqrt(self.cfg.batch_size * self.trainer.world_size),
             # lr=0.075 * math.sqrt(1024),
@@ -105,6 +106,9 @@ class SimCLR(LightningModule):
             # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
             weight_decay=1e-6,
         )
+        print("-----Optimizer-----")
+        print(f"{self.trainer.estimated_stepping_batches=}")
+        print(f"{self.trainer.max_epochs=}")
         scheduler = {
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
@@ -151,9 +155,7 @@ if __name__ == "__main__":
                         help="Activates dryrun")        
     args = parser.parse_args()
 
-    numpy.random.seed(args.seed)
-    random.seed(args.seed)
-    torch.manual_seed(args.seed)
+    seed_everything(args.seed, workers=True)
 
     # Assert args.opts is a multiple of 2
     if len(args.opts) == 1:
@@ -210,7 +212,7 @@ if __name__ == "__main__":
         print("Restoring model...")
         model = SimCLR.load_from_checkpoint(args.restore_from, cfg=cfg)
 
-    summary(model, input_size=(1, 64, 64), device=model.device.type)
+    summary(model, input_size=(1, 224, 224), device=model.device.type)
 
     # Prepare transform that creates multiple random views for every image.
     transform = SimCLRTransform(
@@ -218,10 +220,12 @@ if __name__ == "__main__":
         cj_prob = 0.8,
         cj_strength = 1.0,
         cj_bright = 0.8,
-        cj_contrast = 0.8,
+        cj_contrast = 0,
         cj_sat = 0,
         cj_hue = 0,
-        min_scale = 0.3,
+        cj_gamma = 0,
+        # scale = (0.75, 1.25),
+        scale = (0.3, 1.0),
         random_gray_scale = 0,
         gaussian_blur = 0,
         kernel_size = None,
@@ -231,9 +235,10 @@ if __name__ == "__main__":
         rr_prob = 0.5,
         rr_degrees = None,
         normalize = False,
+        gaussian_noise_prob = 0.,
+        poisson_noise_prob = 0.
     )
 
-    cfg.batch_size = 1024
     datamodule = MultiprocessingDataModule(args, cfg, transform=transform)
 
     trainer = Trainer(

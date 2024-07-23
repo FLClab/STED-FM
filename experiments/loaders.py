@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import List, Iterable, Callable
@@ -7,6 +8,7 @@ import random
 import os
 from DEFAULTS import BASE_PATH
 
+from DEFAULTS import BASE_PATH
 
 class BalancedSampler(Sampler):
     def __init__(self, dataset: Dataset, fewshot_pct: float = 0.01, num_classes: int = 4) -> None:
@@ -275,7 +277,7 @@ def get_optim_dataset(path: str, training: bool = False, batch_size=256, num_sam
             **kwargs
         )
         dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
-        return dataloader
+        return None, None, dataloader
 
 def get_factin_rings_fibers_dataset(path: str, **kwargs):
     dataset = datasets.CreateFactinRingsFibersDataset(data_folder=path, classes=["rings", "fibers"], **kwargs)
@@ -290,16 +292,16 @@ def get_factin_block_glugly_dataset(path: str, **kwargs):
 def get_dataset(name, path, **kwargs):
     if name == "optim":
         return get_optim_dataset(
-            path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/optim-data", 
+            path=os.path.join(BASE_PATH, "evaluation-data", "optim-data"), 
             n_channels=kwargs['n_channels'],
             transform=kwargs['transform'],
-            training=True,
+            training=kwargs.get("training", False),
             batch_size=kwargs['batch_size'],
             num_samples=kwargs["num_samples"],
             )
     elif name == "synaptic-proteins":
         return get_synaptic_proteins_dataset(
-            path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/TheresaProteins", 
+            path=os.path.join(BASE_PATH, "evaluation-data", "TheresaProteins"), 
             n_channels=kwargs['n_channels'], 
             transform=kwargs['transform'],
             batch_size=kwargs['batch_size'],
@@ -309,7 +311,6 @@ def get_dataset(name, path, **kwargs):
     elif name == "neural-activity-states":
         return get_neural_activity_states(
             path=os.path.join(BASE_PATH, "evaluation-data", "NeuralActivityStates"),
-            #path="/home/frbea320/projects/def-flavielc/evaluation-data/NeuralActivityStates",
             n_channels=kwargs['n_channels'], 
             transform=kwargs['transform'],
             batch_size=kwargs['batch_size'],

@@ -984,15 +984,19 @@ class TarFLCDataset(Dataset):
         
         img = data["image"] # assuming 'img' key
         metadata = data["metadata"]
-        if img.size != 224 * 224:
-            print(img.shape)
-            print(metadata)
+        # if img.size != 224 * 224:
+        #     print(img.shape)
+        #     print(metadata)
         
         img = img / 255.
 
         if self.transform is not None:
             # This assumes that there is a conversion to torch Tensor in the given transform
-            img = self.transform(img).float()
+            img = self.transform(img)
+            if isinstance(img, list):
+                img = [x.float() for x in img]
+            else:
+                img = img.float()
         else:
             img = img[np.newaxis]
             img = torch.tensor(img, dtype=torch.float32)
