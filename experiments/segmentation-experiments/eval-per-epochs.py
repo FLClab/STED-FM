@@ -127,7 +127,7 @@ def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
     if truth.shape[1] != prediction.shape[1]:
         truth, foreground = truth[:, :-1], truth[:, -1]
     else:
-        foreground = numpy.ones(truth.shape[-2:])
+        foreground = numpy.ones((len(truth), *truth.shape[-2:]))
     
     scores = defaultdict(list)
     for truth_, prediction_, mask in zip(truth, prediction, foreground):
