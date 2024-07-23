@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=2:00:00
+#SBATCH --time=8:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -27,14 +27,14 @@ WEIGHTS=(
 
 weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
 
+
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset synaptic-proteins --model mae-lightning-tiny --weights $weight --blocks "0" --num-per-class 25
-
+python finetune_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights $weight --blocks "0" 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

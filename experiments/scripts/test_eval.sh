@@ -26,7 +26,6 @@ PRETRAIN=(
 )
 
 
-
 pretraining=${PRETRAIN[${SLURM_ARRAY_TASK_ID}]}
 
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
@@ -35,7 +34,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started evaluation on the test set"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python eval_v2.py --dataset optim --model mae-lightning-large --pretraining $pretraining --probe linear-probe
+python eval_v2.py --dataset optim --model mae-lightning-tiny --pretraining $pretraining --probe linear-probe
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
