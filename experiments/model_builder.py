@@ -26,6 +26,8 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
             print(f"--- Loading from state dict ---")
             backbone.load_state_dict(state_dict, strict=True)
             print(f"--- Loaded model {name} with weights {weights} ---")
+        elif "imagenet" in weights.lower():
+            print(f"--- Loaded model {name} with ImageNet weights ---")
      
         if as_classifier:
             model = LinearProbe(

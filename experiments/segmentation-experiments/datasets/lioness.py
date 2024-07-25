@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from skimage import morphology, filters
 from torch.utils.data import Dataset
 from tqdm import tqdm
+from torchvision import transforms
 
 import sys
 sys.path.insert(0, "..")
@@ -52,15 +53,21 @@ class LionessDataset(Dataset):
     A `Dataset` class for the Lioness dataset. This class is used to load the dataset
     from the HDF5 files.
     """
-    def __init__(self, path, data_aug=0, validation=False, size=256, step=0.75, cache_system=None, out_channels=1, return_foregound=False, **kwargs):
+    def __init__(self, path, transform=None, data_aug=0, validation=False, size=256, step=0.75, cache_system=None, n_channels=1, return_foregound=False, **kwargs):
         super(LionessDataset, self).__init__()
 
         self.path = path
+
+        if transform is None:
+            self.transform = transforms.ToTensor()
+        else:
+            self.transform = transform
+
         self.size = size
         self.step = step
         self.validation = validation
         self.data_aug = data_aug
-        self.out_channels = out_channels
+        self.n_channels = n_channels
         self.return_foregound = return_foregound
         self.classes = ["Cell", "Boundary"]
 
@@ -158,12 +165,12 @@ class LionessDataset(Dataset):
                 gamma = numpy.clip(numpy.random.lognormal(0.005, numpy.sqrt(0.005)), 0, 1)
                 image_crop = numpy.clip(image_crop**gamma, 0, 1)
 
-        x = torch.tensor(image_crop, dtype=torch.float32)
-        if self.out_channels > 1:
-            x = x.unsqueeze(0)
-            x = torch.tile(x, (self.out_channels, 1, 1))
-        y = torch.tensor(label_crop > 0, dtype=torch.float32)
-        return x, y
+        if self.n_channels == 3:
+            image_crop = numpy.tile(image_crop[numpy.newaxis], (3, 1, 1))
+            image_crop = numpy.moveaxis(image_crop, 0, -1)
+        img = self.transform(image_crop)
+        mask = torch.tensor(label_crop > 0, dtype=torch.float32)
+        return img, mask
 
 class TestingLionessDataset(Dataset):
     """
@@ -174,9 +181,13 @@ class TestingLionessDataset(Dataset):
     that needs to be segmented from the image. The second channel contains the image that needs
     to be segmented.
     """
-    def __init__(self, path, size=224, step=0.75, out_channels=2, return_foregound=False, cache_system=None, **kwargs):
+    def __init__(self, path, transform=None, size=224, step=0.75, out_channels=2, return_foregound=False, cache_system=None, **kwargs):
 
         self.path = path
+        if transform is None:
+            self.transform = transforms.ToTensor()
+        else:
+            self.transform = transform
         self.size = size
         self.step = step
         self.out_channels = out_channels
@@ -245,10 +256,10 @@ class TestingLionessDataset(Dataset):
         image_crop = image_crop.astype(numpy.float32)
         label_crop = label_crop.astype(numpy.float32)
 
-        x = torch.tensor(image_crop, dtype=torch.float32)
-        if self.out_channels > 1:
-            x = x.unsqueeze(0)
-            x = torch.tile(x, (self.out_channels, 1, 1))
+        if self.n_channels == 3:
+            image_crop = numpy.tile(image_crop[numpy.newaxis], (3, 1, 1))
+            image_crop = numpy.moveaxis(image_crop, 0, -1)
+        img = self.transform(image_crop)
         y = torch.tensor(label_crop > 0, dtype=torch.float32)
         return x, y
 
@@ -265,6 +276,16 @@ def get_dataset(cfg : dataclass, test_only : bool = False, **kwargs) -> tuple[Da
     # Updates the configuration inplace
     cfg.dataset_cfg = LionessConfiguration()
 
+    if cfg.in_channels == 3:
+        # ImageNet normalization
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            # transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+    else:
+        transform = transforms.ToTensor()    
+
     training_path = os.path.join(BASE_PATH, "segmentation-data", "lioness", "train")
     validation_path = os.path.join(BASE_PATH, "segmentation-data", "lioness", "valid")
     testing_path = os.path.join(BASE_PATH, "segmentation-data", "lioness", "test")
@@ -274,26 +295,29 @@ def get_dataset(cfg : dataclass, test_only : bool = False, **kwargs) -> tuple[Da
     else:
         training_dataset = LionessDataset(
             path=training_path,
+            transform=transform,
             data_aug=0.5,
             validation=False,
             size=224,
             step=0.75,
-            out_channels=cfg.in_channels
+            n_channels=cfg.in_channels
         )
         validation_dataset = LionessDataset(
             path=validation_path,
+            transform=transform,
             data_aug=0,
             validation=True,
             size=224,
             step=0.75,
-            out_channels=cfg.in_channels
+            n_channels=cfg.in_channels
         )
     testing_dataset = LionessDataset(
         path = testing_path,
+        transform=transform,
         validation=True,
         size = 224,
         step = 0.75,
-        out_channels = cfg.in_channels,
+        n_channels = cfg.in_channels,
         return_foregound=False
     )
     return training_dataset, validation_dataset, testing_dataset

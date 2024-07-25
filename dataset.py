@@ -15,7 +15,7 @@ from skimage import filters
 from utils.msrreader import MSRReader
 
 BASEPATH = "/home-local2/projects/FLCDataset"
-OUTPATH = "/home-local2/projects/FLCDataset/20240524-dataset.tar"
+OUTPATH = "/home-local2/projects/FLCDataset/20240718-dataset-full-images.tar"
 CROP_SIZE = 224
 MINIMUM_FOREGROUND = 0.01
 
@@ -93,7 +93,11 @@ def from_datasets_original_metadata():
                 image = numpy.clip((image - m) / (M - m), 0, 1) * 255
                 image = image.astype(numpy.uint8)
 
-                # Calculates forrground from Otsu
+                ###############################
+                # Using crops 
+                ###############################
+
+                # Calculates foreground from Otsu
                 threshold = filters.threshold_otsu(image)
                 foreground = image > threshold
 
@@ -166,31 +170,50 @@ def main():
             image = numpy.clip((image - m) / (M - m), 0, 1) * 255
             image = image.astype(numpy.uint8)
 
-            # Calculates forrground from Otsu
-            threshold = filters.threshold_otsu(image)
-            foreground = image > threshold
+            ################################
+            # Using complete images
+            ################################
+            
+            buffer = io.BytesIO()
+            numpy.savez(buffer, image=image, metadata=info)
+            buffer.seek(0)
 
-            for j in range(0, image.shape[-2], CROP_SIZE):
-                for i in range(0, image.shape[-1], CROP_SIZE):
-                    # NOTE. This generates the edge crops on right/bottom
-                    slc = (
-                        slice(j, j + CROP_SIZE) if j + CROP_SIZE < image.shape[-2] else slice(image.shape[-2] - CROP_SIZE, image.shape[-2]),
-                        slice(i,  i + CROP_SIZE) if i + CROP_SIZE < image.shape[-1] else slice(image.shape[-1] - CROP_SIZE, image.shape[-1]),
-                    )
-                    foreground_crop = foreground[slc]
-                    if foreground_crop.sum() > MINIMUM_FOREGROUND * CROP_SIZE ** 2:
-                        image_crop = image[slc]
+            tarinfo = tarfile.TarInfo(name=f'{info["image-id"]}')
+            tarinfo.size = len(buffer.getbuffer())
+            tf.addfile(tarinfo=tarinfo, fileobj=buffer)   
+            total_crops += 1
+            if total_crops % 100 == 0:
+                logging.info(f"{total_crops=}")   
 
-                        buffer = io.BytesIO()
-                        numpy.savez(buffer, image=image_crop, metadata=info)
-                        buffer.seek(0)
+            ################################
+            # Using crops 
+            ################################                  
 
-                        tarinfo = tarfile.TarInfo(name=f'{info["image-id"]}-{j}-{i}')
-                        tarinfo.size = len(buffer.getbuffer())
-                        tf.addfile(tarinfo=tarinfo, fileobj=buffer)    
-                        total_crops += 1
-                        if total_crops % 1000 == 0:
-                            logging.info(f"{total_crops=}")          
+            # # Calculates forrground from Otsu
+            # threshold = filters.threshold_otsu(image)
+            # foreground = image > threshold
+
+            # for j in range(0, image.shape[-2], CROP_SIZE):
+            #     for i in range(0, image.shape[-1], CROP_SIZE):
+            #         # NOTE. This generates the edge crops on right/bottom
+            #         slc = (
+            #             slice(j, j + CROP_SIZE) if j + CROP_SIZE < image.shape[-2] else slice(image.shape[-2] - CROP_SIZE, image.shape[-2]),
+            #             slice(i,  i + CROP_SIZE) if i + CROP_SIZE < image.shape[-1] else slice(image.shape[-1] - CROP_SIZE, image.shape[-1]),
+            #         )
+            #         foreground_crop = foreground[slc]
+            #         if foreground_crop.sum() > MINIMUM_FOREGROUND * CROP_SIZE ** 2:
+            #             image_crop = image[slc]
+
+            #             buffer = io.BytesIO()
+            #             numpy.savez(buffer, image=image_crop, metadata=info)
+            #             buffer.seek(0)
+
+            #             tarinfo = tarfile.TarInfo(name=f'{info["image-id"]}-{j}-{i}')
+            #             tarinfo.size = len(buffer.getbuffer())
+            #             tf.addfile(tarinfo=tarinfo, fileobj=buffer)    
+            #             total_crops += 1
+            #             if total_crops % 1000 == 0:
+            #                 logging.info(f"{total_crops=}")          
 
 if __name__ == "__main__":
     

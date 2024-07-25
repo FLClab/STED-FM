@@ -52,19 +52,15 @@ def handle_str_state_dict(name: str, weights: Union[str, Enum]) -> dict:
         return state_dict["state_dict"] 
     
     elif "micranet" in name.lower():
-        print(f"--- {name} | {weights} ---\n")
-        print(f"\t{state_dict.keys()}") 
         return state_dict["state_dict"]["backbone"]
 
     elif "resnet18" in name.lower():
-        print(f"--- {name} | {weights} ---\n")
         if "hpa" in weights.lower():
             return state_dict["state_dict"]["backbone"]
         elif "sted" in weights.lower():     
             return {key.replace("backbone.", ""): values for key, values in state_dict["state_dict"].items() if "backbone" in key}
 
     elif "resnet50" in name.lower():
-        print(f"--- {name} | {weights} ---\n")
         return state_dict["state_dict"]["backbone"]
 
     elif "convnext" in name.lower():
@@ -76,10 +72,13 @@ def handle_str_state_dict(name: str, weights: Union[str, Enum]) -> dict:
 def load_weights(name: str, weights: Union[str, Enum, None]) -> dict:
     # TODO: Fix all the if branches that are currently here to satisfy the strict=true loading condition after returning
     # Most probably weights from pretrained torchvision models
+
     if isinstance(weights, Enum):
+        print(f"--- {name} | Pretrained Image-Net ---\n")
         state_dict = handle_url_state_dict(name, weights=weights)
         return state_dict
     elif isinstance(weights, str):
+        print(f"--- {name} | {weights} ---\n")
         state_dict = handle_str_state_dict(name=name, weights=weights)
         return state_dict
 
@@ -108,7 +107,7 @@ def load_weights(name: str, weights: Union[str, Enum, None]) -> dict:
         #     raise KeyError(f"No model found in checkpoint.") 
         
     elif weights is None:
-        print(f"--- None weights refer to ViT encoder of MAE ---")
+        print(f"--- {name} | Pretrained Image-Net ---\n")
         return None
     else:
         raise NotImplementedError("Weights not implemented yet.")

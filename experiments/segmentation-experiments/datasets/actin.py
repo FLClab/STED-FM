@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from skimage import io
 from torch.utils.data import Dataset
 from tqdm import tqdm
+from torchvision import transforms
 
 import sys
 sys.path.insert(0, "..")
@@ -34,15 +35,19 @@ class HDF5Dataset(Dataset):
     :param out_channels: (optional) The number of output channels to return
     :param return_foregound: (optional) Wheter to return the foreground mask
     """
-    def __init__(self, file_path, data_aug=0, validation=False, size=256, step=0.75, cache_system=None, out_channels=1, return_foregound=False, **kwargs):
+    def __init__(self, file_path, transform=None, data_aug=0, validation=False, size=256, step=0.75, cache_system=None, n_channels=1, return_foregound=False, **kwargs):
         super(HDF5Dataset, self).__init__()
 
         self.file_path = file_path
+        if transform is None:
+            self.transform = transforms.ToTensor()
+        else:
+            self.transform = transform
         self.size = size
         self.step = step
         self.validation = validation
         self.data_aug = data_aug
-        self.out_channels = out_channels
+        self.n_channels = n_channels
         self.return_foregound = return_foregound
         self.classes = ["Rings", "Fibers"]
 
@@ -125,12 +130,12 @@ class HDF5Dataset(Dataset):
                 gamma = numpy.clip(numpy.random.lognormal(0.005, numpy.sqrt(0.005)), 0, 1)
                 image_crop = numpy.clip(image_crop**gamma, 0, 1)
 
-        x = torch.tensor(image_crop, dtype=torch.float32)
-        if self.out_channels > 1:
-            x = x.unsqueeze(0)
-            x = torch.tile(x, (self.out_channels, 1, 1))
-        y = torch.tensor(label_crop > 0, dtype=torch.float32)
-        return x, y
+        if self.n_channels == 3:
+            image_crop = numpy.tile(image_crop[numpy.newaxis], (3, 1, 1))
+            image_crop = numpy.moveaxis(image_crop, 0, -1)
+        img = self.transform(image_crop)
+        mask = torch.tensor(label_crop > 0, dtype=torch.float32)
+        return img, mask
 
     def __len__(self):
         return len(self.samples)
@@ -139,6 +144,16 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset,
 
     # Updates the configuration inplace
     cfg.dataset_cfg = FActinConfiguration()
+
+    if cfg.in_channels == 3:
+        # ImageNet normalization
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            # transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+    else:
+        transform = transforms.ToTensor()        
 
     hdf5_training_path = os.path.join(BASE_PATH, "segmentation-data", "factin", "training_small-dataset_20240418.hdf5")
     hdf5_validation_path = os.path.join(BASE_PATH, "segmentation-data", "factin", "validation_small-dataset_20240418.hdf5")
@@ -153,7 +168,7 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset,
             validation=False,
             size=224,
             step=0.75,
-            out_channels=cfg.in_channels
+            n_channels=cfg.in_channels
         )
         validation_dataset = HDF5Dataset(
             file_path=hdf5_validation_path,
@@ -161,7 +176,7 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset,
             validation=True,
             size=224,
             step=0.75,
-            out_channels=cfg.in_channels
+            n_channels=cfg.in_channels
         )
     testing_dataset = HDF5Dataset(
         file_path=hdf5_testing_path,
@@ -169,7 +184,7 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset,
         validation=True,
         size=224,
         step=0.75,
-        out_channels=cfg.in_channels,
+        n_channels=cfg.in_channels,
         return_foregound=True
     )
     return training_dataset, validation_dataset, testing_dataset
