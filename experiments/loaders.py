@@ -8,8 +8,6 @@ import random
 import os
 from DEFAULTS import BASE_PATH
 
-from DEFAULTS import BASE_PATH
-
 class BalancedSampler(Sampler):
     def __init__(self, dataset: Dataset, fewshot_pct: float = 0.01, num_classes: int = 4) -> None:
         self.dataset = dataset
@@ -241,21 +239,21 @@ def get_optim_dataset(path: str, training: bool = False, batch_size=256, num_sam
 
     if training: # Disregards the provided path
         train_dataset = datasets.OptimDataset(
-            data_folder="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/optim_train",
+            data_folder=os.path.join(BASE_PATH, "evaluation-data", "optim_train"),
             num_samples=samples_dict,
             apply_filter=True,
             classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
             **kwargs
         )
         valid_dataset = datasets.OptimDataset(
-            data_folder="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/optim_valid",
+            data_folder=os.path.join(BASE_PATH, "evaluation-data", "optim_valid"),
             num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
             apply_filter=True,
             classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
             **kwargs
         )
         test_dataset = datasets.OptimDataset(
-            data_folder="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/optim-data",
+            data_folder=os.path.join(BASE_PATH, "evaluation-data", "optim-data"),
             num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
             apply_filter=True,
             classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],

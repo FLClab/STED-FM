@@ -5,10 +5,15 @@ from tqdm import tqdm
 from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau
 import argparse 
 import sys 
+import os
 from sklearn.neighbors import NearestNeighbors
 from scipy.spatial.distance import cdist
-from torchinfo import summary
+try:
+    from torchinfo import summary
+except ModuleNotFoundError:
+    from torchsummary import summary
 sys.path.insert(0, "../")
+from DEFAULTS import BASE_PATH
 from loaders import get_dataset
 from model_builder import get_pretrained_model_v2 
 from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss
@@ -147,7 +152,7 @@ def main():
         training=True,
         num_samples=args.num_per_class,
     )
-
+    
     num_epochs = 100
     model = model.to(device)
 
@@ -160,7 +165,9 @@ def main():
     scheduler = ReduceLROnPlateau(optimizer=optimizer, patience=5)
     criterion = torch.nn.CrossEntropyLoss()
     modelname = args.model.replace("-lightning", "")
-    model_path=f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{SAVENAME}/{args.dataset}"
+    
+    model_path= os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
+    os.makedirs(model_path, exist_ok=True)
 
     # Training loop
     train_loss, val_loss, val_acc, lrates = [], [], [], []
