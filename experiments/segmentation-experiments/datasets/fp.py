@@ -12,6 +12,7 @@ from skimage import io, transform
 from torch.utils.data import Dataset
 from tqdm import tqdm
 from typing import Union
+from torchvision import transforms
 
 import sys
 sys.path.insert(0, "..")
@@ -39,17 +40,21 @@ class FPDataset(Dataset):
 
     KEEP_CHANNEL = 0
 
-    def __init__(self, path: str, files: Union[list, None] = None, data_aug: float = 0, validation: bool = False, 
-                 size :int = 256, step:float=0.75, cache_system:dict=None, out_channels:int=1, **kwargs) -> None:
+    def __init__(self, path: str, files: Union[list, None] = None, transform = None, data_aug: float = 0, validation: bool = False, 
+                 size :int = 256, step:float=0.75, cache_system:dict=None, n_channels:int=1, **kwargs) -> None:
         super(FPDataset, self).__init__()
 
         self.path = path
         self.files = files
+        if transform is None:
+            self.transform = transforms.ToTensor()
+        else:
+            self.transform = transform
         self.size = size
         self.step = step
         self.validation = validation
         self.data_aug = data_aug
-        self.out_channels = out_channels
+        self.n_channels = n_channels
         self.classes = ["FP", "SD"]
 
         self.__cache = {}
@@ -210,17 +215,27 @@ class FPDataset(Dataset):
                 gamma = numpy.clip(numpy.random.lognormal(0.005, numpy.sqrt(0.005)), 0, 1)
                 image_crop = numpy.clip(image_crop**gamma, 0, 1)
 
-        x = torch.tensor(image_crop, dtype=torch.float32)
-        if self.out_channels > 1:
-            x = x.unsqueeze(0)
-            x = torch.tile(x, (self.out_channels, 1, 1))
-        y = torch.tensor(label_crop > 0, dtype=torch.float32)
-        return x, y                
+        if self.n_channels == 3:
+            image_crop = numpy.tile(image_crop[numpy.newaxis], (3, 1, 1))
+            image_crop = numpy.moveaxis(image_crop, 0, -1)
+        img = self.transform(image_crop)
+        mask = torch.tensor(label_crop > 0, dtype=torch.float32)
+        return img, mask             
     
 def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
 
     # Updates the configuration inplace
     cfg.dataset_cfg = FPConfiguration()
+
+    if cfg.in_channels == 3:
+        # ImageNet normalization
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            # transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+    else:
+        transform = transforms.ToTensor()    
 
     training_path = os.path.join(BASE_PATH, "segmentation-data", "footprocess")
     with open(os.path.join(training_path, "training.txt"), "r") as f:
@@ -239,29 +254,32 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset,
     else:
         training_dataset = FPDataset(
             path=training_path,
+            transform=transform,
             files=training_files,
             data_aug=0.5,
             validation=False,
             size=224,
             step=0.75,
-            out_channels=cfg.in_channels
+            n_channels=cfg.in_channels
         )
         validation_dataset = FPDataset(
             path=validation_path,
+            transform=transform,
             files=validation_files,
             data_aug=0,
             validation=True,
             size=224,
             step=0.75,
-            out_channels=cfg.in_channels
+            n_channels=cfg.in_channels
         )
     testing_dataset = FPDataset(
         path=testing_path,
+        transform=transform,
         data_aug=0,
         validation=True,
         size=224,
         step=0.75,
-        out_channels=cfg.in_channels,
+        n_channels=cfg.in_channels,
         return_foregound=True
     )
     return training_dataset, validation_dataset, testing_dataset    

@@ -57,6 +57,7 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
     if name == "mae-lightning-tiny":
         cfg.dim = 192
         cfg.batch_size = 256
+        cfg.backbone = "vit-tiny"
         vit = vit_tiny_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
         backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
@@ -69,12 +70,14 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
     elif name == "mae-lightning-base":
         cfg.dim = 768
         cfg.batch_size = 128
+        cfg.backbone = "vit-base"
         vit = vit_base_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
         backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
     elif name == 'mae-lightning-large':
         cfg.dim = 1024
         cfg.batch_size = 64
+        cfg.backbone = "vit-large"
         vit = vit_large_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
         backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 

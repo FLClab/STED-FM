@@ -1,6 +1,7 @@
 
 import torch
 import random
+import os
 
 from multiprocessing import Manager
 from lightning.pytorch.core import LightningDataModule
@@ -15,7 +16,7 @@ class RepeatedSampler(torch.utils.data.Sampler):
     """
     Creates a sampler that repeatedly sample from an image
     """
-    def __init__(self, dataset, num_samples=10):
+    def __init__(self, dataset, num_samples=25):
         super().__init__()
 
         self.dataset = dataset
@@ -66,7 +67,7 @@ class MultiprocessingDataModule(LightningDataModule):
         self.dataset = get_dataset(
             self.dataset_name, self.dataset_path, 
             use_cache=True, cache_system=cache_system, 
-            max_cache_size=16e9,
+            max_cache_size=1e9,
             world_size = self.world_size, rank = self.rank,
             **self.kwargs
         )        
@@ -76,9 +77,9 @@ class MultiprocessingDataModule(LightningDataModule):
         return torch.utils.data.DataLoader(
             self.dataset, 
             batch_size = self.cfg.batch_size,
-            # sampler=sampler,
-            shuffle=True,
-            num_workers=10,
+            sampler=sampler,
+            # shuffle=True,
+            num_workers=max(os.cpu_count(), 10),
             pin_memory=True,
             prefetch_factor=4,
             persistent_workers=False,
