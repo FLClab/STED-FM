@@ -67,19 +67,19 @@ class MultiprocessingDataModule(LightningDataModule):
         self.dataset = get_dataset(
             self.dataset_name, self.dataset_path, 
             use_cache=True, cache_system=cache_system, 
-            max_cache_size=1e9,
+            max_cache_size=16e9,
             world_size = self.world_size, rank = self.rank,
             **self.kwargs
         )        
         
     def train_dataloader(self):
-        sampler = RepeatedSampler(self.dataset)
+        # sampler = RepeatedSampler(self.dataset)
         return torch.utils.data.DataLoader(
             self.dataset, 
             batch_size = self.cfg.batch_size,
-            sampler=sampler,
-            # shuffle=True,
-            num_workers=max(os.cpu_count(), 10),
+            # sampler=sampler,
+            shuffle=True,
+            num_workers=10,
             pin_memory=True,
             prefetch_factor=4,
             persistent_workers=False,
