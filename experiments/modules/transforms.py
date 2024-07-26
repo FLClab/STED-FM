@@ -328,8 +328,8 @@ class PoissonNoise(torch.nn.Module):
         if random.random() < self.p:
             # 255 is used to mimic typical acquisitions; the maximum 
             # We divide by 255 since the images are normalized
-            rates = torch.rand(tensor.size()) * random.uniform(0, self._lambda) * 255.
-            return tensor + torch.poisson(rates) / 255.
+            rates = tensor * 255.
+            return torch.poisson(rates) / 255.
         return tensor
 
     def __repr__(self):

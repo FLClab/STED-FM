@@ -16,7 +16,7 @@ sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH
 from loaders import get_dataset
 from model_builder import get_pretrained_model_v2 
-from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss
+from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss, update_cfg
 
 plt.style.use("dark_background")
 
@@ -28,8 +28,15 @@ parser.add_argument("--global-pool", type=str, default='avg')
 parser.add_argument("--blocks", type=str, default="all") # linear-probing by default
 parser.add_argument("--track-epochs", action="store_true")
 parser.add_argument("--num-per-class", type=int, default=None)
+parser.add_argument("--opts", nargs="+", default=[], 
+                    help="Additional configuration options")    
 parser.add_argument("--dry-run", action="store_true")
 args = parser.parse_args()
+
+# Assert args.opts is a multiple of 2
+if len(args.opts) == 1:
+    args.opts = args.opts[0].split(" ")
+assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
 
 def set_seeds():
     np.random.seed(42)
@@ -140,6 +147,10 @@ def main():
         as_classifier=True,
         blocks=args.blocks
     )
+
+    # Update configuration
+    cfg.args = args
+    update_cfg(cfg, args.opts)    
 
     summary(model, input_size=(cfg.batch_size, n_channels, 224, 224))
 

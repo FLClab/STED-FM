@@ -225,7 +225,7 @@ if __name__ == "__main__":
         cj_hue = 0,
         cj_gamma = 0,
         # scale = (0.75, 1.25),
-        scale = (0.3, 1.0),
+        scale = (0.75, 1.0),
         random_gray_scale = 0,
         gaussian_blur = 0,
         kernel_size = None,
@@ -235,8 +235,8 @@ if __name__ == "__main__":
         rr_prob = 0.5,
         rr_degrees = None,
         normalize = False,
-        gaussian_noise_prob = 0.,
-        poisson_noise_prob = 0.
+        gaussian_noise_prob = 0.5,
+        poisson_noise_prob = 0.5
     )
 
     datamodule = MultiprocessingDataModule(args, cfg, transform=transform)
