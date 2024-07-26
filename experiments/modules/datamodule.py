@@ -16,19 +16,27 @@ class RepeatedSampler(torch.utils.data.Sampler):
     """
     Creates a sampler that repeatedly sample from an image
     """
-    def __init__(self, dataset, num_samples=25):
+    def __init__(self, dataset):
         super().__init__()
 
         self.dataset = dataset
-        self.num_samples = num_samples
+        self.num_samples = self.get_num_samples()
+
+    def get_num_samples(self):
+        num_samples = []
+        for metadata in self.dataset.metadata():
+            item = metadata.item()
+            sizeX, sizeY = item["msr-metadata"]["SizeX"], item["msr-metadata"]["SizeY"]
+            num_samples.append(max(1, round((sizeX * sizeY) / (224 * 224))))
+        return num_samples
 
     def __len__(self) -> int: 
-        return len(self.dataset) * self.num_samples
+        return sum(self.num_samples)
 
     def __iter__(self):
         samples_per_image = []
         for i in range(len(self.dataset)):
-            samples_per_image.extend([i] * self.num_samples)
+            samples_per_image.extend([i] * self.num_samples[i])
         random.shuffle(samples_per_image)
         return iter(samples_per_image)
 
@@ -73,12 +81,12 @@ class MultiprocessingDataModule(LightningDataModule):
         )        
         
     def train_dataloader(self):
-        # sampler = RepeatedSampler(self.dataset)
+        sampler = RepeatedSampler(self.dataset)
         return torch.utils.data.DataLoader(
             self.dataset, 
             batch_size = self.cfg.batch_size,
-            # sampler=sampler,
-            shuffle=True,
+            sampler=sampler,
+            # shuffle=True,
             num_workers=10,
             pin_memory=True,
             prefetch_factor=4,
