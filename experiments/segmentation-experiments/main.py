@@ -52,7 +52,7 @@ class SegmentationConfiguration:
     
     freeze_backbone: bool = False
     num_epochs: int = 100
-    learning_rate: float = 0.1
+    learning_rate: float = 0.001
 
 if __name__ == "__main__":
 
@@ -233,10 +233,10 @@ if __name__ == "__main__":
             optimizer.step()
 
             if (i == 0) and args.use_tensorboard:
-                writer.add_images("Images-train/image", intensity_scale_(X[:5]), epoch, dataformats="NCHW")
+                writer.add_images("Images-train/image", intensity_scale_(X[:16]), epoch, dataformats="NCHW")
                 for i in range(cfg.dataset_cfg.num_classes):
-                    writer.add_images(f"Images-train/label-{i}", y[:5, i:i+1], epoch, dataformats="NCHW")
-                    writer.add_images(f"Images-train/pred-{i}", pred[:5, i:i+1], epoch, dataformats="NCHW")
+                    writer.add_images(f"Images-train/label-{i}", y[:16, i:i+1], epoch, dataformats="NCHW")
+                    writer.add_images(f"Images-train/pred-{i}", pred[:16, i:i+1], epoch, dataformats="NCHW")
 
             # To avoid memory leak
             torch.cuda.empty_cache()
@@ -265,10 +265,10 @@ if __name__ == "__main__":
             statLossTest.append(loss.item())
 
             if (i == 0) and args.use_tensorboard:
-                writer.add_images("Images-test/image", intensity_scale_(X[:5]), epoch, dataformats="NCHW")
+                writer.add_images("Images-test/image", intensity_scale_(X[:16]), epoch, dataformats="NCHW")
                 for i in range(cfg.dataset_cfg.num_classes):
-                    writer.add_images(f"Images-test/label-{i}", y[:5, i:i+1], epoch, dataformats="NCHW")
-                    writer.add_images(f"Images-test/pred-{i}", pred[:5, i:i+1], epoch, dataformats="NCHW")            
+                    writer.add_images(f"Images-test/label-{i}", y[:16, i:i+1], epoch, dataformats="NCHW")
+                    writer.add_images(f"Images-test/pred-{i}", pred[:16, i:i+1], epoch, dataformats="NCHW")            
 
             # To avoid memory leak
             torch.cuda.empty_cache()
