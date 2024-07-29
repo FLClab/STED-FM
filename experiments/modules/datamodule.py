@@ -81,12 +81,12 @@ class MultiprocessingDataModule(LightningDataModule):
         )        
         
     def train_dataloader(self):
-        sampler = RepeatedSampler(self.dataset)
+        # sampler = RepeatedSampler(self.dataset)
         return torch.utils.data.DataLoader(
             self.dataset, 
             batch_size = self.cfg.batch_size,
-            sampler=sampler,
-            # shuffle=True,
+            # sampler=sampler,
+            shuffle=True,
             num_workers=10,
             pin_memory=True,
             prefetch_factor=4,
