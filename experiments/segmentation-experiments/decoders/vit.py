@@ -38,7 +38,7 @@ class DeconvBlock(torch.nn.Module):
         super().__init__()
         self.block = torch.nn.Sequential(
             SingleDeconv(in_channels, out_channels),
-            SingleConv(out_channels, out_channels, kernel_size=3),
+            SingleConv(out_channels, out_channels, kernel_size=kernel_size),
             torch.nn.BatchNorm2d(out_channels),
             torch.nn.ReLU(True)
         )
@@ -132,6 +132,7 @@ class ViTDecoder(torch.nn.Module):
         z3 = self.decoder3_upsampler(torch.cat([z3, z6], dim=1))
         z0 = self.decoder0(z0)
         pred = self.decoder0_predict(torch.cat([z0, z3], dim=1))
+        pred = torch.sigmoid(pred)
         return pred
 
 def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn.Module:

@@ -70,8 +70,8 @@ class SimCLR(LightningModule):
         # Logging images
         writer = self.logger.experiment
         if (batch_idx == 0) and isinstance(writer, SummaryWriter):
-            writer.add_images("Images/view0", view0[:5], self.current_epoch, dataformats="NCHW")
-            writer.add_images("Images/view1", view1[:5], self.current_epoch, dataformats="NCHW")        
+            writer.add_images("Images/view0", view0[:16], self.current_epoch, dataformats="NCHW")
+            writer.add_images("Images/view1", view1[:16], self.current_epoch, dataformats="NCHW")        
 
         return loss
 
@@ -224,7 +224,7 @@ if __name__ == "__main__":
         cj_sat = 0,
         cj_hue = 0,
         cj_gamma = 0,
-        # scale = (0.75, 1.25),
+        # scale = (0.5, 1.5),
         scale = (0.3, 1.0),
         random_gray_scale = 0,
         gaussian_blur = 0,
@@ -235,8 +235,8 @@ if __name__ == "__main__":
         rr_prob = 0.5,
         rr_degrees = None,
         normalize = False,
-        gaussian_noise_prob = 0.,
-        poisson_noise_prob = 0.
+        gaussian_noise_prob = 0.5,
+        poisson_noise_prob = 0.5
     )
 
     datamodule = MultiprocessingDataModule(args, cfg, transform=transform)

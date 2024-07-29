@@ -883,7 +883,7 @@ class TarFLCDataset(Dataset):
 
         # store headers of all files and folders by name
         members = list(sorted(self.tar_obj[worker].getmembers(), key=lambda m: m.name))
-        # members = [self.tar_obj[worker].next() for _ in range(10000)]
+        # members = [self.tar_obj[worker].next() for _ in range(1000)]
         # members = list(self.tar_obj[worker].getmembers())
         self.members = self.__setup_multiprocessing(members)
 
@@ -892,6 +892,15 @@ class TarFLCDataset(Dataset):
             if not cache_system is None:
                 self.__cache = cache_system
             self.__fill_cache()
+
+    def metadata(self):
+        for idx in range(len(self.members)):
+            if idx in self.__cache:
+                data = self.__cache[idx]
+            else:
+                data = self.__get_item_from_tar(self.members[idx])
+            metadata = data["metadata"]
+            yield metadata            
 
     def __setup_multiprocessing(self, members : list):
         """

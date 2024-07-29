@@ -72,6 +72,7 @@ class HDF5Dataset(Dataset):
                     for j in range(0, shape[0], int(self.size * self.step)):
                         for i in range(0, shape[1], int(self.size * self.step)):
                             dendrite = dendrite_mask[j : j + self.size, i : i + self.size]
+                            dendrite = label[k, :2, j : j + self.size, i : i + self.size] > 0
                             if dendrite.sum() >= 0.1 * self.size * self.size: # dendrite is at least 1% of image
                                 samples.append((group_name, k, j, i))
                 if self.return_foregound:
@@ -164,6 +165,7 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset,
     else:
         training_dataset = HDF5Dataset(
             file_path=hdf5_training_path,
+            transform=transform,
             data_aug=0.5,
             validation=False,
             size=224,
@@ -172,6 +174,7 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset,
         )
         validation_dataset = HDF5Dataset(
             file_path=hdf5_validation_path,
+            transform=transform,
             data_aug=0,
             validation=True,
             size=224,
@@ -180,6 +183,7 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset,
         )
     testing_dataset = HDF5Dataset(
         file_path=hdf5_testing_path,
+        transform=transform,
         data_aug=0,
         validation=True,
         size=224,
