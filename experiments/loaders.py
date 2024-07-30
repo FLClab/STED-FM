@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from typing import List, Iterable, Callable
 import datasets
 from torch.utils.data import DataLoader, Sampler, Dataset
+import torchvision.transforms as T
 import random
 import os
 from DEFAULTS import BASE_PATH
@@ -87,6 +88,10 @@ def get_neural_activity_states(
         num_samples: int = None,
         protein_id: int = 3,
 ):
+    train_transform = T.Compose([
+        T.RandomHorizontalFlip(p=0.5),
+        T.RandomVerticalFlip(p=0.5),
+    ])
     train_dataset = datasets.NeuralActivityStates(
         h5file=f"{path}/NAS_train.hdf5",
         transform=transform,

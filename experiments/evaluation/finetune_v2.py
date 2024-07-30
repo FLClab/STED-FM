@@ -7,7 +7,11 @@ import argparse
 import sys 
 import os
 from sklearn.neighbors import NearestNeighbors
+from sklearn.decomposition import PCA
 from scipy.spatial.distance import cdist
+
+from lightly.utils.scheduler import CosineWarmupScheduler
+
 try:
     from torchinfo import summary
 except ModuleNotFoundError:
@@ -103,30 +107,50 @@ def knn_sanity_check(
     accuracy = np.diag(confusion_matrix).sum() / np.sum(confusion_matrix)
     print(f"--- Epoch {epoch} --> {args.dataset} ; {args.model} ; {savename} ---\n\tAccuracy: {accuracy * 100:0.2f}\n")
 
+def plot_features(features, labels, savename):
+    pca = PCA(n_components=2)
+    pca_features = pca.fit_transform(features)
+
+    fig, ax = plt.subplots()
+    ax.scatter(pca_features[:, 0], pca_features[:, 1], c=labels, cmap="rainbow")
+    if isinstance(savename, str):
+        fig.savefig(savename)
+    plt.close()
     
-def validation_step(model, valid_loader, criterion, epoch, device):
+def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None):
     model.eval()
     loss_meter = AverageMeter()
-    correct, N = np.array([0] * (4+1)), np.array([0] * (4+1))
+
+    num_classes = valid_loader.dataset.num_classes
+
+    correct, N = np.array([0] * (num_classes+1)), np.array([0] * (num_classes+1))
+    all_features, all_labels = [], []
     with torch.no_grad():
-        for imgs, data_dict in tqdm(valid_loader, desc="Validation..."):
+        for imgs, data_dict in tqdm(valid_loader, desc="Validation...", leave=False):
             labels =  data_dict['label']
             imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
-            predictions, _ = model(imgs)
+            predictions, features = model(imgs)
+
             loss = criterion(predictions, labels)
             loss_meter.update(loss.item())
-            c, n = compute_Nary_accuracy(predictions, labels)
+            c, n = compute_Nary_accuracy(predictions, labels, N=num_classes)
             correct = correct + c 
             N = n + N
+            all_features.extend(features.cpu().detach().numpy())
+            all_labels.extend(labels.cpu().detach().numpy())
+
     accuracies = correct / N 
     print("********* Validation metrics **********")
     print("Epoch {} validation loss = {:.3f} ({:.3f})".format(
         epoch + 1, loss_meter.val, loss_meter.avg))
     print("Overall accuracy = {:.3f}".format(accuracies[0]))
-    for i in range(1, 4+1):
+    for i in range(1, num_classes+1):
         acc = accuracies[i]
         print("Class {} accuracy = {:.3f}".format(
             i, acc))
+        
+    plot_features(all_features, all_labels, savename=save_dir)
+
     return loss_meter.avg, accuracies[0]
 
 
@@ -147,14 +171,16 @@ def main():
         as_classifier=True,
         blocks=args.blocks
     )
+    model = model.to(device)
 
     # Update configuration
     cfg.args = args
     update_cfg(cfg, args.opts)    
+    probe = "linear-probe" if args.blocks == "all" else "finetuned"
 
-    summary(model, input_size=(cfg.batch_size, n_channels, 224, 224))
+    # summary(model, input_size=(1, 224, 224), device=device.type)
 
-    train_loader, valid_loader, _ = get_dataset(
+    train_loader, valid_loader, test_loader = get_dataset(
         name=args.dataset,
         transform=None,
         path=None,
@@ -165,15 +191,18 @@ def main():
     )
     
     num_epochs = 100
-    model = model.to(device)
 
-
-    # if args.blocks == "all":
-    #     optimizer = torch.optim.SGD(model.parameters(), lr=0.1, weight_decay=0, momentum=0.9) 
-    # else:
-    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.99))
-    # scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=num_epochs)
-    scheduler = ReduceLROnPlateau(optimizer=optimizer, patience=5)
+    if probe == "linear-probe":
+        optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+        scheduler = CosineAnnealingLR(
+            optimizer=optimizer, T_max=num_epochs/10, eta_min=1e-6
+        )
+    else:
+        optimizer = torch.optim.SGD(model.parameters(), lr=1e-4) 
+        scheduler = CosineWarmupScheduler(
+            optimizer=optimizer, warmup_epochs=10, max_epochs=num_epochs,
+            start_value=1.0, end_value=0.01
+        )
     criterion = torch.nn.CrossEntropyLoss()
     modelname = args.model.replace("-lightning", "")
     
@@ -184,7 +213,7 @@ def main():
     train_loss, val_loss, val_acc, lrates = [], [], [], []
     save_best_model = SaveBestModel(
         save_dir=model_path,
-        model_name="linear-probe" if args.blocks == "all" else "finetuned"
+        model_name=probe
     )
 
     # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=0)
@@ -192,7 +221,7 @@ def main():
     for epoch in tqdm(range(num_epochs), desc="Epochs..."):
         model.train()
         loss_meter = AverageMeter()
-        for imgs, data_dict in tqdm(train_loader, desc="Training..."):
+        for imgs, data_dict in tqdm(train_loader, desc="Training...", leave=False):
             labels = data_dict['label']
             imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
             optimizer.zero_grad()
@@ -209,7 +238,8 @@ def main():
             valid_loader=valid_loader,
             criterion=criterion,
             epoch=epoch,
-            device=device
+            device=device,
+            save_dir = f"{model_path}/{probe}_pca.png"
         )
 
         # Do not save best model if in a dry run
@@ -226,8 +256,8 @@ def main():
         train_loss.append(loss_meter.avg)
         val_loss.append(v_loss)
         val_acc.append(v_acc)
-        scheduler.step(v_loss)
-        probe = "linear-probe" if args.blocks == "all" else "finetuned"
+        # scheduler.step(v_loss)
+        scheduler.step()
         track_loss(
             train_loss=train_loss,
             val_loss=val_loss,
@@ -236,6 +266,32 @@ def main():
             save_dir=f"{model_path}/{probe}_training-curves.png"
         )
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
-            
+    
+    model, cfg = get_pretrained_model_v2(
+        name=args.model,
+        weights=args.weights,
+        path=None,
+        mask_ratio=0.0, 
+        pretrained=True if n_channels==3 else False,
+        in_channels=n_channels,
+        as_classifier=True,
+        blocks=args.blocks
+    )
+    state_dict = torch.load(f"{save_best_model.save_dir}/{save_best_model.model_name}.pth", map_location="cpu")
+    model.load_state_dict(state_dict['model_state_dict'])
+    model = model.to(device)
+
+    loss, acc = validation_step(
+        model=model,
+        valid_loader=test_loader,
+        criterion=criterion,
+        epoch=num_epochs,
+        device=device
+    )
+    print("=====================================")
+    print(f"Testing loss: {loss}")
+    print(f"Testing accuracy: {acc * 100:0.2f}")
+    print("=====================================")
+
 if __name__=="__main__":
     main()
