@@ -587,6 +587,17 @@ class NeuralActivityStates(Dataset):
         self.images = images[protein_mask]
         self.labels = conditions[protein_mask]
         self.proteins = proteins[protein_mask]
+
+        print(f"{numpy.mean(numpy.mean(self.images, axis=(1, 2)))=}")
+        print(f"{numpy.mean(numpy.std(self.images, axis=(1, 2)))=}")
+
+        KEEPCLASSES = [0, 1, 2]
+        self.num_classes = len(KEEPCLASSES)
+        mask = np.isin(self.labels, KEEPCLASSES)
+        self.images = self.images[mask]
+        self.labels = self.labels[mask]
+        self.proteins = self.proteins[mask]
+
         assert self.images.shape[0] == self.labels.shape[0] == self.proteins.shape[0]
         
         if balance:
@@ -615,7 +626,8 @@ class NeuralActivityStates(Dataset):
         if self.n_channels == 3:
             img = np.tile(img[np.newaxis, :], (3, 1, 1))
             img = torch.tensor(img, dtype=torch.float32)
-            img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+            # img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+            img = transforms.Normalize(mean=[0.014, 0.014, 0.014], std=[0.03, 0.03, 0.03])(img)
 
         else:
             img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
