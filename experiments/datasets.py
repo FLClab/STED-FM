@@ -1041,15 +1041,19 @@ class TarFLCDataset(Dataset):
         indices = np.arange(0, len(self.members), 1)
         np.random.shuffle(indices)
         print("Filling up the cache...")
-        pbar = tqdm(indices, total=indices.shape[0])
-        for idx in pbar:
+        # pbar = tqdm(indices, total=indices.shape[0])
+        for n, idx in enumerate(indices):
             if self.__cache_size >= self.__max_cache_size:
                 break
             data = self.__get_item_from_tar(self.members[idx])
             data = {key : values for key, values in data.items()}
             self.__cache[idx] = data
             self.__cache_size += self.__getsizeof(data)
-            pbar.set_description(f"Cache size --> {self.__cache_size * 1e-9:0.2f}G")
+            # pbar.set_description(f"Cache size --> {self.__cache_size * 1e-9:0.2f}G")
+            if n % 1000 == 0:
+                worker = get_worker_info()
+                worker = worker.id if worker else None
+                print(f"Current cache (worker: {worker} | rank: {self.rank}): {n}/{len(indices)} ({self.__cache_size * 1e-9:0.2f}G)")
 
     def __len__(self):
         """
