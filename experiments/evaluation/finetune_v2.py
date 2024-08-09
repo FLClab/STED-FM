@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import torch 
+import random
 from tqdm import tqdm 
 from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau
 import argparse 
@@ -25,6 +26,7 @@ from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss
 plt.style.use("dark_background")
 
 parser = argparse.ArgumentParser()
+parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--dataset", type=str, default='synaptic-proteins')
 parser.add_argument("--model", type=str, default='mae-lightning-small')
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
@@ -43,8 +45,9 @@ if len(args.opts) == 1:
 assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
 
 def set_seeds():
-    np.random.seed(42)
-    torch.manual_seed(42)
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
 
 def get_save_folder() -> str: 
     if "imagenet" in args.weights.lower():
@@ -149,13 +152,14 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
         print("Class {} accuracy = {:.3f}".format(
             i, acc))
         
-    plot_features(all_features, all_labels, savename=save_dir)
+    # plot_features(all_features, all_labels, savename=save_dir)
 
     return loss_meter.avg, accuracies[0]
 
 
 def main():
-    # set_seeds()
+    set_seeds()
+
     SAVENAME = get_save_folder()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
@@ -194,11 +198,16 @@ def main():
 
     if probe == "linear-probe":
         optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
-        scheduler = CosineAnnealingLR(
-            optimizer=optimizer, T_max=num_epochs/10, eta_min=1e-6
-        )
+        scheduler = CosineWarmupScheduler(
+            optimizer=optimizer, warmup_epochs=10, max_epochs=num_epochs,
+            start_value=1.0, end_value=0.01,
+            period=num_epochs//10
+        )        
+        # scheduler = CosineAnnealingLR(
+        #     optimizer=optimizer, T_max=num_epochs/10, eta_min=1e-5
+        # )
     else:
-        optimizer = torch.optim.SGD(model.parameters(), lr=1e-4) 
+        optimizer = torch.optim.SGD(model.parameters(), lr=1e-3) 
         scheduler = CosineWarmupScheduler(
             optimizer=optimizer, warmup_epochs=10, max_epochs=num_epochs,
             start_value=1.0, end_value=0.01
@@ -258,13 +267,13 @@ def main():
         val_acc.append(v_acc)
         # scheduler.step(v_loss)
         scheduler.step()
-        track_loss(
-            train_loss=train_loss,
-            val_loss=val_loss,
-            val_acc=val_acc,
-            lrates=lrates,
-            save_dir=f"{model_path}/{probe}_training-curves.png"
-        )
+        # track_loss(
+        #     train_loss=train_loss,
+        #     val_loss=val_loss,
+        #     val_acc=val_acc,
+        #     lrates=lrates,
+        #     save_dir=f"{model_path}/{probe}_training-curves.png"
+        # )
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
     
     model, cfg = get_pretrained_model_v2(
