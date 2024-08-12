@@ -14,6 +14,7 @@ import os
 import glob
 import re
 import tifffile
+from collections import defaultdict
 import copy
 from skimage import filters
 
@@ -573,6 +574,7 @@ class PeroxisomeDataset(Dataset):
         classes: List = ["0.5hbackGluc", "1hbackGluc", "2hbackGluc", "6hGluc", "4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"], 
         n_channels: int = 1,
         resize_mode : str = "pad",
+        superclasses: bool = True,
         **kwargs
     ): 
         super().__init__()
@@ -589,7 +591,22 @@ class PeroxisomeDataset(Dataset):
             files = [os.path.join(BASE_PATH, file.strip()[1:]) for file in files]
         for i, class_name in enumerate(self.classes):
             self.samples[class_name] = [file for file in files if class_name in file]
+
+        if superclasses:
+            self.merge_superclasses()
         self.info = self.__get_info()
+
+    def __merge_superclasses(self) -> None:
+        merged_samples = defaultdict(list)
+        for key in self.samples.keys():
+            if "gluc" in key.lower():
+                merged_samples["gluc"].extend(self.samples[key])
+            elif "meoh" in key.lower():
+                merged_samples["meoh"].extend(self.samples[key])
+            else:
+                continue
+        self.samples = merged_samples
+        self.classes = ["gluc", "meoh"]
 
     def __get_info(self):
         info = []
