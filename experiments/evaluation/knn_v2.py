@@ -59,47 +59,24 @@ def extract_features(model: torch.nn.Module, loader: DataLoader, device: torch.d
 
 
 def knn_predict(model: torch.nn.Module, valid_loader: DataLoader, test_loader: DataLoader, device:torch.device, savename:str) -> None:
-    # samples, ground_truth = [], []
-    # with torch.no_grad():
-    #     for x, data_dict in tqdm(valid_loader, desc="Extracting validation set features..."):
-    #         labels = data_dict['label']
-    #         if args.dataset == "neural-activity-states":
-    #             proteins = data_dict["protein"].data.numpy()
-    #             assert np.unique(proteins).shape[0] == 1
 
-    #         x, labels = x.to(device), labels.to(device) 
-    #         if "mae" in args.model.lower():
-    #             features = model.forward_encoder(x)
-    #             if args.global_pool == "token":
-    #                 features = features[:, 0, :] # class token
-    #             else:
-    #                 features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens
-    #         elif "convnext" in args.model.lower():
-    #             features = model(x).flatten(start_dim=1)
-    #         else:
-    #             features = model(x)
-
-    #         truth = labels.data.cpu().numpy()
-    #         feat = features.data.cpu().numpy()
-    #         ground_truth.extend(truth)
-    #         samples.extend(feat)
     valid_samples, valid_ground_truth = extract_features(model=model, loader=valid_loader, device=device)
     test_samples, test_ground_truth = extract_features(model=model, loader=test_loader, device=device)
 
     if args.pca:
         plot_PCA(samples=test_samples, labels=test_ground_truth, savename=savename)
 
-    for n_neighbors in [5, 10, 15, 20]:
-        neighbors_obj = NearestNeighbors(n_neighbors=n_neighbors + 1, metric="precomputed")
-        pdistances = cdist(valid_samples, test_samples)
-        neighbors_obj = neighbors_obj.fit(pdistances)
-        distances, neighbors = neighbors_obj.kneighbors(X=pdistances, return_distance=True)
-        neighbors = neighbors[:, 1:]
+    pdistances = cdist(valid_samples, test_samples, metric="cosine").T
+    neighbor_indices = np.argsort(pdistances, axis=1)
 
-        associated_labels = valid_ground_truth[neighbors]
-        uniques = np.unique(valid_ground_truth).astype(np.int64)
+    # for [5, 10, 15, 20]:
+    n = 5
+    neighbors = neighbor_indices[:, :n]
+    
+    associated_labels = valid_ground_truth[neighbors]
+    uniques = np.unique(valid_ground_truth).astype(np.int64)
 
-        confusion_matrix = np.zeros((len(uniques), len(uniques)))
+    confusion_matrix = np.zeros((len(uniques), len(uniques)))
 
     for neighbor_labels, truth in zip(associated_labels, test_ground_truth):
         votes, vote_counts = np.unique(neighbor_labels, return_counts=True)
