@@ -12,7 +12,8 @@ class LinearProbe(torch.nn.Module):
         num_blocks: int = 0,
     ) -> None:
         super().__init__()
-        self.backbone = backbone
+
+        self.backbone = backbone.backbone.vit if "mae" in name.lower() else backbone
         self.name = name 
         self.num_classes = num_classes 
         self.global_pool = global_pool
@@ -40,7 +41,7 @@ class LinearProbe(torch.nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if "mae" in self.name.lower():
-            features = self.backbone.forward_encoder(x)
+            features = self.backbone.forward_features(x)
             if self.global_pool == "token":
                 features = features[:, 0, :] # class token 
             elif self.global_pool == "avg":

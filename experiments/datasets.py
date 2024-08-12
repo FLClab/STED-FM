@@ -479,6 +479,7 @@ class OptimDataset(Dataset):
         self.n_channels = n_channels
         self.class_files = {}
         self.samples = {}
+        self.num_classes = len(classes)
 
         random.seed(42)
         np.random.seed(42)
@@ -655,21 +656,34 @@ class NeuralActivityStates(Dataset):
         self.labels = conditions[protein_mask]
         self.proteins = proteins[protein_mask]
 
-        print(f"{numpy.mean(numpy.mean(self.images, axis=(1, 2)))=}")
-        print(f"{numpy.mean(numpy.std(self.images, axis=(1, 2)))=}")
+        # print(f"{numpy.mean(numpy.mean(self.images, axis=(1, 2)))=}")
+        # print(f"{numpy.mean(numpy.std(self.images, axis=(1, 2)))=}")
 
-        KEEPCLASSES = [0, 1, 2]
+        KEEPCLASSES = [0, 1, 2, 3]
+
         self.num_classes = len(KEEPCLASSES)
         mask = np.isin(self.labels, KEEPCLASSES)
         self.images = self.images[mask]
         self.labels = self.labels[mask]
         self.proteins = self.proteins[mask]
 
+        self.__reset_labels() #  Only required if we're not using KEEPCLASSES = [0, 1, 2]
+
+
         assert self.images.shape[0] == self.labels.shape[0] == self.proteins.shape[0]
         
         if balance:
+            np.random.seed(42)
             self.__balance_classes()
         self.dataset_size = self.images.shape[0]
+
+    def __reset_labels(self) -> None:
+        unique = np.unique(self.labels)
+        new_labels = np.zeros_like(self.labels)
+        for i, u in enumerate(unique):
+            mask = self.labels == u 
+            new_labels[mask] = i
+        self.labels = new_labels        
 
     def __balance_classes(self) -> None:
         uniques, counts = np.unique(self.labels, return_counts=True) 

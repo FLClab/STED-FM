@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import torch 
 import random
 from tqdm import tqdm 
-from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau
+from torch.optim.lr_scheduler import CosineAnnealingLR
 import argparse 
 import sys 
 import os
@@ -21,7 +21,7 @@ sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH
 from loaders import get_dataset
 from model_builder import get_pretrained_model_v2 
-from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss, update_cfg
+from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss, update_cfg, get_number_of_classes
 
 plt.style.use("dark_background")
 
@@ -158,6 +158,8 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
 
 
 def main():
+    # set_seeds()
+    num_classes = get_number_of_classes(dataset=args.dataset)
     set_seeds()
 
     SAVENAME = get_save_folder()
@@ -173,7 +175,8 @@ def main():
         pretrained=True if n_channels==3 else False,
         in_channels=n_channels,
         as_classifier=True,
-        blocks=args.blocks
+        blocks=args.blocks,
+        num_classes=num_classes
     )
     model = model.to(device)
 
@@ -194,7 +197,7 @@ def main():
         num_samples=args.num_per_class,
     )
     
-    num_epochs = 100
+    num_epochs = 300
 
     if probe == "linear-probe":
         optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
@@ -216,12 +219,13 @@ def main():
     modelname = args.model.replace("-lightning", "")
     
     model_path= os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
+    #model_path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{SAVENAME}/{args.dataset}"
     os.makedirs(model_path, exist_ok=True)
 
     # Training loop
     train_loss, val_loss, val_acc, lrates = [], [], [], []
     save_best_model = SaveBestModel(
-        save_dir=model_path,
+        save_dir=f"{model_path}",
         model_name=probe
     )
 
@@ -275,16 +279,17 @@ def main():
         #     save_dir=f"{model_path}/{probe}_training-curves.png"
         # )
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
-    
+
     model, cfg = get_pretrained_model_v2(
-        name=args.model,
-        weights=args.weights,
-        path=None,
-        mask_ratio=0.0, 
-        pretrained=True if n_channels==3 else False,
-        in_channels=n_channels,
-        as_classifier=True,
-        blocks=args.blocks
+    name=args.model,
+    weights=args.weights,
+    path=None,
+    mask_ratio=0.0, 
+    pretrained=True if n_channels==3 else False,
+    in_channels=n_channels,
+    as_classifier=True,
+    blocks=args.blocks,
+    num_classes=num_classes
     )
     state_dict = torch.load(f"{save_best_model.save_dir}/{save_best_model.model_name}.pth", map_location="cpu")
     model.load_state_dict(state_dict['model_state_dict'])

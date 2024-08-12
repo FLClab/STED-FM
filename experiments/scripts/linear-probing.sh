@@ -8,7 +8,7 @@
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-2
+#SBATCH --array=0-3
 
 #### PARAMETERS
 # Use this directory venv, reusable across RUNs
@@ -21,6 +21,7 @@ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 WEIGHTS=(
     "MAE_TINY_IMAGENET1K_V1"
+    "MAE_TINY_HPA"
     "MAE_TINY_JUMP"
     "MAE_TINY_STED"
 )

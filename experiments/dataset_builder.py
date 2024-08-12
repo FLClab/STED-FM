@@ -24,9 +24,9 @@ protein_dict = {
 
 condition_dict = {
     "Block": 0,
-    "48hTTX": 1,
+    "0MgGlyBic": 1,
     "GluGly": 2,
-    "0MgGlyBic": 3,
+    "48hTTX": 3,
 }
 
 # condition_dict = {
@@ -75,6 +75,7 @@ def create_hdf5(train_files: List[str], valid_files: List[str], test_files: List
             for ch in channels:
                 p = protein_dict[proteinsplit[ch]]
                 c = condition_dict[condition]
+                print(f"{condition} --> {c}")
                 img = normalize(data[ch])
                 tau = threshold_otsu(img)
                 img_tau = img >= tau 
