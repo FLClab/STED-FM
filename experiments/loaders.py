@@ -355,6 +355,7 @@ def get_dataset(name, path, **kwargs):
             transform=kwargs['transform'],
             batch_size=kwargs['batch_size'],
             num_samples=kwargs['num_samples'],
+            superclasses=kwargs.get("superclasses", False)
         )
     else:
         raise NotImplementedError(f"`{name}` dataset is not supported.")

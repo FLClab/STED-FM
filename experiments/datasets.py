@@ -571,7 +571,7 @@ class PeroxisomeDataset(Dataset):
     def __init__(
         self, source:str, 
         transform: Any, 
-        classes: List = ["0.5hbackGluc", "1hbackGluc", "2hbackGluc", "6hGluc", "4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"], 
+        classes: List = ["6hGluc", "4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"], 
         n_channels: int = 1,
         resize_mode : str = "pad",
         superclasses: bool = True,
@@ -593,8 +593,10 @@ class PeroxisomeDataset(Dataset):
             self.samples[class_name] = [file for file in files if class_name in file]
 
         if superclasses:
-            self.merge_superclasses()
+            self.__merge_superclasses()
         self.info = self.__get_info()
+        for k in self.samples.keys():
+            print(f"Class {k} samples: {len(self.samples[k])}")
 
     def __merge_superclasses(self) -> None:
         merged_samples = defaultdict(list)

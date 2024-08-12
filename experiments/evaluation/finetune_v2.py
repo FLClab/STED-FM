@@ -218,8 +218,8 @@ def main():
     criterion = torch.nn.CrossEntropyLoss()
     modelname = args.model.replace("-lightning", "")
     
-    model_path= os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
-    #model_path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{SAVENAME}/{args.dataset}"
+    # model_path= os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
+    model_path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{SAVENAME}/{args.dataset}"
     os.makedirs(model_path, exist_ok=True)
 
     # Training loop
@@ -271,13 +271,13 @@ def main():
         val_acc.append(v_acc)
         # scheduler.step(v_loss)
         scheduler.step()
-        # track_loss(
-        #     train_loss=train_loss,
-        #     val_loss=val_loss,
-        #     val_acc=val_acc,
-        #     lrates=lrates,
-        #     save_dir=f"{model_path}/{probe}_training-curves.png"
-        # )
+        track_loss(
+            train_loss=train_loss,
+            val_loss=val_loss,
+            val_acc=val_acc,
+            lrates=lrates,
+            save_dir=f"{model_path}/{probe}_training-curves.png"
+        )
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
 
     model, cfg = get_pretrained_model_v2(
