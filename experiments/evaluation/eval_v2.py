@@ -7,14 +7,21 @@ import sys
 sys.path.insert(0, "../")
 from model_builder import get_classifier_v3
 from loaders import get_dataset 
-from utils import compute_Nary_accuracy 
+from utils import compute_Nary_accuracy, update_cfg
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mae-lightning-small")
 parser.add_argument("--pretraining", type=str, default="STED")
 parser.add_argument("--probe", type=str, default="linear-probe", choices=["linear-probe", "finetuned"])
 parser.add_argument("--dataset", type=str, default="synaptic-proteins")
+parser.add_argument("--opts", nargs="+", default=[], 
+                    help="Additional configuration options")    
 args = parser.parse_args()
+
+# Assert args.opts is a multiple of 2
+if len(args.opts) == 1:
+    args.opts = args.opts[0].split(" ")
+assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
 
 def evaluate(
         model: torch.nn.Module,
@@ -55,6 +62,10 @@ def main():
         pretraining=args.pretraining,
         probe=args.probe,
     )
+
+    cfg.args = args
+    update_cfg(cfg, args.opts)
+
     model = model.to(device)
     _, _, test_loader = get_dataset(
         name=args.dataset,

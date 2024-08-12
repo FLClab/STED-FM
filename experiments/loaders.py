@@ -292,6 +292,30 @@ def get_factin_block_glugly_dataset(path: str, **kwargs):
     dataloader = DataLoader(dataset=dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
     return dataset
 
+def get_peroxisome_dataset(path: str, batch_size: int = 128, **kwargs):
+
+    training_dataset = datasets.PeroxisomeDataset(source=os.path.join(path, "peroxisome-training.txt"), **kwargs)
+    validation_dataset = datasets.PeroxisomeDataset(source=os.path.join(path, "peroxisome-validation.txt"), **kwargs)
+    testing_dataset = datasets.PeroxisomeDataset(source=os.path.join(path, "peroxisome-testing.txt"), **kwargs)
+
+    print(f"Training size: {len(training_dataset)}")
+    print(f"Validation size: {len(validation_dataset)}")
+    print(f"Test size: {len(testing_dataset)}")
+
+    # statistics = []
+    # for img, _ in training_dataset:
+    #     statistics.append(np.mean(img.numpy()))
+    # print(f"Training mean: {np.mean(statistics)}")
+    # statistics = []
+    # for img, _ in training_dataset:
+    #     statistics.append(np.std(img.numpy()))
+    # print(f"Training std: {np.std(statistics)}")
+
+    train_loader = DataLoader(dataset=training_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    valid_loader = DataLoader(dataset=validation_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    test_loader = DataLoader(dataset=testing_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    return train_loader, valid_loader, test_loader
+
 def get_dataset(name, path, **kwargs):
     if name == "optim":
         return get_optim_dataset(
@@ -324,6 +348,14 @@ def get_dataset(name, path, **kwargs):
         return get_factin_rings_fibers_dataset(path=path, transform=kwargs['transform'])
     elif name == "factin-block-glugly":
         return get_factin_block_glugly_dataset(path=path, transform=kwargs['transform'])
+    elif name == "peroxisome":
+        return get_peroxisome_dataset(
+            path=os.path.join(BASE_PATH, "evaluation-data", "peroxisome"), 
+            n_channels=kwargs['n_channels'], 
+            transform=kwargs['transform'],
+            batch_size=kwargs['batch_size'],
+            num_samples=kwargs['num_samples'],
+        )
     else:
         raise NotImplementedError(f"`{name}` dataset is not supported.")
 

@@ -1,3 +1,6 @@
+
+import os
+
 from models.lightly_mae import LightlyMAE
 from models.classifier import LinearProbe
 from timm.models.vision_transformer import vit_small_patch16_224
@@ -8,6 +11,7 @@ import torchvision
 
 from models import get_model
 from models.loading import get_weights
+from DEFAULTS import BASE_PATH
 
 def get_base_model(name: str, **kwargs):
     model, cfg = get_model(name, **kwargs)
@@ -55,9 +59,11 @@ def get_classifier_v3(name: str, dataset: str, pretraining: str, **kwargs):
         backbone.load_state_dict(checkpoint["model_state_dict"])
         return backbone, cfg
 
-    elif "mae" in name.lower():
+    elif name.lower() in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "vit-small", "mae", "mae-tiny", "mae-small", "mae-base", "mae-lightning-tiny", "mae-lightning-small", 'mae-lightning-base', 'mae-lightning-large']:
+        if "in_channels" not in kwargs:
+            kwargs["in_channels"] = 3 if (pretraining is not None and "imagenet" in pretraining.lower()) else 1        
         backbone, cfg = get_base_model(name, **kwargs)
-        probe = kwargs['probe']
+        probe = kwargs.get("probe", "linear-probe")
         num_blocks = "all" if probe == "linear-probe" else "0"
         model = LinearProbe(
             backbone=backbone,
@@ -67,7 +73,7 @@ def get_classifier_v3(name: str, dataset: str, pretraining: str, **kwargs):
             num_blocks=num_blocks
         )
         modelname = name.replace("-lightning", "")
-        path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{pretraining}/{dataset}/{probe}.pth"
+        path = os.path.join(BASE_PATH, "baselines", f"{modelname}_{pretraining}", dataset, f"{probe}.pth")
         checkpoint = torch.load(path)
         model.load_state_dict(checkpoint["model_state_dict"])
         print(f"--- Loaded linear probe weights onto {name} ---")

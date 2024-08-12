@@ -259,14 +259,12 @@ class MicroscopyColorJitter(torch.nn.Module):
         return tensor
 
 class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
-    def __init__(self, size, scale, min_fg=0.01) -> None:
+    def __init__(self, size, scale, min_fg=0.01, threshold=0.02) -> None:
         super().__init__(size, scale)
 
         self.min_fg = min_fg
-        self.bin_size = 16
-        self.max_tries = 5
-
-        self.precomputed_fg = {}
+        self.max_tries = 10
+        self.threshold = threshold
 
     def get_params(self, image, scale, ratio):
         """
@@ -289,48 +287,59 @@ class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
         """
         Implements a random resized crop with a minimum foreground
         """
-        # Forward small images directly
-        if img.size()[1] == self.size[0] and img.size()[2] == self.size[1]:
-            fg = img > 0.1
-            for _ in range(self.max_tries):
-                i, j, h, w = self.get_params(img, self.scale, self.ratio)
-                crop = fg[:, j : j + w, i : i + w]
-                if crop.sum() > self.min_fg * torch.numel(crop):
-                    break
-            return F.resized_crop(img, j, i, h, w, self.size, self.interpolation, antialias=self.antialias)
+        for n in range(self.max_tries):
+            i, j, h, w = self.get_params(img, self.scale, self.ratio)
+            crop = img[:, j : j + w, i : i + w] > self.threshold
+            if crop.sum() > self.min_fg * torch.numel(crop):
+                break
 
-        # Precompute the foreground mask
-        key = (img.size()[1], img.size()[2], *img[0, 0, :10].tolist())
-        if key in self.precomputed_fg:
-            fg = self.precomputed_fg[key]
-        else:
-            fg = torch.nn.functional.avg_pool2d(img, self.bin_size)
-            threshold = torch.quantile(fg, 0.50)
-            fg = fg > threshold
-            self.precomputed_fg[key] = fg
+        if n == self.max_tries - 1:
+            h, w = self.size
 
-        # Sample a random crop
-        s = random.uniform(*self.scale)
-        h = int(round(self.size[0] / self.bin_size * s))
-        w = int(round(self.size[1] / self.bin_size * s))
-        if h > (fg.size()[1] - 1) or w > (fg.size()[2] - 1):
-            h, w = int(self.size[0] / self.bin_size), int(self.size[1] / self.bin_size)
+            fg = img > self.threshold
+            mask = torch.zeros_like(fg)
+            mask[:, : -h, :-w] = 1
+            fg = mask & fg
+            argwhere = torch.argwhere(fg)
+            if len(argwhere) == 0:
+                j, i = 0, 0
+            else:
+                _, j, i = argwhere[random.randint(0, argwhere.size(0) - 1)]
 
-        # Sample a random crop with minimum foreground
-        argwhere = torch.argwhere(fg[:, :fg.size()[1] - h - 1, :fg.size()[2] - w - 1] > 0)
-        if argwhere.size(0) == 0:
-            i, j = 0, 0
-        else:
-            idx = random.randint(0, argwhere.size(0) - 1)
-            _, j, i = argwhere[idx]
-            i, j = i.item(), j.item()
+        return F.resized_crop(img, j, i, h, w, self.size, self.interpolation, antialias=self.antialias)
 
-        # Return the resized crop
-        return F.resized_crop(
-            img, 
-            j * self.bin_size, i * self.bin_size, h * self.bin_size, w * self.bin_size, 
-            self.size, self.interpolation, antialias=self.antialias
-        )
+        # # Precompute the foreground mask
+        # key = (img.size()[1], img.size()[2], *img[0, 0, :10].tolist())
+        # if key in self.precomputed_fg:
+        #     fg = self.precomputed_fg[key]
+        # else:
+        #     fg = torch.nn.functional.avg_pool2d(img, self.bin_size)
+        #     threshold = torch.quantile(fg, 0.50)
+        #     fg = fg > threshold
+        #     self.precomputed_fg[key] = fg
+
+        # # Sample a random crop
+        # s = random.uniform(*self.scale)
+        # h = int(round(self.size[0] / self.bin_size * s))
+        # w = int(round(self.size[1] / self.bin_size * s))
+        # if h > (fg.size()[1] - 1) or w > (fg.size()[2] - 1):
+        #     h, w = int(self.size[0] / self.bin_size), int(self.size[1] / self.bin_size)
+
+        # # Sample a random crop with minimum foreground
+        # argwhere = torch.argwhere(fg[:, :fg.size()[1] - h - 1, :fg.size()[2] - w - 1] > 0)
+        # if argwhere.size(0) == 0:
+        #     i, j = 0, 0
+        # else:
+        #     idx = random.randint(0, argwhere.size(0) - 1)
+        #     _, j, i = argwhere[idx]
+        #     i, j = i.item(), j.item()
+
+        # # Return the resized crop
+        # return F.resized_crop(
+        #     img, 
+        #     j * self.bin_size, i * self.bin_size, h * self.bin_size, w * self.bin_size, 
+        #     self.size, self.interpolation, antialias=self.antialias
+        # )
 
 # class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
 #     def __init__(self, size, scale, min_fg=0.1) -> None:

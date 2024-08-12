@@ -3,6 +3,7 @@ import numpy
 import numpy as np
 import io
 import torch
+import skimage.transform
 from typing import Any, List, Tuple, Callable
 from torch.utils.data import Dataset, get_worker_info
 from tqdm import tqdm
@@ -474,6 +475,7 @@ class OptimDataset(Dataset):
         self.transform = transform
         self.apply_filter = apply_filter
         self.classes = classes 
+        self.num_classes = len(self.classes)
         self.n_channels = n_channels
         self.class_files = {}
         self.samples = {}
@@ -561,6 +563,71 @@ class OptimDataset(Dataset):
             out += f"{key} - {len(values)}\n"        
         return "Dataset(optim) -- length: {}".format(len(self)) + out
     
+class PeroxisomeDataset(Dataset):
+    """
+    Note. We do not use "6hbackGluc" since it is not present as a Triplo in the dataset
+    """
+    def __init__(
+        self, source:str, 
+        transform: Any, 
+        classes: List = ["0.5hbackGluc", "1hbackGluc", "2hbackGluc", "6hGluc", "4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"], 
+        n_channels: int = 1,
+        resize_mode : str = "pad",
+        **kwargs
+    ): 
+        super().__init__()
+        self.source = source
+        self.transform = transform
+        self.classes = classes
+        self.n_channels = n_channels
+        self.resize_mode = resize_mode
+        self.num_classes = len(self.classes)
+
+        self.samples = {}
+        with open(source, "r") as file:
+            files = file.readlines()
+            files = [os.path.join(BASE_PATH, file.strip()[1:]) for file in files]
+        for i, class_name in enumerate(self.classes):
+            self.samples[class_name] = [file for file in files if class_name in file]
+        self.info = self.__get_info()
+
+    def __get_info(self):
+        info = []
+        for key, values in self.samples.items():
+            for value in values:
+                info.append({
+                    "img" : value,
+                    "label" : key
+                })
+        return info
+    
+    def __getitem__(self, idx: int):
+        item = self.info[idx]
+
+        img = tifffile.imread(item["img"])[0] # We only select Pex3 channel
+        m, M = img.min(), img.max()
+        img = (img - m) / (M - m)
+
+        # Images do not match the expected 224x224 size
+        if self.resize_mode == "pad":
+            img = numpy.pad(img, ((0, 224 - img.shape[0]), (0, 224 - img.shape[1])), mode="constant", constant_values=0)
+        elif self.resize_mode == "resize":
+            img = skimage.transform.resize(img, (224, 224), order=1, mode="constant", cval=0, anti_aliasing=True, preserve_range=True)
+
+        label = self.classes.index(item["label"])
+
+        if self.n_channels == 3:
+            img = np.tile(img[np.newaxis, :], (3, 1, 1))
+            img = torch.tensor(img, dtype=torch.float32)
+            # img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+            img = transforms.Normalize(mean=[0.07, 0.07, 0.07], std=[0.03, 0.03, 0.03])(img)
+        else:
+            img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
+            img = self.transform(img) if self.transform is not None else img         
+        return img, {"label" : label, "dataset-idx" : idx}
+
+    def __len__(self):
+        return len(self.info)
 
 class NeuralActivityStates(Dataset):
     def __init__(
@@ -988,15 +1055,19 @@ class TarFLCDataset(Dataset):
         indices = np.arange(0, len(self.members), 1)
         np.random.shuffle(indices)
         print("Filling up the cache...")
-        pbar = tqdm(indices, total=indices.shape[0])
-        for idx in pbar:
+        # pbar = tqdm(indices, total=indices.shape[0])
+        for n, idx in enumerate(indices):
             if self.__cache_size >= self.__max_cache_size:
                 break
             data = self.__get_item_from_tar(self.members[idx])
             data = {key : values for key, values in data.items()}
             self.__cache[idx] = data
             self.__cache_size += self.__getsizeof(data)
-            pbar.set_description(f"Cache size --> {self.__cache_size * 1e-9:0.2f}G")
+            # pbar.set_description(f"Cache size --> {self.__cache_size * 1e-9:0.2f}G")
+            if n % 1000 == 0:
+                worker = get_worker_info()
+                worker = worker.id if worker else None
+                print(f"Current cache (worker: {worker} | rank: {self.rank}): {n}/{len(indices)} ({self.__cache_size * 1e-9:0.2f}G)")
 
     def __len__(self):
         """
@@ -1033,7 +1104,8 @@ class TarFLCDataset(Dataset):
             else:
                 img = img.float()
         else:
-            img = img[np.newaxis]
+            if img.ndim == 2:
+                img = img[np.newaxis]
             img = torch.tensor(img, dtype=torch.float32)
 
         if self.return_metadata:

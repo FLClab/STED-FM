@@ -98,9 +98,9 @@ class SimCLR(LightningModule):
             # linear scaling can be used for larger batches and longer training:
             # lr=0.3 * self.batch_size_per_device * self.trainer.world_size / 256,
             # See Appendix B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
-            # lr=0.075 * math.sqrt(self.cfg.batch_size * self.trainer.world_size),
+            lr=0.075 * math.sqrt(self.cfg.batch_size * self.trainer.world_size),
             # lr=0.075 * math.sqrt(1024),
-            lr = 0.3,
+            # lr = 0.3,
             momentum=0.9,
             # Note: Paper uses weight decay of 1e-6 but reference code 1e-4. See:
             # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
@@ -225,7 +225,7 @@ if __name__ == "__main__":
         cj_hue = 0,
         cj_gamma = 0,
         # scale = (0.5, 1.5),
-        scale = (0.3, 1.0),
+        scale = (0.5, 1.0),
         random_gray_scale = 0,
         gaussian_blur = 0,
         kernel_size = None,

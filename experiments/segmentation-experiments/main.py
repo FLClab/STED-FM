@@ -175,6 +175,15 @@ if __name__ == "__main__":
         sampler = SubsetRandomSampler(train_indices)
     else:
         sampler = None
+    
+    print("----------------------------------------")
+    print("Training Dataset")
+    print("Dataset size: ", len(training_dataset))
+    print("Dataset size (with sampler): ", len(sampler))
+    print("----------------------------------------")
+    print("Validation Dataset")
+    print("Dataset size: ", len(validation_dataset))
+    print("----------------------------------------")
 
     # Build a PyTorch dataloader.
     train_loader = torch.utils.data.DataLoader(
@@ -182,7 +191,7 @@ if __name__ == "__main__":
         batch_size=cfg.batch_size,  # A large batch size helps with the learning.
         shuffle=sampler is None,  # Shuffling is important!
         num_workers=4,
-        sampler=sampler
+        sampler=sampler, drop_last=False
     )
     valid_loader = torch.utils.data.DataLoader(
         validation_dataset,  # Pass the dataset to the dataloader.

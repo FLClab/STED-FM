@@ -89,16 +89,17 @@ def knn_predict(model: torch.nn.Module, valid_loader: DataLoader, test_loader: D
     if args.pca:
         plot_PCA(samples=test_samples, labels=test_ground_truth, savename=savename)
 
-    pdistances = cdist(valid_samples, test_samples, metric='cosine').T
-    neighbor_indices = np.argsort(pdistances, axis=1)
-    neighbors = neighbor_indices[:, :5]
+    for n_neighbors in [5, 10, 15, 20]:
+        neighbors_obj = NearestNeighbors(n_neighbors=n_neighbors + 1, metric="precomputed")
+        pdistances = cdist(valid_samples, test_samples)
+        neighbors_obj = neighbors_obj.fit(pdistances)
+        distances, neighbors = neighbors_obj.kneighbors(X=pdistances, return_distance=True)
+        neighbors = neighbors[:, 1:]
 
+        associated_labels = valid_ground_truth[neighbors]
+        uniques = np.unique(valid_ground_truth).astype(np.int64)
 
-
-    associated_labels = valid_ground_truth[neighbors]
-    uniques = np.unique(valid_ground_truth).astype(np.int64)
-
-    confusion_matrix = np.zeros((len(uniques), len(uniques)))
+        confusion_matrix = np.zeros((len(uniques), len(uniques)))
 
     for neighbor_labels, truth in zip(associated_labels, test_ground_truth):
         votes, vote_counts = np.unique(neighbor_labels, return_counts=True)
