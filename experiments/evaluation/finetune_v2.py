@@ -303,6 +303,7 @@ def main():
         device=device
     )
     print("=====================================")
+    print(f"Dataset: {args.dataset}")
     print(f"Testing loss: {loss}")
     print(f"Testing accuracy: {acc * 100:0.2f}")
     print("=====================================")

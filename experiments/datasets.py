@@ -491,8 +491,6 @@ class OptimDataset(Dataset):
             self.samples[class_name] = self._get_sampled_files(self.class_files[class_name], self.num_samples.get(class_name))
             self.labels.extend([i] * len(self.samples[class_name]))
 
-
-
     def _filter_files(self, class_folder):
         SCORE = 0.70
         files = glob.glob(os.path.join(class_folder, "**/*.npz"), recursive=True)
@@ -645,6 +643,116 @@ class PeroxisomeDataset(Dataset):
 
     def __len__(self):
         return len(self.info)
+    
+class PolymerRingsDataset(Dataset):
+    """
+    Dataset containing ESCRT-III polymer rings (CdvB, CdvB1 and CdvB2) in wildtype archaea (Sacidocaldarius_DSM639) 
+    imaged with STimulated Emission Depletion (STED) nanoscopy.
+
+    The task is to classify CdvB1 and CdvB2 rings when CdvB is present or not.
+
+    When superclass is activated the task consists only in classifying between CdvB1 and CdvB2 rings.
+    """
+    def __init__(
+        self, source:str, 
+        transform: Any, 
+        classes: List = ["CdvB1", "CdvB2"], 
+        n_channels: int = 1,
+        resize_mode : str = "pad",
+        superclasses: bool = True,
+        **kwargs
+    ): 
+        super().__init__()
+        self.source = source
+        self.transform = transform
+        self.classes = classes
+        self.n_channels = n_channels
+        self.resize_mode = resize_mode
+        self.num_classes = len(self.classes)
+
+        with open(source, "r") as file:
+            files = file.readlines()
+            files = [os.path.join(BASE_PATH, file.strip()[1:]) for file in files]
+        
+        self.samples = {}        
+        for i, class_name in enumerate(self.classes):
+            self.samples[class_name] = [file for file in files if class_name in file]
+        
+        if not superclasses:
+            tmp = {}
+            for name in ["with_CdvB", "no_CdvB"]:
+                for key, values in self.samples.items():
+                    tmp[f"{key} ({name})"] = [file for file in values if name in file]
+            self.samples = tmp 
+
+        print("Samples: ", os.path.basename(source))
+        for key, values in self.samples.items():
+            print(key, len(values))
+
+        self.classes = list(sorted(self.samples.keys()))
+        self.num_classes = len(self.classes)
+        self.info = self.__get_info()
+
+        # statistics = defaultdict(list)
+        # for i in range(len(self.info)):
+        #     item = self.info[i]
+        #     img = tifffile.imread(item["img"])[item["chan-idx"]]
+        #     m, M = img.min(), img.max()
+        #     img = (img - m) / (M - m)
+        #     statistics["mean"].append(numpy.mean(img))
+        #     statistics["std"].append(numpy.std(img))
+        # print(f"Mean: {numpy.mean(statistics['mean'])}, Std: {numpy.mean(statistics['std'])}")
+
+
+    def __get_info(self):
+        info = []
+        for key, values in self.samples.items():
+            protein_id = key.split(" ")[0] if "(" in key else key
+
+            for value in values:
+                basename = os.path.basename(value)
+                name = os.path.splitext(basename)[0]
+
+                chan = name.split("_")
+                if protein_id in chan:
+                    chan_idx = chan.index(protein_id) - 3
+                else:
+                    continue
+                
+                info.append({
+                    "img" : value,
+                    "label" : key,
+                    "chan-idx" : chan_idx
+                })
+        return info
+    
+    def __getitem__(self, idx: int):
+        item = self.info[idx]
+
+        img = tifffile.imread(item["img"])[item["chan-idx"]]
+        m, M = img.min(), img.max()
+        img = (img - m) / (M - m)
+
+        # Images do not match the expected 224x224 size
+        if self.resize_mode == "pad":
+            img = numpy.pad(img, ((0, 224 - img.shape[0]), (0, 224 - img.shape[1])), mode="constant", constant_values=0)
+        elif self.resize_mode == "resize":
+            img = skimage.transform.resize(img, (224, 224), order=1, mode="constant", cval=0, anti_aliasing=True, preserve_range=True)
+
+        label = self.classes.index(item["label"])
+
+        if self.n_channels == 3:
+            img = np.tile(img[np.newaxis, :], (3, 1, 1))
+            img = torch.tensor(img, dtype=torch.float32)
+            # img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+            img = transforms.Normalize(mean=[0.03, 0.03, 0.03], std=[0.09, 0.09, 0.09])(img)
+        else:
+            img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
+            img = self.transform(img) if self.transform is not None else img      
+        return img, {"label" : label, "dataset-idx" : idx}
+
+    def __len__(self):
+        return len(self.info)    
 
 class NeuralActivityStates(Dataset):
     def __init__(
@@ -996,13 +1104,14 @@ class TarFLCDataset(Dataset):
         # members = [self.tar_obj[worker].next() for _ in range(1000)]
         # members = list(self.tar_obj[worker].getmembers())
         self.members = self.__setup_multiprocessing(members)
+        # self.members = members
 
         if use_cache and self.__max_cache_size > 0:
             self.__cache_size = 0
             if not cache_system is None:
                 self.__cache = cache_system
             self.__fill_cache()
-
+    
     def metadata(self):
         for idx in range(len(self.members)):
             if idx in self.__cache:
@@ -1090,7 +1199,7 @@ class TarFLCDataset(Dataset):
         """
         Implements the `__len__` method for the dataset.
         """
-        return len(self.members)
+        return len(self.members)# * self.world_size
 
     def __getitem__(self, idx: int) -> torch.Tensor:
         """
@@ -1100,6 +1209,7 @@ class TarFLCDataset(Dataset):
 
         :returns : The item at the given index.
         """
+
         if idx in self.__cache:
             data = self.__cache[idx]
         else:

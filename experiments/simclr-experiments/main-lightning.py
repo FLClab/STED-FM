@@ -98,10 +98,10 @@ class SimCLR(LightningModule):
             # linear scaling can be used for larger batches and longer training:
             # lr=0.3 * self.batch_size_per_device * self.trainer.world_size / 256,
             # See Appendix B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
-            lr=0.075 * math.sqrt(self.cfg.batch_size * self.trainer.world_size),
+            # lr=0.075 * math.sqrt(self.cfg.batch_size * self.trainer.world_size),
             # lr=0.075 * math.sqrt(1024),
-            # lr = 0.3,
-            momentum=0.9,
+            lr = 0.3,
+            momentum = 0.9,
             # Note: Paper uses weight decay of 1e-6 but reference code 1e-4. See:
             # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
             weight_decay=1e-6,
@@ -113,9 +113,9 @@ class SimCLR(LightningModule):
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
                 warmup_epochs=int(
-                    self.trainer.estimated_stepping_batches
-                    / self.trainer.max_epochs
-                    * 10
+                    self.trainer.estimated_stepping_batches * 0.01
+                    # / self.trainer.max_epochs
+                    # * 10
                 ),
                 max_epochs=int(self.trainer.estimated_stepping_batches),
             ),
@@ -182,19 +182,29 @@ if __name__ == "__main__":
     last_model_callback = ModelCheckpoint(
         dirpath=OUTPUT_FOLDER,
         filename="result",
+        # every_n_train_steps=100,
         every_n_epochs=1,
         enable_version_counter=False
     )
     last_model_callback.FILE_EXTENSION = ".pt"
-    checkpoint_callback = ModelCheckpoint(
+    # checkpoint_callback = ModelCheckpoint(
+    #     dirpath=OUTPUT_FOLDER,
+    #     every_n_epochs=10,
+    #     filename="checkpoint-{epoch}",
+    #     save_top_k=-1,
+    #     auto_insert_metric_name=False,
+    #     enable_version_counter=False
+    # )
+    # checkpoint_callback.FILE_EXTENSION = ".pt"
+    step_checkpoint_callback = ModelCheckpoint(
         dirpath=OUTPUT_FOLDER,
-        every_n_epochs=10,
-        filename="checkpoint-{epoch}",
+        every_n_train_steps=5000,
+        filename="checkpoint-{step}",
         save_top_k=-1,
         auto_insert_metric_name=False,
         enable_version_counter=False
     )
-    checkpoint_callback.FILE_EXTENSION = ".pt"
+    step_checkpoint_callback.FILE_EXTENSION = ".pt"
 
     # metric_callback = MetricCallback()
     callbacks = [
@@ -203,7 +213,8 @@ if __name__ == "__main__":
         # DeviceStatsMonitor(),
         # metric_callback,
         last_model_callback, 
-        checkpoint_callback
+        # checkpoint_callback,
+        step_checkpoint_callback
     ]
 
     # Build the SimCLR model.
@@ -224,8 +235,8 @@ if __name__ == "__main__":
         cj_sat = 0,
         cj_hue = 0,
         cj_gamma = 0,
-        # scale = (0.5, 1.5),
-        scale = (0.5, 1.0),
+        scale = (1.0, 1.0),
+        # scale = (0.5, 1.0),
         random_gray_scale = 0,
         gaussian_blur = 0,
         kernel_size = None,
@@ -242,14 +253,16 @@ if __name__ == "__main__":
     datamodule = MultiprocessingDataModule(args, cfg, transform=transform)
 
     trainer = Trainer(
-        max_epochs=1000,
+        max_epochs=-1,
+        max_steps=1_000_000,
         devices="auto",
         num_nodes=int(os.environ.get("SLURM_NNODES", 1)),
         accelerator="gpu",
         strategy="ddp",
         sync_batchnorm=True,
-        use_distributed_sampler=True,
+        use_distributed_sampler=False,
         logger=logger,
         callbacks=callbacks,
+        limit_val_batches=0.0
     )
     trainer.fit(model, train_dataloaders=datamodule, ckpt_path=args.restore_from)

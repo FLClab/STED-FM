@@ -316,6 +316,30 @@ def get_peroxisome_dataset(path: str, batch_size: int = 128, **kwargs):
     test_loader = DataLoader(dataset=testing_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
     return train_loader, valid_loader, test_loader
 
+def get_polymer_rings_dataset(path: str, batch_size: int = 128, **kwargs):
+
+    training_dataset = datasets.PolymerRingsDataset(source=os.path.join(path, "polymer-rings-training.txt"), **kwargs)
+    validation_dataset = datasets.PolymerRingsDataset(source=os.path.join(path, "polymer-rings-validation.txt"), **kwargs)
+    testing_dataset = datasets.PolymerRingsDataset(source=os.path.join(path, "polymer-rings-testing.txt"), **kwargs)
+
+    print(f"Training size: {len(training_dataset)}")
+    print(f"Validation size: {len(validation_dataset)}")
+    print(f"Test size: {len(testing_dataset)}")
+
+    # statistics = []
+    # for img, _ in training_dataset:
+    #     statistics.append(np.mean(img.numpy()))
+    # print(f"Training mean: {np.mean(statistics)}")
+    # statistics = []
+    # for img, _ in training_dataset:
+    #     statistics.append(np.std(img.numpy()))
+    # print(f"Training std: {np.std(statistics)}")
+
+    train_loader = DataLoader(dataset=training_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    valid_loader = DataLoader(dataset=validation_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    test_loader = DataLoader(dataset=testing_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    return train_loader, valid_loader, test_loader
+
 def get_dataset(name, path, **kwargs):
     if name == "optim":
         return get_optim_dataset(
@@ -351,6 +375,14 @@ def get_dataset(name, path, **kwargs):
     elif name == "peroxisome":
         return get_peroxisome_dataset(
             path=os.path.join(BASE_PATH, "evaluation-data", "peroxisome"), 
+            n_channels=kwargs['n_channels'], 
+            transform=kwargs['transform'],
+            batch_size=kwargs['batch_size'],
+            num_samples=kwargs['num_samples'],
+        )
+    elif name == "polymer-rings":
+        return get_polymer_rings_dataset(
+            path=os.path.join(BASE_PATH, "evaluation-data", "polymer-rings"), 
             n_channels=kwargs['n_channels'], 
             transform=kwargs['transform'],
             batch_size=kwargs['batch_size'],
