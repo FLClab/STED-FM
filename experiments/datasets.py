@@ -1001,9 +1001,7 @@ class TarFLCDataset(Dataset):
             if not cache_system is None:
                 self.__cache = cache_system
             self.__fill_cache()
-        
-        self.sampled = []
-
+    
     def metadata(self):
         for idx in range(len(self.members)):
             if idx in self.__cache:
@@ -1101,15 +1099,6 @@ class TarFLCDataset(Dataset):
 
         :returns : The item at the given index.
         """
-        idx = idx 
-        # self.sampled.append(idx)
-        # _, counts = numpy.unique(self.sampled, return_counts=True)
-        # if numpy.any(counts > 1):
-        #     print(f"[rank: {self.rank}] Oupsi daisy")
-        # elif len(self.sampled) > 10000:
-        #     print(f"[rank: {self.rank}] {len(self.sampled)=}")
-        # elif len(self.sampled) > 5000:
-        #     print(f"[rank: {self.rank}] {len(self.sampled)=}")            
 
         if idx in self.__cache:
             data = self.__cache[idx]
