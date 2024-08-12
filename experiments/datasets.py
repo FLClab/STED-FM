@@ -491,8 +491,6 @@ class OptimDataset(Dataset):
             self.samples[class_name] = self._get_sampled_files(self.class_files[class_name], self.num_samples.get(class_name))
             self.labels.extend([i] * len(self.samples[class_name]))
 
-
-
     def _filter_files(self, class_folder):
         SCORE = 0.70
         files = glob.glob(os.path.join(class_folder, "**/*.npz"), recursive=True)
@@ -996,12 +994,15 @@ class TarFLCDataset(Dataset):
         # members = [self.tar_obj[worker].next() for _ in range(1000)]
         # members = list(self.tar_obj[worker].getmembers())
         self.members = self.__setup_multiprocessing(members)
+        # self.members = members
 
         if use_cache and self.__max_cache_size > 0:
             self.__cache_size = 0
             if not cache_system is None:
                 self.__cache = cache_system
             self.__fill_cache()
+        
+        self.sampled = []
 
     def metadata(self):
         for idx in range(len(self.members)):
@@ -1090,7 +1091,7 @@ class TarFLCDataset(Dataset):
         """
         Implements the `__len__` method for the dataset.
         """
-        return len(self.members)
+        return len(self.members)# * self.world_size
 
     def __getitem__(self, idx: int) -> torch.Tensor:
         """
@@ -1100,6 +1101,16 @@ class TarFLCDataset(Dataset):
 
         :returns : The item at the given index.
         """
+        idx = idx 
+        # self.sampled.append(idx)
+        # _, counts = numpy.unique(self.sampled, return_counts=True)
+        # if numpy.any(counts > 1):
+        #     print(f"[rank: {self.rank}] Oupsi daisy")
+        # elif len(self.sampled) > 10000:
+        #     print(f"[rank: {self.rank}] {len(self.sampled)=}")
+        # elif len(self.sampled) > 5000:
+        #     print(f"[rank: {self.rank}] {len(self.sampled)=}")            
+
         if idx in self.__cache:
             data = self.__cache[idx]
         else:

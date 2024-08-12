@@ -8,9 +8,27 @@ from lightning.pytorch.core import LightningDataModule
 
 import sys
 
-import torch.distributed 
+import torch.distributed
 sys.path.insert(0, "..")
 from datasets import get_dataset
+
+class MultiprocessingDistributedSampler(torch.utils.data.DistributedSampler):
+    def __init__(self, *args, **kwargs):
+        super(MultiprocessingDistributedSampler, self).__init__(*args, **kwargs)
+        self.num_repeats = 1
+    
+    def __len__(self):
+        return len(self.dataset) * self.num_repeats
+
+    def __iter__(self):
+        if self.shuffle:
+            g = torch.Generator()
+            g.manual_seed(self.seed + self.epoch)
+            indices = torch.randperm(len(self.dataset), generator=g).tolist()
+        else:
+            indices = list(range(len(self.dataset)))
+        indices = indices * self.num_repeats
+        return iter(indices)
 
 class RepeatedSampler(torch.utils.data.Sampler):
     """
@@ -20,7 +38,8 @@ class RepeatedSampler(torch.utils.data.Sampler):
         super().__init__()
 
         self.dataset = dataset
-        self.num_samples = self.get_num_samples()
+        # self.num_samples = self.get_num_samples()
+        self.num_samples = 10
 
     def get_num_samples(self):
         num_samples = []
@@ -31,12 +50,13 @@ class RepeatedSampler(torch.utils.data.Sampler):
         return num_samples
 
     def __len__(self) -> int: 
-        return sum(self.num_samples)
+        # return sum(self.num_samples)
+        return len(self.dataset) * self.num_samples
 
     def __iter__(self):
         samples_per_image = []
         for i in range(len(self.dataset)):
-            samples_per_image.extend([i] * self.num_samples[i])
+            samples_per_image.extend([i] * self.num_samples)
         random.shuffle(samples_per_image)
         return iter(samples_per_image)
 
@@ -75,21 +95,23 @@ class MultiprocessingDataModule(LightningDataModule):
         self.dataset = get_dataset(
             self.dataset_name, self.dataset_path, 
             use_cache=True, cache_system=cache_system, 
-            max_cache_size=16e9,
+            max_cache_size=40e9,
             world_size = self.world_size, rank = self.rank,
             **self.kwargs
-        )        
+        )
         
     def train_dataloader(self):
         # sampler = RepeatedSampler(self.dataset)
-        return torch.utils.data.DataLoader(
+        sampler = MultiprocessingDistributedSampler(self.dataset, shuffle=True)
+        loader = torch.utils.data.DataLoader(
             self.dataset, 
             batch_size = self.cfg.batch_size,
-            # sampler=sampler,
-            shuffle=True,
+            sampler = sampler,
+            # shuffle=True,
             num_workers=10,
-            pin_memory=True,
-            prefetch_factor=4,
-            persistent_workers=False,
+            pin_memory=False,
+            # prefetch_factor=5,
+            persistent_workers=True,
             drop_last=True,
         )
+        return loader
