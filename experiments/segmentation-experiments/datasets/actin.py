@@ -63,6 +63,7 @@ class HDF5Dataset(Dataset):
         once at each training
         """
         samples = []
+        stats = []
         with h5py.File(self.file_path, "r") as file:
             for group_name, group in tqdm(file.items(), desc="Groups", leave=False):
                 data = group["data"][()].astype(numpy.float32) # Images
@@ -73,12 +74,14 @@ class HDF5Dataset(Dataset):
                         for i in range(0, shape[1], int(self.size * self.step)):
                             dendrite = dendrite_mask[j : j + self.size, i : i + self.size]
                             dendrite = label[k, :2, j : j + self.size, i : i + self.size] > 0
-                            if dendrite.sum() >= 0.1 * self.size * self.size: # dendrite is at least 1% of image
+                            if dendrite.sum() >= 0.1 * self.size * self.size: # dendrite is at least 10% of image
+                                stats.append((numpy.mean(data[k, j : j + self.size, i : i + self.size]), numpy.std(data[k, j : j + self.size, i : i + self.size])))
                                 samples.append((group_name, k, j, i))
                 if self.return_foregound:
                     self.cache[group_name] = {"data" : data, "label" : label}
                 else:
                     self.cache[group_name] = {"data" : data, "label" : label[:, :-1]}
+        print(f"{numpy.mean(stats, axis=0)=}")
         return samples
 
     def __getitem__(self, index):
@@ -151,7 +154,8 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset,
         transform = transforms.Compose([
             transforms.ToTensor(),
             # transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            transforms.Normalize(mean=[0.023, 0.023, 0.023], std=[0.027, 0.027, 0.027])
         ])
     else:
         transform = transforms.ToTensor()        

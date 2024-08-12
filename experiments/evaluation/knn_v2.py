@@ -58,29 +58,30 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device:torch.device,
     if args.pca:
         plot_PCA(samples=samples, labels=ground_truth, savename=savename)
 
-    neighbors_obj = NearestNeighbors(n_neighbors=6, metric="precomputed")
-    pdistances = cdist(samples, samples)
-    neighbors_obj = neighbors_obj.fit(pdistances)
-    distances, neighbors = neighbors_obj.kneighbors(X=pdistances, return_distance=True)
-    neighbors = neighbors[:, 1:]
+    for n_neighbors in [5, 10, 15, 20]:
+        neighbors_obj = NearestNeighbors(n_neighbors=n_neighbors + 1, metric="precomputed")
+        pdistances = cdist(samples, samples)
+        neighbors_obj = neighbors_obj.fit(pdistances)
+        distances, neighbors = neighbors_obj.kneighbors(X=pdistances, return_distance=True)
+        neighbors = neighbors[:, 1:]
 
-    associated_labels = ground_truth[neighbors]
-    uniques = np.unique(ground_truth).astype(np.int64)
+        associated_labels = ground_truth[neighbors]
+        uniques = np.unique(ground_truth).astype(np.int64)
 
-    confusion_matrix = np.zeros((len(uniques), len(uniques)))
+        confusion_matrix = np.zeros((len(uniques), len(uniques)))
 
-    for neighbor_labels, truth in zip(associated_labels, ground_truth):
-        votes, vote_counts = np.unique(neighbor_labels, return_counts=True)
-        max_idx = np.argmax(vote_counts)
-        max_vote = votes[max_idx]
-        vote_count = vote_counts[max_idx]
-        if vote_count > 1: # Given our 4-class problems, this should always be true, but useful if ever we do more than 4 classes
-            confusion_matrix[truth, max_vote] += 1 
+        for neighbor_labels, truth in zip(associated_labels, ground_truth):
+            votes, vote_counts = np.unique(neighbor_labels, return_counts=True)
+            max_idx = np.argmax(vote_counts)
+            max_vote = votes[max_idx]
+            vote_count = vote_counts[max_idx]
+            if vote_count > 1: # Given our 4-class problems, this should always be true, but useful if ever we do more than 4 classes
+                confusion_matrix[truth, max_vote] += 1 
+                
+        accuracy = np.diag(confusion_matrix).sum() / ground_truth.shape[0]
+
+        print(f"\n--- {args.dataset} ; {args.model} ; {savename} ---\n\tAccuracy (@knn={n_neighbors}): {accuracy * 100:0.2f}\n")
             
-    accuracy = np.diag(confusion_matrix).sum() / ground_truth.shape[0]
-
-    print(f"--- {args.dataset} ; {args.model} ; {savename} ---\n\tAccuracy: {accuracy * 100:0.2f}\n")
-        
     
 
     ### NOTE: Below is old way of building confusion matrix which only considered correct classification as those with votes >=3 
