@@ -242,45 +242,45 @@ def get_optim_dataset(path: str, training: bool = False, batch_size=256, num_sam
         "PSD95_Neuron": num_samples
     }
 
-    if training: # Disregards the provided path
-        train_dataset = datasets.OptimDataset(
-            data_folder=os.path.join(BASE_PATH, "evaluation-data", "optim_train"),
-            num_samples=samples_dict,
-            apply_filter=True,
-            classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
-            **kwargs
-        )
-        valid_dataset = datasets.OptimDataset(
-            data_folder=os.path.join(BASE_PATH, "evaluation-data", "optim_valid"),
-            num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
-            apply_filter=True,
-            classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
-            **kwargs
-        )
-        test_dataset = datasets.OptimDataset(
-            data_folder=os.path.join(BASE_PATH, "evaluation-data", "optim-data"),
-            num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
-            apply_filter=True,
-            classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
-            **kwargs
-        )
-        print(f"Train dataset size: {len(train_dataset)}")
-        print(f"Valid dataset size: {len(valid_dataset)}")
-        print(f"Test dataset size: {len(test_dataset)}")
-        train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
-        valid_loader = DataLoader(dataset=valid_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
-        test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
-        return train_loader, valid_loader, test_loader
-    else:
-        dataset = datasets.OptimDataset(
-            data_folder=path,
-            num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
-            apply_filter=True,
-            classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
-            **kwargs
-        )
-        dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
-        return None, None, dataloader
+    # if training: # Disregards the provided path
+    train_dataset = datasets.OptimDataset(
+        data_folder=os.path.join(BASE_PATH, "evaluation-data", "optim_train"),
+        num_samples=samples_dict,
+        apply_filter=True,
+        classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
+        **kwargs
+    )
+    valid_dataset = datasets.OptimDataset(
+        data_folder=os.path.join(BASE_PATH, "evaluation-data", "optim_valid"),
+        num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
+        apply_filter=True,
+        classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
+        **kwargs
+    )
+    test_dataset = datasets.OptimDataset(
+        data_folder=os.path.join(BASE_PATH, "evaluation-data", "optim-data"),
+        num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
+        apply_filter=True,
+        classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
+        **kwargs
+    )
+    print(f"Train dataset size: {len(train_dataset)}")
+    print(f"Valid dataset size: {len(valid_dataset)}")
+    print(f"Test dataset size: {len(test_dataset)}")
+    train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    valid_loader = DataLoader(dataset=valid_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    return train_loader, valid_loader, test_loader
+    # else:
+    #     dataset = datasets.OptimDataset(
+    #         data_folder=path,
+    #         num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
+    #         apply_filter=True,
+    #         classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
+    #         **kwargs
+    #     )
+    #     dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    #     return None, None, dataloader
 
 def get_factin_rings_fibers_dataset(path: str, **kwargs):
     dataset = datasets.CreateFactinRingsFibersDataset(data_folder=path, classes=["rings", "fibers"], **kwargs)

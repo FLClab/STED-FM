@@ -13,6 +13,14 @@ from typing import List
 
 from dataclasses import dataclass
 
+def get_number_of_classes(dataset: str):
+    if dataset == "neural-activity-states":
+        return 4
+    elif dataset == "optim":
+        return 4
+    else:
+        raise NotImplementedError(f"Dataset `{dataset}` not supported.")
+
 def update_cfg(cfg: dataclass, opts: List[str]) -> dataclass:
     """
     Updates the configuration with additional options inplace

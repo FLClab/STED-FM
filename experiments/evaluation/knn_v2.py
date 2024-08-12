@@ -25,51 +25,82 @@ parser.add_argument("--pca", action="store_true")
 args = parser.parse_args()
 
 def plot_PCA(samples: np.ndarray, labels: np.ndarray, savename: str) -> None:
-    pass 
+    pass
 
-def knn_predict(model: torch.nn.Module, loader: DataLoader, device:torch.device, savename:str) -> None:
+def extract_features(model: torch.nn.Module, loader: DataLoader, device: torch.device):
     samples, ground_truth = [], []
     with torch.no_grad():
         for x, data_dict in tqdm(loader, desc="Extracting features..."):
             labels = data_dict['label']
             if args.dataset == "neural-activity-states":
-                proteins = data_dict["protein"].data.numpy()
+                proteins = data_dict['protein'].data.numpy()
                 assert np.unique(proteins).shape[0] == 1
 
-            x, labels = x.to(device), labels.to(device) 
+            x, labels = x.to(device), labels.to(device)
             if "mae" in args.model.lower():
                 features = model.forward_encoder(x)
                 if args.global_pool == "token":
-                    features = features[:, 0, :] # class token
+                    features = features[:, 0, :] # class token 
                 else:
-                    features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens
+                    features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens 
             elif "convnext" in args.model.lower():
                 features = model(x).flatten(start_dim=1)
             else:
                 features = model(x)
-
+            
             truth = labels.data.cpu().numpy()
             feat = features.data.cpu().numpy()
             ground_truth.extend(truth)
             samples.extend(feat)
     samples = np.array(samples)
     ground_truth = np.array(ground_truth).astype(np.int64)
+    return samples, ground_truth
+                
+
+
+def knn_predict(model: torch.nn.Module, valid_loader: DataLoader, test_loader: DataLoader, device:torch.device, savename:str) -> None:
+    # samples, ground_truth = [], []
+    # with torch.no_grad():
+    #     for x, data_dict in tqdm(valid_loader, desc="Extracting validation set features..."):
+    #         labels = data_dict['label']
+    #         if args.dataset == "neural-activity-states":
+    #             proteins = data_dict["protein"].data.numpy()
+    #             assert np.unique(proteins).shape[0] == 1
+
+    #         x, labels = x.to(device), labels.to(device) 
+    #         if "mae" in args.model.lower():
+    #             features = model.forward_encoder(x)
+    #             if args.global_pool == "token":
+    #                 features = features[:, 0, :] # class token
+    #             else:
+    #                 features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens
+    #         elif "convnext" in args.model.lower():
+    #             features = model(x).flatten(start_dim=1)
+    #         else:
+    #             features = model(x)
+
+    #         truth = labels.data.cpu().numpy()
+    #         feat = features.data.cpu().numpy()
+    #         ground_truth.extend(truth)
+    #         samples.extend(feat)
+    valid_samples, valid_ground_truth = extract_features(model=model, loader=valid_loader, device=device)
+    test_samples, test_ground_truth = extract_features(model=model, loader=test_loader, device=device)
 
     if args.pca:
-        plot_PCA(samples=samples, labels=ground_truth, savename=savename)
+        plot_PCA(samples=test_samples, labels=test_ground_truth, savename=savename)
 
-    neighbors_obj = NearestNeighbors(n_neighbors=6, metric="precomputed")
-    pdistances = cdist(samples, samples)
-    neighbors_obj = neighbors_obj.fit(pdistances)
-    distances, neighbors = neighbors_obj.kneighbors(X=pdistances, return_distance=True)
-    neighbors = neighbors[:, 1:]
+    pdistances = cdist(valid_samples, test_samples, metric='cosine').T
+    neighbor_indices = np.argsort(pdistances, axis=1)
+    neighbors = neighbor_indices[:, :5]
 
-    associated_labels = ground_truth[neighbors]
-    uniques = np.unique(ground_truth).astype(np.int64)
+
+
+    associated_labels = valid_ground_truth[neighbors]
+    uniques = np.unique(valid_ground_truth).astype(np.int64)
 
     confusion_matrix = np.zeros((len(uniques), len(uniques)))
 
-    for neighbor_labels, truth in zip(associated_labels, ground_truth):
+    for neighbor_labels, truth in zip(associated_labels, test_ground_truth):
         votes, vote_counts = np.unique(neighbor_labels, return_counts=True)
         max_idx = np.argmax(vote_counts)
         max_vote = votes[max_idx]
@@ -77,9 +108,20 @@ def knn_predict(model: torch.nn.Module, loader: DataLoader, device:torch.device,
         if vote_count > 1: # Given our 4-class problems, this should always be true, but useful if ever we do more than 4 classes
             confusion_matrix[truth, max_vote] += 1 
             
-    accuracy = np.diag(confusion_matrix).sum() / ground_truth.shape[0]
 
-    print(f"--- {args.dataset} ; {args.model} ; {savename} ---\n\tAccuracy: {accuracy * 100:0.2f}\n")
+    print("--- Confusion matrix ---")
+    print(confusion_matrix)
+    print("\n")
+    accuracy = np.diag(confusion_matrix).sum() / test_ground_truth.shape[0]
+
+    print(f"--- {args.dataset} ; {args.model} ; {savename} ---\n")
+    for i in range(len(uniques)):
+        N = np.sum(confusion_matrix[i, :])
+        correct = confusion_matrix[i, i] 
+        class_acc = correct / N
+        print(f"\tClass {i} accuracy: {class_acc * 100:0.2f}")
+
+    print(f"\tOverall accuracy: {accuracy * 100:0.2f}\n")
         
     
 
@@ -148,7 +190,7 @@ def main():
         blocks='0', # Not used with as_classifier = False
     ) 
 
-    _, _, loader = get_dataset(
+    _, valid_loader, test_loader = get_dataset(
         name=args.dataset,
         transform=None,
         path=None,
@@ -159,7 +201,7 @@ def main():
 
     model = model.to(device)
     model.eval()
-    knn_predict(model=model, loader=loader, device=device, savename=SAVE_NAME)
+    knn_predict(model=model, valid_loader=valid_loader, test_loader=test_loader, device=device, savename=SAVE_NAME)
 
 if __name__=="__main__":
     main()

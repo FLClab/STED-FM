@@ -33,7 +33,7 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
             model = LinearProbe(
                 backbone=backbone,
                 name=name,
-                num_classes=4,
+                num_classes=kwargs['num_classes'],
                 cfg=cfg,
                 num_blocks=kwargs['blocks'],
             )
