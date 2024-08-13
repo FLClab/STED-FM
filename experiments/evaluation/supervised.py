@@ -8,7 +8,7 @@ import sys
 sys.path.insert(0, "../")
 from loaders import get_dataset 
 from models import get_model
-from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss 
+from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss, update_cfg, get_number_of_classes
 plt.style.use("dark_background")
 
 parser = argparse.ArgumentParser() 
@@ -18,9 +18,15 @@ parser.add_argument("--num-per-class", type=int, default=None)
 parser.add_argument("--dry-run", action="store_true")
 args = parser.parse_args()
 
+# Assert args.opts is a multiple of 2
+if len(args.opts) == 1:
+    args.opts = args.opts[0].split(" ")
+assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
+
 def set_seeds():
-    np.random.seed(42)
-    torch.manual_seed(42)
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
 
 def validation_step(model, valid_loader, criterion, epoch, device):
     model.eval()
