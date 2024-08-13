@@ -22,11 +22,11 @@ from sklearn.neighbors import KernelDensity
 import sys
 sys.path.insert(0, "..")
 from DEFAULTS import BASE_PATH
+from configuration import Configuration
 
 DATAPATH = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/TheresaProteins"
 
-@dataclass
-class SynProtConfiguration:
+class SynProtConfiguration(Configuration):
     num_classes: int = 1
     criterion: str = "MSELoss"
 

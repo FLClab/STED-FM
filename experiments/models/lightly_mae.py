@@ -12,6 +12,7 @@ from dataclasses import dataclass
 import sys
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH
+from configuration import Configuration
 
 class MAEWeights:
     # IMAGENET pretraining in timm refers to a model pretrained on ImageNet21K and finetuned on ImageNet1K
@@ -36,8 +37,7 @@ class MAEWeights:
     MAE_BASE_HPA = os.path.join(BASE_PATH, "baselines", "mae-base_HPA", "pl_checkpoint-999.pth")
     MAE_LARGE_HPA = os.path.join(BASE_PATH, "baselines", "mae-large_HPA", "pl_checkpoint-999.pth")
 
-@dataclass
-class MAEConfiguration:
+class MAEConfiguration(Configuration):
 
     backbone: str = "vit-small"
     backbone_weights: str = None

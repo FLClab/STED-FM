@@ -33,14 +33,14 @@ from torchsummary import summary
 
 import sys 
 sys.path.insert(0, "..")
+from configuration import Configuration
 from modules.datamodule import MultiprocessingDataModule
 from modules.transforms import SimCLRTransform
 from model_builder import get_base_model
 from utils import update_cfg
 
 # Define the configuration for the SimCLR model.
-@dataclass
-class SimCLRTransformConfig:
+class SimCLRTransformConfig(Configuration):
     input_size : int = 224
     cj_prob : float = 0.8
     cj_strength : float = 1.0

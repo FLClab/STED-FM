@@ -32,6 +32,7 @@ sys.path.insert(0, "..")
 
 from model_builder import get_base_model, get_pretrained_model_v2
 from utils import update_cfg, save_cfg
+from configuration import Configuration
 
 def intensity_scale_(images: torch.Tensor) -> numpy.ndarray:
     """
@@ -47,8 +48,7 @@ def intensity_scale_(images: torch.Tensor) -> numpy.ndarray:
     ])
     return images
 
-@dataclass
-class SegmentationConfiguration:
+class SegmentationConfiguration(Configuration):
     
     freeze_backbone: bool = False
     num_epochs: int = 100
@@ -141,7 +141,7 @@ if __name__ == "__main__":
         writer = SummaryWriter(os.path.join(OUTPUT_FOLDER, "logs"))
 
     # Save configuration
-    save_cfg(cfg, os.path.join(OUTPUT_FOLDER, "config.json"))
+    cfg.save(os.path.join(OUTPUT_FOLDER, "config.json"))
 
     # Build the UNet model.
     model = get_decoder(backbone, cfg)
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     print("----------------------------------------")
     print("Training Dataset")
     print("Dataset size: ", len(training_dataset))
-    print("Dataset size (with sampler): ", len(sampler))
+    print("Dataset size (with sampler): ", len(sampler) if sampler else len(training_dataset))
     print("----------------------------------------")
     print("Validation Dataset")
     print("Dataset size: ", len(validation_dataset))
