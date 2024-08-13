@@ -17,6 +17,8 @@ from lightly.utils.lars import LARS
 from lightly.utils.scheduler import CosineWarmupScheduler
 from lightly.utils.benchmarking import MetricCallback
 from torch.optim import SGD
+from typing import Tuple, Any
+from dataclasses import dataclass
 
 from lightning.pytorch import Trainer, seed_everything
 from lightning.pytorch.core import LightningModule, LightningDataModule
@@ -35,6 +37,30 @@ from modules.datamodule import MultiprocessingDataModule
 from modules.transforms import SimCLRTransform
 from model_builder import get_base_model
 from utils import update_cfg
+
+# Define the configuration for the SimCLR model.
+@dataclass
+class SimCLRTransformConfig:
+    input_size : int = 224
+    cj_prob : float = 0.8
+    cj_strength : float = 1.0
+    cj_bright : float = 0.8
+    cj_contrast : float = 0
+    cj_sat : float = 0
+    cj_hue : float = 0
+    cj_gamma : float = 0
+    scale : Tuple[float, float] = (1.0, 1.0)
+    random_gray_scale : float = 0
+    gaussian_blur : float = 0
+    kernel_size : float = None
+    sigmas : Tuple[float, float] = (0.1, 2)
+    vf_prob : float = 0.5
+    hf_prob : float = 0.5
+    rr_prob : float = 0.5
+    rr_degrees : float = None
+    normalize : bool = False
+    gaussian_noise_prob : float = 0.5
+    poisson_noise_prob : float = 0.5
 
 # Create a PyTorch module for the SimCLR model.
 class SimCLR(LightningModule):
@@ -163,6 +189,7 @@ if __name__ == "__main__":
     assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"    
 
     backbone, cfg = get_base_model(args.backbone)
+    cfg.transform = SimCLRTransformConfig()
     cfg.args = args
     update_cfg(cfg, args.opts)
    
@@ -227,27 +254,26 @@ if __name__ == "__main__":
 
     # Prepare transform that creates multiple random views for every image.
     transform = SimCLRTransform(
-        input_size=224,
-        cj_prob = 0.8,
-        cj_strength = 1.0,
-        cj_bright = 0.8,
-        cj_contrast = 0,
-        cj_sat = 0,
-        cj_hue = 0,
-        cj_gamma = 0,
-        scale = (1.0, 1.0),
-        # scale = (0.5, 1.0),
-        random_gray_scale = 0,
-        gaussian_blur = 0,
-        kernel_size = None,
-        sigmas = (0.1, 2),
-        vf_prob = 0.5,
-        hf_prob = 0.5,
-        rr_prob = 0.5,
-        rr_degrees = None,
-        normalize = False,
-        gaussian_noise_prob = 0.5,
-        poisson_noise_prob = 0.5
+        input_size = cfg.transform.input_size,
+        cj_prob = cfg.transform.cj_prob,
+        cj_strength = cfg.transform.cj_strength,
+        cj_bright = cfg.transform.cj_bright,
+        cj_contrast = cfg.transform.cj_contrast,
+        cj_sat = cfg.transform.cj_sat,
+        cj_hue = cfg.transform.cj_hue,
+        cj_gamma = cfg.transform.cj_gamma,
+        scale = cfg.transform.scale,
+        random_gray_scale = cfg.transform.random_gray_scale,
+        gaussian_blur = cfg.transform.gaussian_blur,
+        kernel_size = cfg.transform.kernel_size,
+        sigmas = cfg.transform.sigmas,
+        vf_prob = cfg.transform.vf_prob,
+        hf_prob = cfg.transform.hf_prob,
+        rr_prob = cfg.transform.rr_prob,
+        rr_degrees = cfg.transform.rr_degrees,
+        normalize = cfg.transform.normalize,
+        gaussian_noise_prob = cfg.transform.gaussian_noise_prob,
+        poisson_noise_prob = cfg.transform.poisson_noise_prob
     )
 
     datamodule = MultiprocessingDataModule(args, cfg, transform=transform)

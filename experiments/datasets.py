@@ -19,6 +19,7 @@ import copy
 from skimage import filters
 
 from DEFAULTS import BASE_PATH
+from dataset_builder import condition_dict
 
 LOCAL_CACHE = {}
 
@@ -569,10 +570,10 @@ class PeroxisomeDataset(Dataset):
     def __init__(
         self, source:str, 
         transform: Any, 
-        classes: List = ["0.5hbackGluc", "1hbackGluc", "2hbackGluc", "6hGluc", "4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"], 
+        classes: List = ["6hGluc", "4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"], 
         n_channels: int = 1,
         resize_mode : str = "pad",
-        superclasses: bool = True,
+        superclasses: bool = False,
         **kwargs
     ): 
         super().__init__()
@@ -591,7 +592,7 @@ class PeroxisomeDataset(Dataset):
             self.samples[class_name] = [file for file in files if class_name in file]
 
         if superclasses:
-            self.merge_superclasses()
+            self.__merge_superclasses()
         self.info = self.__get_info()
 
     def __merge_superclasses(self) -> None:
@@ -605,6 +606,7 @@ class PeroxisomeDataset(Dataset):
                 continue
         self.samples = merged_samples
         self.classes = ["gluc", "meoh"]
+        self.num_classes = len(self.classes)
 
     def __get_info(self):
         info = []
@@ -791,6 +793,12 @@ class NeuralActivityStates(Dataset):
         self.images = self.images[mask]
         self.labels = self.labels[mask]
         self.proteins = self.proteins[mask]
+        self.classes = []
+        for i in KEEPCLASSES:
+            for key, value in condition_dict.items():
+                if i == value:
+                    self.classes.append(key)
+                    break
 
         self.__reset_labels() #  Only required if we're not using KEEPCLASSES = [0, 1, 2]
 

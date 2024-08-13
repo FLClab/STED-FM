@@ -26,7 +26,9 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
         state_dict = get_weights(name, weights)
     
         # This is could lead to errors if the model is not exactly the same as the one used for pretraining
-        if state_dict is not None:
+        if weights is None:
+            print("--- Loaded model from scratch ---")
+        elif state_dict is not None:
             print(f"--- Loading from state dict ---")
             backbone.load_state_dict(state_dict, strict=True)
             print(f"--- Loaded model {name} with weights {weights} ---")
