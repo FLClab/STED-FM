@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch 
 import random
-from tqdm import tqdm 
+from tqdm import tqdm, trange
 from torch.optim.lr_scheduler import CosineAnnealingLR
 import argparse 
 import sys 
@@ -29,9 +29,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--dataset", type=str, default='synaptic-proteins')
 parser.add_argument("--model", type=str, default='mae-lightning-small')
-parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
+parser.add_argument("--weights", type=str, default=None)
 parser.add_argument("--global-pool", type=str, default='avg')
 parser.add_argument("--blocks", type=str, default="all") # linear-probing by default
+parser.add_argument("--from-scratch", action="store_true", 
+                    help="Activates the `from-scratch` training mode")
 parser.add_argument("--track-epochs", action="store_true")
 parser.add_argument("--num-per-class", type=int, default=None)
 parser.add_argument("--opts", nargs="+", default=[], 
@@ -50,7 +52,9 @@ def set_seeds():
     torch.manual_seed(args.seed)
 
 def get_save_folder() -> str: 
-    if "imagenet" in args.weights.lower():
+    if args.weights is None:
+        return "from-scratch"
+    elif "imagenet" in args.weights.lower():
         return "ImageNet"
     elif "sted" in args.weights.lower():
         return "STED"
@@ -110,17 +114,28 @@ def knn_sanity_check(
     accuracy = np.diag(confusion_matrix).sum() / np.sum(confusion_matrix)
     print(f"--- Epoch {epoch} --> {args.dataset} ; {args.model} ; {savename} ---\n\tAccuracy: {accuracy * 100:0.2f}\n")
 
-def plot_features(features, labels, savename):
+def plot_features(features, labels, savename, classes=None, **kwargs):
     pca = PCA(n_components=2)
     pca_features = pca.fit_transform(features)
 
-    fig, ax = plt.subplots()
-    ax.scatter(pca_features[:, 0], pca_features[:, 1], c=labels, cmap="rainbow")
+    fig, ax = plt.subplots(figsize=(4, 4))
+    if classes is not None:
+        uniques = np.unique(labels)
+        cmap = plt.get_cmap("rainbow", len(classes))
+        for i, unique in enumerate(uniques):
+            mask = labels == unique
+            ax.scatter(pca_features[mask, 0], pca_features[mask, 1], color=cmap(i), label=classes[i])
+        ax.legend()
+    else:
+        ax.scatter(pca_features[:, 0], pca_features[:, 1], c=labels, cmap="rainbow")
+    ax.set(
+        ylabel="PCA-2", xlabel="PCA-1"
+    )
     if isinstance(savename, str):
-        fig.savefig(savename)
+        fig.savefig(savename, bbox_inches="tight")
     plt.close()
     
-def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None):
+def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None, **kwargs):
     model.eval()
     loss_meter = AverageMeter()
 
@@ -152,20 +167,36 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
         print("Class {} accuracy = {:.3f}".format(
             i, acc))
         
-    # plot_features(all_features, all_labels, savename=save_dir)
+    plot_features(all_features, all_labels, savename=save_dir, **kwargs)
 
     return loss_meter.avg, accuracies[0]
 
 
 def main():
     # set_seeds()
-    num_classes = get_number_of_classes(dataset=args.dataset)
+    # num_classes = get_number_of_classes(dataset=args.dataset)
+    train_loader, _, _ = get_dataset(
+        name=args.dataset, training=True
+    )
+    num_classes = train_loader.dataset.num_classes
+    print("=====================================")
+    print(f"Dataset: {args.dataset}")
+    print(f"Num. Classes: {num_classes}")
+    print(f"Classes: {train_loader.dataset.classes}")
+    print("=====================================")
+
     set_seeds()
 
     SAVENAME = get_save_folder()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
     n_channels = 3 if SAVENAME == "ImageNet" else 1
+
+    probe = "linear-probe" if args.blocks == "all" else "finetuned"
+    if args.from_scratch:
+        probe = "from-scratch"
+        args.weights = None
+        args.blocks = "0"
 
     model, cfg = get_pretrained_model_v2(
         name=args.model,
@@ -182,8 +213,7 @@ def main():
 
     # Update configuration
     cfg.args = args
-    update_cfg(cfg, args.opts)    
-    probe = "linear-probe" if args.blocks == "all" else "finetuned"
+    update_cfg(cfg, args.opts)
 
     # summary(model, input_size=(1, 224, 224), device=device.type)
 
@@ -198,8 +228,13 @@ def main():
     )
     
     num_epochs = 300
-
-    if probe == "linear-probe":
+    if probe == "from-scratch":
+        optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+        scheduler = CosineWarmupScheduler(
+            optimizer=optimizer, warmup_epochs=10, max_epochs=num_epochs,
+            start_value=1.0, end_value=0.01
+        )
+    elif probe == "linear-probe":
         optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
         scheduler = CosineWarmupScheduler(
             optimizer=optimizer, warmup_epochs=10, max_epochs=num_epochs,
@@ -215,9 +250,9 @@ def main():
             optimizer=optimizer, warmup_epochs=10, max_epochs=num_epochs,
             start_value=1.0, end_value=0.01
         )
+
     criterion = torch.nn.CrossEntropyLoss()
     modelname = args.model.replace("-lightning", "")
-    
     model_path= os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
     #model_path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{SAVENAME}/{args.dataset}"
     os.makedirs(model_path, exist_ok=True)
@@ -231,7 +266,7 @@ def main():
 
     # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=0)
 
-    for epoch in tqdm(range(num_epochs), desc="Epochs..."):
+    for epoch in trange(num_epochs, desc="Epochs..."):
         model.train()
         loss_meter = AverageMeter()
         for imgs, data_dict in tqdm(train_loader, desc="Training...", leave=False):
@@ -252,7 +287,8 @@ def main():
             criterion=criterion,
             epoch=epoch,
             device=device,
-            save_dir = f"{model_path}/{probe}_pca.png"
+            save_dir = f"{model_path}/{probe}_pca.png",
+            classes = train_loader.dataset.classes
         )
 
         # Do not save best model if in a dry run
@@ -263,7 +299,7 @@ def main():
                 model=model,
                 optimizer=optimizer,
                 criterion=criterion
-                )
+            )
         temp_lr = optimizer.param_groups[0]['lr']
         lrates.append(temp_lr)
         train_loss.append(loss_meter.avg)
@@ -271,25 +307,25 @@ def main():
         val_acc.append(v_acc)
         # scheduler.step(v_loss)
         scheduler.step()
-        # track_loss(
-        #     train_loss=train_loss,
-        #     val_loss=val_loss,
-        #     val_acc=val_acc,
-        #     lrates=lrates,
-        #     save_dir=f"{model_path}/{probe}_training-curves.png"
-        # )
+        track_loss(
+            train_loss=train_loss,
+            val_loss=val_loss,
+            val_acc=val_acc,
+            lrates=lrates,
+            save_dir=f"{model_path}/{probe}_training-curves.png"
+        )
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
 
     model, cfg = get_pretrained_model_v2(
-    name=args.model,
-    weights=args.weights,
-    path=None,
-    mask_ratio=0.0, 
-    pretrained=True if n_channels==3 else False,
-    in_channels=n_channels,
-    as_classifier=True,
-    blocks=args.blocks,
-    num_classes=num_classes
+        name=args.model,
+        weights=args.weights,
+        path=None,
+        mask_ratio=0.0, 
+        pretrained=True if n_channels==3 else False,
+        in_channels=n_channels,
+        as_classifier=True,
+        blocks=args.blocks,
+        num_classes=num_classes
     )
     state_dict = torch.load(f"{save_best_model.save_dir}/{save_best_model.model_name}.pth", map_location="cpu")
     model.load_state_dict(state_dict['model_state_dict'])
