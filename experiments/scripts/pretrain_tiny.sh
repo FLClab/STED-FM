@@ -14,13 +14,13 @@ export TORCH_NCCL_BLOCKING_WAIT=1 #Pytorch Lightning uses the NCCL backend for i
 
 module load python/3.10 scipy-stack/2023b
 module load cuda cudnn
-source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
+source ~/phd/bin/activate
 
 # export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-cp "/project/def-flavielc/datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
+cp "/project/def-flavielc/datasets/FLCDataset/dataset-full-images.tar" "${SLURM_TMPDIR}/dataset.tar"
 
-restore="./Datasets/FLCDataset/baselines/mae-tiny_STED/pl_current_model.pth"
+restore="./Datasets/FLCDataset/baselines/mae-tiny_STED/current_model.pth"
 
 savefolder="./Datasets/FLCDataset/baselines/mae-tiny_STED"
 
@@ -30,7 +30,7 @@ echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 
-if test -e ./Datasets/FLCDataset/baselines/mae-tiny_STED/pl_current_model.pth; then
+if test -e ./Datasets/FLCDataset/baselines/mae-tiny_STED/current_model.pth; then
     tensorboard --logdir="./Datasets/FLCDataset/baselines" --host 0.0.0.0 --load_fast false & 
     srun python pretrain_lightning.py --seed 42 --model mae-lightning-tiny --dataset STED --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/dataset.tar" --restore-from $restore 
 else

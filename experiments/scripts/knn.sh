@@ -14,7 +14,7 @@
 # Use this directory venv, reusable across RUNs
 module load python/3.10 scipy-stack
 module load cuda cudnn
-source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
+source ~/phd/bin/activate
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
@@ -55,66 +55,23 @@ echo -e "==================== OPTIM ===================="
 # python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1
 # python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_HPA
 # python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_JUMP
-# python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_STED
+python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_STED
 
-python knn_v2.py --dataset optim --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
-python knn_v2.py --dataset optim --model mae-lightning-small --weights MAE_SMALL_HPA
-python knn_v2.py --dataset optim --model mae-lightning-small --weights MAE_SMALL_JUMP
-python knn_v2.py --dataset optim --model mae-lightning-small --weights MAE_SMALL_STED
+# python knn_v2.py --dataset optim --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model mae-lightning-small --weights MAE_SMALL_HPA
+# python knn_v2.py --dataset optim --model mae-lightning-small --weights MAE_SMALL_JUMP
+# python knn_v2.py --dataset optim --model mae-lightning-small --weights MAE_SMALL_STED
 
-python knn_v2.py --dataset optim --model mae-lightning-base --weights MAE_BASE_IMAGENET1K_V1
-python knn_v2.py --dataset optim --model mae-lightning-base --weights MAE_BASE_HPA
-python knn_v2.py --dataset optim --model mae-lightning-base --weights MAE_BASE_JUMP
-python knn_v2.py --dataset optim --model mae-lightning-base --weights MAE_BASE_STED
+# python knn_v2.py --dataset optim --model mae-lightning-base --weights MAE_BASE_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model mae-lightning-base --weights MAE_BASE_HPA
+# python knn_v2.py --dataset optim --model mae-lightning-base --weights MAE_BASE_JUMP
+# python knn_v2.py --dataset optim --model mae-lightning-base --weights MAE_BASE_STED
 
-python knn_v2.py --dataset optim --model mae-lightning-large --weights MAE_LARGE_IMAGENET1K_V1
-python knn_v2.py --dataset optim --model mae-lightning-large --weights MAE_LARGE_HPA
-python knn_v2.py --dataset optim --model mae-lightning-large --weights MAE_LARGE_JUMP
-python knn_v2.py --dataset optim --model mae-lightning-large --weights MAE_LARGE_STED
+# python knn_v2.py --dataset optim --model mae-lightning-large --weights MAE_LARGE_IMAGENET1K_V1
+# python knn_v2.py --dataset optim --model mae-lightning-large --weights MAE_LARGE_HPA
+# python knn_v2.py --dataset optim --model mae-lightning-large --weights MAE_LARGE_JUMP
+# python knn_v2.py --dataset optim --model mae-lightning-large --weights MAE_LARGE_STED
 
-
-echo -e "\n\n==================== Synaptic Proteins ===================="
-
-# python knn_v2.py --dataset synaptic-proteins --model micranet --weights MICRANET_SSL_HPA
-# python knn_v2.py --dataset synaptic-proteins --model micranet --weights MICRANET_SSL_STED
-
-# python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_SSL_HPA
-# python knn_v2.py --dataset synaptic-proteins --model resnet18 --weights RESNET18_SSL_STED
-
-
-# python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_SSL_HPA
-# python knn_v2.py --dataset synaptic-proteins --model resnet50 --weights RESNET50_SSL_STED
-
-# python knn_v2.py --dataset synaptic-proteins --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
-
-# python knn_v2.py --dataset synaptic-proteins --model convnext-small --weights CONVNEXT_SMALL_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model convnext-small --weights CONVNEXT_SMALL_SSL_STED
-
-# python knn_v2.py --dataset synaptic-proteins --model convnext-base --weights CONVNEXT_BASE_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model convnext-base --weights CONVNEXT_BASE_SSL_STED
-
-# python knn_v2.py --dataset synaptic-proteins --model convnext-large --weights CONVNEXT_LARGE_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model convnext-large --weights CONVNEXT_LARGE_SSL_STED
-
-
-# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1 
-# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-tiny --weights MAE_TINY_JUMP
-# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-tiny --weights MAE_TINY_STED
-
-# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-small --weights MAE_SMALL_JUMP
-# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-small --weights MAE_SMALL_STED
-
-# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-base --weights MAE_BASE_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-base --weights MAE_BASE_JUMP
-# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-base --weights MAE_BASE_STED
-
-# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-large --weights MAE_LARGE_IMAGENET1K_V1
-# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-large --weights MAE_LARGE_JUMP
-# python knn_v2.py --dataset synaptic-proteins --model mae-lightning-large --weights MAE_LARGE_STED
 
 echo -e "\n\n==================== Neural Activity States ===================="
 
@@ -146,7 +103,7 @@ echo -e "\n\n==================== Neural Activity States ===================="
 # python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1 
 # python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_HPA
 # python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_JUMP
-# python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_STED
+python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_STED
 
 # python knn_v2.py --dataset neural-activity-states --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
 # python knn_v2.py --dataset neural-activity-states --model mae-lightning-small --weights MAE_SMALL_HPA
@@ -162,6 +119,96 @@ echo -e "\n\n==================== Neural Activity States ===================="
 # python knn_v2.py --dataset neural-activity-states --model mae-lightning-large --weights MAE_LARGE_HPA
 # python knn_v2.py --dataset neural-activity-states --model mae-lightning-large --weights MAE_LARGE_JUMP
 # python knn_v2.py --dataset neural-activity-states --model mae-lightning-large --weights MAE_LARGE_STED
+
+echo -e "\n\n==================== Peroxisome ===================="
+
+# python knn_v2.py --dataset peroxisome --model micranet --weights MICRANET_SSL_HPA
+# python knn_v2.py --dataset peroxisome --model micranet --weights MICRANET_SSL_STED
+
+# python knn_v2.py --dataset peroxisome --model resnet18 --weights RESNET18_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model resnet18 --weights RESNET18_SSL_HPA
+# python knn_v2.py --dataset peroxisome --model resnet18 --weights RESNET18_SSL_STED
+
+# python knn_v2.py --dataset peroxisome --model resnet50 --weights RESNET50_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model resnet50 --weights RESNET50_SSL_HPA
+# python knn_v2.py --dataset peroxisome --model resnet50 --weights RESNET50_SSL_STED
+
+# python knn_v2.py --dataset peroxisome --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
+
+# python knn_v2.py --dataset peroxisome --model convnext-small --weights CONVNEXT_SMALL_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model convnext-small --weights CONVNEXT_SMALL_SSL_STED
+
+# python knn_v2.py --dataset peroxisome --model convnext-base --weights CONVNEXT_BASE_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model convnext-base --weights CONVNEXT_BASE_SSL_STED
+
+# python knn_v2.py --dataset peroxisome --model convnext-large --weights CONVNEXT_LARGE_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model convnext-large --weights CONVNEXT_LARGE_SSL_STED
+
+# python knn_v2.py --dataset peroxisome --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1 
+# python knn_v2.py --dataset peroxisome --model mae-lightning-tiny --weights MAE_TINY_HPA
+# python knn_v2.py --dataset peroxisome --model mae-lightning-tiny --weights MAE_TINY_JUMP
+python knn_v2.py --dataset peroxisome --model mae-lightning-tiny --weights MAE_TINY_STED
+
+# python knn_v2.py --dataset peroxisome --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model mae-lightning-small --weights MAE_SMALL_HPA
+# python knn_v2.py --dataset peroxisome --model mae-lightning-small --weights MAE_SMALL_JUMP
+# python knn_v2.py --dataset peroxisome --model mae-lightning-small --weights MAE_SMALL_STED
+
+# python knn_v2.py --dataset peroxisome --model mae-lightning-base --weights MAE_BASE_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model mae-lightning-base --weights MAE_BASE_HPA
+# python knn_v2.py --dataset peroxisome --model mae-lightning-base --weights MAE_BASE_JUMP
+# python knn_v2.py --dataset peroxisome --model mae-lightning-base --weights MAE_BASE_STED
+
+# python knn_v2.py --dataset peroxisome --model mae-lightning-large --weights MAE_LARGE_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model mae-lightning-large --weights MAE_LARGE_HPA
+# python knn_v2.py --dataset peroxisome --model mae-lightning-large --weights MAE_LARGE_JUMP
+# python knn_v2.py --dataset peroxisome --model mae-lightning-large --weights MAE_LARGE_STED
+
+echo -e "\n\n==================== Polymer rings ===================="
+
+# python knn_v2.py --dataset peroxisome --model micranet --weights MICRANET_SSL_HPA
+# python knn_v2.py --dataset peroxisome --model micranet --weights MICRANET_SSL_STED
+
+# python knn_v2.py --dataset peroxisome --model resnet18 --weights RESNET18_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model resnet18 --weights RESNET18_SSL_HPA
+# python knn_v2.py --dataset peroxisome --model resnet18 --weights RESNET18_SSL_STED
+
+# python knn_v2.py --dataset peroxisome --model resnet50 --weights RESNET50_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model resnet50 --weights RESNET50_SSL_HPA
+# python knn_v2.py --dataset peroxisome --model resnet50 --weights RESNET50_SSL_STED
+
+# python knn_v2.py --dataset peroxisome --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
+
+# python knn_v2.py --dataset peroxisome --model convnext-small --weights CONVNEXT_SMALL_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model convnext-small --weights CONVNEXT_SMALL_SSL_STED
+
+# python knn_v2.py --dataset peroxisome --model convnext-base --weights CONVNEXT_BASE_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model convnext-base --weights CONVNEXT_BASE_SSL_STED
+
+# python knn_v2.py --dataset peroxisome --model convnext-large --weights CONVNEXT_LARGE_IMAGENET1K_V1
+# python knn_v2.py --dataset peroxisome --model convnext-large --weights CONVNEXT_LARGE_SSL_STED
+
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1 
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-tiny --weights MAE_TINY_HPA
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-tiny --weights MAE_TINY_JUMP
+python knn_v2.py --dataset polymer-rings --model mae-lightning-tiny --weights MAE_TINY_STED
+
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-small --weights MAE_SMALL_HPA
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-small --weights MAE_SMALL_JUMP
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-small --weights MAE_SMALL_STED
+
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-base --weights MAE_BASE_IMAGENET1K_V1
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-base --weights MAE_BASE_HPA
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-base --weights MAE_BASE_JUMP
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-base --weights MAE_BASE_STED
+
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-large --weights MAE_LARGE_IMAGENET1K_V1
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-large --weights MAE_LARGE_HPA
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-large --weights MAE_LARGE_JUMP
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-large --weights MAE_LARGE_STED
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

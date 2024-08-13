@@ -10,20 +10,21 @@
 #SBATCH --mail-type=ALL
 #SBATCH --array=0-3
 
+
 #### PARAMETERS
 # Use this directory venv, reusable across RUNs
 module load python/3.10 scipy-stack
 module load cuda cudnn
-source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
+source ~/phd/bin/activate
 
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 WEIGHTS=(
-    "MAE_TINY_IMAGENET1K_V1"
-    "MAE_TINY_HPA"
-    "MAE_TINY_JUMP"
-    "MAE_TINY_STED"
+    "MAE_SMALL_IMAGENET1K_V1"
+    "MAE_SMALL_HPA"
+    "MAE_SMALL_JUMP"
+    "MAE_SMALL_STED"
 )
 
 # DATASETS=(
@@ -55,7 +56,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset optim --model mae-lightning-tiny --weights $weight --blocks "all"
+python finetune_v2.py --dataset neural-activity-states --model mae-lightning-small --weights $weight --blocks "all"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

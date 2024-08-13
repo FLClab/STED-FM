@@ -375,17 +375,19 @@ def get_dataset(name, path=None, **kwargs):
     elif name == "peroxisome":
         return get_peroxisome_dataset(
             path=os.path.join(BASE_PATH, "evaluation-data", "peroxisome"), 
+            superclasses=kwargs.get("superclasses", False),
             n_channels=kwargs.get("n_channels", 1), 
-            transform=kwargs.get("transform", 1),
-            batch_size=kwargs.get("batch_size", 1),
+            transform=kwargs.get("transform", None),
+            batch_size=kwargs.get("batch_size", 64),
             num_samples=kwargs.get("num_samples", None),
         )
     elif name == "polymer-rings":
         return get_polymer_rings_dataset(
             path=os.path.join(BASE_PATH, "evaluation-data", "polymer-rings"), 
+            superclasses=kwargs.get("superclasses", False),
             n_channels=kwargs.get("n_channels", 1), 
-            transform=kwargs.get("transform", 1),
-            batch_size=kwargs.get("batch_size", 1),
+            transform=kwargs.get("transform", None),
+            batch_size=kwargs.get("batch_size", 64),
             num_samples=kwargs.get("num_samples", None),
         )
     else:
