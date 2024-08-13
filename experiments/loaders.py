@@ -387,6 +387,7 @@ def get_dataset(name, path, **kwargs):
             n_channels=kwargs['n_channels'], 
             transform=kwargs['transform'],
             batch_size=kwargs['batch_size'],
+            superclasses=kwargs.get("superclasses", False),
             num_samples=kwargs['num_samples'],
         )
     else:
