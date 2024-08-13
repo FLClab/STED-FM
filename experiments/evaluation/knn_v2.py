@@ -174,7 +174,6 @@ def main():
         n_channels=n_channels,
         batch_size=64,
         num_samples=None, # Not used when only getting test dataset
-        superclasses=False # For peroxisome dataset
     )
 
     model = model.to(device)
