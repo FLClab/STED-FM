@@ -340,55 +340,55 @@ def get_polymer_rings_dataset(path: str, batch_size: int = 128, **kwargs):
     test_loader = DataLoader(dataset=testing_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
     return train_loader, valid_loader, test_loader
 
-def get_dataset(name, path, **kwargs):
+def get_dataset(name, path=None, **kwargs):
     if name == "optim":
         return get_optim_dataset(
             path=os.path.join(BASE_PATH, "evaluation-data", "optim-data"), 
-            n_channels=kwargs['n_channels'],
-            transform=kwargs['transform'],
+            n_channels=kwargs.get("n_channels", 1),
+            transform=kwargs.get("transform", 1),
             training=kwargs.get("training", False),
-            batch_size=kwargs['batch_size'],
-            num_samples=kwargs["num_samples"],
+            batch_size=kwargs.get("batch_size", 1),
+            num_samples=kwargs.get("num_samples", None),
             )
     elif name == "synaptic-proteins":
         return get_synaptic_proteins_dataset(
             path=os.path.join(BASE_PATH, "evaluation-data", "TheresaProteins"), 
-            n_channels=kwargs['n_channels'], 
-            transform=kwargs['transform'],
-            batch_size=kwargs['batch_size'],
-            num_samples=kwargs['num_samples'],
+            n_channels=kwargs.get("n_channels", 1), 
+            transform=kwargs.get("transform", 1),
+            batch_size=kwargs.get("batch_size", 1),
+            num_samples=kwargs.get("num_samples", None),
             )
     
     elif name == "neural-activity-states":
         return get_neural_activity_states(
             path=os.path.join(BASE_PATH, "evaluation-data", "NeuralActivityStates"),
-            n_channels=kwargs['n_channels'], 
-            transform=kwargs['transform'],
-            batch_size=kwargs['batch_size'],
-            num_samples=kwargs['num_samples'],
+            n_channels=kwargs.get("n_channels", 1), 
+            transform=kwargs.get("transform", 1),
+            batch_size=kwargs.get("batch_size", 1),
+            num_samples=kwargs.get("num_samples", None),
             protein_id=3
         )
     elif name == "factin-rings-fibers":
-        return get_factin_rings_fibers_dataset(path=path, transform=kwargs['transform'])
+        return get_factin_rings_fibers_dataset(path=path, transform=kwargs.get("transform", 1))
     elif name == "factin-block-glugly":
-        return get_factin_block_glugly_dataset(path=path, transform=kwargs['transform'])
+        return get_factin_block_glugly_dataset(path=path, transform=kwargs.get("transform", 1))
     elif name == "peroxisome":
         return get_peroxisome_dataset(
             path=os.path.join(BASE_PATH, "evaluation-data", "peroxisome"), 
-            n_channels=kwargs['n_channels'], 
-            transform=kwargs['transform'],
-            batch_size=kwargs['batch_size'],
-            num_samples=kwargs['num_samples'],
-            superclasses=kwargs.get("superclasses", False)
+            superclasses=kwargs.get("superclasses", False),
+            n_channels=kwargs.get("n_channels", 1), 
+            transform=kwargs.get("transform", None),
+            batch_size=kwargs.get("batch_size", 64),
+            num_samples=kwargs.get("num_samples", None),
         )
     elif name == "polymer-rings":
         return get_polymer_rings_dataset(
             path=os.path.join(BASE_PATH, "evaluation-data", "polymer-rings"), 
-            n_channels=kwargs['n_channels'], 
-            transform=kwargs['transform'],
-            batch_size=kwargs['batch_size'],
             superclasses=kwargs.get("superclasses", False),
-            num_samples=kwargs['num_samples'],
+            n_channels=kwargs.get("n_channels", 1), 
+            transform=kwargs.get("transform", None),
+            batch_size=kwargs.get("batch_size", 64),
+            num_samples=kwargs.get("num_samples", None),
         )
     else:
         raise NotImplementedError(f"`{name}` dataset is not supported.")
