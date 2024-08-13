@@ -594,8 +594,11 @@ class PeroxisomeDataset(Dataset):
         if superclasses:
             self.__merge_superclasses()
         self.info = self.__get_info()
+
+        print("----------")
         for k in self.samples.keys():
             print(f"Class {k} samples: {len(self.samples[k])}")
+        print("----------")
 
     def __merge_superclasses(self) -> None:
         merged_samples = defaultdict(list)
@@ -696,6 +699,11 @@ class PolymerRingsDataset(Dataset):
         self.classes = list(sorted(self.samples.keys()))
         self.num_classes = len(self.classes)
         self.info = self.__get_info()
+
+        print("----------")
+        for k in self.samples.keys():
+            print(f"Class {k} samples: {len(self.samples[k])}")
+        print("----------")
 
         # statistics = defaultdict(list)
         # for i in range(len(self.info)):
