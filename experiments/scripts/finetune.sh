@@ -8,13 +8,14 @@
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-2
 
 #### PARAMETERS
 # Use this directory venv, reusable across RUNs
 module load python/3.10 scipy-stack
 module load cuda cudnn
-source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
+# source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
+VENV_DIR=${HOME}/myenv
+source $VENV_DIR/bin/activate
 
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
@@ -34,7 +35,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights $weight --blocks "0" 
+python finetune_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_HPA --blocks "0" 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

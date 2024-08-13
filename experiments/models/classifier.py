@@ -50,7 +50,7 @@ class LinearProbe(torch.nn.Module):
                 raise NotImplementedError(f"Invalid `{self.global_pool}` pooling function.")
         else:
             features = self.backbone.forward(x)
-
+            
         out = self.classification_head(features)
         return out, features
 

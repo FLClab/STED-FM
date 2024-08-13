@@ -7,18 +7,20 @@
 #SBATCH --tasks-per-node=4   
 #SBATCH --cpus-per-task=10
 #SBATCH --output=logs/%x-%A_%a.out
-#SBATCH --mail-user=frbea320@ulaval.ca
+#SBATCH --mail-user=koles2@ulaval.ca
 #SBATCH --mail-type=ALL
 
 export TORCH_NCCL_BLOCKING_WAIT=1 #Pytorch Lightning uses the NCCL backend for inter-GPU communication by default. Set this variable to avoid timeout errors.
 
 module load python/3.10 scipy-stack/2023b
 module load cuda cudnn
-source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
+# source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
+VENV_DIR=${HOME}/myenv
+source $VENV_DIR/bin/activate
 
 # export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-cp "/project/def-flavielc/datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
+# cp "/project/def-flavielc/datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
 
 restore="./Datasets/FLCDataset/baselines/mae-small_STED/pl_current_model.pth"
 
@@ -30,13 +32,17 @@ echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 
-if test -e ./Datasets/FLCDataset/baselines/mae-small_STED/pl_current_model.pth; then
-    tensorboard --logdir="./Datasets/FLCDataset/baselines" --host 0.0.0.0 --load_fast false & 
-    srun python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset STED --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/dataset.tar" --restore-from $restore 
-else
-    tensorboard --logdir="./Datasets/FLCDataset/baselines" --host 0.0.0.0 --load_fast false & 
-    srun python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset STED --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/dataset.tar"
-fi
+# if test -e ./Datasets/FLCDataset/baselines/mae-small_STED/pl_current_model.pth; then
+#     tensorboard --logdir="./Datasets/FLCDataset/baselines" --host 0.0.0.0 --load_fast false & 
+#     srun python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset STED --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/dataset.tar" --restore-from $restore 
+# else
+#     tensorboard --logdir="./Datasets/FLCDataset/baselines" --host 0.0.0.0 --load_fast false & 
+#     srun python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset STED --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/dataset.tar"
+# fi
+
+srun python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset hpa --use-tensorboard --save-folder /home/koles2/projects/def-flavielc/koles2/flc-dataset/experiments/simclr-experiments/data/SSL/vit/mae-small_HPA --dataset-path "/home/koles2/scratch/hpa" --restore-from "/home/koles2/projects/def-flavielc/koles2/flc-dataset/experiments/simclr-experiments/data/SSL/vit/mae-small_HPA/pl_current_model.pth"
+
+
 
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

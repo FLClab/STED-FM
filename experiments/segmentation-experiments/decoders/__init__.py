@@ -15,6 +15,7 @@ MODELS = {
     "convenext-tiny" : get_unet_decoder,
     "convenext-small" : get_unet_decoder,
     "convenext-base" : get_unet_decoder,
+    "vit-tiny" : get_vit_decoder,
     "vit-small" : get_vit_decoder,
     "vit-base" : get_vit_decoder,
     "mae-small" : get_vit_decoder,

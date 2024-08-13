@@ -200,7 +200,7 @@ class SemanticProteinSegmentationDataset(Dataset):
             image_crop = numpy.tile(image_crop[numpy.newaxis], (3, 1, 1))
             image_crop = numpy.moveaxis(image_crop, 0, -1)
         img = self.transform(image_crop)
-        mask = torch.tensor(label_crop)
+        mask = torch.tensor(label_crop > 0, dtype=torch.float32)
 
         return img, mask
 

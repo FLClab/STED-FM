@@ -144,7 +144,7 @@ def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn
 
     :returns : A `ViTDecoder` instance
     """
-    if cfg.backbone in ["vit-small", "mae-small"]:
+    if cfg.backbone in ["vit-tiny", "vit-small", "mae-small"]:
         extract_layers = [3, 6, 9 ,12]
         return ViTDecoder(backbone.backbone, cfg, extract_layers=extract_layers, **kwargs)
     else:

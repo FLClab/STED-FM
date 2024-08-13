@@ -17,7 +17,6 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 from skimage import filters
 
-
 class SimCLRTransform(MultiViewTransform):
     """Implements the transformations for SimCLR [0, 1].
 
@@ -189,7 +188,7 @@ class SimCLRViewTransform:
         )
 
         transform = [
-            T.ToTensor(),
+            #T.ToTensor(),
             RandomResizedCropMinimumForeground(size=input_size, scale=scale, min_fg=minimal_foreground),
             random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomHorizontalFlip(p=hf_prob),
@@ -218,7 +217,7 @@ class SimCLRViewTransform:
         """
         transformed: Tensor = self.transform(image)
         return transformed
-    
+        
 class MicroscopyColorJitter(torch.nn.Module):
     def __init__(self, 
                  p:float, 
@@ -258,55 +257,55 @@ class MicroscopyColorJitter(torch.nn.Module):
                 tensor = self.options[i](tensor)
         return tensor
 
-class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
-    def __init__(self, size, scale, min_fg=0.01, threshold=0.02) -> None:
-        super().__init__(size, scale)
+# class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
+#     def __init__(self, size, scale, min_fg=0.01, threshold=0.02) -> None:
+#         super().__init__(size, scale)
 
-        self.min_fg = min_fg
-        self.max_tries = 10
-        self.threshold = threshold
+#         self.min_fg = min_fg
+#         self.max_tries = 10
+#         self.threshold = threshold
 
-    def get_params(self, image, scale, ratio):
-        """
-        Reimplements the get_params method from torchvision.transforms.RandomResizedCrop
-        """
-        image_height, image_width = image.size()[1], image.size()[2]
+#     def get_params(self, image, scale, ratio):
+#         """
+#         Reimplements the get_params method from torchvision.transforms.RandomResizedCrop
+#         """
+#         image_height, image_width = image.size()[1], image.size()[2]
 
-        s = random.uniform(*scale)
-        h = int(round(self.size[0] * s))
-        w = int(round(self.size[1] * s))
+#         s = random.uniform(*scale)
+#         h = int(round(self.size[0] * s))
+#         w = int(round(self.size[1] * s))
 
-        if w <= image_width and h <= image_height:
-            i = random.randint(0, image_width - w)
-            j = random.randint(0, image_height - h)
-            return i, j, h, w
-        w = min(image_height, image_width)
-        return 0, 0, w, w
+#         if w <= image_width and h <= image_height:
+#             i = random.randint(0, image_width - w)
+#             j = random.randint(0, image_height - h)
+#             return i, j, h, w
+#         w = min(image_height, image_width)
+#         return 0, 0, w, w
 
-    def forward(self, img) -> Tensor:
-        """
-        Implements a random resized crop with a minimum foreground
-        """
-        for n in range(self.max_tries):
-            i, j, h, w = self.get_params(img, self.scale, self.ratio)
-            crop = img[:, j : j + w, i : i + w] > self.threshold
-            if crop.sum() > self.min_fg * torch.numel(crop):
-                break
+#     def forward(self, img) -> Tensor:
+#         """
+#         Implements a random resized crop with a minimum foreground
+#         """
+#         for n in range(self.max_tries):
+#             i, j, h, w = self.get_params(img, self.scale, self.ratio)
+#             crop = img[:, j : j + w, i : i + w] > self.threshold
+#             if crop.sum() > self.min_fg * torch.numel(crop):
+#                 break
 
-        if n == self.max_tries - 1:
-            h, w = self.size
+#         if n == self.max_tries - 1:
+#             h, w = self.size
 
-            fg = img > self.threshold
-            mask = torch.zeros_like(fg)
-            mask[:, : -h, :-w] = 1
-            fg = mask & fg
-            argwhere = torch.argwhere(fg)
-            if len(argwhere) == 0:
-                j, i = 0, 0
-            else:
-                _, j, i = argwhere[random.randint(0, argwhere.size(0) - 1)]
+#             fg = img > self.threshold
+#             mask = torch.zeros_like(fg)
+#             mask[:, : -h, :-w] = 1
+#             fg = mask & fg
+#             argwhere = torch.argwhere(fg)
+#             if len(argwhere) == 0:
+#                 j, i = 0, 0
+#             else:
+#                 _, j, i = argwhere[random.randint(0, argwhere.size(0) - 1)]
 
-        return F.resized_crop(img, j, i, h, w, self.size, self.interpolation, antialias=self.antialias)
+#         return F.resized_crop(img, j, i, h, w, self.size, self.interpolation, antialias=self.antialias)
 
         # # Precompute the foreground mask
         # key = (img.size()[1], img.size()[2], *img[0, 0, :10].tolist())
@@ -341,26 +340,26 @@ class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
         #     self.size, self.interpolation, antialias=self.antialias
         # )
 
-# class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
-#     def __init__(self, size, scale, min_fg=0.1) -> None:
-#         super().__init__(size, scale)
+class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
+    def __init__(self, size, scale, min_fg=0.1) -> None:
+        super().__init__(size, scale)
 
-#         self.min_fg = min_fg
-#         self.max_tries = 10
+        self.min_fg = min_fg
+        self.max_tries = 10
 
-#     def forward(self, img) -> Tensor:
-#         """
-#         Implements a random resized crop with a minimum foreground
-#         """
-#         img_array = img.numpy()
-#         threshold = filters.threshold_otsu(img_array)
-#         fg = img > threshold
-#         for _ in range(self.max_tries):
-#             i, j, h, w = self.get_params(img, self.scale, self.ratio)
-#             crop = fg[:, j : j + w, i : i + w]
-#             if crop.sum() > self.min_fg * torch.numel(crop):
-#                 break
-#         return F.resized_crop(img, j, i, h, w, self.size, self.interpolation, antialias=self.antialias)
+    def forward(self, img) -> Tensor:
+        """
+        Implements a random resized crop with a minimum foreground
+        """
+        img_array = img.numpy()
+        threshold = filters.threshold_otsu(img_array)
+        fg = img > threshold
+        for _ in range(self.max_tries):
+            i, j, h, w = self.get_params(img, self.scale, self.ratio)
+            crop = fg[:, j : j + w, i : i + w]
+            if crop.sum() > self.min_fg * torch.numel(crop):
+                break
+        return F.resized_crop(img, j, i, h, w, self.size, self.interpolation, antialias=self.antialias)
 
 class PoissonNoise(torch.nn.Module):
     def __init__(self, p: float, _lambda: float) -> None:

@@ -7,7 +7,7 @@
 #SBATCH --tasks-per-node=4   
 #SBATCH --cpus-per-task=10
 #SBATCH --output=logs/%x-%A_%a.out
-#SBATCH --mail-user=frbea320@ulaval.ca
+#SBATCH --mail-user=koles2@ulaval.ca
 #SBATCH --mail-type=ALL
 
 export TORCH_NCCL_BLOCKING_WAIT=1 #Pytorch Lightning uses the NCCL backend for inter-GPU communication by default. Set this variable to avoid timeout errors.

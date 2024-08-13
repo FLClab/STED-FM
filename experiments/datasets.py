@@ -17,6 +17,8 @@ import tifffile
 from collections import defaultdict
 import copy
 from skimage import filters
+from PIL import Image
+from zipfile import ZipFile
 
 from DEFAULTS import BASE_PATH
 from dataset_builder import condition_dict
@@ -38,6 +40,8 @@ def get_dataset(name: str, path: str, **kwargs):
             classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
             **kwargs
         )
+    elif name == "hpa":
+        dataset = HPADataset(path, **kwargs)
     elif name == "factin":
         dataset = CreateFActinDataset(
             os.path.join(BASE_PATH, "evaluation-data", "actin-data"),
@@ -1271,3 +1275,57 @@ class TarFLCDataset(Dataset):
         state = dict(self.__dict__)
         state['tar_obj'] = {}
         return state
+
+class HPADataset(Dataset):
+    """
+    Dataset class for loading and processing image data from a zip file.
+    This dataset is designed for the HPA dataset.
+    """
+    def __init__(
+            self,
+            zip_path: str,
+            transform: Any = None,
+            **kwargs
+    ) -> None :
+        """
+        Instantiates a new ``HPADataset`` object.
+
+        :param zip_path: The path to the zip file to load data from.
+        :param transform: The transformation to apply to the image data.
+        """
+        self.zip_path = zip_path
+        self.transform = transform
+        self.file_list = self.__get_file_list()
+    
+    def __get_file_list(self):
+        file_list = []
+        with ZipFile(self.zip_path, 'r') as zf:
+            for f in zf.namelist():
+                if f.endswith('.png'):
+                    file_list.append(f)
+        return file_list
+    
+    def __len__(self):
+        """
+        Implements the ``__len__`` method for the dataset.
+        """
+        return len(self.file_list)
+
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        """
+        Implements the ``__getitem__`` method for the dataset.
+
+        :param idx: The index of the item to retrieve.
+
+        :returns: The item at the given idex.
+        """
+        with ZipFile(self.zip_path, 'r') as zf:
+            data = zf.read(self.file_list[idx])
+            img = Image.open(io.BytesIO(data))
+            image = transforms.ToTensor()(img)
+            m, M = image.min(), image.max()
+            image = (image - m) / (M - m)
+
+            if self.transform is not None:
+                image = self.transform(image)
+        return image

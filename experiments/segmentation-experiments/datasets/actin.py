@@ -195,4 +195,7 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset,
         n_channels=cfg.in_channels,
         return_foregound=True
     )
+    print(f"Train dataset size: {len(training_dataset)}")
+    print(f"Valid dataset size: {len(validation_dataset)}")
+    print(f"Test dataset size: {len(testing_dataset)}")
     return training_dataset, validation_dataset, testing_dataset

@@ -23,7 +23,8 @@ from multiprocessing import Manager
 from torch.utils.data import SubsetRandomSampler
 from torch.utils.tensorboard import SummaryWriter
 from torchsummary import summary
-
+from collections import defaultdict
+from lightly.utils.scheduler import CosineWarmupScheduler
 from decoders import get_decoder
 from datasets import get_dataset
 
@@ -48,11 +49,58 @@ def intensity_scale_(images: torch.Tensor) -> numpy.ndarray:
     ])
     return images
 
-class SegmentationConfiguration(Configuration):
+def compute_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray, threshold: float = 0.25) -> list:
+    """
+    Compute the intersection over union between the truth and the prediction
+
+    :param truth: A `numpy.ndarray` of the ground truth
+    :param prediction: A `numpy.ndarray` of the prediction
+    :param mask: A `numpy.ndarray` of the mask to apply
+
+    :return: A `list` of the IoU
+    """
+    iou_per_class = []
+    for t, p in zip(truth, prediction):
+        t, p = t[mask].ravel(), p[mask].ravel()
+        p = p > threshold
+
+        if not numpy.any(t) and not numpy.any(p):
+            iou_per_class.append(-1)
+            continue 
+        if numpy.unique(t).size == 1:
+            iou_per_class.append(-1)
+            continue        
+
+        intersection = numpy.logical_and(t, p).sum()
+        union = numpy.logical_or(t, p).sum()
+
+        iou_per_class.append(intersection / union)
+    return iou_per_class
+
+def compute_scores(truth, prediction, threshold):
+    truth = truth.cpu().data.numpy()
+    prediction = prediction.cpu().data.numpy()
+    
+    # Case of foreground stored in truth
+    if truth.shape[1] != prediction.shape[1]:
+        truth, foreground = truth[:, :-1], truth[:, -1]
+    else:
+        foreground = numpy.ones((len(truth), *truth.shape[-2:]))
+
+    scores = defaultdict(list)
+    for truth_, prediction_, mask in zip(truth, prediction, foreground):
+        # Convert to binary mask
+        mask = mask > 0
+
+        scores["iou"].append(compute_iou(truth_, prediction_, mask, threshold))
+    return scores
+
+@dataclass
+class SegmentationConfiguration:
     
     freeze_backbone: bool = False
-    num_epochs: int = 100
-    learning_rate: float = 0.001
+    num_epochs: int = 200
+    learning_rate: float = 1e-4 #0.001
 
 if __name__ == "__main__":
 
@@ -62,7 +110,7 @@ if __name__ == "__main__":
                     help="Random seed")     
     parser.add_argument("--restore-from", type=str, default="",
                     help="Model from which to restore from") 
-    parser.add_argument("--save-folder", type=str, default="./data/SSL/segmentation-baselines",
+    parser.add_argument("--save-folder", type=str, default="/home/koles2/scratch/ssl_project/segmentation_baselines_test", #"./data/SSL/segmentation-baselines/fewshot",
                     help="Model from which to restore from")     
     parser.add_argument("--dataset", required=True, type=str,
                     help="Name of the dataset to use")             
@@ -162,7 +210,7 @@ if __name__ == "__main__":
         start_epoch = 0
 
     # Prints a summary of the model
-    # summary(model, input_size=(cfg.in_channels, 224, 224))
+    summary(model, input_size=(cfg.in_channels, 224, 224))
 
     # Sampler definition
     if args.label_percentage < 1.0:
@@ -188,24 +236,35 @@ if __name__ == "__main__":
     # Build a PyTorch dataloader.
     train_loader = torch.utils.data.DataLoader(
         training_dataset,  # Pass the dataset to the dataloader.
-        batch_size=cfg.batch_size,  # A large batch size helps with the learning.
+        batch_size=64, #cfg.batch_size,  # A large batch size helps with the learning.
         shuffle=sampler is None,  # Shuffling is important!
         num_workers=4,
         sampler=sampler, drop_last=False
     )
     valid_loader = torch.utils.data.DataLoader(
         validation_dataset,  # Pass the dataset to the dataloader.
-        batch_size=cfg.batch_size,  # A large batch size helps with the learning.
+        batch_size=64, #cfg.batch_size,  # A large batch size helps with the learning.
         shuffle=True,  # Shuffling is important!
         num_workers=4
     )
 
     optimizer = torch.optim.Adam(model.parameters(), lr = cfg.learning_rate)
+
+    # optimizer = torch.optim.SGD(model.parameters(), lr = cfg.learning_rate)
+    
+    # optimizer = torch.optim.AdamW(model.parameters(), lr = cfg.learning_rate)
     criterion = getattr(torch.nn, cfg.dataset_cfg.criterion)()
 
     # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience = 10, threshold = 0.01, min_lr=1e-5, factor=0.1,)
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.99)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=cfg.num_epochs, eta_min=1e-5)
+
+    # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=cfg.num_epochs, eta_min=1e-5)
+
+    scheduler = CosineWarmupScheduler(optimizer=optimizer, warmup_epochs=10, max_epochs=cfg.num_epochs, start_value=1.0, end_value=0.001)
+    
+    thresholds = numpy.arange(0.1, 1.0, 0.1)
+    all_scores = defaultdict(list)
+    print("Training")
     for epoch in range(start_epoch, cfg.num_epochs):
 
         start = time.time()
@@ -250,8 +309,10 @@ if __name__ == "__main__":
             # To avoid memory leak
             torch.cuda.empty_cache()
             del X, y, pred, loss
+        print("end training")
 
         # Puts the model in evaluation mode
+        print("Evaluation")
         model.eval()
         for i, (X, y) in enumerate(tqdm(valid_loader, desc="[----] ")):
 
@@ -269,6 +330,15 @@ if __name__ == "__main__":
             # Prediction and loss computation
             pred = model.forward(X)
             loss = criterion(pred, y)
+
+            # # Threshold validation
+            # for threshold in thresholds:
+            #     scores = compute_scores(y, pred, threshold=threshold)
+            #     for key, values in scores.items():
+            #         values = numpy.array(values)
+            #     values = values[values != -1]
+            #     # all_scores[threshold] = numpy.mean(values)
+            #     all_scores[threshold].append(numpy.mean(values))
 
             # Keeping track of statistics
             statLossTest.append(loss.item())
@@ -309,6 +379,7 @@ if __name__ == "__main__":
                 "model" : model.state_dict(),
                 "optimizer" : optimizer.state_dict(),
                 "stats" : stats,
+                #"validation_threshold": best_threshold
             }
             torch.save(
                 savedata, 
@@ -317,13 +388,21 @@ if __name__ == "__main__":
             del savedata
 
         # Save every 10 epochs
-        if (epoch + 1) % 10 == 0:
+        if (epoch + 1) % 50 == 0:
             savedata = {
                 "model" : model.state_dict(),
                 "optimizer" : optimizer.state_dict(),
                 "stats" : stats,
+                #"validation_threshold": best_threshold
             }
             torch.save(
                 savedata, 
                 os.path.join(OUTPUT_FOLDER, f"checkpoint-{epoch + 1}.pt"))
             del savedata
+
+    # mean_scores = {threshold: numpy.mean(values) for threshold, values in all_scores.items()}
+    # print("mean IoU scores for each threshold:")
+    # print(mean_scores)
+    # optimal_threshold = max(mean_scores, key=mean_scores.get)
+    # print(f"optimal Threshold: {optimal_threshold}")
+    # print("end validation")

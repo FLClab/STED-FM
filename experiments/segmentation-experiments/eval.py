@@ -45,7 +45,7 @@ def get_save_folder() -> str:
     else:
         return "CTC"
 
-def compute_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> list:
+def compute_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray, threshold: float = None) -> list:
     """
     Compute the intersection over union between the truth and the prediction
 
@@ -58,7 +58,7 @@ def compute_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.nda
     iou_per_class = []
     for t, p in zip(truth, prediction):
         t, p = t[mask].ravel(), p[mask].ravel()
-        p = p > 0.25
+        p = p > threshold
 
         if not numpy.any(t) and not numpy.any(p):
             iou_per_class.append(-1)
@@ -121,12 +121,13 @@ def compute_auroc(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.n
         auroc_per_class.append(roc_auc_score(t, p))
     return auroc_per_class
 
-def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
+def compute_scores(truth: torch.Tensor, prediction: torch.Tensor, threshold: float = None) -> dict:
     """
     Compute the prediction between the truth and the prediction
 
     :param truth: A `torch.Tensor` of the ground truth
     :param prediction: A `torch.Tensor` of the prediction
+    :param iou_threshold: Threshold to apply to predictions
     
     :returns : A `dict` of the computed scores
     """
@@ -144,12 +145,12 @@ def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
         # Convert to binary mask
         mask = mask > 0
 
-        scores["iou"].append(compute_iou(truth_, prediction_, mask))
+        scores["iou"].append(compute_iou(truth_, prediction_, mask, threshold))
         scores["aupr"].append(compute_aupr(truth_, prediction_, mask))
         scores["auroc"].append(compute_auroc(truth_, prediction_, mask))
     return scores
 
-def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataLoader, savefolder: str = None) -> dict:
+def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataLoader, savefolder: str = None, threshold: float = None) -> dict:
     """
     Evaluates the segmentation model on the given loader
 
@@ -167,7 +168,7 @@ def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataL
         else:
             if X.dim() == 3:
                 X = X.unsqueeze(1)
-
+            
         # Send to gpu
         X = X.to(DEVICE)
         y = y.to(DEVICE)
@@ -186,7 +187,7 @@ def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataL
             pred_ = numpy.clip(pred_ * 255, 0, 255)
             tifffile.imwrite(os.path.join(savefolder, "prediction.tif"), pred_.astype(numpy.uint8), imagej=True, metadata={"mode" : "composite"})
         
-        scores = compute_scores(y, pred)
+        scores = compute_scores(y, pred, threshold)
         for key, values in scores.items():
             all_scores[key].extend(values)
 
@@ -254,6 +255,8 @@ if __name__ == "__main__":
     # Build the UNet model.
     model = get_decoder(backbone, cfg)
     ckpt = checkpoint.get("model", None)
+    threshold = 0.25 #checkpoint.get("validation_threshold", 0.25)
+    print(f"Threshold is: {threshold}")
     if not ckpt is None:
         print("Restoring model...")
         model.load_state_dict(ckpt)
@@ -264,18 +267,18 @@ if __name__ == "__main__":
     # Build a PyTorch dataloader.
     test_loader = torch.utils.data.DataLoader(
         testing_dataset,  # Pass the dataset to the dataloader.
-        batch_size=cfg.batch_size,  # A large batch size helps with the learning.
+        batch_size=32, #cfg.batch_size,  # A large batch size helps with the learning.
         shuffle=True,  # Shuffling is important!
         num_workers=0
     )
     
     # Puts the model in evaluation mode
     model.eval()
-
+    
     savedir = f"./results/{args.backbone}_{args.backbone_weights}/{args.dataset}/{os.path.basename(OUTPUT_FOLDER)}"
     os.makedirs(savedir, exist_ok=True)
 
-    scores = evaluate_segmentation(model, test_loader, savefolder=savedir)
+    scores = evaluate_segmentation(model, test_loader, savefolder=savedir, threshold=threshold)
     for key, values in scores.items():
         print("Results for", key)
         values = numpy.array(values)
@@ -301,4 +304,4 @@ if __name__ == "__main__":
             xticks = numpy.arange(values.shape[1]), xticklabels=testing_dataset.classes,
             ylim = (0, 1)
         )
-        pyplot.savefig(os.path.join(savedir, f"{key}.pdf"), bbox_inches="tight", transparent=True)
+        # pyplot.savefig(os.path.join(savedir, f"{key}.pdf"), bbox_inches="tight", transparent=True)

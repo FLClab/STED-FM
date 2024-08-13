@@ -40,7 +40,12 @@ from model_builder import get_base_model
 from utils import update_cfg
 
 # Define the configuration for the SimCLR model.
+<<<<<<< Updated upstream
 class SimCLRTransformConfig(Configuration):
+=======
+@dataclass
+class SimCLRTransformConfig:
+>>>>>>> Stashed changes
     input_size : int = 224
     cj_prob : float = 0.8
     cj_strength : float = 1.0

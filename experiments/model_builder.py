@@ -117,4 +117,3 @@ def get_classifier_v2(name: str, weights: str, task: str, path: str = None, data
 
     else:
         raise NotImplementedError(f"Model {name} not implemented as a classifier yet.")
-
