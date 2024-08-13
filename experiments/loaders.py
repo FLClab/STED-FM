@@ -384,19 +384,11 @@ def get_dataset(name, path=None, **kwargs):
     elif name == "polymer-rings":
         return get_polymer_rings_dataset(
             path=os.path.join(BASE_PATH, "evaluation-data", "polymer-rings"), 
-<<<<<<< HEAD
-            n_channels=kwargs['n_channels'], 
-            transform=kwargs['transform'],
-            batch_size=kwargs['batch_size'],
-            superclasses=kwargs.get("superclasses", False),
-            num_samples=kwargs['num_samples'],
-=======
             superclasses=kwargs.get("superclasses", False),
             n_channels=kwargs.get("n_channels", 1), 
             transform=kwargs.get("transform", None),
             batch_size=kwargs.get("batch_size", 64),
             num_samples=kwargs.get("num_samples", None),
->>>>>>> 3aa2a3c6cc8bfd571c62ad561d587b14b3a6a850
         )
     else:
         raise NotImplementedError(f"`{name}` dataset is not supported.")
