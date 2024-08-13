@@ -3,7 +3,6 @@ import argparse
 from typing import Any
 
 class Configuration:
-
     def __init__(self):
         
         # On the first call, we initialize the dictionary with the default values

@@ -49,22 +49,22 @@ if __name__=="__main__":
     
     MAETransform = torchvision.transforms.Compose([
         torchvision.transforms.ToTensor(),
+        RandomResizedCropMinimumForeground(size=224, scale=(0.7, 1.4)),
         torchvision.transforms.RandomHorizontalFlip(),
         torchvision.transforms.RandomVerticalFlip(),
-        # RandomResizedCropMinimumForeground(size=224, scale=(0.3, 1.0)),
     ])
 
     last_model_callback = ModelCheckpoint(
         dirpath=OUTPUT_FOLDER,
         every_n_epochs=1,
-        filename="pl_current_model",
+        filename="current_model",
         enable_version_counter=False
     )
     last_model_callback.FILE_EXTENSION = ".pth"
     checkpoint_callback = ModelCheckpoint(
         dirpath=OUTPUT_FOLDER,
-        every_n_epochs=10,
-        filename="pl_checkpoint-{epoch}",
+        every_n_train_steps=5000,
+        filename="checkpoint-{step}",
         save_top_k=-1,
         auto_insert_metric_name=False,
         enable_version_counter=False
@@ -75,13 +75,14 @@ if __name__=="__main__":
     datamodule = MultiprocessingDataModule(args, cfg, transform=MAETransform)
 
     trainer = Trainer(
-        max_epochs=1600,
+        max_epochs=-1,
+        max_steps=1000000,
         devices='auto',
         accelerator='gpu',
         num_nodes=int(os.environ.get("SLURM_NNODES", 1)),
         strategy='ddp_find_unused_parameters_true',
         sync_batchnorm=True,
-        use_distributed_sampler=True,
+        use_distributed_sampler=False,
         logger=logger,
         callbacks=callbacks
     )

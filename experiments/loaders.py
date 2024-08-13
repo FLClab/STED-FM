@@ -375,6 +375,7 @@ def get_dataset(name, path=None, **kwargs):
     elif name == "peroxisome":
         return get_peroxisome_dataset(
             path=os.path.join(BASE_PATH, "evaluation-data", "peroxisome"), 
+<<<<<<< HEAD
             n_channels=kwargs.get("n_channels", 1), 
             transform=kwargs.get("transform", 1),
             batch_size=kwargs.get("batch_size", 1),
@@ -387,6 +388,13 @@ def get_dataset(name, path=None, **kwargs):
             transform=kwargs.get("transform", 1),
             batch_size=kwargs.get("batch_size", 1),
             num_samples=kwargs.get("num_samples", None),
+=======
+            n_channels=kwargs['n_channels'], 
+            transform=kwargs['transform'],
+            batch_size=kwargs['batch_size'],
+            num_samples=kwargs['num_samples'],
+            superclasses=kwargs.get("superclasses", False)
+>>>>>>> 9b4a041 (update(pretraining): pretrain MAEs with augmentations and n_steps)
         )
     else:
         raise NotImplementedError(f"`{name}` dataset is not supported.")

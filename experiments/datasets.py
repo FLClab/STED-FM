@@ -594,6 +594,8 @@ class PeroxisomeDataset(Dataset):
         if superclasses:
             self.__merge_superclasses()
         self.info = self.__get_info()
+        for k in self.samples.keys():
+            print(f"Class {k} samples: {len(self.samples[k])}")
 
     def __merge_superclasses(self) -> None:
         merged_samples = defaultdict(list)
