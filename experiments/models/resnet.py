@@ -8,6 +8,7 @@ from dataclasses import dataclass
 import sys
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH
+from configuration import Configuration
 
 class ResNetWeights:
 
@@ -41,9 +42,7 @@ class ResNetWeights:
     # RESNET18_LINEARPROBE_STED_OPTIM = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_STED/optim/finetuned_4blocks_model.pth" 
 
 
-
-@dataclass
-class ResNetConfiguration:
+class ResNetConfiguration(Configuration):
     
     backbone: str = "resnet"
     backbone_weights: str = None

@@ -6,10 +6,14 @@ from dataclasses import dataclass
 import h5py
 import numpy as np
 
+import sys
+sys.path.insert(0, "..")
+from DEFAULTS import BASE_PATH
+from configuration import Configuration
+
 DATAPATH = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/zooniverse"
 
-@dataclass 
-class ZooniverseConfiguration:
+class ZooniverseConfiguration(Configuration):
     num_classes: int = 6
     criterion: str = "MSELoss"
     in_channels: int = 1

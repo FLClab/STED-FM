@@ -14,9 +14,9 @@ from torchvision import transforms
 import sys
 sys.path.insert(0, "..")
 from DEFAULTS import BASE_PATH
+from configuration import Configuration
 
-@dataclass
-class FActinConfiguration:
+class FActinConfiguration(Configuration):
 
     num_classes: int = 2
     criterion: str = "MSELoss"

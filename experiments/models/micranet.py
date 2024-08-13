@@ -9,14 +9,14 @@ from dataclasses import dataclass
 import sys
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH
+from configuration import Configuration
 
 class MICRANetWeights:
     MICRANET_SSL_HPA = os.path.join(BASE_PATH, "baselines", "micranet_HPA", "checkpoint-999.pt")
     MICRANET_SSL_STED = os.path.join(BASE_PATH, "baselines", "micranet_STED", "result.pt")
     MICRANET_SSL_CTC = os.path.join(BASE_PATH, "baselines", "micranet_CTC", "checkpoint-999.pt")
 
-@dataclass
-class MICRANetConfiguration:
+class MICRANetConfiguration(Configuration):
     
     backbone: str = "micranet"
     backbone_weights: str = None
