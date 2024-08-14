@@ -1275,8 +1275,147 @@ class TarFLCDataset(Dataset):
         state = dict(self.__dict__)
         state['tar_obj'] = {}
         return state
+    
+class ArchiveDataset(Dataset):
+    """
+    This is an attempt at reading both zip and tar from a single class.
 
-class HPADataset(Dataset):
+    Some methods should be reimplemented in daughter classes.
+    """
+
+    READERS = {
+        ".zip" : ZipFile,
+        ".tar" : tarfile.open
+    }
+
+    def __init__(self, archive_path, use_cache=False, max_cache_size=16e9, transform: Any=None, cache_system=None, world_size=1, rank=0, **kwargs):
+        
+        super(ArchiveDataset, self).__init__()
+
+        self.__cache = {}
+        self.__max_cache_size = max_cache_size
+        self.archive_path = archive_path
+        self.transform = transform
+
+        # Multiprocessing settings for multi-gpu training
+        self.world_size = world_size
+        self.rank = rank
+
+        # Archive reader
+        ext = os.path.splitext(self.archive_path)[1]
+        self.archive_reader = self.READERS[ext]
+
+        # Instantiates the archive object
+        worker = get_worker_info()
+        worker = worker.id if worker else None
+        self.archive_obj = {worker: self.archive_reader(self.archive_path, "r")}    
+        
+        members = self.get_members()
+        self.members = self.__setup_multiprocessing(members)
+
+        if use_cache and self.__max_cache_size > 0:
+            self.__cache_size = 0
+            if not cache_system is None:
+                self.__cache = cache_system
+            self.__fill_cache()
+
+    def get_members(self):
+        raise NotImplementedError("Implement in daughter class")   
+
+    def get_item_from_archive(self, member):
+        raise NotImplementedError("Implement in daughter class")
+    
+    def get_reader(self):
+        # ensure a unique file handle per worker, in multiprocessing settings
+        worker = get_worker_info()
+        worker = worker.id if worker else None
+        if worker not in self.archive_obj:
+            self.archive_obj[worker] = self.archive_reader(self.zip_path, "r")
+        return self.archive_obj[worker]
+    
+    def get_data(self, idx):
+        if idx in self.__cache:
+            data = self.__cache[idx]
+        else:
+            data = self.get_item_from_archive(self.members[idx])
+        return data
+
+    def __getsizeof(self, obj: Any) -> int:
+        """
+        Implements a simple function to estimate the size of an object in memory.
+
+        :param obj: The object to estimate the size of.
+
+        :returns : The size of the object in bytes.
+        """
+        if isinstance(obj, dict):
+            return sum([self.__getsizeof(o) for o in obj.values()])
+        elif isinstance(obj, (list, tuple)):
+            return sum([self.__getsizeof(o) for o in obj])
+        elif isinstance(obj, str):
+            return len(str)
+        else:
+            return obj.size * obj.dtype.itemsize
+    
+    def __fill_cache(self):
+        """
+        Implements a function to fill up the cache with data from the TarFile.
+        """
+        indices = np.arange(0, len(self.members), 1)
+        np.random.shuffle(indices)
+        print("Filling up the cache...")
+        # pbar = tqdm(indices, total=indices.shape[0])
+        for n, idx in enumerate(indices):
+            if self.__cache_size >= self.__max_cache_size:
+                break
+            data = self.get_item_from_archive(self.members[idx])
+            self.__cache[idx] = data
+            self.__cache_size += self.__getsizeof(data)
+            # pbar.set_description(f"Cache size --> {self.__cache_size * 1e-9:0.2f}G")
+            if n % 1000 == 0:
+                worker = get_worker_info()
+                worker = worker.id if worker else None
+                print(f"Current cache (worker: {worker} | rank: {self.rank}): {n}/{len(indices)} ({self.__cache_size * 1e-9:0.2f}G)")   
+
+    def __setup_multiprocessing(self, members : list):
+        """
+        Setup multiprocessing for the dataset.
+
+        :param members: The list of members to setup multiprocessing for.
+
+        :returns : A `list` of members.
+        """
+        if self.world_size > 1:
+            num_members = len(members)
+            num_members_per_gpu = num_members // self.world_size
+            members = members[self.rank * num_members_per_gpu : (self.rank + 1) * num_members_per_gpu]
+        return members
+
+    def __len__(self):
+        """
+        Implements the ``__len__`` method for the dataset.
+        """
+        return len(self.members)
+    
+    def __getitem__(self, idx):
+        return self.get_data(idx)
+    
+    def __del__(self):
+        """
+        Close the ZipFile file handles on exit.
+        """
+        for o in self.archive_obj.values():
+            o.close()
+            
+    def __getstate__(self) -> dict:
+        """
+        Serialize without the ZipFile references, for multiprocessing compatibility.
+        """
+        state = dict(self.__dict__)
+        state['archive_obj'] = {}
+        return state        
+
+class HPADataset(ArchiveDataset):
     """
     Dataset class for loading and processing image data from a zip file.
     This dataset is designed for the HPA dataset.
@@ -1284,7 +1423,14 @@ class HPADataset(Dataset):
     def __init__(
             self,
             zip_path: str,
-            transform: Any = None,
+            use_cache: bool = False, 
+            max_cache_size: int = 16e9, 
+            image_channels: int = 1, 
+            transform: Any = None, 
+            cache_system=None, 
+            return_metadata: bool=False,
+            world_size: int = 1,
+            rank: int = 0,
             **kwargs
     ) -> None :
         """
@@ -1293,23 +1439,39 @@ class HPADataset(Dataset):
         :param zip_path: The path to the zip file to load data from.
         :param transform: The transformation to apply to the image data.
         """
-        self.zip_path = zip_path
-        self.transform = transform
-        self.file_list = self.__get_file_list()
+        super(HPADataset, self).__init__(
+            zip_path, 
+            use_cache=use_cache, 
+            max_cache_size=max_cache_size,
+            transform=transform,
+            cache_system=cache_system,
+            world_size=world_size,
+            rank=rank
+        )
+
+        self.image_channels = image_channels
+        self.return_metadata = return_metadata
     
-    def __get_file_list(self):
+    def get_members(self):
+
         file_list = []
-        with ZipFile(self.zip_path, 'r') as zf:
-            for f in zf.namelist():
-                if f.endswith('.png'):
-                    file_list.append(f)
+        for f in self.get_reader().namelist():
+            if f.endswith('.png'):
+                file_list.append(f)
         return file_list
     
-    def __len__(self):
+    def get_item_from_archive(self, member):
         """
-        Implements the ``__len__`` method for the dataset.
+        Implements a function to load a file from a ZipFile.
+
+        :param member: The name of the object representing the file to load.
+
+        :returns : The data loaded from the file.
         """
-        return len(self.file_list)
+        data = self.get_reader().read(member)
+        img = Image.open(io.BytesIO(data))
+        img = numpy.array(img)
+        return img
 
     def __getitem__(self, idx: int) -> torch.Tensor:
         """
@@ -1319,13 +1481,21 @@ class HPADataset(Dataset):
 
         :returns: The item at the given idex.
         """
-        with ZipFile(self.zip_path, 'r') as zf:
-            data = zf.read(self.file_list[idx])
-            img = Image.open(io.BytesIO(data))
-            image = transforms.ToTensor()(img)
-            m, M = image.min(), image.max()
-            image = (image - m) / (M - m)
+        img = self.get_data(idx)
 
-            if self.transform is not None:
-                image = self.transform(image)
-        return image
+        # image = transforms.ToTensor()(img)
+        m, M = img.min(), img.max()
+        img = (img - m) / (M - m)
+
+        if self.transform is not None:
+            # This assumes that there is a conversion to torch Tensor in the given transform
+            img = self.transform(img)
+            if isinstance(img, list):
+                img = [x.float() for x in img]
+            else:
+                img = img.float()
+        else:
+            if img.ndim == 2:
+                img = img[np.newaxis]
+            img = torch.tensor(img, dtype=torch.float32)  
+        return img
