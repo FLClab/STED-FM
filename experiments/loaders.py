@@ -384,7 +384,7 @@ def get_dataset(name, path=None, **kwargs):
     elif name == "polymer-rings":
         return get_polymer_rings_dataset(
             path=os.path.join(BASE_PATH, "evaluation-data", "polymer-rings"), 
-            superclasses=kwargs.get("superclasses", False),
+            superclasses=kwargs.get("superclasses", True),
             n_channels=kwargs.get("n_channels", 1), 
             transform=kwargs.get("transform", None),
             batch_size=kwargs.get("batch_size", 64),
