@@ -1079,202 +1079,6 @@ class JUMPCPDataset(Dataset):
             img = img[np.newaxis]
             img = torch.tensor(img, dtype=torch.float32)
         return img
-
-
-class TarFLCDataset(Dataset):
-    """
-    Dataset class for loading and processing image data from a TarFile object.
-    """
-    def __init__(self, tar_path: str, 
-                 use_cache: bool = False, 
-                 max_cache_size: int = 16e9, 
-                 image_channels: int = 1, 
-                 transform: Any = None, 
-                 cache_system=None, 
-                 return_metadata: bool=False,
-                 world_size: int = 1,
-                 rank: int = 0) -> None:
-        """
-        Instantiates a new ``TarFLCDataset`` object.
-
-        :param tar_path: The path to the TarFile object to load data from.
-        :param use_cache: Whether to use a cache system to store data.
-        :param max_cache_size: The maximum size of the cache in bytes.
-        :param image_channels: The number of channels in the image data.
-        :param transform: The transformation to apply to the image data.
-        :param cache_system: The cache system to use for storing data. This is 
-            used to share a cache system across multiple workers using ``multiprocessing.Manager``.
-        :param return_metadata: Whether to return metadata along with the image data.
-        """
-        self.__cache = {}
-        self.__max_cache_size = max_cache_size
-        self.tar_path = tar_path
-        self.image_channels = image_channels
-        self.transform = transform
-        self.return_metadata = return_metadata
-
-        # Multiprocessing settings for multi-gpu training
-        self.world_size = world_size
-        self.rank = rank
-
-        worker = get_worker_info()
-        worker = worker.id if worker else None
-        self.tar_obj = {worker: tarfile.open(self.tar_path, "r")}
-
-        # store headers of all files and folders by name
-        members = list(sorted(self.tar_obj[worker].getmembers(), key=lambda m: m.name))
-        # members = [self.tar_obj[worker].next() for _ in range(1000)]
-        # members = list(self.tar_obj[worker].getmembers())
-        self.members = self.__setup_multiprocessing(members)
-        # self.members = members
-
-        if use_cache and self.__max_cache_size > 0:
-            self.__cache_size = 0
-            if not cache_system is None:
-                self.__cache = cache_system
-            self.__fill_cache()
-    
-    def metadata(self):
-        for idx in range(len(self.members)):
-            if idx in self.__cache:
-                data = self.__cache[idx]
-            else:
-                data = self.__get_item_from_tar(self.members[idx])
-            metadata = data["metadata"]
-            yield metadata            
-
-    def __setup_multiprocessing(self, members : list):
-        """
-        Setup multiprocessing for the dataset.
-
-        :param members: The list of members to setup multiprocessing for.
-
-        :returns : A `list` of members.
-        """
-        if self.world_size > 1:
-            num_members = len(members)
-            num_members_per_gpu = num_members // self.world_size
-            members = members[self.rank * num_members_per_gpu : (self.rank + 1) * num_members_per_gpu]
-        return members
-
-    def __get_item_from_tar(self, member: tarfile.TarInfo):
-        """
-        Implements a function to load a file from a TarFile object.
-
-        :param member: The TarInfo object representing the file to load.
-
-        :returns : The data loaded from the file.
-        """
-        # ensure a unique file handle per worker, in multiprocessing settings
-        worker = get_worker_info()
-        worker = worker.id if worker else None
-        if worker not in self.tar_obj:
-            self.tar_obj[worker] = tarfile.open(self.tar_path, "r")
-
-        # Loads file from TarFile stored as numpy array
-        buffer = io.BytesIO()
-        buffer.write(self.tar_obj[worker].extractfile(member).read())
-        buffer.seek(0)
-        data = np.load(buffer, allow_pickle=True)
-
-        return data
-
-    def __getsizeof(self, obj: Any) -> int:
-        """
-        Implements a simple function to estimate the size of an object in memory.
-
-        :param obj: The object to estimate the size of.
-
-        :returns : The size of the object in bytes.
-        """
-        if isinstance(obj, dict):
-            return sum([self.__getsizeof(o) for o in obj.values()])
-        elif isinstance(obj, (list, tuple)):
-            return sum([self.__getsizeof(o) for o in obj])
-        elif isinstance(obj, str):
-            return len(str)
-        else:
-            return obj.size * obj.dtype.itemsize
-    
-    def __fill_cache(self):
-        """
-        Implements a function to fill up the cache with data from the TarFile.
-        """
-        indices = np.arange(0, len(self.members), 1)
-        np.random.shuffle(indices)
-        print("Filling up the cache...")
-        # pbar = tqdm(indices, total=indices.shape[0])
-        for n, idx in enumerate(indices):
-            if self.__cache_size >= self.__max_cache_size:
-                break
-            data = self.__get_item_from_tar(self.members[idx])
-            data = {key : values for key, values in data.items()}
-            self.__cache[idx] = data
-            self.__cache_size += self.__getsizeof(data)
-            # pbar.set_description(f"Cache size --> {self.__cache_size * 1e-9:0.2f}G")
-            if n % 1000 == 0:
-                worker = get_worker_info()
-                worker = worker.id if worker else None
-                print(f"Current cache (worker: {worker} | rank: {self.rank}): {n}/{len(indices)} ({self.__cache_size * 1e-9:0.2f}G)")
-
-    def __len__(self):
-        """
-        Implements the `__len__` method for the dataset.
-        """
-        return len(self.members)# * self.world_size
-
-    def __getitem__(self, idx: int) -> torch.Tensor:
-        """
-        Implements the `__getitem__` method for the dataset.
-
-        :param idx: The index of the item to retrieve.
-
-        :returns : The item at the given index.
-        """
-
-        if idx in self.__cache:
-            data = self.__cache[idx]
-        else:
-            data = self.__get_item_from_tar(self.members[idx])
-        
-        img = data["image"] # assuming 'img' key
-        metadata = data["metadata"]
-        # if img.size != 224 * 224:
-        #     print(img.shape)
-        #     print(metadata)
-        
-        img = img / 255.
-
-        if self.transform is not None:
-            # This assumes that there is a conversion to torch Tensor in the given transform
-            img = self.transform(img)
-            if isinstance(img, list):
-                img = [x.float() for x in img]
-            else:
-                img = img.float()
-        else:
-            if img.ndim == 2:
-                img = img[np.newaxis]
-            img = torch.tensor(img, dtype=torch.float32)
-
-        if self.return_metadata:
-            return img, metadata
-        return img # and whatever other metadata we like
-    
-    def __del__(self):
-        """
-        Close the TarFile file handles on exit.
-        """
-        for o in self.tar_obj.values():
-            o.close()
-            
-    def __getstate__(self) -> dict:
-        """
-        Serialize without the TarFile references, for multiprocessing compatibility.
-        """
-        state = dict(self.__dict__)
-        state['tar_obj'] = {}
-        return state
     
 class ArchiveDataset(Dataset):
     """
@@ -1303,6 +1107,8 @@ class ArchiveDataset(Dataset):
 
         # Archive reader
         ext = os.path.splitext(self.archive_path)[1]
+        if ext not in self.READERS:
+            raise NotImplementedError(f"Archive type `{ext}` is not implemented. The only supported archives are: {self.READERS.keys()}")
         self.archive_reader = self.READERS[ext]
 
         # Instantiates the archive object
@@ -1330,7 +1136,7 @@ class ArchiveDataset(Dataset):
         worker = get_worker_info()
         worker = worker.id if worker else None
         if worker not in self.archive_obj:
-            self.archive_obj[worker] = self.archive_reader(self.zip_path, "r")
+            self.archive_obj[worker] = self.archive_reader(self.archive_path, "r")
         return self.archive_obj[worker]
     
     def get_data(self, idx):
@@ -1415,6 +1221,105 @@ class ArchiveDataset(Dataset):
         state['archive_obj'] = {}
         return state        
 
+class TarFLCDataset(ArchiveDataset):
+    """
+    Dataset class for loading and processing image data from a TarFile object.
+    """
+    def __init__(self, tar_path: str, 
+                 use_cache: bool = False, 
+                 max_cache_size: int = 16e9, 
+                 image_channels: int = 1, 
+                 transform: Any = None, 
+                 cache_system=None, 
+                 return_metadata: bool=False,
+                 world_size: int = 1,
+                 rank: int = 0) -> None:
+        """
+        Instantiates a new ``TarFLCDataset`` object.
+
+        :param tar_path: The path to the TarFile object to load data from.
+        :param use_cache: Whether to use a cache system to store data.
+        :param max_cache_size: The maximum size of the cache in bytes.
+        :param image_channels: The number of channels in the image data.
+        :param transform: The transformation to apply to the image data.
+        :param cache_system: The cache system to use for storing data. This is 
+            used to share a cache system across multiple workers using ``multiprocessing.Manager``.
+        :param return_metadata: Whether to return metadata along with the image data.
+        """
+        super(TarFLCDataset, self).__init__(
+            tar_path, 
+            use_cache=use_cache, 
+            max_cache_size=max_cache_size, 
+            transform=transform, 
+            cache_system=cache_system,
+            world_size=world_size,
+            rank=rank
+        )
+        
+        self.image_channels = image_channels
+        self.return_metadata = return_metadata
+    
+    def metadata(self):
+        for idx in range(len(self.members)):
+            data = self.get_data(idx)
+            metadata = data["metadata"]
+            yield metadata
+
+    def get_members(self):
+        return list(sorted(self.get_reader().getmembers(), key=lambda m: m.name))         
+
+    def get_item_from_archive(self, member: tarfile.TarInfo):
+        """
+        Implements a function to load a file from a TarFile object.
+
+        :param member: The TarInfo object representing the file to load.
+
+        :returns : The data loaded from the file.
+        """
+        # Loads file from TarFile stored as numpy array
+        buffer = io.BytesIO()
+        buffer.write(self.get_reader().extractfile(member).read())
+        buffer.seek(0)
+        data = np.load(buffer, allow_pickle=True)
+
+        data = {key : values for key, values in data.items()}
+
+        return data
+        
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        """
+        Implements the `__getitem__` method for the dataset.
+
+        :param idx: The index of the item to retrieve.
+
+        :returns : The item at the given index.
+        """
+        data = self.get_data(idx)
+        
+        img = data["image"] # assuming 'img' key
+        metadata = data["metadata"]
+        # if img.size != 224 * 224:
+        #     print(img.shape)
+        #     print(metadata)
+        
+        img = img / 255.
+
+        if self.transform is not None:
+            # This assumes that there is a conversion to torch Tensor in the given transform
+            img = self.transform(img)
+            if isinstance(img, list):
+                img = [x.float() for x in img]
+            else:
+                img = img.float()
+        else:
+            if img.ndim == 2:
+                img = img[np.newaxis]
+            img = torch.tensor(img, dtype=torch.float32)
+
+        if self.return_metadata:
+            return img, metadata
+        return img # and whatever other metadata we like
+    
 class HPADataset(ArchiveDataset):
     """
     Dataset class for loading and processing image data from a zip file.
