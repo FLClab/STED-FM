@@ -26,6 +26,7 @@ class ResNetWeights:
     RESNET50_SSL_HPA = os.path.join(BASE_PATH, "baselines", "resnet50_HPA", "result.pt")
     RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet50_STED", "result.pt")
     # RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu/resnet50_STED", "result.pt")
+    # RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu/resnet50_STED", "checkpoint-145000.pt")
     RESNET50_SSL_CTC = os.path.join(BASE_PATH, "baselines", "resnet50_CTC", "result.pt")
 
 
