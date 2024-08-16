@@ -38,18 +38,24 @@ class LinearProbe(torch.nn.Module):
 
     def _freeze_blocks(self, blocks: Union[List, int]) -> None:
         raise NotImplementedError("Partial fine-tuning not yet implemented.") 
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    
+    def forward_features(self, x: torch.Tensor) -> torch.Tensor:
         if "mae" in self.name.lower():
             features = self.backbone.forward_features(x)
             if self.global_pool == "token":
                 features = features[:, 0, :] # class token 
             elif self.global_pool == "avg":
                 features = torch.mean(features[:, 1:, :], dim=1) # Average patch tokens
+            elif self.global_pool == "patch":
+                features = features[:, 1:, :]
             else:
                 raise NotImplementedError(f"Invalid `{self.global_pool}` pooling function.")
         else:
-            features = self.backbone.forward(x)
+            features = self.backbone.forward(x)    
+        return features    
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        features = self.forward_features(x)
 
         out = self.classification_head(features)
         return out, features
