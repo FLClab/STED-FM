@@ -42,6 +42,7 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
                 num_classes=kwargs['num_classes'],
                 cfg=cfg,
                 num_blocks=kwargs['blocks'],
+                global_pool=kwargs.get("global_pool", "avg")
             )
             print(f"--- Added linear probe to {kwargs['blocks']} frozen blocks ---")
             return model, cfg

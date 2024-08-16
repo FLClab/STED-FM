@@ -13,6 +13,8 @@ import argparse
 import uuid
 import skimage.measure
 import matplotlib
+from scipy.spatial import distance
+import tifffile
 
 from dataclasses import dataclass
 from lightly import loss
@@ -38,13 +40,7 @@ from model_builder import get_base_model, get_pretrained_model_v2
 from utils import update_cfg, save_cfg
 from configuration import Configuration
 
-from template import Template
-
-class SegmentationConfiguration(Configuration):
-    
-    freeze_backbone: bool = False
-    num_epochs: int = 100
-    learning_rate: float = 0.001
+from template import Template, Query
 
 if __name__ == "__main__":
 
@@ -54,7 +50,7 @@ if __name__ == "__main__":
                     help="Random seed")     
     parser.add_argument("--dataset", required=True, type=str,
                     help="Name of the dataset to use")             
-    parser.add_argument("--backbone", type=str, default="resnet18",
+    parser.add_argument("--backbone", type=str, default="mae-lightning-small",
                         help="Backbone model to load")
     parser.add_argument("--backbone-weights", type=str, default=None,
                         help="Backbone model to load")    
@@ -93,40 +89,82 @@ if __name__ == "__main__":
     cfg.args = args
     update_cfg(cfg, args.opts)
 
+    CLASS = "perforated"
+
     training_dataset, validation_dataset, testing_dataset = get_dataset(name=args.dataset, cfg=cfg)
-    template = Template(training_dataset.images, class_id=training_dataset.classes.index("perforated"), mode="avg")
+    template = Template(training_dataset.images, class_id=training_dataset.classes.index(CLASS), mode="choice")
+    template_query = template.get_template(model, cfg)
 
-    query = template.get_template(model, cfg)
+    # In mode "choice", template_query is a dictionary and we can extract the image and mask templates
+    if isinstance(template_query, dict):
+        image_template = template_query["image-template"]
+        mask_template = template_query["mask-template"]
 
-    # idx = 67
-    # img, mask = training_dataset[idx]
+        stack = numpy.stack([image_template, mask_template], axis=0)
+        tifffile.imwrite(f"template-{CLASS}-{args.backbone_weights}.tif", stack.astype(numpy.float32), imagej=True, metadata={"mode": "composite"})
 
+        template_query = template_query["template"]
+
+    query = Query(testing_dataset.images, class_id=testing_dataset.classes.index(CLASS))
+    for i, (image, label, prediction) in enumerate(query.query(template_query, model, cfg)):
+        # fig, ax = pyplot.subplots(1, 3)
+        # ax[0].imshow(image, cmap="gray", vmin=0, vmax=0.7*image.max())
+        # ax[1].imshow(label[template.class_id], cmap="gray", vmin=0, vmax=1)
+        # ax[2].imshow(prediction, cmap="hot", vmin=0, vmax=1)
+        # fig.savefig(f"query.png")
+
+        threshold = numpy.quantile(prediction, 0.95)
+        prediction[prediction < threshold] = threshold
+
+        stack = numpy.stack([image, label[template.class_id], prediction], axis=0)
+        tifffile.imwrite(f"image-{CLASS}-{i}-{args.backbone_weights}.tif", stack.astype(numpy.float32), imagej=True, metadata={"mode": "composite"})
+        # break
+
+    # random.seed(None)
+    # idx = random.randint(0, len(testing_dataset)-1)
+    # img, mask = testing_dataset[idx]
     # model.eval()
     # with torch.no_grad():
-    #     img, mask = training_dataset[idx]
     #     img = img.unsqueeze(0).to(DEVICE)
-
-    #     mask = mask.numpy().squeeze()
-    #     m = skimage.measure.block_reduce(mask, (16, 16), numpy.mean)
-    #     patch_idx = numpy.argmax(m.ravel())
-    #     features = model.forward_features(img)
-    #     query = features[0, patch_idx, :]
-
-    #     # Get a random image from the testing dataset
-    #     random.seed(None)
-    #     idx = random.randint(0, len(testing_dataset)-1)
-    #     img, mask = testing_dataset[idx]
-    #     img = img.unsqueeze(0).to(DEVICE)
-    #     mask = mask.numpy().squeeze()
+    #     mask = mask.numpy().squeeze()[template.class_id]
     #     m = skimage.measure.block_reduce(mask, (16, 16), numpy.mean)
     #     patch_idx = numpy.argmax(m.ravel())
     #     features = model.forward_features(img)
 
-    #     distances = torch.nn.functional.cosine_similarity(features[0], query.unsqueeze(0), dim=1)
-    #     distances = distances.cpu().numpy()
+    #     features = features.cpu().squeeze().numpy()
+    #     distances = distance.cdist(features, query[numpy.newaxis], "cosine")
+    #     distances = distances.ravel()
+
+
+    # # idx = 67
+    # # img, mask = training_dataset[idx]
+
+    # # model.eval()
+    # # with torch.no_grad():
+    # #     img, mask = training_dataset[idx]
+    # #     img = img.unsqueeze(0).to(DEVICE)
+
+    # #     mask = mask.numpy().squeeze()
+    # #     m = skimage.measure.block_reduce(mask, (16, 16), numpy.mean)
+    # #     patch_idx = numpy.argmax(m.ravel())
+    # #     features = model.forward_features(img)
+    # #     query = features[0, patch_idx, :]
+
+    # #     # Get a random image from the testing dataset
+    # #     random.seed(None)
+    # #     idx = random.randint(0, len(testing_dataset)-1)
+    # #     img, mask = testing_dataset[idx]
+    # #     img = img.unsqueeze(0).to(DEVICE)
+    # #     mask = mask.numpy().squeeze()
+    # #     m = skimage.measure.block_reduce(mask, (16, 16), numpy.mean)
+    # #     patch_idx = numpy.argmax(m.ravel())
+    # #     features = model.forward_features(img)
+
+    # #     distances = torch.nn.functional.cosine_similarity(features[0], query.unsqueeze(0), dim=1)
+    # #     distances = distances.cpu().numpy()
 
     # img = img.squeeze().cpu().numpy()
-    # mask[mask == 0] = numpy.nan
+    # # mask[mask == 0] = numpy.nan
 
     # fig, axes = pyplot.subplots(1, 2)
     # axes[0].imshow(img, cmap="gray", vmin=0, vmax=0.7*img.max())
@@ -134,7 +172,7 @@ if __name__ == "__main__":
 
     # cmap = matplotlib.colors.LinearSegmentedColormap.from_list("custom", ["black", "#ffcc00"])
     # axes[1].imshow(img, cmap="gray", vmin=0, vmax=0.7*img.max())
-    # axes[1].imshow(distances.reshape(14, 14), alpha=0.5, cmap=cmap, vmin=distances.min(), vmax=1, 
+    # axes[1].imshow(distances.reshape(14, 14), alpha=0.5, cmap="coolwarm", vmin=0, vmax=1, 
     #           extent=[0, 224, 224, 0])
     # for ax in axes.ravel():
     #     # ax.grid(True)
