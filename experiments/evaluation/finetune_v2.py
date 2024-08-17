@@ -261,7 +261,7 @@ def main():
     train_loss, val_loss, val_acc, lrates = [], [], [], []
     save_best_model = SaveBestModel(
         save_dir=f"{model_path}",
-        model_name=probe
+        model_name=f"{probe}_{args.num_per_class}"
     )
 
     # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=0)
@@ -312,7 +312,7 @@ def main():
             val_loss=val_loss,
             val_acc=val_acc,
             lrates=lrates,
-            save_dir=f"{model_path}/{probe}_training-curves.png"
+            save_dir=f"{model_path}/{probe}-{args.num_per_class}_training-curves.png"
         )
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
 

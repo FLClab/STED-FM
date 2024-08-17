@@ -8,8 +8,7 @@
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-3
-
+#SBATCH --array=0-23
 
 #### PARAMETERS
 # Use this directory venv, reusable across RUNs
@@ -21,42 +20,47 @@ source ~/phd/bin/activate
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 WEIGHTS=(
-    "MAE_LARGE_IMAGENET1K_V1"
-    "MAE_LARGE_HPA"
-    "MAE_LARGE_JUMP"
-    "MAE_LARGE_STED"
+    "MAE_SMALL_IMAGENET1K_V1"
+    "MAE_SMALL_HPA"
+    "MAE_SMALL_JUMP"
+    "MAE_SMALL_STED"
 )
 
-# DATASETS=(
-#     "optim"
-#     "synaptic-proteins"
-# )
+NUMCLASSES=(
+    10
+    25
+    50
+    100
+    250
+    500
+)
 
-# opts=()
-# for weight in "${WEIGHTS[@]}"
-# do
-#     for dataset in "${DATASETS[@]}"
-#     do
-#         opts+=("$weight;$dataset")
-#     done
-# done
+params=()
+for weight in "${WEIGHTS[@]}"
+do
+    for numclass in "${NUMCLASSES[@]}"
+    do
+        params+=("$weight;$numclass")
+    done
+done
 
-# # Reads a specific item in the array and asign the values
-# # to the opt variable
-# IFS=';' read -r -a opt <<< "${opts[${SLURM_ARRAY_TASK_ID}]}"
-# weight="${opt[0]}"
-# dataset="${opt[1]}"
+# Reads a specific item in the array and asign the values
+# to the opt variable
+IFS=';' read -r -a param <<< "${params[${SLURM_ARRAY_TASK_ID}]}"
+weight="${param[0]}"
+numclass="${param[1]}"
 
-weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
+# opts="batch_size 32"
+
 
 
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started linear probing"
+echo "% Started fine tuning in low data regime ($numclass samples per class)"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset polymer-rings --model mae-lightning-large --weights $weight --blocks "all"
+python finetune_v2.py --dataset polymer-rings --model mae-lightning-small --weights $weight --blocks "all" --num-per-class $numclass
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

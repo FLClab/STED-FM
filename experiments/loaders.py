@@ -104,7 +104,7 @@ def get_neural_activity_states(
         h5file=f"{path}/NAS_valid.hdf5",
         transform=transform,
         n_channels=n_channels,
-        num_samples=num_samples,
+        num_samples=None,
         num_classes=4,
         protein_id=protein_id
     )
@@ -112,7 +112,7 @@ def get_neural_activity_states(
         h5file=f"{path}/NAS_test.hdf5",
         transform=transform,
         n_channels=n_channels,
-        num_samples=num_samples,
+        num_samples=None,
         num_classes=4,
         protein_id=protein_id
     )
@@ -234,7 +234,7 @@ def get_synaptic_proteins_dataset(
   
 
 def get_optim_dataset(path: str, training: bool = False, batch_size=256, num_samples=None, **kwargs):
-    
+    print(f"TESTING --> {num_samples} samples per class")
     samples_dict = {
         "actin": num_samples,
         "tubulin": num_samples,
@@ -264,23 +264,13 @@ def get_optim_dataset(path: str, training: bool = False, batch_size=256, num_sam
         classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
         **kwargs
     )
-    print(f"Train dataset size: {len(train_dataset)}")
-    print(f"Valid dataset size: {len(valid_dataset)}")
-    print(f"Test dataset size: {len(test_dataset)}")
+    print(f"Train dataset size: {len(train_dataset)} --> {np.unique(train_dataset.labels, return_counts=True)}")
+    print(f"Valid dataset size: {len(valid_dataset)} --> {np.unique(valid_dataset.labels, return_counts=True)}")
+    print(f"Test dataset size: {len(test_dataset)} --> {np.unique(test_dataset.labels, return_counts=True)}")
     train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
     valid_loader = DataLoader(dataset=valid_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
     test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
     return train_loader, valid_loader, test_loader
-    # else:
-    #     dataset = datasets.OptimDataset(
-    #         data_folder=path,
-    #         num_samples={'actin': None, 'tubulin': None, 'CaMKII_Neuron': None, "PSD95_Neuron": None},
-    #         apply_filter=True,
-    #         classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
-    #         **kwargs
-    #     )
-    #     dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
-    #     return None, None, dataloader
 
 def get_factin_rings_fibers_dataset(path: str, **kwargs):
     dataset = datasets.CreateFactinRingsFibersDataset(data_folder=path, classes=["rings", "fibers"], **kwargs)
@@ -292,11 +282,11 @@ def get_factin_block_glugly_dataset(path: str, **kwargs):
     dataloader = DataLoader(dataset=dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
     return dataset
 
-def get_peroxisome_dataset(path: str, batch_size: int = 128, **kwargs):
+def get_peroxisome_dataset(path: str, num_samples: int, batch_size: int = 128, **kwargs):
 
-    training_dataset = datasets.PeroxisomeDataset(source=os.path.join(path, "peroxisome-training.txt"), **kwargs)
-    validation_dataset = datasets.PeroxisomeDataset(source=os.path.join(path, "peroxisome-validation.txt"), **kwargs)
-    testing_dataset = datasets.PeroxisomeDataset(source=os.path.join(path, "peroxisome-testing.txt"), **kwargs)
+    training_dataset = datasets.PeroxisomeDataset(source=os.path.join(path, "peroxisome-training.txt"), num_samples=num_samples, **kwargs)
+    validation_dataset = datasets.PeroxisomeDataset(source=os.path.join(path, "peroxisome-validation.txt"), num_samples=None, **kwargs)
+    testing_dataset = datasets.PeroxisomeDataset(source=os.path.join(path, "peroxisome-testing.txt"), num_samples=None, **kwargs)
 
     print(f"Training size: {len(training_dataset)}")
     print(f"Validation size: {len(validation_dataset)}")
@@ -316,11 +306,11 @@ def get_peroxisome_dataset(path: str, batch_size: int = 128, **kwargs):
     test_loader = DataLoader(dataset=testing_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
     return train_loader, valid_loader, test_loader
 
-def get_polymer_rings_dataset(path: str, batch_size: int = 128, **kwargs):
+def get_polymer_rings_dataset(path: str, num_samples: int, batch_size: int = 128, **kwargs):
 
-    training_dataset = datasets.PolymerRingsDataset(source=os.path.join(path, "polymer-rings-training.txt"), **kwargs)
-    validation_dataset = datasets.PolymerRingsDataset(source=os.path.join(path, "polymer-rings-validation.txt"), **kwargs)
-    testing_dataset = datasets.PolymerRingsDataset(source=os.path.join(path, "polymer-rings-testing.txt"), **kwargs)
+    training_dataset = datasets.PolymerRingsDataset(source=os.path.join(path, "polymer-rings-training.txt"), num_samples=num_samples, **kwargs)
+    validation_dataset = datasets.PolymerRingsDataset(source=os.path.join(path, "polymer-rings-validation.txt"), num_samples=None, **kwargs)
+    testing_dataset = datasets.PolymerRingsDataset(source=os.path.join(path, "polymer-rings-testing.txt"), num_samples=None, **kwargs)
 
     print(f"Training size: {len(training_dataset)}")
     print(f"Validation size: {len(validation_dataset)}")
