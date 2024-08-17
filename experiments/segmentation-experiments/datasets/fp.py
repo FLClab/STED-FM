@@ -17,6 +17,7 @@ from torchvision import transforms
 import sys
 sys.path.insert(0, "..")
 from DEFAULTS import BASE_PATH
+from configuration import Configuration
 
 TARGET_RES = 0.022724609375
 
@@ -30,8 +31,7 @@ def get_resolution(tif_fl, sh):
         else:
             return TARGET_RES
 
-@dataclass
-class FPConfiguration:
+class FPConfiguration(Configuration):
 
     num_classes: int = 2
     criterion: str = "MSELoss"

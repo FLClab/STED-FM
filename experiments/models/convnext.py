@@ -8,6 +8,7 @@ from typing import Tuple
 import sys
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH
+from configuration import Configuration
 
 class ConvNextWeights:
 
@@ -24,8 +25,7 @@ class ConvNextWeights:
     CONVNEXT_LARGE_IMAGENET1K_V1 = torchvision.models.ConvNeXt_Large_Weights.IMAGENET1K_V1
     CONVNEXT_LARGE_SSL_STED = os.path.join(BASE_PATH, "baselines", "convnext-large_STED", "result.pt")
 
-@dataclass
-class ConvNextConfiguration:
+class ConvNextConfiguration(Configuration):
     
     freeze_backbone: bool = False
     backbone: str = "convnext"

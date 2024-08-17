@@ -34,6 +34,7 @@ sys.path.insert(0, "..")
 
 from model_builder import get_pretrained_model_v2
 from utils import update_cfg, save_cfg, savefig
+from configuration import Configuration
 
 def comptue_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray, **kwargs) -> list:
     """
@@ -269,8 +270,7 @@ if __name__ == "__main__":
     # Try loading cfg file from restore-from arugments
     config_file = os.path.join(os.path.dirname(args.restore_from), "config.json")
     if os.path.isfile(config_file):
-        with open(config_file, "r") as f:
-            cfg = json.load(f)
+        cfg = Configuration.from_json(config_file)
         args.backbone = cfg["args"]["backbone"]
         args.backbone_weights = cfg["args"]["backbone_weights"]
     else:
