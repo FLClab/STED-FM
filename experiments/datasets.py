@@ -574,6 +574,7 @@ class PeroxisomeDataset(Dataset):
         n_channels: int = 1,
         resize_mode : str = "pad",
         superclasses: bool = False,
+        num_samples: int = None,
         **kwargs
     ): 
         super().__init__()
@@ -589,7 +590,7 @@ class PeroxisomeDataset(Dataset):
             files = file.readlines()
             files = [os.path.join(BASE_PATH, file.strip()[1:]) for file in files]
         for i, class_name in enumerate(self.classes):
-            self.samples[class_name] = [file for file in files if class_name in file]
+            self.samples[class_name] = self._get_sampled_files(files_list=[f for f in files if class_name in f], num_sample=num_samples)
 
         if superclasses:
             self.__merge_superclasses()
@@ -599,6 +600,12 @@ class PeroxisomeDataset(Dataset):
         for k in self.samples.keys():
             print(f"Class {k} samples: {len(self.samples[k])}")
         print("----------")
+
+    def _get_sampled_files(self, files_list, num_sample):
+        if num_sample is not None:
+            return random.sample(files_list, num_sample)
+        else:
+            return files_list
 
     def __merge_superclasses(self) -> None:
         merged_samples = defaultdict(list)
@@ -667,6 +674,7 @@ class PolymerRingsDataset(Dataset):
         n_channels: int = 1,
         resize_mode : str = "pad",
         superclasses: bool = True,
+        num_samples: int = None,
         **kwargs
     ): 
         super().__init__()
@@ -683,7 +691,7 @@ class PolymerRingsDataset(Dataset):
         
         self.samples = {}        
         for i, class_name in enumerate(self.classes):
-            self.samples[class_name] = [file for file in files if class_name in file]
+            self.samples[class_name] = self._get_sampled_files(files_list=[f for f in files if class_name in f], num_sample=num_samples)
         
         if not superclasses:
             tmp = {}
@@ -715,6 +723,11 @@ class PolymerRingsDataset(Dataset):
         #     statistics["std"].append(numpy.std(img))
         # print(f"Mean: {numpy.mean(statistics['mean'])}, Std: {numpy.mean(statistics['std'])}")
 
+    def _get_sampled_files(self, files_list, num_sample):
+        if num_sample is not None:
+            return random.sample(files_list, num_sample)
+        else:
+            return files_list
 
     def __get_info(self):
         info = []
@@ -832,6 +845,9 @@ class NeuralActivityStates(Dataset):
         uniques, counts = np.unique(self.labels, return_counts=True) 
         minority_count, minority_class = np.min(counts), np.argmin(counts)
         indices = []
+        if self.num_samples is not None:
+            minority_count = self.num_samples
+
         for unique in uniques:
             ids = np.where(self.labels == unique)[0]
             ids = np.random.choice(ids, size=minority_count)

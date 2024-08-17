@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=3:00:00
+#SBATCH --time=8:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -8,8 +8,7 @@
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-3
-
+#SBATCH --array=0-15
 
 #### PARAMETERS
 # Use this directory venv, reusable across RUNs
@@ -27,36 +26,39 @@ WEIGHTS=(
     "MAE_LARGE_STED"
 )
 
-# DATASETS=(
-#     "optim"
-#     "synaptic-proteins"
-# )
+DATASETS=(
+    "optim"
+    "neural-activity-states"
+    "peroxisome"
+    "polymer-rings"
+)
 
-# opts=()
-# for weight in "${WEIGHTS[@]}"
-# do
-#     for dataset in "${DATASETS[@]}"
-#     do
-#         opts+=("$weight;$dataset")
-#     done
-# done
+params=()
+for weight in "${WEIGHTS[@]}"
+do
+    for dataset in "${DATASETS[@]}"
+    do
+        params+=("$weight;$dataset")
+    done
+done
 
-# # Reads a specific item in the array and asign the values
-# # to the opt variable
-# IFS=';' read -r -a opt <<< "${opts[${SLURM_ARRAY_TASK_ID}]}"
-# weight="${opt[0]}"
-# dataset="${opt[1]}"
+# Reads a specific item in the array and asign the values
+# to the opt variable
+IFS=';' read -r -a param <<< "${params[${SLURM_ARRAY_TASK_ID}]}"
+weight="${param[0]}"
+dataset="${param[1]}"
 
-weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
+opts="batch_size 32"
+
 
 
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started linear probing"
+echo "% Started fine tuning"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset polymer-rings --model mae-lightning-large --weights $weight --blocks "all"
+python finetune_v2.py --dataset $dataset --model mae-lightning-large --weights $weight --blocks "0" --opts $opts
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
