@@ -88,6 +88,3 @@ if __name__=="__main__":
     )
 
     trainer.fit(model, train_dataloaders=datamodule, ckpt_path=args.restore_from)
-
-
-
