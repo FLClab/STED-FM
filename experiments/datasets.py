@@ -29,7 +29,7 @@ def get_dataset(name: str, path: str, **kwargs):
     if name == "CTC":
         dataset = CTCDataset(path, **kwargs)
     elif name == "JUMP":
-        dataset = JUMPCPDataset(h5file=path, **kwargs)
+        dataset = TarJUMPDataset(path, **kwargs)
     elif name == "STED": 
         dataset = TarFLCDataset(path, **kwargs)
     elif name == "optim":
@@ -1261,7 +1261,7 @@ class TarJUMPDataset(ArchiveDataset):
         self.image_channels = image_channels
 
     def get_members(self):
-        return list(sorted(self.get_reader().get_members(), key=lambda m: m.name))
+        return list(sorted(self.get_reader().getmembers(), key=lambda m: m.name))
     
     def get_item_from_archive(self, member: tarfile.TarInfo):
         buffer = io.BytesIO()
