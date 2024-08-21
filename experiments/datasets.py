@@ -29,7 +29,7 @@ def get_dataset(name: str, path: str, **kwargs):
     if name == "CTC":
         dataset = CTCDataset(path, **kwargs)
     elif name == "JUMP":
-        dataset = JUMPCPDataset(h5file=path, **kwargs)
+        dataset = TarJUMPDataset(path, **kwargs)
     elif name == "STED": 
         dataset = TarFLCDataset(path, **kwargs)
     elif name == "optim":
@@ -1235,7 +1235,54 @@ class ArchiveDataset(Dataset):
         """
         state = dict(self.__dict__)
         state['archive_obj'] = {}
-        return state        
+        return state  
+
+class TarJUMPDataset(ArchiveDataset):
+    def __init__(
+            self,
+            tar_path: str,
+            use_cache: bool = False,
+            max_cache_size: int = 16e9,
+            image_channels: int = 1,
+            transform: Callable = None,
+            cache_system=None,
+            world_size: int = 1,
+            rank: int = 0
+    ) -> None:
+        super(TarJUMPDataset, self).__init__(
+            tar_path,
+            use_cache=use_cache,
+            max_cache_size=max_cache_size,
+            transform=transform,
+            cache_system=cache_system,
+            world_size=world_size,
+            rank=rank
+        )
+        self.image_channels = image_channels
+
+    def get_members(self):
+        return list(sorted(self.get_reader().getmembers(), key=lambda m: m.name))
+    
+    def get_item_from_archive(self, member: tarfile.TarInfo):
+        buffer = io.BytesIO()
+        buffer.write(self.get_reader().extractfile(member).read())
+        buffer.seek(0)
+        data = np.load(buffer, allow_pickle=True)
+        data = {key: values for key, values in data.items()}
+        return data 
+
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        data = self.get_data(idx)
+        img = data["image"]
+        img = img / 255. 
+        if self.transform is not None:
+            img = self.transform(img).float()
+        else:
+            if img.ndim == 2:
+                img = img[np.newaxis]
+            img = torch.tensor(img, dtype=torch.float32)
+        return img
+            
 
 class TarFLCDataset(ArchiveDataset):
     """

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=00:30:00
+#SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16G
@@ -18,13 +18,13 @@ source ~/phd/bin/activate
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 
-cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/
+cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Started evaluation on the test set"
+echo "% Started building jump tar dataset"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python dummy.py
+python jump_dataset.py
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
