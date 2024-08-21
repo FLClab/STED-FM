@@ -60,7 +60,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started fine tuning in low data regime ($numclass samples per class)"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset peroxisome --model mae-lightning-small --weights $weight --blocks "all" --num-per-class $numclass --seed 43
+python finetune_v2.py --dataset peroxisome --model mae-lightning-small --weights $weight --blocks "all" --num-per-class $numclass --seed 44
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
