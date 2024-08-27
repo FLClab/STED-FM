@@ -55,10 +55,10 @@ def handle_str_state_dict(name: str, weights: Union[str, Enum]) -> dict:
         return state_dict["state_dict"]["backbone"]
 
     elif "resnet" in name.lower():
-        if "hpa" in weights.lower():
-            return state_dict["state_dict"]["backbone"]
-        elif "sted" in weights.lower():     
-            return {key.replace("backbone.", ""): values for key, values in state_dict["state_dict"].items() if "backbone" in key}
+        # if "hpa" in weights.lower():
+        #     return state_dict["state_dict"]["backbone"]
+        # elif "sted" in weights.lower():     
+        return {key.replace("backbone.", ""): values for key, values in state_dict["state_dict"].items() if "backbone" in key}
 
     elif "convnext" in name.lower():
         return state_dict["state_dict"]["backbone"]
