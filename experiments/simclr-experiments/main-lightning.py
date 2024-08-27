@@ -72,14 +72,23 @@ class SimCLR(LightningModule):
         self.cfg = cfg
         self.backbone, _ = get_base_model(self.cfg.args.backbone)
 
+        self.histogram_every_n_epochs = 10
+
+        hidden_dim = 512 if self.cfg.args.backbone == "resnet18" else 2048
         self.avg_pool = torch.nn.AdaptiveAvgPool2d(1)
         self.projection_head = heads.SimCLRProjectionHead(
             input_dim=self.cfg.dim,
-            hidden_dim=512,
+            hidden_dim=hidden_dim,
             output_dim=128,
         )
 
         self.criterion = loss.NTXentLoss(temperature=0.1, gather_distributed=True)
+
+    def on_train_epoch_end(self):
+
+        if self.current_epoch % self.histogram_every_n_epochs == 0:
+            for name, params in self.named_parameters():
+                self.logger.experiment.add_histogram(name, params, self.current_epoch)
 
     def training_step(self, batch, batch_idx):
         view0, view1 = batch
@@ -182,6 +191,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     seed_everything(args.seed, workers=True)
+    torch.set_flush_denormal(True)
 
     # Assert args.opts is a multiple of 2
     if len(args.opts) == 1:
