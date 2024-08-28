@@ -22,7 +22,8 @@ class MAEWeights:
     MAE_BASE_IMAGENET1K_V1 = None
     MAE_LARGE_IMAGENET1K_V1 = None
 
-    MAE_TINY_STED = os.path.join(BASE_PATH, "baselines", "mae-tiny_STED", "pl_checkpoint-999.pth")
+    # MAE_TINY_STED = os.path.join(BASE_PATH, "baselines", "mae-tiny_STED", "pl_checkpoint-999.pth")
+    MAE_TINY_STED = os.path.join(BASE_PATH, "baselines", "mae-tiny_STED", "checkpoint-330000.pth")
     MAE_SMALL_STED = os.path.join(BASE_PATH, "baselines", "mae-small_STED", "pl_checkpoint-999.pth")
     MAE_BASE_STED = os.path.join(BASE_PATH, "baselines", "mae-base_STED", "pl_checkpoint-999.pth")
     MAE_LARGE_STED = os.path.join(BASE_PATH, "baselines", "mae-large_STED", "pl_checkpoint-999.pth")

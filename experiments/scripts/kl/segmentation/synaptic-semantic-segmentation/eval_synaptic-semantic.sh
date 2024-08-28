@@ -25,54 +25,54 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started evaluating segmentation model"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# echo "% from scratch"
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# python eval.py --restore-from /home/koles2/projects/def-flavielc/koles2/flc-dataset/experiments/segmentation-experiments/data/SSL/segmentation-baselines/mae-lightning-small/synaptic-semantic-segmentation/from-scratch/result.pt \
-#  --dataset synaptic-semantic-segmentation \
-#  --backbone mae-lightning-small
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% from scratch"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+python eval.py --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test0/mae-lightning-small/synaptic-semantic-segmentation/from-scratch/result.pt \
+ --dataset synaptic-semantic-segmentation \
+ --backbone mae-lightning-small
 
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% HPA - frozen"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-python eval.py \
-    --restore-from /home/koles2/projects/def-flavielc/koles2/flc-dataset/experiments/segmentation-experiments/data/SSL/segmentation-baselines/mae-lightning-small/synaptic-semantic-segmentation/pretrained-frozen-MAE_SMALL_HPA/result.pt \
-    --dataset synaptic-semantic-segmentation \
-    --backbone mae-lightning-small 
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% HPA - pretrained"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-python eval.py \
-    --restore-from /home/koles2/projects/def-flavielc/koles2/flc-dataset/experiments/segmentation-experiments/data/SSL/segmentation-baselines/mae-lightning-small/synaptic-semantic-segmentation/pretrained-MAE_SMALL_HPA/result.pt \
-    --dataset synaptic-semantic-segmentation \
-    --backbone mae-lightning-small 
+# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+# echo "% HPA - frozen"
+# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+# python eval.py \
+#     --restore-from /home/koles2/projects/def-flavielc/koles2/flc-dataset/experiments/segmentation-experiments/data/SSL/segmentation-baselines/mae-lightning-small/synaptic-semantic-segmentation/pretrained-frozen-MAE_SMALL_HPA/result.pt \
+#     --dataset synaptic-semantic-segmentation \
+#     --backbone mae-lightning-small 
+# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+# echo "% HPA - pretrained"
+# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+# python eval.py \
+#     --restore-from /home/koles2/projects/def-flavielc/koles2/flc-dataset/experiments/segmentation-experiments/data/SSL/segmentation-baselines/mae-lightning-small/synaptic-semantic-segmentation/pretrained-MAE_SMALL_HPA/result.pt \
+#     --dataset synaptic-semantic-segmentation \
+#     --backbone mae-lightning-small 
 
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% ImageNet - frozen"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-python eval.py \
-    --restore-from /home/koles2/projects/def-flavielc/koles2/flc-dataset/experiments/segmentation-experiments/data/SSL/segmentation-baselines/mae-lightning-small/synaptic-semantic-segmentation/pretrained-frozen-MAE_SMALL_IMAGENET1K_V1/result.pt \
-    --dataset synaptic-semantic-segmentation \
-    --backbone mae-lightning-small 
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% ImageNet - pretrained"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-python eval.py \
-    --restore-from /home/koles2/projects/def-flavielc/koles2/flc-dataset/experiments/segmentation-experiments/data/SSL/segmentation-baselines/mae-lightning-small/synaptic-semantic-segmentation/pretrained-MAE_SMALL_IMAGENET1K_V1/result.pt \
-    --dataset synaptic-semantic-segmentation \
-    --backbone mae-lightning-small 
+# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+# echo "% ImageNet - frozen"
+# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+# python eval.py \
+#     --restore-from /home/koles2/projects/def-flavielc/koles2/flc-dataset/experiments/segmentation-experiments/data/SSL/segmentation-baselines/mae-lightning-small/synaptic-semantic-segmentation/pretrained-frozen-MAE_SMALL_IMAGENET1K_V1/result.pt \
+#     --dataset synaptic-semantic-segmentation \
+#     --backbone mae-lightning-small 
+# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+# echo "% ImageNet - pretrained"
+# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+# python eval.py \
+#     --restore-from /home/koles2/projects/def-flavielc/koles2/flc-dataset/experiments/segmentation-experiments/data/SSL/segmentation-baselines/mae-lightning-small/synaptic-semantic-segmentation/pretrained-MAE_SMALL_IMAGENET1K_V1/result.pt \
+#     --dataset synaptic-semantic-segmentation \
+#     --backbone mae-lightning-small 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% STED - frozen"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 python eval.py \
-    --restore-from /home/koles2/projects/def-flavielc/koles2/flc-dataset/experiments/segmentation-experiments/data/SSL/segmentation-baselines/mae-lightning-small/synaptic-semantic-segmentation/pretrained-frozen-MAE_SMALL_STED/result.pt \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test0/mae-lightning-small/synaptic-semantic-segmentation/pretrained-frozen-MAE_SMALL_STED/result.pt \
     --dataset synaptic-semantic-segmentation \
     --backbone mae-lightning-small 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% STED - pretrained"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 python eval.py \
-    --restore-from /home/koles2/projects/def-flavielc/koles2/flc-dataset/experiments/segmentation-experiments/data/SSL/segmentation-baselines/mae-lightning-small/synaptic-semantic-segmentation/pretrained-MAE_SMALL_STED/result.pt \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test0/mae-lightning-small/synaptic-semantic-segmentation/pretrained-MAE_SMALL_STED/result.pt \
     --dataset synaptic-semantic-segmentation \
     --backbone mae-lightning-small
 

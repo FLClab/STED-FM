@@ -38,52 +38,52 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% from scratch"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-python eval.py --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/resnet18/footprocess/from-scratch/result.pt \
- --dataset footprocess \
+python eval.py --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/resnet18/factin/from-scratch/result.pt \
+ --dataset factin \
  --backbone resnet18
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% HPA - frozen"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 python eval.py \
-    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/resnet18/footprocess/pretrained-frozen-RESNET18_SSL_HPA/result.pt \
-    --dataset footprocess \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/resnet18/factin/pretrained-frozen-RESNET18_SSL_HPA/result.pt \
+    --dataset factin \
     --backbone resnet18 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% HPA - pretrained"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 python eval.py \
-    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/resnet18/footprocess/pretrained-RESNET18_SSL_HPA/result.pt \
-    --dataset footprocess \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/resnet18/factin/pretrained-RESNET18_SSL_HPA/result.pt \
+    --dataset factin \
     --backbone resnet18
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% ImageNet - frozen"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 python eval.py \
-    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/resnet18/footprocess/pretrained-frozen-RESNET18_IMAGENET1K_V1/result.pt \
-    --dataset footprocess \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/resnet18/factin/pretrained-frozen-RESNET18_IMAGENET1K_V1/result.pt \
+    --dataset factin \
     --backbone resnet18 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% ImageNet - pretrained"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 python eval.py \
-    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/resnet18/footprocess/pretrained-RESNET18_IMAGENET1K_V1/result.pt \
-    --dataset footprocess \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/resnet18/factin/pretrained-RESNET18_IMAGENET1K_V1/result.pt \
+    --dataset factin \
     --backbone resnet18 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% STED - frozen"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 python eval.py \
-    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/resnet18/footprocess/pretrained-frozen-RESNET18_SSL_STED/result.pt \
-    --dataset footprocess \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/resnet18/factin/pretrained-frozen-RESNET18_SSL_STED/result.pt \
+    --dataset factin \
     --backbone resnet18
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% STED - pretrained"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 python eval.py \
-    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/resnet18/footprocess/pretrained-RESNET18_SSL_STED/result.pt \
-    --dataset footprocess \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/resnet18/factin/pretrained-RESNET18_SSL_STED/result.pt \
+    --dataset factin \
     --backbone resnet18 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

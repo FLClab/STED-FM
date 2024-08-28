@@ -24,8 +24,8 @@ BACKBONEWEIGHTS=(
     # "MAE_SMALL_HPA"
     # "MAE_SMALL_IMAGENET1K_V1"
     # "MAE_SMALL_IMAGENET1K_V1"
-    "MAE_SMALL_STED"
-    "MAE_SMALL_STED"
+    "MAE_TINY_STED"
+    "MAE_TINY_STED"
     None
 )
 OPTS=(
@@ -47,10 +47,11 @@ echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 # tensorboard --logdir="/scratch/anbil106/anbil106/SSL/segmentation-baselines" --host 0.0.0.0 --load_fast false &
-tensorboard --logdir="./data/SSL/segmentation-baselines" --host 0.0.0.0 --load_fast false &
-python main.py --seed 42 --save-folder "/home/koles2/scratch/ssl_project/segmentation_baselines_test0" --use-tensorboard --dataset "synaptic-semantic-segmentation" \
-    --backbone "mae-lightning-small" --backbone-weights ${BACKBONEWEIGHTS[${SLURM_ARRAY_TASK_ID}]} \
-    --opts ${OPTS[${SLURM_ARRAY_TASK_ID}]}
+tensorboard --logdir="/home/koles2/scratch/ssl_project/segmentation_baselines_test" --port=6007 --host 0.0.0.0 --load_fast false &
+python main.py --seed 42 --save-folder "/home/koles2/scratch/ssl_project/segmentation_baselines_test0" --use-tensorboard --dataset "factin" \
+    --backbone "mae-lightning-tiny" --backbone-weights ${BACKBONEWEIGHTS[${SLURM_ARRAY_TASK_ID}]} \
+    --opts ${OPTS[${SLURM_ARRAY_TASK_ID}]} \
+    #--num-samples 100
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done training"

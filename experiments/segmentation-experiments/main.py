@@ -20,7 +20,7 @@ from tqdm import tqdm
 from collections import defaultdict
 from collections.abc import Mapping
 from multiprocessing import Manager
-from torch.utils.data import SubsetRandomSampler
+from torch.utils.data import SubsetRandomSampler, Sampler
 from torch.utils.tensorboard import SummaryWriter
 from torchsummary import summary
 from collections import defaultdict
@@ -49,58 +49,38 @@ def intensity_scale_(images: torch.Tensor) -> numpy.ndarray:
     ])
     return images
 
-def compute_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray, threshold: float = 0.25) -> list:
-    """
-    Compute the intersection over union between the truth and the prediction
+class BalancedSampler(Sampler):
+    def __init__(self, dataset, num_samples_per_class=25, seed=42):
+        self.dataset = dataset
+        self.num_samples_per_class = num_samples_per_class
+        self.seed = seed
+        self.rings_samples = []
+        self.fibers_samples = []
+        for i in range(len(self.dataset)):
+            _, label = dataset[i]
+            if label[0].sum() > 0:
+                self.rings_samples.append(i)
+            if label[1].sum() > 0 :
+                self.fibers_samples.append(i)
+        self.rings_samples = random.sample(self.rings_samples, num_samples_per_class)
+        self.fibers_samples = random.sample(self.fibers_samples, num_samples_per_class)
+        self.samples = self.rings_samples + self.fibers_samples
+        print(self.samples)
 
-    :param truth: A `numpy.ndarray` of the ground truth
-    :param prediction: A `numpy.ndarray` of the prediction
-    :param mask: A `numpy.ndarray` of the mask to apply
+    def __len__(self):
+        return len(self.samples)
 
-    :return: A `list` of the IoU
-    """
-    iou_per_class = []
-    for t, p in zip(truth, prediction):
-        t, p = t[mask].ravel(), p[mask].ravel()
-        p = p > threshold
-
-        if not numpy.any(t) and not numpy.any(p):
-            iou_per_class.append(-1)
-            continue 
-        if numpy.unique(t).size == 1:
-            iou_per_class.append(-1)
-            continue        
-
-        intersection = numpy.logical_and(t, p).sum()
-        union = numpy.logical_or(t, p).sum()
-
-        iou_per_class.append(intersection / union)
-    return iou_per_class
-
-def compute_scores(truth, prediction, threshold):
-    truth = truth.cpu().data.numpy()
-    prediction = prediction.cpu().data.numpy()
-    
-    # Case of foreground stored in truth
-    if truth.shape[1] != prediction.shape[1]:
-        truth, foreground = truth[:, :-1], truth[:, -1]
-    else:
-        foreground = numpy.ones((len(truth), *truth.shape[-2:]))
-
-    scores = defaultdict(list)
-    for truth_, prediction_, mask in zip(truth, prediction, foreground):
-        # Convert to binary mask
-        mask = mask > 0
-
-        scores["iou"].append(compute_iou(truth_, prediction_, mask, threshold))
-    return scores
-
+    def __iter__(self):
+        random.seed(self.seed)
+        random.shuffle(self.samples)
+        samples = iter(self.samples)
+        return samples
 @dataclass
 class SegmentationConfiguration:
     
     freeze_backbone: bool = False
-    num_epochs: int = 200
-    learning_rate: float = 1e-4 #0.001
+    num_epochs: int = 1000
+    learning_rate: float = 1e-4
 
 if __name__ == "__main__":
 
@@ -110,7 +90,7 @@ if __name__ == "__main__":
                     help="Random seed")     
     parser.add_argument("--restore-from", type=str, default="",
                     help="Model from which to restore from") 
-    parser.add_argument("--save-folder", type=str, default="/home/koles2/scratch/ssl_project/segmentation_baselines_test", #"./data/SSL/segmentation-baselines/fewshot",
+    parser.add_argument("--save-folder", type=str, default="/home/koles2/scratch/ssl_project/segmentation_baselines",
                     help="Model from which to restore from")     
     parser.add_argument("--dataset", required=True, type=str,
                     help="Name of the dataset to use")             
@@ -122,10 +102,14 @@ if __name__ == "__main__":
                         help="Logging using tensorboard")
     parser.add_argument("--label-percentage", type=float, default=1.0,
                         help="Percentage of labels to use")
+    parser.add_argument("--num-samples", type=int, default=None,
+                        help="Number of samples to use")                       
     parser.add_argument("--opts", nargs="+", default=[], 
                         help="Additional configuration options")
     parser.add_argument("--dry-run", action="store_true",
-                        help="Activates dryrun")        
+                        help="Activates dryrun"),
+    parser.add_argument("--num-epochs", type=int, default=100,
+                    help="Number of epochs") 
     args = parser.parse_args()
 
     # Assert args.opts is a multiple of 2
@@ -176,8 +160,10 @@ if __name__ == "__main__":
             model_name += f"{args.backbone_weights}"
         else:
             model_name += "from-scratch"
-        if args.label_percentage < 1.0:
-            model_name += f"-{int(args.label_percentage * 100)}%-labels"
+        # if args.label_percentage < 1.0:
+        #     model_name += f"-{int(args.label_percentage * 100)}%-labels"
+        if args.num_samples is not None:
+            model_name += f"-{int(args.num_samples)}%-samples"
 
         OUTPUT_FOLDER = os.path.join(args.save_folder, args.backbone, args.dataset, model_name)
     
@@ -213,14 +199,19 @@ if __name__ == "__main__":
     summary(model, input_size=(cfg.in_channels, 224, 224))
 
     # Sampler definition
-    if args.label_percentage < 1.0:
-        # Ensures reporoducibility
-        rng = numpy.random.default_rng(seed=args.seed)
-        indices = list(range(len(training_dataset)))
-        rng.shuffle(indices)
-        split = int(numpy.floor(args.label_percentage * len(training_dataset)))
-        train_indices, _ = indices[:split], indices[split:]
-        sampler = SubsetRandomSampler(train_indices)
+    # if args.label_percentage < 1.0:
+    #     # Ensures reporoducibility
+    #     rng = numpy.random.default_rng(seed=args.seed)
+    #     indices = list(range(len(training_dataset)))
+    #     rng.shuffle(indices)
+    #     split = int(numpy.floor(args.label_percentage * len(training_dataset)))
+    #     train_indices, _ = indices[:split], indices[split:]
+    #     sampler = SubsetRandomSampler(train_indices)
+    # else:
+    #     sampler = None
+
+    if args.num_samples is not None:
+        sampler = BalancedSampler(training_dataset, args.num_samples, args.seed)
     else:
         sampler = None
     
@@ -236,36 +227,31 @@ if __name__ == "__main__":
     # Build a PyTorch dataloader.
     train_loader = torch.utils.data.DataLoader(
         training_dataset,  # Pass the dataset to the dataloader.
-        batch_size=64, #cfg.batch_size,  # A large batch size helps with the learning.
+        batch_size=cfg.batch_size,  # A large batch size helps with the learning.
         shuffle=sampler is None,  # Shuffling is important!
         num_workers=4,
         sampler=sampler, drop_last=False
     )
     valid_loader = torch.utils.data.DataLoader(
         validation_dataset,  # Pass the dataset to the dataloader.
-        batch_size=64, #cfg.batch_size,  # A large batch size helps with the learning.
+        batch_size=cfg.batch_size,  # A large batch size helps with the learning.
         shuffle=True,  # Shuffling is important!
         num_workers=4
     )
 
-    optimizer = torch.optim.Adam(model.parameters(), lr = cfg.learning_rate)
-
+    # optimizer = torch.optim.Adam(model.parameters(), lr = cfg.learning_rate)
     # optimizer = torch.optim.SGD(model.parameters(), lr = cfg.learning_rate)
-    
-    # optimizer = torch.optim.AdamW(model.parameters(), lr = cfg.learning_rate)
+    optimizer = torch.optim.AdamW(model.parameters(), lr = cfg.learning_rate, weight_decay=1e-2)
+
     criterion = getattr(torch.nn, cfg.dataset_cfg.criterion)()
 
     # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience = 10, threshold = 0.01, min_lr=1e-5, factor=0.1,)
-    # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.99)
-
-    # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=cfg.num_epochs, eta_min=1e-5)
-
-    scheduler = CosineWarmupScheduler(optimizer=optimizer, warmup_epochs=10, max_epochs=cfg.num_epochs, start_value=1.0, end_value=0.001)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
+    # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=cfg.num_epochs, eta_min=1e-6)
     
-    thresholds = numpy.arange(0.1, 1.0, 0.1)
     all_scores = defaultdict(list)
     print("Training")
-    for epoch in range(start_epoch, cfg.num_epochs):
+    for epoch in range(start_epoch, args.num_epochs):
 
         start = time.time()
         print("[----] Starting epoch {}/{}".format(epoch + 1, cfg.num_epochs))
@@ -331,15 +317,6 @@ if __name__ == "__main__":
             pred = model.forward(X)
             loss = criterion(pred, y)
 
-            # # Threshold validation
-            # for threshold in thresholds:
-            #     scores = compute_scores(y, pred, threshold=threshold)
-            #     for key, values in scores.items():
-            #         values = numpy.array(values)
-            #     values = values[values != -1]
-            #     # all_scores[threshold] = numpy.mean(values)
-            #     all_scores[threshold].append(numpy.mean(values))
-
             # Keeping track of statistics
             statLossTest.append(loss.item())
 
@@ -379,7 +356,6 @@ if __name__ == "__main__":
                 "model" : model.state_dict(),
                 "optimizer" : optimizer.state_dict(),
                 "stats" : stats,
-                #"validation_threshold": best_threshold
             }
             torch.save(
                 savedata, 
@@ -393,16 +369,8 @@ if __name__ == "__main__":
                 "model" : model.state_dict(),
                 "optimizer" : optimizer.state_dict(),
                 "stats" : stats,
-                #"validation_threshold": best_threshold
             }
             torch.save(
                 savedata, 
                 os.path.join(OUTPUT_FOLDER, f"checkpoint-{epoch + 1}.pt"))
             del savedata
-
-    # mean_scores = {threshold: numpy.mean(values) for threshold, values in all_scores.items()}
-    # print("mean IoU scores for each threshold:")
-    # print(mean_scores)
-    # optimal_threshold = max(mean_scores, key=mean_scores.get)
-    # print(f"optimal Threshold: {optimal_threshold}")
-    # print("end validation")

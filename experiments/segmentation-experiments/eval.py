@@ -243,7 +243,7 @@ if __name__ == "__main__":
     update_cfg(cfg, args.opts)
 
     # Loads dataset and dataset-specific configuration
-    _, _, testing_dataset = get_dataset(
+    _, validation_dataset, testing_dataset = get_dataset(
         name=args.dataset, 
         cfg=cfg
     )
@@ -255,8 +255,6 @@ if __name__ == "__main__":
     # Build the UNet model.
     model = get_decoder(backbone, cfg)
     ckpt = checkpoint.get("model", None)
-    threshold = 0.25 #checkpoint.get("validation_threshold", 0.25)
-    print(f"Threshold is: {threshold}")
     if not ckpt is None:
         print("Restoring model...")
         model.load_state_dict(ckpt)
@@ -267,8 +265,15 @@ if __name__ == "__main__":
     # Build a PyTorch dataloader.
     test_loader = torch.utils.data.DataLoader(
         testing_dataset,  # Pass the dataset to the dataloader.
-        batch_size=32, #cfg.batch_size,  # A large batch size helps with the learning.
+        batch_size=16, #cfg.batch_size,  # A large batch size helps with the learning.
         shuffle=True,  # Shuffling is important!
+        num_workers=0
+    )
+
+    valid_loader = torch.utils.data.DataLoader(
+        validation_dataset,
+        batch_size=16, #cfg.batch_size
+        shuffle=True,
         num_workers=0
     )
     
@@ -277,6 +282,29 @@ if __name__ == "__main__":
     
     savedir = f"./results/{args.backbone}_{args.backbone_weights}/{args.dataset}/{os.path.basename(OUTPUT_FOLDER)}"
     os.makedirs(savedir, exist_ok=True)
+
+    thresholds = [0.15, 0.25, 0.35, 0.45 , 0.55]
+    iou_scores = {threshold: [] for threshold in thresholds}
+    for i, (X, y) in enumerate(tqdm(valid_loader, desc="[----]")):
+        if isinstance (X, (list, tuple)):
+            X = [_X.unsqueeze(0) if _X.dim() == 2 else _X for _X in X]
+        else:
+            if X.dim() == 3:
+                X = X.unsqueeze(1)
+        X = X.to(DEVICE)
+        y = y.to(DEVICE)
+
+        pred = model.forward(X)
+        for threshold in thresholds:
+            scores = compute_scores(y,pred, threshold=threshold)
+            del scores["aupr"], scores["auroc"]
+            for key, values in scores.items():
+                values = numpy.array(values)
+            values = values[values != -1]
+            iou_scores[threshold].append(numpy.mean(scores["iou"]))
+    avg_iou_scores = {th: numpy.mean(iou_scores[th]) for th in thresholds}
+    threshold = max(avg_iou_scores, key=avg_iou_scores.get)
+    print(threshold)
 
     scores = evaluate_segmentation(model, test_loader, savefolder=savedir, threshold=threshold)
     for key, values in scores.items():

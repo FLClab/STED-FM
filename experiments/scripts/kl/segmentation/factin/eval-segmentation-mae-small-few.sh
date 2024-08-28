@@ -38,53 +38,56 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% from scratch"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-python eval.py --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines/mae-lightning-small/factin/from-scratch-5%-labels/result.pt \
+python eval.py --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/mae-lightning-small/factin/from-scratch-25%-samples/result.pt \
  --dataset factin \
  --backbone mae-lightning-small
 
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# echo "% HPA - frozen"
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# python eval.py \
-#     --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines/mae-lightning-small/factin/pretrained-frozen-MAE_SMALL_HPA-5%-labels/result.pt \
-#     --dataset factin \
-#     --backbone mae-lightning-small 
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# echo "% HPA - pretrained"
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# python eval.py \
-#     --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines/mae-lightning-small/factin/pretrained-MAE_SMALL_HPA-5%-labels/result.pt \
-#     --dataset factin \
-#     --backbone mae-lightning-small 
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% HPA - frozen"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+python eval.py \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/mae-lightning-small/factin/pretrained-frozen-MAE_SMALL_HPA-25%-samples/result.pt \
+    --dataset factin \
+    --backbone mae-lightning-small 
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% HPA - pretrained"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+python eval.py \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/mae-lightning-small/factin/pretrained-MAE_SMALL_HPA-25%-samples/result.pt \
+    --dataset factin \
+    --backbone mae-lightning-small 
 
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# echo "% ImageNet - frozen"
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# python eval.py \
-#     --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines/mae-lightning-small/factin/pretrained-frozen-MAE_SMALL_IMAGENET1K_V1-5%-labels/result.pt \
-#     --dataset factin \
-#     --backbone mae-lightning-small 
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# echo "% ImageNet - pretrained"
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# python eval.py \
-#     --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines/mae-lightning-small/factin/pretrained-MAE_SMALL_IMAGENET1K_V1-5%-labels/result.pt \
-#     --dataset factin \
-#     --backbone mae-lightning-small 
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# echo "% STED - frozen"
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# python eval.py \
-#     --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines/mae-lightning-small/factin/pretrained-frozen-MAE_SMALL_STED-5%-labels/result.pt \
-#     --dataset factin \
-#     --backbone mae-lightning-small 
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# echo "% STED - pretrained"
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# python eval.py \
-#     --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines/mae-lightning-small/factin/pretrained-MAE_SMALL_STED-5%-labels/result.pt \
-#     --dataset factin \
-#     --backbone mae-lightning-small 
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% ImageNet - frozen"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+python eval.py \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/mae-lightning-small/factin/pretrained-frozen-MAE_SMALL_IMAGENET1K_V1-25%-samples/result.pt \
+    --dataset factin \
+    --backbone mae-lightning-small 
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% ImageNet - pretrained"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+python eval.py \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/mae-lightning-small/factin/pretrained-MAE_SMALL_IMAGENET1K_V1-25%-samples/result.pt \
+    --dataset factin \
+    --backbone mae-lightning-small 
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% STED - frozen"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+python eval.py \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/mae-lightning-small/factin/pretrained-frozen-MAE_SMALL_STED-25%-samples/result.pt \
+    --dataset factin \
+    --backbone mae-lightning-small 
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% STED - pretrained"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+python eval.py \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test/mae-lightning-small/factin/pretrained-MAE_SMALL_STED-25%-samples/result.pt \
+    --dataset factin \
+    --backbone mae-lightning-small 
+
+
+
 # echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 # echo "% DONE %"
 # echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

@@ -48,7 +48,7 @@ echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 tensorboard --logdir="/home/koles2/scratch/ssl_project/segmentation_baselines_test" --port=6006 --host 0.0.0.0 --load_fast false &
-python main.py --seed 42 --use-tensorboard --dataset "footprocess" \
+python main.py --seed 42 --save-folder "/home/koles2/scratch/ssl_project/segmentation_baselines_test" --use-tensorboard --dataset "factin" \
     --backbone "resnet18" --backbone-weights ${BACKBONEWEIGHTS[${SLURM_ARRAY_TASK_ID}]} \
     --opts ${OPTS[${SLURM_ARRAY_TASK_ID}]}
 

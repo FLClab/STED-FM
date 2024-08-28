@@ -1298,6 +1298,9 @@ class HPADataset(Dataset):
         self.file_list = self.__get_file_list()
     
     def __get_file_list(self):
+        """
+        Retrieves a list of png files in the zip file.
+        """
         file_list = []
         with ZipFile(self.zip_path, 'r') as zf:
             for f in zf.namelist():

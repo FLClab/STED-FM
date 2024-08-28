@@ -22,8 +22,8 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-srun python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset hpa --use-tensorboard --save-folder /home/koles2/scratch/ssl_project/simclr-experiments2 --dataset-path "/home/koles2/projects/def-flavielc/datasets/train.zip" #--restore-from "/home/koles2/projects/def-flavielc/koles2/flc-dataset/experiments/simclr-experiments/data/SSL/vit/mae-base_HPA/pl_current_model.pth"
-"/home/koles2/projects/def-flavielc/datasets/train.zip"
+srun python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset hpa --use-tensorboard --save-folder /home/koles2/scratch/ssl_project/simclr-experiments2 --dataset-path "/home/koles2/projects/def-flavielc/datasets/train.zip"
+
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done training"

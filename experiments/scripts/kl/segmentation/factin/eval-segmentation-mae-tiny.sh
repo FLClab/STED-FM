@@ -25,12 +25,12 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started evaluating segmentation model"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# echo "% from scratch"
-# echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-# python eval.py --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines/mae-lightning-tiny/factin/from-scratch/result.pt \
-#  --dataset factin \
-#  --backbone mae-lightning-tiny
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% from scratch"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+python eval.py --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test0/mae-lightning-tiny/factin/from-scratch/result.pt \
+ --dataset factin \
+ --backbone mae-lightning-tiny
 
 # echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 # echo "% HPA - frozen"
@@ -65,14 +65,14 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% STED - frozen"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 python eval.py \
-    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines2/mae-lightning-tiny/factin/pretrained-frozen-MAE_TINY_STED/result.pt \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test0/mae-lightning-tiny/factin/pretrained-frozen-MAE_TINY_STED/result.pt \
     --dataset factin \
     --backbone mae-lightning-tiny 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% STED - pretrained"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 python eval.py \
-    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines2/mae-lightning-tiny/factin/pretrained-MAE_TINY_STED/result.pt \
+    --restore-from /home/koles2/scratch/ssl_project/segmentation_baselines_test0/mae-lightning-tiny/factin/pretrained-MAE_TINY_STED/result.pt \
     --dataset factin \
     --backbone mae-lightning-tiny 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

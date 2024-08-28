@@ -48,7 +48,7 @@ if __name__=="__main__":
     logger = TensorBoardLogger(OUTPUT_FOLDER) if args.use_tensorboard else None
     
     MAETransform = torchvision.transforms.Compose([
-        torchvision.transforms.ToTensor(),
+        # torchvision.transforms.ToTensor(),
         RandomResizedCropMinimumForeground(size=224, scale=(0.7, 1.4)),
         torchvision.transforms.RandomHorizontalFlip(),
         torchvision.transforms.RandomVerticalFlip(),

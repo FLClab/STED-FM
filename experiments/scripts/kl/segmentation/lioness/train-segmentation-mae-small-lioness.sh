@@ -47,8 +47,8 @@ echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 # tensorboard --logdir="/scratch/anbil106/anbil106/SSL/segmentation-baselines" --host 0.0.0.0 --load_fast false &
-tensorboard --logdir="./data/SSL/segmentation-baselines" --host 0.0.0.0 --load_fast false &
-python main.py --seed 42 --use-tensorboard --dataset "lioness" \
+tensorboard --logdir="./data/SSL/segmentation-baselines_test" --host 0.0.0.0 --load_fast false &
+python main.py --seed 42 --save-folder "/home/koles2/scratch/ssl_project/segmentation_baselines_test" --use-tensorboard --dataset "lioness" \
     --backbone "mae-lightning-small" --backbone-weights ${BACKBONEWEIGHTS[${SLURM_ARRAY_TASK_ID}]} \
     --opts ${OPTS[${SLURM_ARRAY_TASK_ID}]}
 
