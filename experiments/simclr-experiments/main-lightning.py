@@ -90,6 +90,10 @@ class SimCLR(LightningModule):
             for name, params in self.named_parameters():
                 self.logger.experiment.add_histogram(name, params, self.current_epoch)
 
+    def on_save_checkpoint(self, checkpoint: dict) -> None:
+        # Makes sure the configuration is converted to a dictionary
+        checkpoint["hyper_parameters"]["cfg"] = checkpoint["hyper_parameters"]["cfg"].to_dict()                
+
     def training_step(self, batch, batch_idx):
         view0, view1 = batch
         z0 = self.forward(view0)
