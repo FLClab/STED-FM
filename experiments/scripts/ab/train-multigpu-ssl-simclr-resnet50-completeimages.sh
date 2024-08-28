@@ -3,7 +3,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --mem=0
-#SBATCH --nodes=1             
+#SBATCH --nodes=4     
 #SBATCH --gres=gpu:4   
 #SBATCH --tasks-per-node=4
 #SBATCH --cpus-per-task=10
@@ -31,24 +31,22 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Copy file"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-# cp "/project/def-flavielc/datasets/FLCDataset/dataset-full-images.tar" "${SLURM_TMPDIR}/dataset.tar"
-# cp "/project/def-flavielc/datasets/FLCDataset/dataset-250k.tar" "${SLURM_TMPDIR }/dataset.tar"
-cp "/project/def-flavielc/datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
+srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 cp "/project/def-flavielc/datasets/FLCDataset/dataset-full-images.tar" "${SLURM_TMPDIR}/dataset.tar"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done copy file"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-# Launch training
+# Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/anbil106/SSL/baselines/resnet18_STED" --host 0.0.0.0 --load_fast false &
-srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet18" # \
-							#   --restore-from "/scratch/anbil106/anbil106/SSL/baselines/resnet18_STED/checkpoint-69.pt"
-
-# python main-lightning.py --seed 42 --use-tensorboard --dataset-path "/project/def-flavielc/datasets/FLCDataset/dataset-250k.tar" --save-folder "./data/SSL/baselines/tests/dataset-250k" --dry-run
+tensorboard --logdir="/scratch/anbil106/anbil106/SSL/baselines/dataset-fullimages-1Msteps-multigpu/resnet50_STED" --host 0.0.0.0 --load_fast false &
+srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet50" \
+                              --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu"
+                            #   --restore-from "/scratch/anbil106/anbil106/SSL/baselines/dataset-fullimages-1Msteps-multigpu/resnet50_STED/checkpoint-90000.pt"
+    # --restore-from "/scratch/anbil106/anbil106/SSL/baselines/resnet18/result.pt"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done training"

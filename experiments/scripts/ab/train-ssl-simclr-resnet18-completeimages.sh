@@ -2,11 +2,9 @@
 #
 #SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
-#SBATCH --mem=0
-#SBATCH --nodes=1             
-#SBATCH --gres=gpu:4   
-#SBATCH --tasks-per-node=4
-#SBATCH --cpus-per-task=10
+#SBATCH --mem=64G        
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=12
 #SBATCH --array=0
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=anbil106@ulaval.ca
@@ -31,9 +29,9 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Copy file"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-# cp "/project/def-flavielc/datasets/FLCDataset/dataset-full-images.tar" "${SLURM_TMPDIR}/dataset.tar"
+cp "/project/def-flavielc/datasets/FLCDataset/dataset-full-images.tar" "${SLURM_TMPDIR}/dataset.tar"
 # cp "/project/def-flavielc/datasets/FLCDataset/dataset-250k.tar" "${SLURM_TMPDIR }/dataset.tar"
-cp "/project/def-flavielc/datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
+# cp "/project/def-flavielc/datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done copy file"
@@ -44,9 +42,10 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/anbil106/SSL/baselines/resnet18_STED" --host 0.0.0.0 --load_fast false &
-srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet18" # \
-							#   --restore-from "/scratch/anbil106/anbil106/SSL/baselines/resnet18_STED/checkpoint-69.pt"
+tensorboard --logdir="/scratch/anbil106/anbil106/SSL/baselines/tests" --host 0.0.0.0 --load_fast false &
+srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet18" \
+							  --save-folder "./data/SSL/baselines/tests/dataset-fullimages-1Msteps-singlegpu"
+							#   --restore-from "/scratch/anbil106/anbil106/SSL/baselines/tests/dataset-fullimages-200epochs-singlegpu/resnet18_STED/result.pt"
 
 # python main-lightning.py --seed 42 --use-tensorboard --dataset-path "/project/def-flavielc/datasets/FLCDataset/dataset-250k.tar" --save-folder "./data/SSL/baselines/tests/dataset-250k" --dry-run
 
