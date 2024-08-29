@@ -1279,11 +1279,17 @@ class TarJUMPDataset(ArchiveDataset):
         img = data["image"]
         img = img / 255. 
         if self.transform is not None:
-            img = self.transform(img).float()
+            # This assumes that there is a conversion to torch Tensor in the given transform
+            img = self.transform(img)
+            if isinstance(img, list):
+                img = [x.float() for x in img]
+            else:
+                img = img.float()
         else:
             if img.ndim == 2:
                 img = img[np.newaxis]
             img = torch.tensor(img, dtype=torch.float32)
+
         return img
             
 
