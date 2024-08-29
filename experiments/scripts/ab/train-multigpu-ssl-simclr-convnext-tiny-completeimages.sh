@@ -3,12 +3,12 @@
 #SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --mem=0
-#SBATCH --nodes=4     
-#SBATCH --gres=gpu:4   
-#SBATCH --tasks-per-node=4
-#SBATCH --cpus-per-task=10
+#SBATCH --nodes=16
+#SBATCH --gres=gpu:p100:2
+#SBATCH --tasks-per-node=2
+#SBATCH --cpus-per-task=16
 #SBATCH --array=0
-#SBATCH --output=logs/%x-%A_%a.out
+#SBATCH --output=/home/anbil106/logs/%x-%A_%a.out
 #SBATCH --mail-user=anbil106@ulaval.ca
 #SBATCH --mail-type=ALL
 #
@@ -42,9 +42,10 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/anbil106/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_STED" --host 0.0.0.0 --load_fast false &
+tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_STED" --host 0.0.0.0 --load_fast false &
 srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "convnext-tiny" \
-                              --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu"
+                              --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
+                              --opts "batch_size 32"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done training"

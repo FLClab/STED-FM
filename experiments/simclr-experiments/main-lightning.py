@@ -108,7 +108,7 @@ class SimCLR(LightningModule):
 
         # Logging images
         writer = self.logger.experiment
-        if (batch_idx == 0) and isinstance(writer, SummaryWriter):
+        if (batch_idx == 0) and (self.current_epoch % 10 == 0) and isinstance(writer, SummaryWriter):
             writer.add_images("Images/view0", view0[:16], self.current_epoch, dataformats="NCHW")
             writer.add_images("Images/view1", view1[:16], self.current_epoch, dataformats="NCHW")        
 
