@@ -1194,7 +1194,10 @@ class ArchiveDataset(Dataset):
         if self.world_size > 1:
             num_members = len(members)
             num_members_per_gpu = num_members // self.world_size
-            members = members[self.rank * num_members_per_gpu : (self.rank + 1) * num_members_per_gpu]
+
+            # members = members[self.rank * num_members_per_gpu : (self.rank + 1) * num_members_per_gpu]
+            # Since the members are sorted, it makes more sense to take every `world_size` items
+            members = members[self.rank:num_members_per_gpu*self.world_size:self.world_size]
         return members
 
     def __len__(self):
@@ -1266,7 +1269,9 @@ class TarFLCDataset(ArchiveDataset):
             yield metadata
 
     def get_members(self):
-        return list(sorted(self.get_reader().getmembers(), key=lambda m: m.name))         
+        # members = [self.get_reader().next() for _ in range(10000)]
+        # return list(sorted(members, key=lambda m: m.name))   
+        return list(sorted(self.get_reader().getmembers(), key=lambda m: m.name))       
 
     def get_item_from_archive(self, member: tarfile.TarInfo):
         """

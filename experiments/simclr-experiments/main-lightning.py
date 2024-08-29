@@ -223,7 +223,6 @@ if __name__ == "__main__":
     last_model_callback = ModelCheckpoint(
         dirpath=OUTPUT_FOLDER,
         filename="result",
-        # every_n_train_steps=100,
         every_n_epochs=1,
         enable_version_counter=False
     )
@@ -298,11 +297,11 @@ if __name__ == "__main__":
         devices="auto",
         num_nodes=int(os.environ.get("SLURM_NNODES", 1)),
         accelerator="gpu",
+        precision="16-mixed",
         strategy="ddp",
         sync_batchnorm=True,
         use_distributed_sampler=False,
         logger=logger,
         callbacks=callbacks,
-        limit_val_batches=0.0
     )
     trainer.fit(model, train_dataloaders=datamodule, ckpt_path=args.restore_from)
