@@ -227,7 +227,11 @@ def main():
         num_samples=args.num_per_class,
     )
     
-    num_epochs = 300
+    #num_epochs = 300
+    budget = len(train_loader.dataset) * 300
+    num_epochs = budget / (args.num_per_class * train_loader.dataset.num_classes)
+    print(f"--- Training with {args.num_per_class} samples per class for {num_epochs} epochs ---")
+
     if probe == "from-scratch":
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
         scheduler = CosineWarmupScheduler(

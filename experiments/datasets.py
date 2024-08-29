@@ -487,8 +487,6 @@ class OptimDataset(Dataset):
         self.samples = {}
         self.num_classes = len(classes)
 
-        random.seed(42)
-        np.random.seed(42)
         self.labels = []
         for i, class_name in enumerate(classes):
             class_folder = os.path.join(data_folder, class_name)
@@ -833,7 +831,6 @@ class NeuralActivityStates(Dataset):
         assert self.images.shape[0] == self.labels.shape[0] == self.proteins.shape[0]
         
         if balance:
-            np.random.seed(42)
             self.__balance_classes()
         self.dataset_size = self.images.shape[0]
 
@@ -857,6 +854,9 @@ class NeuralActivityStates(Dataset):
             ids = np.random.choice(ids, size=minority_count)
             indices.extend(ids)
         indices = np.sort(indices)
+        print("\n************************************")
+        print(f"Sampling ids = {indices}")
+        print("************************************\n")
         self.images = self.images[indices]
         self.labels = self.labels[indices]
         self.proteins = self.proteins[indices]

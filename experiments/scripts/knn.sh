@@ -55,7 +55,7 @@ echo -e "==================== OPTIM ===================="
 # python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1
 # python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_HPA
 # python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_JUMP
-# python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_STED
+python knn_v2.py --dataset optim --model mae-lightning-tiny --weights MAE_TINY_STED
 
 # python knn_v2.py --dataset optim --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
 # python knn_v2.py --dataset optim --model mae-lightning-small --weights MAE_SMALL_HPA
@@ -103,7 +103,7 @@ echo -e "\n\n==================== Neural Activity States ===================="
 # python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1 
 # python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_HPA
 # python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_JUMP
-# python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_STED
+python knn_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights MAE_TINY_STED
 
 # python knn_v2.py --dataset neural-activity-states --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
 # python knn_v2.py --dataset neural-activity-states --model mae-lightning-small --weights MAE_SMALL_HPA
@@ -148,7 +148,7 @@ echo -e "\n\n==================== Peroxisome ===================="
 # python knn_v2.py --dataset peroxisome --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1 
 # python knn_v2.py --dataset peroxisome --model mae-lightning-tiny --weights MAE_TINY_HPA
 # python knn_v2.py --dataset peroxisome --model mae-lightning-tiny --weights MAE_TINY_JUMP
-# python knn_v2.py --dataset peroxisome --model mae-lightning-tiny --weights MAE_TINY_STED
+python knn_v2.py --dataset peroxisome --model mae-lightning-tiny --weights MAE_TINY_STED
 
 # python knn_v2.py --dataset peroxisome --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
 # python knn_v2.py --dataset peroxisome --model mae-lightning-small --weights MAE_SMALL_HPA
@@ -190,25 +190,25 @@ echo -e "\n\n==================== Polymer rings ===================="
 # python knn_v2.py --dataset peroxisome --model convnext-large --weights CONVNEXT_LARGE_IMAGENET1K_V1
 # python knn_v2.py --dataset peroxisome --model convnext-large --weights CONVNEXT_LARGE_SSL_STED
 
-python knn_v2.py --dataset polymer-rings --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1 
-python knn_v2.py --dataset polymer-rings --model mae-lightning-tiny --weights MAE_TINY_HPA
-python knn_v2.py --dataset polymer-rings --model mae-lightning-tiny --weights MAE_TINY_JUMP
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-tiny --weights MAE_TINY_IMAGENET1K_V1 
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-tiny --weights MAE_TINY_HPA
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-tiny --weights MAE_TINY_JUMP
 python knn_v2.py --dataset polymer-rings --model mae-lightning-tiny --weights MAE_TINY_STED
 
-python knn_v2.py --dataset polymer-rings --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
-python knn_v2.py --dataset polymer-rings --model mae-lightning-small --weights MAE_SMALL_HPA
-python knn_v2.py --dataset polymer-rings --model mae-lightning-small --weights MAE_SMALL_JUMP
-python knn_v2.py --dataset polymer-rings --model mae-lightning-small --weights MAE_SMALL_STED
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-small --weights MAE_SMALL_IMAGENET1K_V1
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-small --weights MAE_SMALL_HPA
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-small --weights MAE_SMALL_JUMP
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-small --weights MAE_SMALL_STED
 
-python knn_v2.py --dataset polymer-rings --model mae-lightning-base --weights MAE_BASE_IMAGENET1K_V1
-python knn_v2.py --dataset polymer-rings --model mae-lightning-base --weights MAE_BASE_HPA
-python knn_v2.py --dataset polymer-rings --model mae-lightning-base --weights MAE_BASE_JUMP
-python knn_v2.py --dataset polymer-rings --model mae-lightning-base --weights MAE_BASE_STED
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-base --weights MAE_BASE_IMAGENET1K_V1
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-base --weights MAE_BASE_HPA
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-base --weights MAE_BASE_JUMP
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-base --weights MAE_BASE_STED
 
-python knn_v2.py --dataset polymer-rings --model mae-lightning-large --weights MAE_LARGE_IMAGENET1K_V1
-python knn_v2.py --dataset polymer-rings --model mae-lightning-large --weights MAE_LARGE_HPA
-python knn_v2.py --dataset polymer-rings --model mae-lightning-large --weights MAE_LARGE_JUMP
-python knn_v2.py --dataset polymer-rings --model mae-lightning-large --weights MAE_LARGE_STED
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-large --weights MAE_LARGE_IMAGENET1K_V1
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-large --weights MAE_LARGE_HPA
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-large --weights MAE_LARGE_JUMP
+# python knn_v2.py --dataset polymer-rings --model mae-lightning-large --weights MAE_LARGE_STED
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
