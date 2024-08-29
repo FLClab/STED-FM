@@ -227,7 +227,11 @@ def main():
         num_samples=args.num_per_class,
     )
     
-    num_epochs = 300
+    #num_epochs = 300
+    budget = len(train_loader.dataset) * 300
+    num_epochs = budget / (args.num_per_class * train_loader.dataset.num_classes)
+    print(f"--- Training with {args.num_per_class} samples per class for {num_epochs} epochs ---")
+
     if probe == "from-scratch":
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
         scheduler = CosineWarmupScheduler(
@@ -261,7 +265,7 @@ def main():
     train_loss, val_loss, val_acc, lrates = [], [], [], []
     save_best_model = SaveBestModel(
         save_dir=f"{model_path}",
-        model_name=f"{probe}-{args.seed}"
+        model_name=f"{probe}_{args.num_per_class}_{args.seed}"
     )
 
     # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=0)
@@ -312,7 +316,7 @@ def main():
             val_loss=val_loss,
             val_acc=val_acc,
             lrates=lrates,
-            save_dir=f"{save_best_model.save_dir}/{save_best_model.model_name}_training-curves.png"
+            save_dir=f"{save_best_model.save_dir}/{save_best_model.model_name}-{args.num_per_class}_training-curves.png"
         )
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
 

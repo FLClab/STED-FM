@@ -29,7 +29,7 @@ def get_dataset(name: str, path: str, **kwargs):
     if name == "CTC":
         dataset = CTCDataset(path, **kwargs)
     elif name == "JUMP":
-        dataset = JUMPCPDataset(h5file=path, **kwargs)
+        dataset = TarJUMPDataset(path, **kwargs)
     elif name == "STED": 
         dataset = TarFLCDataset(path, **kwargs)
     elif name == "optim":
@@ -487,8 +487,6 @@ class OptimDataset(Dataset):
         self.samples = {}
         self.num_classes = len(classes)
 
-        random.seed(42)
-        np.random.seed(42)
         self.labels = []
         for i, class_name in enumerate(classes):
             class_folder = os.path.join(data_folder, class_name)
@@ -578,6 +576,7 @@ class PeroxisomeDataset(Dataset):
         n_channels: int = 1,
         resize_mode : str = "pad",
         superclasses: bool = False,
+        num_samples: int = None,
         **kwargs
     ): 
         super().__init__()
@@ -593,7 +592,7 @@ class PeroxisomeDataset(Dataset):
             files = file.readlines()
             files = [os.path.join(BASE_PATH, file.strip()[1:]) for file in files]
         for i, class_name in enumerate(self.classes):
-            self.samples[class_name] = [file for file in files if class_name in file]
+            self.samples[class_name] = self._get_sampled_files(files_list=[f for f in files if class_name in f], num_sample=num_samples)
 
         if superclasses:
             self.__merge_superclasses()
@@ -603,6 +602,12 @@ class PeroxisomeDataset(Dataset):
         for k in self.samples.keys():
             print(f"Class {k} samples: {len(self.samples[k])}")
         print("----------")
+
+    def _get_sampled_files(self, files_list, num_sample):
+        if num_sample is not None:
+            return random.sample(files_list, num_sample)
+        else:
+            return files_list
 
     def __merge_superclasses(self) -> None:
         merged_samples = defaultdict(list)
@@ -671,6 +676,7 @@ class PolymerRingsDataset(Dataset):
         n_channels: int = 1,
         resize_mode : str = "pad",
         superclasses: bool = True,
+        num_samples: int = None,
         **kwargs
     ): 
         super().__init__()
@@ -687,7 +693,7 @@ class PolymerRingsDataset(Dataset):
         
         self.samples = {}        
         for i, class_name in enumerate(self.classes):
-            self.samples[class_name] = [file for file in files if class_name in file]
+            self.samples[class_name] = self._get_sampled_files(files_list=[f for f in files if class_name in f], num_sample=num_samples)
         
         if not superclasses:
             tmp = {}
@@ -719,6 +725,11 @@ class PolymerRingsDataset(Dataset):
         #     statistics["std"].append(numpy.std(img))
         # print(f"Mean: {numpy.mean(statistics['mean'])}, Std: {numpy.mean(statistics['std'])}")
 
+    def _get_sampled_files(self, files_list, num_sample):
+        if num_sample is not None:
+            return random.sample(files_list, num_sample)
+        else:
+            return files_list
 
     def __get_info(self):
         info = []
@@ -820,7 +831,6 @@ class NeuralActivityStates(Dataset):
         assert self.images.shape[0] == self.labels.shape[0] == self.proteins.shape[0]
         
         if balance:
-            np.random.seed(42)
             self.__balance_classes()
         self.dataset_size = self.images.shape[0]
 
@@ -836,11 +846,17 @@ class NeuralActivityStates(Dataset):
         uniques, counts = np.unique(self.labels, return_counts=True) 
         minority_count, minority_class = np.min(counts), np.argmin(counts)
         indices = []
+        if self.num_samples is not None:
+            minority_count = self.num_samples
+
         for unique in uniques:
             ids = np.where(self.labels == unique)[0]
             ids = np.random.choice(ids, size=minority_count)
             indices.extend(ids)
         indices = np.sort(indices)
+        print("\n************************************")
+        print(f"Sampling ids = {indices}")
+        print("************************************\n")
         self.images = self.images[indices]
         self.labels = self.labels[indices]
         self.proteins = self.proteins[indices]
@@ -1222,7 +1238,54 @@ class ArchiveDataset(Dataset):
         """
         state = dict(self.__dict__)
         state['archive_obj'] = {}
-        return state        
+        return state  
+
+class TarJUMPDataset(ArchiveDataset):
+    def __init__(
+            self,
+            tar_path: str,
+            use_cache: bool = False,
+            max_cache_size: int = 16e9,
+            image_channels: int = 1,
+            transform: Callable = None,
+            cache_system=None,
+            world_size: int = 1,
+            rank: int = 0
+    ) -> None:
+        super(TarJUMPDataset, self).__init__(
+            tar_path,
+            use_cache=use_cache,
+            max_cache_size=max_cache_size,
+            transform=transform,
+            cache_system=cache_system,
+            world_size=world_size,
+            rank=rank
+        )
+        self.image_channels = image_channels
+
+    def get_members(self):
+        return list(sorted(self.get_reader().getmembers(), key=lambda m: m.name))
+    
+    def get_item_from_archive(self, member: tarfile.TarInfo):
+        buffer = io.BytesIO()
+        buffer.write(self.get_reader().extractfile(member).read())
+        buffer.seek(0)
+        data = np.load(buffer, allow_pickle=True)
+        data = {key: values for key, values in data.items()}
+        return data 
+
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        data = self.get_data(idx)
+        img = data["image"]
+        img = img / 255. 
+        if self.transform is not None:
+            img = self.transform(img).float()
+        else:
+            if img.ndim == 2:
+                img = img[np.newaxis]
+            img = torch.tensor(img, dtype=torch.float32)
+        return img
+            
 
 class TarFLCDataset(ArchiveDataset):
     """
