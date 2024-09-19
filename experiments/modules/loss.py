@@ -106,17 +106,22 @@ class NTXentLossWithClasses(NTXentLoss):
             logits = torch.cat([logits_0100, logits_1011], dim=0)
 
             # create labels
-            # labels = torch.arange(batch_size, device=device, dtype=torch.long)
-            if self.gather_distributed and dist.world_size() > 1:
-                metadata_large = torch.cat(dist.gather(metadata), 0)
+            if metadata is None:
+                labels = torch.arange(batch_size, device=device, dtype=torch.long)
+                if self.gather_distributed:
+                    labels = labels + dist.rank() * batch_size
             else:
-                metadata_large = metadata
-            
-            labels = torch.unique(metadata_large, return_inverse=True)[1]
-            labels = labels.clone().detach().to(device=device, dtype=torch.long)
-            if self.gather_distributed:
-                labels = labels[dist.rank() * batch_size : dist.rank() * batch_size + batch_size]
-                # labels = labels + dist.rank() * batch_size
+                # Gets metadata from all processes
+                if self.gather_distributed and dist.world_size() > 1:
+                    metadata_large = torch.cat(dist.gather(metadata), 0)
+                else:
+                    metadata_large = metadata
+
+                # Computes the labels as the unique values
+                labels = torch.unique(metadata_large, return_inverse=True)[1]
+                labels = labels.clone().detach().to(device=device, dtype=torch.long)
+                if self.gather_distributed:
+                    labels = labels[dist.rank() * batch_size : dist.rank() * batch_size + batch_size]
             labels = labels.repeat(2)
 
         loss = self.cross_entropy(logits, labels)

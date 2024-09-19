@@ -1392,16 +1392,25 @@ class TarFLCDataset(ArchiveDataset):
 
         if self.return_metadata:
             # Ensures all keys are not None
-            metadata = check_none_values(metadata)
+            metadata = ensure_values(metadata)
             return img, metadata
         return img # and whatever other metadata we like
     
-def check_none_values(obj):
+def ensure_values(obj):
+    """
+    Ensures that the values from a dict match the requirements
+    of the default collate function from torch
+    """
     for key, value in obj.items():
         if isinstance(value, dict):
-            obj[key] = check_none_values(value)
+            # Recursively ensure values on dictionaries
+            obj[key] = ensure_values(value)
+        elif isinstance(value, (str, float, int)):
+            # Converts strings to list of strings
+            obj[key] = str(value)
         elif value is None:
-            obj[key] = ""
+            # Converts None values to list of strings
+            obj[key] = "None"
     return obj
 
 class HPADataset(ArchiveDataset):

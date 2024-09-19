@@ -106,6 +106,9 @@ class SimCLR(LightningModule):
             metadata = view1
             view0, view1 = view0
 
+            # We simply convert to int using the hash method.
+            metadata = torch.tensor([hash(m) for m in metadata["path"]], dtype=torch.long, device=view0.device)
+
         if torch.any(torch.isnan(view0)):
             print("view0 contains NaN")
         if torch.any(torch.isinf(view0)):
@@ -127,8 +130,6 @@ class SimCLR(LightningModule):
         if torch.any(torch.isinf(z1)):
             print("z1 contains INF")
 
-        # We simply convert to int using the hash method.
-        metadata = torch.tensor([hash(m) for m in metadata["path"]], dtype=torch.long, device=view0.device)
         loss = self.criterion(z0, z1, metadata)
 
         # Logging
@@ -332,7 +333,7 @@ if __name__ == "__main__":
         poisson_noise_prob = cfg.transform.poisson_noise_prob
     )
 
-    datamodule = MultiprocessingDataModule(args, cfg, transform=transform, return_metadata=True)
+    datamodule = MultiprocessingDataModule(args, cfg, transform=transform, return_metadata=args.dataset == "STED")
 
     trainer = Trainer(
         max_epochs=-1,

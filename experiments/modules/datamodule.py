@@ -3,6 +3,7 @@ import torch
 import random
 import os
 
+from torch.utils.data import default_collate
 from multiprocessing import Manager
 from lightning.pytorch.core import LightningDataModule
 
@@ -102,13 +103,22 @@ class MultiprocessingDataModule(LightningDataModule):
         
     def train_dataloader(self):
         # sampler = RepeatedSampler(self.dataset)
+        
+        num_workers = os.environ.get("SLURM_CPUS_PER_TASK", None)
+        if num_workers is None:
+            num_workers = os.cpu_count()
+        
+        print("===============================")
+        print("Num Workers: ", num_workers)
+        print("===============================")
+
         sampler = MultiprocessingDistributedSampler(self.dataset, shuffle=True)
         loader = torch.utils.data.DataLoader(
             self.dataset, 
             batch_size = self.cfg.batch_size,
             sampler = sampler,
             # shuffle=True,
-            num_workers=12,
+            num_workers=int(num_workers),
             pin_memory=True,
             # prefetch_factor=5,
             persistent_workers=True,
