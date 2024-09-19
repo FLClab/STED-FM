@@ -105,8 +105,6 @@ class SimCLR(LightningModule):
         if isinstance(view1, dict):
             metadata = view1
             view0, view1 = view0
-            
-<<<<<<< HEAD
 
         if torch.any(torch.isnan(view0)):
             print("view0 contains NaN")
