@@ -79,7 +79,7 @@ class SimCLR(LightningModule):
 
         self.histogram_every_n_epochs = 10
 
-        hidden_dim = 512 if self.cfg.args.backbone == "resnet18" else 2048
+        hidden_dim = 2048
         self.avg_pool = torch.nn.AdaptiveAvgPool2d(1)
         self.projection_head = heads.SimCLRProjectionHead(
             input_dim=self.cfg.dim,
@@ -127,7 +127,9 @@ class SimCLR(LightningModule):
         if torch.any(torch.isinf(z1)):
             print("z1 contains INF")
 
-        loss = self.criterion(z0, z1, metadata["name"])
+        # We simply convert to int using the hash method.
+        metadata = torch.tensor([hash(m) for m in metadata["path"]], dtype=torch.long, device=view0.device)
+        loss = self.criterion(z0, z1, metadata)
 
         # Logging
         self.log("train_loss", loss, sync_dist=True, prog_bar=True, batch_size=len(view0))
@@ -174,15 +176,11 @@ class SimCLR(LightningModule):
             # lr=0.075 * math.sqrt(1024),
             # lr = 0.3,
             # lr = 0.3 / self.trainer.world_size,
-            lr = 1e-3,
+            lr = 0.3,
             momentum = 0.9,
             # Note: Paper uses weight decay of 1e-6 but reference code 1e-4. See:
             # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
-<<<<<<< HEAD
-            weight_decay = 1e-4,
-=======
             weight_decay = 1e-6,
->>>>>>> debb1b2d5f4177109c05272609593c4d8d04fa0a
         )
         print("-----Optimizer-----")
         print(f"{self.trainer.estimated_stepping_batches=}")

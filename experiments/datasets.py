@@ -1391,9 +1391,19 @@ class TarFLCDataset(ArchiveDataset):
             img = torch.tensor(img, dtype=torch.float32)
 
         if self.return_metadata:
-            return img, {"name" : metadata["path"]}
+            # Ensures all keys are not None
+            metadata = check_none_values(metadata)
+            return img, metadata
         return img # and whatever other metadata we like
     
+def check_none_values(obj):
+    for key, value in obj.items():
+        if isinstance(value, dict):
+            obj[key] = check_none_values(value)
+        elif value is None:
+            obj[key] = ""
+    return obj
+
 class HPADataset(ArchiveDataset):
     """
     Dataset class for loading and processing image data from a zip file.
