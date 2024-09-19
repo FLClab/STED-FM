@@ -1,3 +1,5 @@
+experiments/figures/
+logs/
 *.pdf
 *.png
 # data symlink

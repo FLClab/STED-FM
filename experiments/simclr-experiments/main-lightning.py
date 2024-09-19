@@ -36,6 +36,7 @@ sys.path.insert(0, "..")
 from configuration import Configuration
 from modules.datamodule import MultiprocessingDataModule
 from modules.transforms import SimCLRTransform
+from modules.loss import NTXentLossWithClasses
 from model_builder import get_base_model
 from utils import update_cfg
 
@@ -86,7 +87,7 @@ class SimCLR(LightningModule):
             output_dim=128,
         )
 
-        self.criterion = loss.NTXentLoss(temperature=0.1, gather_distributed=True)
+        self.criterion = NTXentLossWithClasses(temperature=0.1, gather_distributed=True)
 
     def on_train_epoch_end(self):
 
@@ -100,6 +101,12 @@ class SimCLR(LightningModule):
 
     def training_step(self, batch, batch_idx):
         view0, view1 = batch
+        metadata = None
+        if isinstance(view1, dict):
+            metadata = view1
+            view0, view1 = view0
+            
+<<<<<<< HEAD
 
         if torch.any(torch.isnan(view0)):
             print("view0 contains NaN")
@@ -122,7 +129,7 @@ class SimCLR(LightningModule):
         if torch.any(torch.isinf(z1)):
             print("z1 contains INF")
 
-        loss = self.criterion(z0, z1)
+        loss = self.criterion(z0, z1, metadata["name"])
 
         # Logging
         self.log("train_loss", loss, sync_dist=True, prog_bar=True, batch_size=len(view0))
@@ -173,7 +180,11 @@ class SimCLR(LightningModule):
             momentum = 0.9,
             # Note: Paper uses weight decay of 1e-6 but reference code 1e-4. See:
             # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
+<<<<<<< HEAD
             weight_decay = 1e-4,
+=======
+            weight_decay = 1e-6,
+>>>>>>> debb1b2d5f4177109c05272609593c4d8d04fa0a
         )
         print("-----Optimizer-----")
         print(f"{self.trainer.estimated_stepping_batches=}")
@@ -325,7 +336,7 @@ if __name__ == "__main__":
         poisson_noise_prob = cfg.transform.poisson_noise_prob
     )
 
-    datamodule = MultiprocessingDataModule(args, cfg, transform=transform)
+    datamodule = MultiprocessingDataModule(args, cfg, transform=transform, return_metadata=True)
 
     trainer = Trainer(
         max_epochs=-1,
