@@ -1197,7 +1197,7 @@ class ArchiveDataset(Dataset):
             if n % 1000 == 0:
                 worker = get_worker_info()
                 worker = worker.id if worker else None
-                print(f"Current cache (worker: {worker} | rank: {self.rank}): {n}/{len(indices)} ({self.__cache_size * 1e-9:0.2f}G)")   
+                print(f"Current cache (worker: {worker} | rank: {self.rank}): {n}/{len(indices)} ({self.__cache_size * 1e-9:0.2f}G/{self.__max_cache_size * 1e-9:0.2f}G)")   
 
     def __setup_multiprocessing(self, members : list):
         """
@@ -1338,7 +1338,7 @@ class TarFLCDataset(ArchiveDataset):
             yield metadata
 
     def get_members(self):
-        # members = [self.get_reader().next() for _ in range(10000)]
+        # members = [self.get_reader().next() for _ in range(1000)]
         # return list(sorted(members, key=lambda m: m.name))   
         return list(sorted(self.get_reader().getmembers(), key=lambda m: m.name))       
 
@@ -1371,7 +1371,7 @@ class TarFLCDataset(ArchiveDataset):
         data = self.get_data(idx)
         
         img = data["image"] # assuming 'img' key
-        metadata = data["metadata"]
+        metadata = data["metadata"].item()
         # if img.size != 224 * 224:
         #     print(img.shape)
         #     print(metadata)
@@ -1391,7 +1391,7 @@ class TarFLCDataset(ArchiveDataset):
             img = torch.tensor(img, dtype=torch.float32)
 
         if self.return_metadata:
-            return img, metadata
+            return img, {"name" : metadata["path"]}
         return img # and whatever other metadata we like
     
 class HPADataset(ArchiveDataset):
