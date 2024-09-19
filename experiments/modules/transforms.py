@@ -244,11 +244,11 @@ class MicroscopyColorJitter(torch.nn.Module):
 
     def brightness_adjust(self, tensor: Tensor) -> Tensor:
         scale = random.uniform(*self.brightness)
-        return torch.clamp_(tensor * (1 + scale), 0, 1)
+        return torch.clamp(tensor * (1 + scale), 0, 1)
     
     def gamma_adjust(self, tensor: Tensor) -> Tensor:
         gamma = random.uniform(*self.gamma)
-        return torch.clamp_(tensor ** (1 + gamma), 0, 1)    
+        return torch.clamp(tensor ** (1 + gamma), 0, 1)    
 
     def forward(self, tensor: Tensor) -> Tensor:
         options = list(range(len(self.options)))
@@ -287,6 +287,11 @@ class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
         """
         Implements a random resized crop with a minimum foreground
         """
+        h, w = self.size
+        image_height, image_width = img.size()[1], img.size()[2]
+        if h == image_height and w == image_width:
+            return img
+                
         for n in range(self.max_tries):
             i, j, h, w = self.get_params(img, self.scale, self.ratio)
             crop = img[:, j : j + w, i : i + w] > self.threshold
@@ -298,13 +303,15 @@ class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
 
             fg = img > self.threshold
             mask = torch.zeros_like(fg)
-            mask[:, : -h, :-w] = 1
+            mask[:, h // 2 : -h // 2, w // 2 : -w // 2] = 1
             fg = mask & fg
             argwhere = torch.argwhere(fg)
             if len(argwhere) == 0:
                 j, i = 0, 0
             else:
                 _, j, i = argwhere[random.randint(0, argwhere.size(0) - 1)]
+                j = j - h // 2
+                i = i - w // 2
 
         return F.resized_crop(img, j, i, h, w, self.size, self.interpolation, antialias=self.antialias)
 
@@ -372,8 +379,8 @@ class PoissonNoise(torch.nn.Module):
         if random.random() < self.p:
             # 255 is used to mimic typical acquisitions; the maximum 
             # We divide by 255 since the images are normalized
-            rates = torch.clamp_(tensor, 0, 1) * 255.
-            return torch.poisson(rates) / 255.
+            rates = torch.clamp(tensor, 0, 1) * 255.
+            return torch.clamp(torch.poisson(rates) / 255., 0, 1)
         return tensor
 
     def __repr__(self):

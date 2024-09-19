@@ -40,7 +40,7 @@ def get_dataset(name: str, path: str, **kwargs):
             classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
             **kwargs
         )
-    elif name == "hpa":
+    elif name == "HPA":
         dataset = HPADataset(path, **kwargs)
     elif name == "factin":
         dataset = CreateFActinDataset(

@@ -60,7 +60,11 @@ class SimCLRTransformConfig(Configuration):
     rr_degrees : float = None
     normalize : bool = False
     gaussian_noise_prob : float = 0.5
+    gaussian_noise_mu: float = 0.
+    gaussian_noise_std: float = 0.25
     poisson_noise_prob : float = 0.5
+    poisson_noise_lambda : float = 0.5
+    poisson_noise_prob : float = 0.5            
 
 # Create a PyTorch module for the SimCLR model.
 class SimCLR(LightningModule):
@@ -96,8 +100,28 @@ class SimCLR(LightningModule):
 
     def training_step(self, batch, batch_idx):
         view0, view1 = batch
+
+        if torch.any(torch.isnan(view0)):
+            print("view0 contains NaN")
+        if torch.any(torch.isinf(view0)):
+            print("view0 contains INF")
+        if torch.any(torch.isnan(view1)):
+            print("view1 contains NaN")
+        if torch.any(torch.isinf(view1)):
+            print("view1 contains INF")            
+
         z0 = self.forward(view0)
         z1 = self.forward(view1)
+
+        if torch.any(torch.isnan(z0)):
+            print("z0 contains NaN")
+        if torch.any(torch.isinf(z0)):
+            print("z0 contains INF")
+        if torch.any(torch.isnan(z1)):
+            print("z1 contains NaN")
+        if torch.any(torch.isinf(z1)):
+            print("z1 contains INF")
+
         loss = self.criterion(z0, z1)
 
         # Logging
@@ -105,6 +129,10 @@ class SimCLR(LightningModule):
         self.log("Loss/mean", loss, sync_dist=True, prog_bar=False)
         self.log("Loss/min", loss, reduce_fx=torch.min, sync_dist=True)
         self.log("Loss/max", loss, reduce_fx=torch.max, sync_dist=True)
+
+        # logging average activations
+        self.log("activations/z0", z0.mean(), sync_dist=True, prog_bar=False, batch_size=len(view0))
+        self.log("activations/z1", z1.mean(), sync_dist=True, prog_bar=False, batch_size=len(view0))
 
         # Logging images
         writer = self.logger.experiment
@@ -135,15 +163,17 @@ class SimCLR(LightningModule):
             # Square root learning rate scaling improves performance for small
             # batch sizes (<=2048) and few training epochs (<=200). Alternatively,
             # linear scaling can be used for larger batches and longer training:
-            # lr=0.3 * self.batch_size_per_device * self.trainer.world_size / 256,
+            # lr = 0.3 * self.cfg.batch_size * self.trainer.world_size / 256,
             # See Appendix B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
             # lr=0.075 * math.sqrt(self.cfg.batch_size * self.trainer.world_size),
             # lr=0.075 * math.sqrt(1024),
-            lr = 0.3,
+            # lr = 0.3,
+            # lr = 0.3 / self.trainer.world_size,
+            lr = 1e-3,
             momentum = 0.9,
             # Note: Paper uses weight decay of 1e-6 but reference code 1e-4. See:
             # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
-            weight_decay=1e-6,
+            weight_decay = 1e-4,
         )
         print("-----Optimizer-----")
         print(f"{self.trainer.estimated_stepping_batches=}")
@@ -164,10 +194,16 @@ class SimCLR(LightningModule):
 
     def forward(self, x):
         features = self.backbone(x)
+        if torch.any(torch.isinf(features)):
+            print("backbone features contains INF")
         if features.dim() > 2:
             features = self.avg_pool(features)
         features = torch.flatten(features, start_dim=1)
+        if torch.any(torch.isinf(features)):
+            print("backbone features contains INF after flatten and possible avg_pool")
         z = self.projection_head(features)
+        if torch.any(torch.isinf(z)):
+            print("projection head contains INF")
         return z
 
 if __name__ == "__main__":
@@ -298,6 +334,7 @@ if __name__ == "__main__":
         num_nodes=int(os.environ.get("SLURM_NNODES", 1)),
         accelerator="gpu",
         precision="16-mixed",
+        gradient_clip_val=1.0,
         strategy="ddp",
         sync_batchnorm=True,
         use_distributed_sampler=False,

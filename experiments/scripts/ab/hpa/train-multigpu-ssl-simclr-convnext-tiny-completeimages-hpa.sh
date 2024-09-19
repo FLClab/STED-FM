@@ -31,7 +31,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Copy file"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 cp "/project/def-flavielc/datasets/FLCDataset/dataset-full-images.tar" "${SLURM_TMPDIR}/dataset.tar"
+srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 cp "/project/def-flavielc/datasets/train.zip" "${SLURM_TMPDIR}/dataset.zip"
 # srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 cp "/project/def-flavielc/datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
@@ -43,11 +43,11 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_STED" --host 0.0.0.0 --load_fast false &
-srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "convnext-tiny" \
-                              --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
-                              --opts "batch_size 64 transform.gaussian_noise_std 0.1"
-                            #   --restore-from "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_STED/checkpoint-25000.pt" \
+tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_HPA" --host 0.0.0.0 --load_fast false &
+srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --dataset "HPA" --backbone "convnext-tiny" \
+                              --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu/" \
+                              --opts "batch_size 64" \
+                              --restore-from "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_HPA/result.pt"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done training"
