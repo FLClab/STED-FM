@@ -118,10 +118,23 @@ class NTXentLossWithClasses(NTXentLoss):
                     metadata_large = metadata
 
                 # Computes the labels as the unique values
-                labels = torch.unique(metadata_large, return_inverse=True)[1]
-                labels = labels.clone().detach().to(device=device, dtype=torch.long)
+                labels_large = torch.unique(metadata_large, return_inverse=True)[1]
+                labels_large = labels_large.clone().detach().to(device=device, dtype=torch.long)
                 if self.gather_distributed:
-                    labels = labels[dist.rank() * batch_size : dist.rank() * batch_size + batch_size]
+                    labels = labels_large[dist.rank() * batch_size : dist.rank() * batch_size + batch_size]
+                else:
+                    labels = labels_large
+
+                loss = 0.
+                exponentiated = torch.exp(logits)
+                for i in range(batch_size):
+                    mask = labels_large == labels[i]
+                    mask = torch.cat([mask, mask[~diag_mask[i]]])
+                    loss -= torch.sum(torch.log(torch.sum(exponentiated[[i, i + batch_size]][:, mask], dim=1) / torch.sum(exponentiated[[i, i + batch_size]], dim=1)))
+                loss = loss / (2 * batch_size)
+
+                return loss
+
             labels = labels.repeat(2)
 
         loss = self.cross_entropy(logits, labels)

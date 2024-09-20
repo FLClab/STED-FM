@@ -130,7 +130,7 @@ class SimCLR(LightningModule):
         if torch.any(torch.isinf(z1)):
             print("z1 contains INF")
 
-        loss = self.criterion(z0, z1, metadata)
+        loss = self.criterion(z0, z1, metadata=metadata)
 
         # Logging
         self.log("train_loss", loss, sync_dist=True, prog_bar=True, batch_size=len(view0))
@@ -141,6 +141,8 @@ class SimCLR(LightningModule):
         # logging average activations
         self.log("activations/z0", z0.mean(), sync_dist=True, prog_bar=False, batch_size=len(view0))
         self.log("activations/z1", z1.mean(), sync_dist=True, prog_bar=False, batch_size=len(view0))
+        self.log("activations/z0-std", z0.std(dim=1).mean(), sync_dist=True, prog_bar=False, batch_size=len(view0))
+        self.log("activations/z1-std", z1.std(dim=1).mean(), sync_dist=True, prog_bar=False, batch_size=len(view0))
 
         # Logging images
         writer = self.logger.experiment
