@@ -332,7 +332,10 @@ if __name__ == "__main__":
         rr_degrees = cfg.transform.rr_degrees,
         normalize = cfg.transform.normalize,
         gaussian_noise_prob = cfg.transform.gaussian_noise_prob,
-        poisson_noise_prob = cfg.transform.poisson_noise_prob
+        gaussian_noise_mu = cfg.transform.gaussian_noise_mu,
+        gaussian_noise_std = cfg.transform.gaussian_noise_std,
+        poisson_noise_prob = cfg.transform.poisson_noise_prob,
+        poisson_noise_lambda = cfg.transform.poisson_noise_lambda
     )
 
     datamodule = MultiprocessingDataModule(args, cfg, transform=transform, return_metadata=args.dataset == "STED")
