@@ -10,6 +10,20 @@ from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.utils import dist
 from lightly.loss import NTXentLoss
 
+def masked_cross_entropy(logits, mask, reduce_func=torch.mean):
+    """
+    Compute the cross-entropy loss between logits and labels using a mask.
+
+    :param logits: Tensor of shape (batch_size, num_classes)
+    :param mask: Tensor of shape (batch_size, num_classes)
+    :param reduce_func: Function to reduce the loss to a scalar.
+
+    :return: The masked cross-entropy loss.
+    """
+    exponentiated = torch.exp(logits)
+    loss = -torch.log(torch.sum(exponentiated * mask, dim=1) / torch.sum(exponentiated, dim=1))
+    return reduce_func(loss)
+
 class NTXentLossWithClasses(NTXentLoss):
     def __init__(self, *args, **kwargs):
         super(NTXentLossWithClasses, self).__init__(*args, **kwargs)
@@ -125,14 +139,13 @@ class NTXentLossWithClasses(NTXentLoss):
                 else:
                     labels = labels_large
 
-                loss = 0.
-                exponentiated = torch.exp(logits)
-                for i in range(batch_size):
-                    mask = labels_large == labels[i]
-                    mask = torch.cat([mask, mask[~diag_mask[i]]])
-                    loss -= torch.sum(torch.log(torch.sum(exponentiated[[i, i + batch_size]][:, mask], dim=1) / torch.sum(exponentiated[[i, i + batch_size]], dim=1)))
-                loss = loss / (2 * batch_size)
-
+                # Create mask for the cross-entropy loss using vectorized operations
+                mask = labels_large == labels[:, None]
+                mask = torch.cat([mask, mask[~diag_mask].view(batch_size, -1)], dim=1)
+                mask = mask.repeat(2, 1)
+                
+                # Compute the masked cross-entropy loss
+                loss = masked_cross_entropy(logits, mask)
                 return loss
 
             labels = labels.repeat(2)

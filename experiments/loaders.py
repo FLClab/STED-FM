@@ -223,7 +223,7 @@ def get_synaptic_proteins_dataset(
     return train_loader, valid_loader, test_loader
   
 
-def get_optim_dataset(path: str, training: bool = False, batch_size=256, num_samples=None, **kwargs):
+def get_optim_dataset(path: str, training: bool = False, batch_size=256, num_samples=None, *args, **kwargs):
     print(f"TESTING --> {num_samples} samples per class")
     samples_dict = {
         "actin": num_samples,
@@ -324,17 +324,18 @@ def get_dataset(name, path=None, **kwargs):
     if name == "optim":
         return get_optim_dataset(
             path=os.path.join(BASE_PATH, "evaluation-data", "optim-data"), 
-            n_channels=kwargs.get("n_channels", 1),
-            transform=kwargs.get("transform", 1),
-            training=kwargs.get("training", False),
-            batch_size=kwargs.get("batch_size", 1),
-            num_samples=kwargs.get("num_samples", None),
+            n_channels=kwargs.pop("n_channels", 1),
+            transform=kwargs.pop("transform", None),
+            training=kwargs.pop("training", False),
+            batch_size=kwargs.pop("batch_size", 1),
+            num_samples=kwargs.pop("num_samples", None),
+            **kwargs
             )
     elif name == "synaptic-proteins":
         return get_synaptic_proteins_dataset(
             path=os.path.join(BASE_PATH, "evaluation-data", "TheresaProteins"), 
             n_channels=kwargs.get("n_channels", 1), 
-            transform=kwargs.get("transform", 1),
+            transform=kwargs.get("transform", None),
             batch_size=kwargs.get("batch_size", 1),
             num_samples=kwargs.get("num_samples", None),
             )
@@ -343,7 +344,7 @@ def get_dataset(name, path=None, **kwargs):
         return get_neural_activity_states(
             path=os.path.join(BASE_PATH, "evaluation-data", "NeuralActivityStates"),
             n_channels=kwargs.get("n_channels", 1), 
-            transform=kwargs.get("transform", 1),
+            transform=kwargs.get("transform", None),
             batch_size=kwargs.get("batch_size", 1),
             num_samples=kwargs.get("num_samples", None),
             protein_id=3

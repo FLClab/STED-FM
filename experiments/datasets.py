@@ -475,6 +475,8 @@ class OptimDataset(Dataset):
             apply_filter: bool = False, 
             classes: List = ['actin', 'tubulin', 'CaMKII', 'PSD95'],
             n_channels: int = 1,
+            min_quality_score: float = 0.70,
+            *args, **kwargs
     ) -> None:
         self.data_folder = data_folder
         self.num_samples = num_samples
@@ -486,6 +488,7 @@ class OptimDataset(Dataset):
         self.class_files = {}
         self.samples = {}
         self.num_classes = len(classes)
+        self.min_quality_score = min_quality_score
 
         self.labels = []
         for i, class_name in enumerate(classes):
@@ -495,14 +498,13 @@ class OptimDataset(Dataset):
             self.labels.extend([i] * len(self.samples[class_name]))
 
     def _filter_files(self, class_folder):
-        SCORE = 0.70
         files = glob.glob(os.path.join(class_folder, "**/*.npz"), recursive=True)
         filtered_files = []
         for file in files:
             match = re.search(r"-(\d+\.\d+)\.npz", file)
             if match:
                 quality_score = float(match.group(1))
-                if not self.apply_filter or quality_score >= SCORE:
+                if not self.apply_filter or quality_score >= self.min_quality_score:
                     filtered_files.append(file)
         return filtered_files
 
