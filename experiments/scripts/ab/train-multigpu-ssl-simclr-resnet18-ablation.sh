@@ -42,7 +42,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-crops-1Msteps-multigpu" --host 0.0.0.0 --load_fast false &
+tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/ablation/dataset-crops-1Msteps-multigpu" --host 0.0.0.0 --load_fast false &
 
 # CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-crops-1Msteps-multigpu/resnet18_STED/result.pt"
 # if [ -f $CKPT ]; then
@@ -60,8 +60,8 @@ tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-crops-1Ms
 #                                   --opts "batch_size 256"
 # fi
 srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet18" \
-                                --save-folder "./data/SSL/baselines/dataset-crops-1Msteps-multigpu" \
-                                --opts "batch_size 256"
+                                --save-folder "./data/SSL/baselines/ablation/dataset-crops-1Msteps-multigpu" \
+                                --opts "batch_size 256 datamodule.return_metadata False"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done training"

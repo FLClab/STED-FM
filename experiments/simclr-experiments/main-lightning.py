@@ -65,7 +65,14 @@ class SimCLRTransformConfig(Configuration):
     gaussian_noise_std: float = 0.25
     poisson_noise_prob : float = 0.5
     poisson_noise_lambda : float = 0.5
-    poisson_noise_prob : float = 0.5            
+    poisson_noise_prob : float = 0.5    
+
+class DataModuleConfig(Configuration):
+    num_workers : int = None
+    shuffle : bool = True
+    use_cache : bool = True
+    max_cache_size : float = 32e+9
+    return_metadata : bool = True
 
 # Create a PyTorch module for the SimCLR model.
 class SimCLR(LightningModule):
@@ -177,13 +184,14 @@ class SimCLR(LightningModule):
             # See Appendix B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
             # lr=0.075 * math.sqrt(self.cfg.batch_size * self.trainer.world_size),
             # lr=0.075 * math.sqrt(1024),
-            # lr = 0.3,
-            # lr = 0.3 / self.trainer.world_size,
             lr = 0.3,
+            # lr = 0.3 / self.trainer.world_size,
+            # lr = 0.3,
             momentum = 0.9,
             # Note: Paper uses weight decay of 1e-6 but reference code 1e-4. See:
             # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
-            weight_decay = 1e-6,
+            weight_decay = 1e-4,
+            eps = 1e-7, # In 16-mixed training, eps 1e-8 is 0.
         )
         print("-----Optimizer-----")
         print(f"{self.trainer.estimated_stepping_batches=}")
@@ -250,8 +258,12 @@ if __name__ == "__main__":
 
     backbone, cfg = get_base_model(args.backbone)
     cfg.transform = SimCLRTransformConfig()
+    cfg.datamodule = DataModuleConfig()
     cfg.args = args
     update_cfg(cfg, args.opts)
+
+    # Return metadata should be activated only in case of STED dataset
+    cfg.datamodule.return_metadata = cfg.datamodule.return_metadata and args.dataset == "STED"
    
     if args.restore_from:
         OUTPUT_FOLDER = os.path.dirname(args.restore_from)
@@ -338,7 +350,7 @@ if __name__ == "__main__":
         poisson_noise_lambda = cfg.transform.poisson_noise_lambda
     )
 
-    datamodule = MultiprocessingDataModule(args, cfg, transform=transform, return_metadata=args.dataset == "STED")
+    datamodule = MultiprocessingDataModule(args, cfg, transform=transform)
 
     trainer = Trainer(
         max_epochs=-1,

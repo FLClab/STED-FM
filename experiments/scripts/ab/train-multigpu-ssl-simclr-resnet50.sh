@@ -3,12 +3,12 @@
 #SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --mem=0
-#SBATCH --nodes=4     
-#SBATCH --gres=gpu:4   
-#SBATCH --tasks-per-node=4
-#SBATCH --cpus-per-task=10
+#SBATCH --nodes=4
+#SBATCH --gres=gpu:p100:2
+#SBATCH --tasks-per-node=2
+#SBATCH --cpus-per-task=16
 #SBATCH --array=0
-#SBATCH --output=logs/%x-%A_%a.out
+#SBATCH --output=/home/anbil106/logs/%x-%A_%a.out
 #SBATCH --mail-user=anbil106@ulaval.ca
 #SBATCH --mail-type=ALL
 #
@@ -42,9 +42,27 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/anbil106/SSL/baselines" --host 0.0.0.0 --load_fast false &
+tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-crops-1Msteps-multigpu" --host 0.0.0.0 --load_fast false &
+
+# CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-crops-1Msteps-multigpu/resnet50_STED/result.pt"
+# if [ -f $CKPT ]; then
+#     echo "% Training from previous checkpoint: ${CKPT}"
+
+#     srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet50" \
+#                                   --save-folder "./data/SSL/baselines/dataset-crops-1Msteps-multigpu" \
+#                                   --opts "batch_size 128" \
+#                                   --restore-from "${CKPT}"
+# else
+#     echo "% Training from scratch"
+
+#     srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet50" \
+#                                   --save-folder "./data/SSL/baselines/dataset-crops-1Msteps-multigpu" \
+#                                   --opts "batch_size 128"
+# fi
+
 srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet50" \
-    # --restore-from "/scratch/anbil106/anbil106/SSL/baselines/resnet18/result.pt"
+                                --save-folder "./data/SSL/baselines/dataset-crops-1Msteps-multigpu" \
+                                --opts "batch_size 128"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done training"
