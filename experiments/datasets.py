@@ -488,11 +488,14 @@ class OptimDataset(Dataset):
         self.num_classes = len(classes)
 
         self.labels = []
+        original_size = 0
         for i, class_name in enumerate(classes):
             class_folder = os.path.join(data_folder, class_name)
             self.class_files[class_name] = self._filter_files(class_folder)
+            original_size += len(self.class_files[class_name])
             self.samples[class_name] = self._get_sampled_files(self.class_files[class_name], self.num_samples.get(class_name))
             self.labels.extend([i] * len(self.samples[class_name]))
+        self.original_size = original_size
 
     def _filter_files(self, class_folder):
         SCORE = 0.70
@@ -807,6 +810,7 @@ class NeuralActivityStates(Dataset):
         self.images = images[protein_mask]
         self.labels = conditions[protein_mask]
         self.proteins = proteins[protein_mask]
+        self.original_size = self.labels.shape[0]
 
         # print(f"{numpy.mean(numpy.mean(self.images, axis=(1, 2)))=}")
         # print(f"{numpy.mean(numpy.std(self.images, axis=(1, 2)))=}")
@@ -854,9 +858,6 @@ class NeuralActivityStates(Dataset):
             ids = np.random.choice(ids, size=minority_count)
             indices.extend(ids)
         indices = np.sort(indices)
-        print("\n************************************")
-        print(f"Sampling ids = {indices}")
-        print("************************************\n")
         self.images = self.images[indices]
         self.labels = self.labels[indices]
         self.proteins = self.proteins[indices]
