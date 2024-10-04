@@ -15,6 +15,7 @@ import skimage.measure
 import matplotlib
 from scipy.spatial import distance
 import tifffile
+import tiffwrapper
 
 from dataclasses import dataclass
 from lightly import loss
@@ -40,7 +41,7 @@ from model_builder import get_base_model, get_pretrained_model_v2
 from utils import update_cfg, save_cfg
 from configuration import Configuration
 
-from template import Template, Query
+from template import Template, Query, sample_topk
 
 if __name__ == "__main__":
 
@@ -82,6 +83,7 @@ if __name__ == "__main__":
         num_classes=1,
         blocks="all",
         global_pool="patch",
+        mask_ratio=0,
     )
     model = model.to(DEVICE)
     print(cfg)
@@ -90,8 +92,10 @@ if __name__ == "__main__":
     update_cfg(cfg, args.opts)
 
     CLASS = "perforated"
-
     training_dataset, validation_dataset, testing_dataset = get_dataset(name=args.dataset, cfg=cfg)
+    print("Classes: ", training_dataset.classes)
+    print("Required class: ", CLASS)
+
     template = Template(training_dataset.images, class_id=training_dataset.classes.index(CLASS), mode="choice")
     template_query = template.get_template(model, cfg)
 
@@ -100,7 +104,10 @@ if __name__ == "__main__":
         image_template = template_query["image-template"]
         mask_template = template_query["mask-template"]
 
-        stack = numpy.stack([image_template, mask_template], axis=0)
+        if image_template.ndim == 2:
+            stack = numpy.stack([image_template, mask_template], axis=0)
+        else:
+            stack = numpy.stack([image_template, mask_template], axis=1)
         tifffile.imwrite(f"template-{CLASS}-{args.backbone_weights}.tif", stack.astype(numpy.float32), imagej=True, metadata={"mode": "composite"})
 
         template_query = template_query["template"]
@@ -117,7 +124,12 @@ if __name__ == "__main__":
         prediction[prediction < threshold] = threshold
 
         stack = numpy.stack([image, label[template.class_id], prediction], axis=0)
-        tifffile.imwrite(f"image-{CLASS}-{i}-{args.backbone_weights}.tif", stack.astype(numpy.float32), imagej=True, metadata={"mode": "composite"})
+        tiffwrapper.imwrite(
+            f"image-{CLASS}-{i}-{args.backbone_weights}.tif", stack.astype(numpy.float32), 
+            composite=True, luts=["gray", "green", "magenta"])
+
+        crops, coords = sample_topk(image, prediction, k=25, shape=224)
+        tifffile.imwrite(f"crop-{CLASS}-{i}-{args.backbone_weights}.tif", numpy.array(crops).astype(numpy.float32), imagej=True)
         # break
 
     # random.seed(None)
