@@ -591,12 +591,16 @@ class PeroxisomeDataset(Dataset):
         self.num_classes = len(self.classes)
 
         self.samples = {}
+        original_size = 0
         with open(source, "r") as file:
             files = file.readlines()
             files = [os.path.join(BASE_PATH, file.strip()[1:]) for file in files]
         for i, class_name in enumerate(self.classes):
-            self.samples[class_name] = self._get_sampled_files(files_list=[f for f in files if class_name in f], num_sample=num_samples)
+            files_list = [f for f in files if class_name in f]
+            original_size += len(files_list)
+            self.samples[class_name] = self._get_sampled_files(files_list=files_list, num_sample=num_samples)
 
+        self.original_size = original_size
         if superclasses:
             self.__merge_superclasses()
         self.info = self.__get_info()
@@ -622,8 +626,11 @@ class PeroxisomeDataset(Dataset):
             else:
                 continue
         self.samples = merged_samples
+
         self.classes = ["gluc", "meoh"]
         self.num_classes = len(self.classes)
+        self.original_size = sum([len(lst) for lst in list(self.samples.values())])
+
 
     def __get_info(self):
         info = []
@@ -695,8 +702,12 @@ class PolymerRingsDataset(Dataset):
             files = [os.path.join(BASE_PATH, file.strip()[1:]) for file in files]
         
         self.samples = {}        
+        original_size = 0
         for i, class_name in enumerate(self.classes):
-            self.samples[class_name] = self._get_sampled_files(files_list=[f for f in files if class_name in f], num_sample=num_samples)
+            files_list = [f for f in files if class_name in f]
+            original_size += len(files_list)
+            self.samples[class_name] = self._get_sampled_files(files_list=files_list, num_sample=num_samples)
+        self.original_size = original_size
         
         if not superclasses:
             tmp = {}

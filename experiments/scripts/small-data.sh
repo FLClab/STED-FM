@@ -75,7 +75,7 @@ echo $numclass
 echo $seed
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset peroxisome --model mae-lightning-small --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
+python finetune_v2.py --dataset polymer-rings --model mae-lightning-small --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
