@@ -42,6 +42,7 @@ from utils import update_cfg
 
 # Define the configuration for the SimCLR model.
 class SimCLRTransformConfig(Configuration):
+
     input_size : int = 224
     cj_prob : float = 0.8
     cj_strength : float = 1.0
@@ -68,11 +69,25 @@ class SimCLRTransformConfig(Configuration):
     poisson_noise_prob : float = 0.5    
 
 class DataModuleConfig(Configuration):
+
     num_workers : int = None
     shuffle : bool = True
     use_cache : bool = True
     max_cache_size : float = 32e+9
     return_metadata : bool = True
+
+class SimCLRConfig(Configuration):
+
+    histogram_every_n_epochs : int = 10
+    hidden_dim : int = 2048
+    output_dim : int = 128
+    temperature : float = 0.1
+    lr : float = 0.3
+    lr_scaling : str = None
+    momentum : float = 0.9
+    weight_decay : float = 1e-4
+    eps : float = 1e-8
+    warmup : float = 0.01
 
 # Create a PyTorch module for the SimCLR model.
 class SimCLR(LightningModule):
@@ -84,21 +99,18 @@ class SimCLR(LightningModule):
         self.cfg = cfg
         self.backbone, _ = get_base_model(self.cfg.args.backbone)
 
-        self.histogram_every_n_epochs = 10
-
-        hidden_dim = 2048
         self.avg_pool = torch.nn.AdaptiveAvgPool2d(1)
         self.projection_head = heads.SimCLRProjectionHead(
             input_dim=self.cfg.dim,
-            hidden_dim=hidden_dim,
-            output_dim=128,
+            hidden_dim=self.cfg.simclr.hidden_dim,
+            output_dim=self.cfg.simclr.output_dim,
         )
 
-        self.criterion = NTXentLossWithClasses(temperature=0.1, gather_distributed=True)
+        self.criterion = NTXentLossWithClasses(temperature=self.cfg.simclr.temperature, gather_distributed=True)
 
     def on_train_epoch_end(self):
 
-        if self.current_epoch % self.histogram_every_n_epochs == 0:
+        if self.current_epoch % self.cfg.simclr.histogram_every_n_epochs == 0:
             for name, params in self.named_parameters():
                 self.logger.experiment.add_histogram(name, params, self.current_epoch)
 
@@ -165,6 +177,13 @@ class SimCLR(LightningModule):
         params, params_no_weight_decay = get_weight_decay_parameters(
             [self.backbone, self.projection_head]
         )
+
+        lr = self.cfg.simclr.lr 
+        if self.cfg.simclr.lr_scaling == "linear":
+            lr = lr * self.cfg.batch_size * self.trainer.world_size / 256
+        elif self.cfg.simclr.lr_scaling == "sqrt":
+            lr = lr * math.sqrt(self.cfg.batch_size * self.trainer.world_size)
+         
         optimizer = LARS(
             [
                 {
@@ -184,14 +203,14 @@ class SimCLR(LightningModule):
             # See Appendix B.1. in the SimCLR paper https://arxiv.org/abs/2002.05709
             # lr=0.075 * math.sqrt(self.cfg.batch_size * self.trainer.world_size),
             # lr=0.075 * math.sqrt(1024),
-            lr = 0.3,
+            lr = lr,
             # lr = 0.3 / self.trainer.world_size,
             # lr = 0.3,
-            momentum = 0.9,
+            momentum = self.cfg.simclr.momentum,
             # Note: Paper uses weight decay of 1e-6 but reference code 1e-4. See:
             # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
-            weight_decay = 1e-4,
-            eps = 1e-7, # In 16-mixed training, eps 1e-8 is 0.
+            weight_decay = self.cfg.simclr.weight_decay,
+            eps = self.cfg.simclr.eps, # In 16-mixed training, eps 1e-8 is 0.
         )
         print("-----Optimizer-----")
         print(f"{self.trainer.estimated_stepping_batches=}")
@@ -200,7 +219,7 @@ class SimCLR(LightningModule):
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
                 warmup_epochs=int(
-                    self.trainer.estimated_stepping_batches * 0.01
+                    self.trainer.estimated_stepping_batches * self.cfg.simclr.warmup
                     # / self.trainer.max_epochs
                     # * 10
                 ),
@@ -259,6 +278,7 @@ if __name__ == "__main__":
     backbone, cfg = get_base_model(args.backbone)
     cfg.transform = SimCLRTransformConfig()
     cfg.datamodule = DataModuleConfig()
+    cfg.simclr = SimCLRConfig()
     cfg.args = args
     update_cfg(cfg, args.opts)
 
@@ -350,7 +370,7 @@ if __name__ == "__main__":
         poisson_noise_lambda = cfg.transform.poisson_noise_lambda
     )
 
-    datamodule = MultiprocessingDataModule(args, cfg, transform=transform)
+    datamodule = MultiprocessingDataModule(args, cfg, transform=transform, debug=args.dry_run)
 
     trainer = Trainer(
         max_epochs=-1,
@@ -358,12 +378,13 @@ if __name__ == "__main__":
         devices="auto",
         num_nodes=int(os.environ.get("SLURM_NNODES", 1)),
         accelerator="gpu",
-        precision="16-mixed",
+        # precision="16-mixed",
         gradient_clip_val=1.0,
         strategy="ddp",
         sync_batchnorm=True,
         use_distributed_sampler=False,
         logger=logger,
         callbacks=callbacks,
+        # detect_anomaly=True,
     )
     trainer.fit(model, train_dataloaders=datamodule, ckpt_path=args.restore_from)

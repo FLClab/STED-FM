@@ -95,32 +95,35 @@ class MultiprocessingDataModule(LightningDataModule):
         cache_system = manager.dict()
         self.dataset = get_dataset(
             self.dataset_name, self.dataset_path, 
-            use_cache=True, cache_system=cache_system, 
-            max_cache_size=40e9,
+            use_cache=self.cfg.datamodule.use_cache, 
+            cache_system=cache_system, 
+            max_cache_size=self.cfg.datamodule.max_cache_size,
             world_size = self.world_size, rank = self.rank,
+            return_metadata=self.cfg.datamodule.return_metadata,
             **self.kwargs
         )
         
     def train_dataloader(self):
         # sampler = RepeatedSampler(self.dataset)
         
-        num_workers = os.environ.get("SLURM_CPUS_PER_TASK", None)
-        if num_workers is None:
-            num_workers = os.cpu_count()
+        if self.cfg.datamodule.num_workers is None:
+            num_workers = os.environ.get("SLURM_CPUS_PER_TASK", None)
+            if num_workers is None:
+                num_workers = os.cpu_count()
+        else:
+            num_workers = self.cfg.datamodule.num_workers
         
         print("===============================")
         print("Num Workers: ", num_workers)
         print("===============================")
 
-        sampler = MultiprocessingDistributedSampler(self.dataset, shuffle=True)
+        sampler = MultiprocessingDistributedSampler(self.dataset, shuffle=self.cfg.datamodule.shuffle)
         loader = torch.utils.data.DataLoader(
             self.dataset, 
             batch_size = self.cfg.batch_size,
             sampler = sampler,
-            # shuffle=True,
             num_workers=int(num_workers),
             pin_memory=True,
-            # prefetch_factor=5,
             persistent_workers=True,
             drop_last=True,
         )

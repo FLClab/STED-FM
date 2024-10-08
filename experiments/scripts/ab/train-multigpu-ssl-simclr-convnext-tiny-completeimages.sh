@@ -3,11 +3,11 @@
 #SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --mem=0
-#SBATCH --nodes=8
+#SBATCH --nodes=16
 #SBATCH --gres=gpu:p100:2
 #SBATCH --tasks-per-node=2
 #SBATCH --cpus-per-task=16
-#SBATCH --array=0
+#SBATCH --array=0-4%1
 #SBATCH --output=/home/anbil106/logs/%x-%A_%a.out
 #SBATCH --mail-user=anbil106@ulaval.ca
 #SBATCH --mail-type=ALL
@@ -32,7 +32,6 @@ echo "% Copy file"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 cp "/project/def-flavielc/datasets/FLCDataset/dataset-full-images.tar" "${SLURM_TMPDIR}/dataset.tar"
-# srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 cp "/project/def-flavielc/datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done copy file"
@@ -44,10 +43,22 @@ echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_STED" --host 0.0.0.0 --load_fast false &
-srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "convnext-tiny" \
-                              --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
-                              --opts "batch_size 64 transform.gaussian_noise_std 0.1"
-                            #   --restore-from "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_STED/checkpoint-25000.pt" \
+
+CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_STED/result.pt"
+if [ -f $CKPT ]; then
+    echo "% Training from previous checkpoint: ${CKPT}"
+
+    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "convnext-tiny" \
+                                  --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
+                                  --opts "batch_size 32 datamodule.return_metadata False" \
+                                  --restore-from "${CKPT}"
+else
+    echo "% Training from scratch"
+
+    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "convnext-tiny" \
+                                  --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
+                                  --opts "batch_size 32 datamodule.return_metadata False"
+fi
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done training"

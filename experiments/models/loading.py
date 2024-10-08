@@ -61,7 +61,8 @@ def handle_str_state_dict(name: str, weights: Union[str, Enum]) -> dict:
         return {key.replace("backbone.", ""): values for key, values in state_dict["state_dict"].items() if "backbone" in key}
 
     elif "convnext" in name.lower():
-        return state_dict["state_dict"]["backbone"]
+        return {key.replace("backbone.", ""): values for key, values in state_dict["state_dict"].items() if "backbone" in key}
+        # return state_dict["state_dict"]["backbone"]
 
     else:
         raise NotImplementedError(f"Weights `{weights}` not supported.")

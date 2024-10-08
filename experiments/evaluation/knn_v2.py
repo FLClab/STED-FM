@@ -170,6 +170,7 @@ def main():
     _, valid_loader, test_loader = get_dataset(
         name=args.dataset,
         transform=None,
+        training=True,
         path=None,
         n_channels=n_channels,
         batch_size=64,

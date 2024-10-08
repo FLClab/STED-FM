@@ -1110,7 +1110,16 @@ class ArchiveDataset(Dataset):
         ".tar" : tarfile.open
     }
 
-    def __init__(self, archive_path, use_cache=False, max_cache_size=16e9, transform: Any=None, cache_system=None, world_size=1, rank=0, **kwargs):
+    def __init__(self, 
+                 archive_path, 
+                 use_cache=False, 
+                 max_cache_size=16e9, 
+                 transform: Any=None, 
+                 cache_system=None, 
+                 world_size=1, 
+                 rank=0, 
+                 **kwargs
+        ):
         
         super(ArchiveDataset, self).__init__()
 
@@ -1252,7 +1261,8 @@ class TarJUMPDataset(ArchiveDataset):
             transform: Callable = None,
             cache_system=None,
             world_size: int = 1,
-            rank: int = 0
+            rank: int = 0,
+            *args, **kwargs
     ) -> None:
         super(TarJUMPDataset, self).__init__(
             tar_path,
@@ -1307,7 +1317,10 @@ class TarFLCDataset(ArchiveDataset):
                  cache_system=None, 
                  return_metadata: bool=False,
                  world_size: int = 1,
-                 rank: int = 0) -> None:
+                 rank: int = 0,
+                 debug: bool = False,
+                 *args, **kwargs
+                 ) -> None:
         """
         Instantiates a new ``TarFLCDataset`` object.
 
@@ -1320,6 +1333,10 @@ class TarFLCDataset(ArchiveDataset):
             used to share a cache system across multiple workers using ``multiprocessing.Manager``.
         :param return_metadata: Whether to return metadata along with the image data.
         """
+        self.image_channels = image_channels
+        self.return_metadata = return_metadata
+        self.debug = debug        
+
         super(TarFLCDataset, self).__init__(
             tar_path, 
             use_cache=use_cache, 
@@ -1330,9 +1347,6 @@ class TarFLCDataset(ArchiveDataset):
             rank=rank
         )
         
-        self.image_channels = image_channels
-        self.return_metadata = return_metadata
-    
     def metadata(self):
         for idx in range(len(self.members)):
             data = self.get_data(idx)
@@ -1340,8 +1354,9 @@ class TarFLCDataset(ArchiveDataset):
             yield metadata
 
     def get_members(self):
-        # members = [self.get_reader().next() for _ in range(1000)]
-        # return list(sorted(members, key=lambda m: m.name))   
+        if self.debug:
+            members = [self.get_reader().next() for _ in range(5000)]
+            return list(sorted(members, key=lambda m: m.name))   
         return list(sorted(self.get_reader().getmembers(), key=lambda m: m.name))       
 
     def get_item_from_archive(self, member: tarfile.TarInfo):
@@ -1431,7 +1446,7 @@ class HPADataset(ArchiveDataset):
             return_metadata: bool=False,
             world_size: int = 1,
             rank: int = 0,
-            **kwargs
+            *args, **kwargs
     ) -> None :
         """
         Instantiates a new ``HPADataset`` object.

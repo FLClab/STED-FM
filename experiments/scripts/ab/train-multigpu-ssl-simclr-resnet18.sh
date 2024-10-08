@@ -3,7 +3,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --mem=0
-#SBATCH --nodes=2
+#SBATCH --nodes=4
 #SBATCH --gres=gpu:p100:2
 #SBATCH --tasks-per-node=2
 #SBATCH --cpus-per-task=16
@@ -44,24 +44,21 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-crops-1Msteps-multigpu" --host 0.0.0.0 --load_fast false &
 
-# CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-crops-1Msteps-multigpu/resnet18_STED/result.pt"
-# if [ -f $CKPT ]; then
-#     echo "% Training from previous checkpoint: ${CKPT}"
+CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-crops-1Msteps-multigpu/resnet18_STED/result.pt"
+if [ -f $CKPT ]; then
+    echo "% Training from previous checkpoint: ${CKPT}"
 
-#     srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet18" \
-#                                   --save-folder "./data/SSL/baselines/dataset-crops-1Msteps-multigpu" \
-#                                   --opts "batch_size 256" \
-#                                   --restore-from "${CKPT}"
-# else
-#     echo "% Training from scratch"
+    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet18" \
+                                  --save-folder "./data/SSL/baselines/dataset-crops-1Msteps-multigpu" \
+                                  --opts "batch_size 128" \
+                                  --restore-from "${CKPT}"
+else
+    echo "% Training from scratch"
 
-#     srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet18" \
-#                                   --save-folder "./data/SSL/baselines/dataset-crops-1Msteps-multigpu" \
-#                                   --opts "batch_size 256"
-# fi
-srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet18" \
-                                --save-folder "./data/SSL/baselines/dataset-crops-1Msteps-multigpu" \
-                                --opts "batch_size 256"
+    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet18" \
+                                  --save-folder "./data/SSL/baselines/dataset-crops-1Msteps-multigpu" \
+                                  --opts "batch_size 128"
+fi
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done training"

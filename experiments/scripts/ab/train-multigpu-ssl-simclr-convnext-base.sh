@@ -3,7 +3,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --mem=0
-#SBATCH --nodes=16
+#SBATCH --nodes=32
 #SBATCH --gres=gpu:p100:2
 #SBATCH --tasks-per-node=2
 #SBATCH --cpus-per-task=16
@@ -50,14 +50,14 @@ if [ -f $CKPT ]; then
 
     srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "convnext-base" \
                                   --save-folder "./data/SSL/baselines/dataset-crops-1Msteps-multigpu" \
-                                  --opts "batch_size 32" \
+                                  --opts "batch_size 16" \
                                   --restore-from "${CKPT}"
 else
     echo "% Training from scratch"
 
     srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "convnext-base" \
                                   --save-folder "./data/SSL/baselines/dataset-crops-1Msteps-multigpu" \
-                                  --opts "batch_size 32"
+                                  --opts "batch_size 16"
 fi
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
