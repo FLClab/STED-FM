@@ -165,9 +165,8 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
     for i in range(1, num_classes+1):
         acc = accuracies[i]
         print("Class {} accuracy = {:.3f}".format(
-            i, acc))
-        
-    plot_features(all_features, all_labels, savename=save_dir, **kwargs)
+            i, acc))  
+    # plot_features(all_features, all_labels, savename=save_dir, **kwargs)
 
     return loss_meter.avg, accuracies[0]
 
@@ -228,8 +227,8 @@ def main():
     )
     
     #num_epochs = 300
-    budget = len(train_loader.dataset) * 300
-    num_epochs = budget / (args.num_per_class * train_loader.dataset.num_classes)
+    budget = train_loader.dataset.original_size * 300
+    num_epochs = int(budget / (args.num_per_class * train_loader.dataset.num_classes))
     print(f"--- Training with {args.num_per_class} samples per class for {num_epochs} epochs ---")
 
     if probe == "from-scratch":

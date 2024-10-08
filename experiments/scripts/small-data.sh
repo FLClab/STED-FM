@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=3:00:00
+#SBATCH --time=72:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -8,7 +8,7 @@
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-23
+#SBATCH --array=0-119
 
 #### PARAMETERS
 # Use this directory venv, reusable across RUNs
@@ -35,12 +35,23 @@ NUMCLASSES=(
     500
 )
 
+SEEDS=(
+    42
+    43
+    44
+    45
+    46
+)
+
 params=()
 for weight in "${WEIGHTS[@]}"
 do
     for numclass in "${NUMCLASSES[@]}"
     do
-        params+=("$weight;$numclass")
+        for seed in "${SEEDS[@]}"
+        do
+            params+=("$weight;$numclass;$seed")
+        done
     done
 done
 
@@ -49,6 +60,7 @@ done
 IFS=';' read -r -a param <<< "${params[${SLURM_ARRAY_TASK_ID}]}"
 weight="${param[0]}"
 numclass="${param[1]}"
+seed="${param[2]}"
 
 # opts="batch_size 32"
 
@@ -58,9 +70,12 @@ cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started fine tuning in low data regime ($numclass samples per class)"
+echo $weight
+echo $numclass 
+echo $seed
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset optim --model mae-lightning-small --weights $weight --blocks "all" --num-per-class $numclass --seed 42
+python finetune_v2.py --dataset polymer-rings --model mae-lightning-small --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
