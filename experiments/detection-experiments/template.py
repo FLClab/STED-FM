@@ -4,7 +4,7 @@ import torch
 import random
 
 from matplotlib import pyplot
-from skimage import measure
+from skimage import measure, feature
 from skimage.transform import rescale
 from torch.utils.data import Sampler, Dataset, DataLoader
 from scipy.spatial import distance
@@ -194,10 +194,11 @@ class Template:
         for key, values in self.images.items():
 
             images = values["image"]
-            m, M = numpy.min(images, axis=(-2, -1), keepdims=True), numpy.max(images, axis=(-2, -1), keepdims=True)
-            # M = numpy.quantile(images, 0.995, axis=(-2, -1), keepdims=True)
-            images = (images - m) / (M - m + 1e-6)
-            images = numpy.clip(images, 0, 1)
+            if cfg.in_channels != 3:
+                m, M = numpy.min(images, axis=(-2, -1), keepdims=True), numpy.max(images, axis=(-2, -1), keepdims=True)
+                # M = numpy.quantile(images, 0.995, axis=(-2, -1), keepdims=True)
+                images = (images - m) / (M - m + 1e-6)
+                images = numpy.clip(images, 0, 1)
 
             labels = values["label"]
 
@@ -278,25 +279,33 @@ class Template:
         return random.choice(templates)["template"]
         # return numpy.mean(templates, axis=0)    
 
-    def _get_choice_template_vit(self, model, cfg, choice=5):
-        if self.class_id == 1:
-            choice = 224
-        elif self.class_id == 2:
-            choice = 5
+    def _get_choice_template_vit(self, model, cfg, choice=None):
+        if choice is None:
+            if self.class_id == 1:
+                choice = 224
+            elif self.class_id == 2:
+                choice = 5
         templates = self._get_all_templates_vit(model, cfg)
         return templates[choice]
     
-    def _get_choices_template_vit(self, model, cfg, choices=[5, 7, 9, 12, 16, 19, 30, 33, 34, 35, 36, 38, 43, 44, 45, 57, 60]):
+    def _get_choices_template_vit(self, model, cfg, choices=None):
         """
         CHANID = 0 -- Perforated -- 5, 7, 9, 12, 16, 19, 30, 33, 34, 35, 36, 38, 43, 44, 45, 57, 60
         CHANID = 0 -- Elongated -- 19, 42, 47, 90, 99, 147, 148, 173, 185, 186, 224, 225
         """
-        if self.class_id == 1:
-            choices = [5, 7, 9, 12, 16, 19, 30, 33, 34, 35, 36, 38, 43, 44, 45, 57, 60]
-        elif self.class_id == 2:
-            choices = [19, 42, 47, 90, 99, 147, 148, 173, 185, 186, 224, 225]
+        if choices is None:
+            if self.class_id == 1:
+                choices = [19, 42, 47, 90, 99, 147, 148, 173, 185, 186, 224, 225]
+            elif self.class_id == 2:
+                choices = [5, 7, 9, 12, 16, 19, 30, 33, 34, 35, 36, 38, 43, 44, 45, 57, 60]
+
         templates = self._get_all_templates_vit(model, cfg)
-        return numpy.mean([templates[choice]["template"] for choice in choices], axis=0)
+        return {
+            "image-template" : numpy.stack([templates[choice]["image-template"] for choice in choices], axis=0),
+            "mask-template" : numpy.stack([templates[choice]["mask-template"] for choice in choices], axis=0),
+            "template" : numpy.mean([templates[choice]["template"] for choice in choices], axis=0),
+        }
+        # return numpy.mean([templates[choice]["template"] for choice in choices], axis=0)
     
     def _get_avg_template_convnet(self, model):
             raise NotImplementedError("Not yet implemented")
@@ -322,16 +331,17 @@ class Query:
 
         for key, values in self.images.items():
             images = values["image"]
-            m, M = numpy.min(images, axis=(-2, -1), keepdims=True), numpy.max(images, axis=(-2, -1), keepdims=True)
-            # M = numpy.quantile(images, 0.995, axis=(-2, -1), keepdims=True)
-            images = (images - m) / (M - m + 1e-6)
-            images = numpy.clip(images, 0, 1)
+
+            if cfg.in_channels != 3:
+                m, M = numpy.min(images, axis=(-2, -1), keepdims=True), numpy.max(images, axis=(-2, -1), keepdims=True)
+                images = (images - m) / (M - m + 1e-6)
+                images = numpy.clip(images, 0, 1)
 
             labels = values["label"]
 
             for image, label in zip(images[[CHANID]], labels[[CHANID]]):
 
-                dataset = ImageDataset(image, label, in_channels=cfg.in_channels, size=self.size, step=int(self.size * 0.25))
+                dataset = ImageDataset(image, label, in_channels=cfg.in_channels, size=self.size, step=int(self.size * 0.1))
                 sampler = OnTheFlySampler(dataset)
                 loader = DataLoader(dataset, batch_size=cfg.batch_size, sampler=sampler)
                 builder = PredictionBuilder(image.shape, self.size, num_classes=1)
@@ -356,3 +366,29 @@ class Query:
 
     def _query_image_convnet(self, template, model, cfg):
         raise NotImplementedError("Not yet implemented")
+    
+def sample_topk(image, prediction, shape=(80, 80), k=5):
+    """
+    Sample the top-k predictions from the prediction map
+
+    :param image: The input image to sample from
+    :param prediction: The prediction map
+    :param shape: The shape of the crop
+    :param k: The number of crops to sample
+
+    :returns : A list of crops and their corresponding coordinates
+    """
+    if isinstance(shape, (int, float)):
+        shape = (shape, shape)
+
+    coords = feature.peak_local_max(prediction, min_distance=shape[0]//2, num_peaks=k, exclude_border=shape)
+    crops = []
+    for coord in coords:
+        j, i = coord
+        crop = image[j - shape[0]//2 : j + shape[0]//2, i - shape[1]//2 : i + shape[1]//2]
+        crops.append(crop)
+
+    intensity = prediction[coords[:, 0], coords[:, 1]]
+    argsort = numpy.argsort(intensity)[::-1]
+
+    return [crops[arg] for arg in argsort], [coords[arg] for arg in argsort]
