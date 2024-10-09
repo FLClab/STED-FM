@@ -63,10 +63,9 @@ class SimCLRTransformConfig(Configuration):
     normalize : bool = False
     gaussian_noise_prob : float = 0.5
     gaussian_noise_mu: float = 0.
-    gaussian_noise_std: float = 0.25
+    gaussian_noise_std: float = 0.05
     poisson_noise_prob : float = 0.5
-    poisson_noise_lambda : float = 0.5
-    poisson_noise_prob : float = 0.5    
+    poisson_noise_lambda : float = 0.5  
 
 class DataModuleConfig(Configuration):
 
