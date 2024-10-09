@@ -46,6 +46,11 @@ class Configuration:
         cfg.from_dict(d)
 
         return cfg
+    
+    def get(self, key: str, default: Any = None) -> Any:
+        if key in self.__dict__:
+            return self.__dict__[key]
+        return default
 
     def __getitem__(self, key: str) -> Any:
         return self.__dict__[key]

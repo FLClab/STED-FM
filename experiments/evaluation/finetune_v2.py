@@ -264,7 +264,7 @@ def main():
     train_loss, val_loss, val_acc, lrates = [], [], [], []
     save_best_model = SaveBestModel(
         save_dir=f"{model_path}",
-        model_name=f"{probe}_{args.num_per_class}"
+        model_name=f"{probe}_{args.num_per_class}_{args.seed}"
     )
 
     # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=0)
@@ -290,7 +290,7 @@ def main():
             criterion=criterion,
             epoch=epoch,
             device=device,
-            save_dir = f"{model_path}/{probe}_pca.png",
+            save_dir = f"{save_best_model.save_dir}/{save_best_model.model_name}_pca.png",
             classes = train_loader.dataset.classes
         )
 
@@ -315,7 +315,7 @@ def main():
             val_loss=val_loss,
             val_acc=val_acc,
             lrates=lrates,
-            save_dir=f"{model_path}/{probe}-{args.num_per_class}_training-curves.png"
+            save_dir=f"{save_best_model.save_dir}/{save_best_model.model_name}-{args.num_per_class}_training-curves.png"
         )
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
 

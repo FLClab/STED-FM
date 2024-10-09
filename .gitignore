@@ -2,6 +2,11 @@ experiments/figures/
 logs/
 *.pdf
 *.png
+*.tif
+experiments/detection-experiments/**/*.pkl
+experiments/detection-experiments/application/users.json
+experiments/autonomous-experiments/**/*.pkl
+
 # data symlink
 experiments/simclr-experiments/data
 experiments/simclr-experiments/panels

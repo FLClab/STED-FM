@@ -40,7 +40,7 @@ def get_dataset(name: str, path: str, **kwargs):
             classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
             **kwargs
         )
-    elif name == "hpa":
+    elif name == "HPA":
         dataset = HPADataset(path, **kwargs)
     elif name == "factin":
         dataset = CreateFActinDataset(
@@ -475,6 +475,8 @@ class OptimDataset(Dataset):
             apply_filter: bool = False, 
             classes: List = ['actin', 'tubulin', 'CaMKII', 'PSD95'],
             n_channels: int = 1,
+            min_quality_score: float = 0.70,
+            *args, **kwargs
     ) -> None:
         self.data_folder = data_folder
         self.num_samples = num_samples
@@ -486,6 +488,7 @@ class OptimDataset(Dataset):
         self.class_files = {}
         self.samples = {}
         self.num_classes = len(classes)
+        self.min_quality_score = min_quality_score
 
         self.labels = []
         original_size = 0
@@ -498,14 +501,13 @@ class OptimDataset(Dataset):
         self.original_size = original_size
 
     def _filter_files(self, class_folder):
-        SCORE = 0.70
         files = glob.glob(os.path.join(class_folder, "**/*.npz"), recursive=True)
         filtered_files = []
         for file in files:
             match = re.search(r"-(\d+\.\d+)\.npz", file)
             if match:
                 quality_score = float(match.group(1))
-                if not self.apply_filter or quality_score >= SCORE:
+                if not self.apply_filter or quality_score >= self.min_quality_score:
                     filtered_files.append(file)
         return filtered_files
 
@@ -1120,7 +1122,16 @@ class ArchiveDataset(Dataset):
         ".tar" : tarfile.open
     }
 
-    def __init__(self, archive_path, use_cache=False, max_cache_size=16e9, transform: Any=None, cache_system=None, world_size=1, rank=0, **kwargs):
+    def __init__(self, 
+                 archive_path, 
+                 use_cache=False, 
+                 max_cache_size=16e9, 
+                 transform: Any=None, 
+                 cache_system=None, 
+                 world_size=1, 
+                 rank=0, 
+                 **kwargs
+        ):
         
         super(ArchiveDataset, self).__init__()
 
@@ -1209,7 +1220,7 @@ class ArchiveDataset(Dataset):
             if n % 1000 == 0:
                 worker = get_worker_info()
                 worker = worker.id if worker else None
-                print(f"Current cache (worker: {worker} | rank: {self.rank}): {n}/{len(indices)} ({self.__cache_size * 1e-9:0.2f}G)")   
+                print(f"Current cache (worker: {worker} | rank: {self.rank}): {n}/{len(indices)} ({self.__cache_size * 1e-9:0.2f}G/{self.__max_cache_size * 1e-9:0.2f}G)")   
 
     def __setup_multiprocessing(self, members : list):
         """
@@ -1222,7 +1233,10 @@ class ArchiveDataset(Dataset):
         if self.world_size > 1:
             num_members = len(members)
             num_members_per_gpu = num_members // self.world_size
-            members = members[self.rank * num_members_per_gpu : (self.rank + 1) * num_members_per_gpu]
+
+            # members = members[self.rank * num_members_per_gpu : (self.rank + 1) * num_members_per_gpu]
+            # Since the members are sorted, it makes more sense to take every `world_size` items
+            members = members[self.rank:num_members_per_gpu*self.world_size:self.world_size]
         return members
 
     def __len__(self):
@@ -1259,7 +1273,8 @@ class TarJUMPDataset(ArchiveDataset):
             transform: Callable = None,
             cache_system=None,
             world_size: int = 1,
-            rank: int = 0
+            rank: int = 0,
+            *args, **kwargs
     ) -> None:
         super(TarJUMPDataset, self).__init__(
             tar_path,
@@ -1288,11 +1303,17 @@ class TarJUMPDataset(ArchiveDataset):
         img = data["image"]
         img = img / 255. 
         if self.transform is not None:
-            img = self.transform(img).float()
+            # This assumes that there is a conversion to torch Tensor in the given transform
+            img = self.transform(img)
+            if isinstance(img, list):
+                img = [x.float() for x in img]
+            else:
+                img = img.float()
         else:
             if img.ndim == 2:
                 img = img[np.newaxis]
             img = torch.tensor(img, dtype=torch.float32)
+
         return img
             
 
@@ -1308,7 +1329,10 @@ class TarFLCDataset(ArchiveDataset):
                  cache_system=None, 
                  return_metadata: bool=False,
                  world_size: int = 1,
-                 rank: int = 0) -> None:
+                 rank: int = 0,
+                 debug: bool = False,
+                 *args, **kwargs
+                 ) -> None:
         """
         Instantiates a new ``TarFLCDataset`` object.
 
@@ -1321,6 +1345,10 @@ class TarFLCDataset(ArchiveDataset):
             used to share a cache system across multiple workers using ``multiprocessing.Manager``.
         :param return_metadata: Whether to return metadata along with the image data.
         """
+        self.image_channels = image_channels
+        self.return_metadata = return_metadata
+        self.debug = debug        
+
         super(TarFLCDataset, self).__init__(
             tar_path, 
             use_cache=use_cache, 
@@ -1331,9 +1359,6 @@ class TarFLCDataset(ArchiveDataset):
             rank=rank
         )
         
-        self.image_channels = image_channels
-        self.return_metadata = return_metadata
-    
     def metadata(self):
         for idx in range(len(self.members)):
             data = self.get_data(idx)
@@ -1341,7 +1366,10 @@ class TarFLCDataset(ArchiveDataset):
             yield metadata
 
     def get_members(self):
-        return list(sorted(self.get_reader().getmembers(), key=lambda m: m.name))         
+        if self.debug:
+            members = [self.get_reader().next() for _ in range(5000)]
+            return list(sorted(members, key=lambda m: m.name))   
+        return list(sorted(self.get_reader().getmembers(), key=lambda m: m.name))       
 
     def get_item_from_archive(self, member: tarfile.TarInfo):
         """
@@ -1372,7 +1400,7 @@ class TarFLCDataset(ArchiveDataset):
         data = self.get_data(idx)
         
         img = data["image"] # assuming 'img' key
-        metadata = data["metadata"]
+        metadata = data["metadata"].item()
         # if img.size != 224 * 224:
         #     print(img.shape)
         #     print(metadata)
@@ -1392,9 +1420,28 @@ class TarFLCDataset(ArchiveDataset):
             img = torch.tensor(img, dtype=torch.float32)
 
         if self.return_metadata:
+            # Ensures all keys are not None
+            metadata = ensure_values(metadata)
             return img, metadata
         return img # and whatever other metadata we like
     
+def ensure_values(obj):
+    """
+    Ensures that the values from a dict match the requirements
+    of the default collate function from torch
+    """
+    for key, value in obj.items():
+        if isinstance(value, dict):
+            # Recursively ensure values on dictionaries
+            obj[key] = ensure_values(value)
+        elif isinstance(value, (str, float, int)):
+            # Converts strings to list of strings
+            obj[key] = str(value)
+        elif value is None:
+            # Converts None values to list of strings
+            obj[key] = "None"
+    return obj
+
 class HPADataset(ArchiveDataset):
     """
     Dataset class for loading and processing image data from a zip file.
@@ -1411,7 +1458,7 @@ class HPADataset(ArchiveDataset):
             return_metadata: bool=False,
             world_size: int = 1,
             rank: int = 0,
-            **kwargs
+            *args, **kwargs
     ) -> None :
         """
         Instantiates a new ``HPADataset`` object.

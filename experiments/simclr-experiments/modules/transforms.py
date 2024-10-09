@@ -217,7 +217,7 @@ class SimCLRViewTransform:
 
         """
         transformed: Tensor = self.transform(image)
-        return transformed
+        return torch.clamp(transformed, 0, 1)
     
 class MicroscopyColorJitter(torch.nn.Module):
     def __init__(self, 
@@ -244,11 +244,11 @@ class MicroscopyColorJitter(torch.nn.Module):
 
     def brightness_adjust(self, tensor: Tensor) -> Tensor:
         scale = random.uniform(*self.brightness)
-        return torch.clamp_(tensor * (1 + scale), 0, 1)
+        return torch.clamp(tensor * (1 + scale), 0, 1)
     
     def gamma_adjust(self, tensor: Tensor) -> Tensor:
         gamma = random.uniform(*self.gamma)
-        return torch.clamp_(tensor ** (1 + gamma), 0, 1)    
+        return torch.clamp(tensor ** (1 + gamma), 0, 1)    
 
     def forward(self, tensor: Tensor) -> Tensor:
         options = list(range(len(self.options)))

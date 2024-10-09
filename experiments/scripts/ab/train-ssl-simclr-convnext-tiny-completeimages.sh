@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+#
+#SBATCH --time=24:00:00
+#SBATCH --account=def-flavielc
+#SBATCH --mem=64G
+#SBATCH --gres=gpu:p100:1
+#SBATCH --tasks-per-node=1
+#SBATCH --cpus-per-task=16
+#SBATCH --array=0
+#SBATCH --output=/home/anbil106/logs/%x-%A_%a.out
+#SBATCH --mail-user=anbil106@ulaval.ca
+#SBATCH --mail-type=ALL
+#
+
+export TORCH_NCCL_BLOCKING_WAIT=1 #Pytorch Lightning uses the NCCL backend for inter-GPU communication by default. Set this variable to avoid timeout errors.
+# export MASTER_ADDR=$(hostname)
+# export MASTER_PORT=42424
+
+#### PARAMETERS
+
+# Use this directory venv, reusable across RUNs
+module load python/3.10 scipy-stack/2023b
+VENV_DIR=${HOME}/venvs/ssl
+source $VENV_DIR/bin/activate
+
+# Moves to working directory
+cd ${HOME}/Documents/flc-dataset/experiments/simclr-experiments
+
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Copy file"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+cp "/project/def-flavielc/datasets/FLCDataset/dataset-full-images.tar" "${SLURM_TMPDIR}/dataset.tar"
+# srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 cp "/project/def-flavielc/datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
+
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Done copy file"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+# Launch training 
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Started training"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-singlegpu/convnext-tiny_STED" --host 0.0.0.0 --load_fast false &
+srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "convnext-tiny" \
+                              --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-singlegpu" \
+                              --opts "batch_size 64"
+                            #   --restore-from "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_STED/checkpoint-25000.pt" \
+
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Done training"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
