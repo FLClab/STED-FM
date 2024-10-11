@@ -20,6 +20,11 @@ parser.add_argument("--model", type=str, default="mae-lightning-small")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 args = parser.parse_args()
 
+def set_seeds():
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    torch.cuda.manual_seed(args.seed)
+
 def get_save_folder() -> str: 
     if args.weights is None:
         return "from-scratch"
@@ -49,6 +54,9 @@ def show_images(images: np.ndarray, pca_images: list, labels):
         img = torch.tensor(img, dtype=torch.float32)
         img = img.view(1, 3, 14, 14)
         img = F.interpolate(img, (224, 224), mode='bilinear').squeeze(0).cpu().data.numpy()
+
+        if og.shape[0] == 3:
+            og = og[0]
         # important to convert to numpy and then use np.transpose instead of staying as torch and using torch.view
         # funny business happening when using a combination of torch.view and F.interpolate --> does not give desired RGB image
         img = np.transpose(img, axes=(1, 2, 0)) 
@@ -65,6 +73,7 @@ def show_images(images: np.ndarray, pca_images: list, labels):
 
 def main():
     SAVENAME = get_save_folder()
+    set_seeds()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
     n_channels = 3 if SAVENAME == "ImageNet" else 1
@@ -102,7 +111,11 @@ def main():
             embed = model.forward_features(img).squeeze(0).cpu().numpy()
             patch_embeddings.append(embed)
             labels.append(label)
-            og_images.append(img.squeeze(0).cpu().numpy())
+            if n_channels == 3:
+                og_images.append(img.cpu().numpy())
+            else:
+                og_images.append(img.squeeze(0).cpu().numpy())
+            
 
     patch_embeddings = np.concatenate(patch_embeddings, axis=0)
     og_images = np.concatenate(og_images, axis=0)
