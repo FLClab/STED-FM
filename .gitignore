@@ -1,4 +1,5 @@
 experiments/figures/
+experiments/interpretability-experiments/TiffWrapper/
 logs/
 *.pdf
 *.png
