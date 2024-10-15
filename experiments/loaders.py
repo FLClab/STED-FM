@@ -224,7 +224,7 @@ def get_synaptic_proteins_dataset(
   
 
 def get_optim_dataset(path: str, training: bool = False, batch_size=256, num_samples=None, *args, **kwargs):
-    print(f"TESTING --> {num_samples} samples per class")
+    # print(f"TESTING --> {num_samples} samples per class")
     samples_dict = {
         "actin": num_samples,
         "tubulin": num_samples,
