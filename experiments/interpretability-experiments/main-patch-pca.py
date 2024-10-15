@@ -7,10 +7,12 @@ import sys
 import argparse
 import torch.nn.functional as F
 from sklearn.preprocessing import MinMaxScaler
+from segmentation_datasets import get_dataset as get_actin_dataset
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH
 from loaders import get_dataset 
 from model_builder import get_pretrained_model_v2
+sys.path.insert(0, "../segmentation-experiments")
 
 
 parser = argparse.ArgumentParser()
@@ -68,7 +70,7 @@ def show_images(images: np.ndarray, pca_images: list, labels):
         ax.set_title(label)
         ax.axis("off")
         ax2.axis("off")
-        fig.savefig(f"./patch-pca-examples/{args.weights}-pca-image-{i}.png", dpi=1200, bbox_inches="tight")
+        fig.savefig(f"./patch-pca-examples/{args.dataset}-{args.weights}-pca-image-{i}.png", dpi=1200, bbox_inches="tight")
         plt.close(fig)
 
 def main():
@@ -77,15 +79,6 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
     n_channels = 3 if SAVENAME == "ImageNet" else 1
-    _, _, test_loader = get_dataset(name=args.dataset, training=True, n_channels=n_channels)
-    test_dataset = test_loader.dataset 
-    labels = test_dataset.labels 
-    uniques = np.unique(labels)
-    indices = []
-    for u in uniques:
-        cls_indices = np.where(labels == u)[0]
-        cls_indices = np.random.choice(cls_indices, size=5, replace=False)
-        indices.extend(cls_indices)
 
     model, cfg = get_pretrained_model_v2(
         name=args.model,
@@ -100,21 +93,57 @@ def main():
         num_classes=4
     )
 
-    patch_embeddings = []
-    og_images = []
-    labels = []
-    with torch.no_grad():
-        for i in indices:
-            img, data_dict = test_dataset[i]
-            label = data_dict["label"]
-            img = img.unsqueeze(0) # B = 1
-            embed = model.forward_features(img).squeeze(0).cpu().numpy()
-            patch_embeddings.append(embed)
-            labels.append(label)
-            if n_channels == 3:
-                og_images.append(img.cpu().numpy())
-            else:
-                og_images.append(img.squeeze(0).cpu().numpy())
+    if args.dataset == "factin":
+        _, _, test_dataset = get_actin_dataset(name=args.dataset, cfg=cfg)
+        indices = np.arange(len(test_dataset))
+        np.random.shuffle(indices)
+        stop = 20
+        counter = 0
+        patch_embeddings = []
+        og_images = []
+        labels = [] # dummy
+        with torch.no_grad():
+            for i in indices:
+                if counter >= stop:
+                    break
+                img, mask = test_dataset[i]
+                if np.count_nonzero(mask[0]) and np.count_nonzero(mask[1]):
+                    counter += 1
+                    print(f"{counter}/{stop}")
+                    img = img.unsqueeze(0)
+                    embed = model.forward_features(img).squeeze(0).cpu().numpy()
+                    patch_embeddings.append(embed)
+                    labels.append(0)
+                    if n_channels == 3:
+                        og_images.append(img.cpu().numpy())
+                    else:
+                        og_images.append(img.squeeze(0).cpu().numpy())
+    else:
+        _, _, test_loader = get_dataset(name=args.dataset, training=True, n_channels=n_channels)
+        test_dataset = test_loader.dataset 
+        labels = test_dataset.labels 
+        uniques = np.unique(labels)
+        indices = []
+        for u in uniques:
+            cls_indices = np.where(labels == u)[0]
+            cls_indices = np.random.choice(cls_indices, size=5, replace=False)
+            indices.extend(cls_indices)
+
+        patch_embeddings = []
+        og_images = []
+        labels = []
+        with torch.no_grad():
+            for i in indices:
+                img, data_dict = test_dataset[i]
+                label = data_dict["label"]
+                img = img.unsqueeze(0) # B = 1
+                embed = model.forward_features(img).squeeze(0).cpu().numpy()
+                patch_embeddings.append(embed)
+                labels.append(label)
+                if n_channels == 3:
+                    og_images.append(img.cpu().numpy())
+                else:
+                    og_images.append(img.squeeze(0).cpu().numpy())
             
 
     patch_embeddings = np.concatenate(patch_embeddings, axis=0)
