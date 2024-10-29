@@ -243,8 +243,10 @@ class UNet(nn.Module):
     def __init__(
         self,
         dim: int ,
+        num_classes: Optional[int] = None,
         init_dim: int = None,
         out_dim: int = None,
+        cond_dim: int = 384,
         dim_mults: Tuple = (1, 2, 4, 8),
         channels: int = 2,
         self_condition: bool = False,
@@ -257,13 +259,15 @@ class UNet(nn.Module):
         attn_dim_head: int = 8,
         attn_heads: int = 4,
         full_attn: bool = None,    # defaults to full attention only for inner most layer
-        flash_attn: bool = False
+        flash_attn: bool = False,
+        condition_type: str = None,
     ):
         super().__init__()
 
         # determine dimensions
 
         self.channels = channels
+        self.condition_type = condition_type
         self.self_condition = self_condition
         input_channels = channels * (2 if self_condition else 1)
 
@@ -289,6 +293,13 @@ class UNet(nn.Module):
         self.time_mlp = nn.Sequential(
             sinu_pos_emb,
             nn.Linear(fourier_dim, time_dim),
+            nn.GELU(),
+            nn.Linear(time_dim, time_dim)
+        )
+        self.label_embed = nn.Embedding(num_classes, time_dim)
+
+        self.cond_mlp = nn.Sequential(
+            nn.Linear(cond_dim, time_dim),
             nn.GELU(),
             nn.Linear(time_dim, time_dim)
         )
@@ -355,7 +366,7 @@ class UNet(nn.Module):
     def downsample_factor(self):
         return 2 ** (len(self.downs) - 1)
 
-    def forward(self, x: torch.Tensor, time: torch.Tensor, x_self_cond: torch.Tensor = None):
+    def forward(self, x: torch.Tensor, time: torch.Tensor, cond: torch.Tensor = None, x_self_cond: torch.Tensor = None):
         assert all([divisible_by(d, self.downsample_factor) for d in x.shape[-2:]]), f'your input dimensions {x.shape[-2:]} need to be divisible by {self.downsample_factor}, given the unet'
 
         if self.self_condition:
@@ -365,11 +376,14 @@ class UNet(nn.Module):
         x = self.init_conv(x)
         r = x.clone()
 
-        t = self.time_mlp(time)
-
-        # TODO: add condition embedding to time embedding
-        # If condition is same size as input size, just concatenate the two along the channel dimensions
-        # and make sure that the denoising model expects the correct number of channels
+        t = self.time_mlp(time) 
+        if cond is not None:
+            if not isinstance(cond, torch.Tensor):
+                cond = torch.tensor(cond, dtype=torch.float32)
+            if self.condition_type == "class":
+                t = t + self.label_embed(cond)
+            elif self.condition_type == "latent":
+                t = t + self.cond_mlp(cond)
 
         h = []
 

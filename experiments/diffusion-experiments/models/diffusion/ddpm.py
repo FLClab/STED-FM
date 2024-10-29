@@ -164,6 +164,7 @@ class DDPM(nn.Module):
         model_mean_type: ModelMeanType = ModelMeanType.EPSILON,
         loss_type: LossType = LossType.MSE,
         rescale_timesteps: bool = False,
+        condition_type: Optional[str] = None,
     ) -> None:
         super().__init__()
         self.rescale_timesteps = rescale_timesteps
@@ -171,6 +172,7 @@ class DDPM(nn.Module):
         self.model_mean_type = model_mean_type 
         self.loss_type = loss_type
         self.model = denoising_model 
+        self.latent_encoder = None # TODO
         self.T = timesteps 
         self.channels = self.model.channels 
         betas = get_named_beta_schedule(schedule_name=beta_schedule, num_diffusion_timesteps=self.T)
@@ -250,7 +252,7 @@ class DDPM(nn.Module):
         return posterior_mean, posterior_variance, posterior_log_variance_clipped
 
     def p_mean_variance(
-        self, x, t, clip_denoised=True, denoised_fn=None, model_kwargs=None
+        self, x, t, clip_denoised=True, denoised_fn=None, model_kwargs=None, cond=None
     ):
         """
         Apply the model to get p(x_{t-1} | x_t), as well as a prediction of
@@ -261,7 +263,7 @@ class DDPM(nn.Module):
 
         B, C = x.shape[:2]
         assert t.shape == (B,)
-        model_output = self.model(x, self._scale_timesteps(t), **model_kwargs)
+        model_output = self.model(x, self._scale_timesteps(t), cond=cond, **model_kwargs)
 
         model_variance, model_log_variance = {
             # for fixedlarge, we set the initial (log-)variance like so
@@ -313,6 +315,7 @@ class DDPM(nn.Module):
         clip_denoised: bool = True,
         denoised_fn: Optional[Callable] = None,
         model_kwargs=None,
+        cond=None
     ) -> torch.Tensor:
         """
         Sample x_{t-1}
@@ -322,7 +325,8 @@ class DDPM(nn.Module):
             t=t,
             clip_denoised=clip_denoised,
             denoised_fn=denoised_fn,
-            model_kwargs=model_kwargs
+            model_kwargs=model_kwargs,
+            cond=cond,
         )
         noise = torch.randn_like(x)
         nonzero_mask = (
@@ -416,6 +420,7 @@ class DDPM(nn.Module):
         model_kwargs=None,
         device=None,
         progress=False,
+        cond=None,
     ):
         """
         Generate samples from the model.
@@ -429,6 +434,7 @@ class DDPM(nn.Module):
             model_kwargs=model_kwargs,
             device=device,
             progress=progress,
+            cond=cond,
         ):
             final = sample
         return final["sample"]
@@ -442,6 +448,7 @@ class DDPM(nn.Module):
         model_kwargs=None,
         device=None,
         progress=False,
+        cond=None
     ):
         """
         Generate samples from the model and yield intermediate samples from
@@ -471,6 +478,7 @@ class DDPM(nn.Module):
                     clip_denoised=clip_denoised,
                     denoised_fn=denoised_fn,
                     model_kwargs=model_kwargs,
+                    cond=cond,
                 )
                 yield out
                 img = out["sample"]
@@ -509,7 +517,7 @@ class DDPM(nn.Module):
         output = torch.where((t == 0), decoder_nll, kl)
         return {"output": output, "pred_xstart": out["pred_xstart"]}
 
-    def forward(self, x_0, t, model_kwargs=None, noise=None, verbose=True):
+    def forward(self, x_0, t, cond: torch.Tensor = None, model_kwargs=None, noise=None, verbose=True):
         """
         Compute training losses for a single timestep.
         """
@@ -519,6 +527,7 @@ class DDPM(nn.Module):
             noise = torch.randn_like(x_0)
         x_t = self.q_sample(x_0, t, noise=noise)
 
+        # latent_encoding = self.latent_encoder(x0)
         terms = {}
 
         if self.loss_type == LossType.KL or self.loss_type == LossType.RESCALED_KL:
@@ -532,7 +541,7 @@ class DDPM(nn.Module):
             if self.loss_type == LossType.RESCALED_KL:
                 terms["loss"] *= self.num_timesteps
         elif self.loss_type == LossType.MSE or self.loss_type == LossType.RESCALED_MSE:
-            model_output = self.model(x_t, self._scale_timesteps(t), **model_kwargs)
+            model_output = self.model(x_t, self._scale_timesteps(t), cond=cond, **model_kwargs)
 
             if self.model_var_type in [
                 ModelVarType.LEARNED,
