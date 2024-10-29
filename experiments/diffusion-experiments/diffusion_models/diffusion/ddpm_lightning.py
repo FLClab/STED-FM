@@ -10,6 +10,7 @@ from typing import List, Callable, Optional, Dict, List
 from .denoising.unet import UNet
 import copy
 from lightning.pytorch.core import LightningModule
+import sys 
 
 class_dict = {
     "FUS": 0,
@@ -193,14 +194,19 @@ class DDPM(LightningModule):
         loss_type: LossType = LossType.MSE,
         rescale_timesteps: bool = False,
         condition_type: Optional[str] = None,
+        latent_encoder: Optional[nn.Module] = None
     ) -> None:
         super().__init__()
+        self.condition_type = condition_type
         self.rescale_timesteps = rescale_timesteps
         self.model_var_type = model_var_type
         self.model_mean_type = model_mean_type 
         self.loss_type = loss_type
         self.model = denoising_model 
-        self.latent_encoder = None # TODO
+        self.latent_encoder = latent_encoder
+        if self.latent_encoder is not None:
+            for p in self.latent_encoder.parameters():
+                p.requires_grad = False
         self.T = timesteps 
         self.channels = self.model.channels 
         betas = get_named_beta_schedule(schedule_name=beta_schedule, num_diffusion_timesteps=self.T)
@@ -562,11 +568,18 @@ class DDPM(LightningModule):
     def training_step(self, batch, batch_idx):
         imgs, metadata = batch 
         device = imgs.device
+        self.imgs = imgs
         protein_ids = metadata["protein-id"]
-        cls_labels = [class_dict[key] for key in protein_ids]
-        cls_labels = torch.tensor(cls_labels, dtype=torch.int8).to(device).long()
+        if self.condition_type == "class":
+            cls_labels = [class_dict[key] for key in protein_ids]
+            cond = torch.tensor(cls_labels, dtype=torch.int8).to(device).long()
+        elif self.condition_type == "latent":
+            latent_code = self.latent_encoder.forward_features(imgs) # Assuming latent encoder is a ViT and the global pooling method is set to either 'avg' or 'token'
+            cond = latent_code
+        else: 
+            cond = None
         t = torch.randint(0, 1000, (imgs.shape[0],), device=device).long()
-        losses, model_outputs = self(x_0=imgs, t=t, cond=cls_labels)
+        losses, model_outputs = self(x_0=imgs, t=t, cond=cond)
         loss = losses["loss"].mean()
         return loss
 
@@ -574,8 +587,6 @@ class DDPM(LightningModule):
         optimizer = torch.optim.Adam(self.parameters(), lr=2e-4, betas=(0.9, 0.99))
         return [optimizer]
  
-
-
     def _scale_timesteps(self, t):
         if self.rescale_timesteps:
             return t.float() * (1000.0 / self.num_timesteps)
