@@ -43,7 +43,7 @@ class ReconstructionCallback(Callback):
         pl_module.eval()
         with torch.no_grad():
             conditions = pl_module.latent_encoder.forward_features(imgs)
-            samples = pl_module.p_sample_loop(shape=imgs.shape, con=conditions, progress=True)
+            samples = pl_module.p_sample_loop(shape=imgs.shape, cond=conditions, progress=True)
             for i in range(samples.shape[0]):
                 img = imgs[i].squeeze().detach().cpu().numpy()
                 sample = samples[i].squeeze().detach().cpu().numpy()# .reshape(64, 64, 1)
