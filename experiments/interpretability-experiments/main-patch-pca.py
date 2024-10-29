@@ -8,6 +8,7 @@ import argparse
 import torch.nn.functional as F
 from sklearn.preprocessing import MinMaxScaler
 from segmentation_datasets import get_dataset as get_actin_dataset
+import os
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH
 from loaders import get_dataset 
@@ -50,6 +51,10 @@ def compute_pca(data: np.ndarray, labels: np.ndarray) -> None:
     return pca_per_image, labels
 
 def show_images(images: np.ndarray, pca_images: list, labels):
+    if not os.path.exists(f"./patch-pca-examples/{args.dataset}"):
+        print(f"--- Creating directory for {args.dataset} results ---")
+        os.mkdir(f"./patch-pca-examples/{args.dataset}")
+
     for i, (og, img) in enumerate(zip(images, pca_images)):
         label = labels[i]
         img = MinMaxScaler().fit_transform(img).T
@@ -70,7 +75,7 @@ def show_images(images: np.ndarray, pca_images: list, labels):
         ax.set_title(label)
         ax.axis("off")
         ax2.axis("off")
-        fig.savefig(f"./patch-pca-examples/{args.dataset}-{args.weights}-pca-image-{i}.png", dpi=1200, bbox_inches="tight")
+        fig.savefig(f"./patch-pca-examples/{args.dataset}/{args.weights}-pca-image-{i}.png", dpi=1200, bbox_inches="tight")
         plt.close(fig)
 
 def main():
