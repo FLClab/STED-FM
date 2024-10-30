@@ -14,6 +14,8 @@ from typing import List
 from torch.utils.data import DataLoader
 from timm.models.vision_transformer import default_cfgs
 from datasets import get_dataset
+import io
+import tarfile
 
 PATH = "/home/frbea320/scratch/Datasets/SynapticProteins/dataset"
 OUTPATH = "/home/frbea320/scratch/Datasets/FLCDataset/TheresaProteins"
@@ -38,23 +40,22 @@ condition_dict = {
 }
 
 def main():
-    device = torch.device("cpu")
-    dataset = get_dataset(name="JUMP", path="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/jump.tar")
-    # dataloader = DataLoader(dataset=dataset, batch_size=256, drop_last=False, num_workers=1, shuffle=True)
+    all_classes = []
+    with tarfile.open("/home/frbea320/projects/def-flavielc/datasets/FLCDataset/dataset-250k.tar", "r") as handle:
+        members = handle.getmembers()
+        for m in members:
+            buffer = io.BytesIO()
+            buffer.write(handle.extractfile(m).read())
+            buffer.seek(0)
+            data = np.load(buffer, allow_pickle=True)
+            metadata = data["metadata"][()]
+            protein_id = metadata["protein-id"]
+            all_classes.append(protein_id)
+    uniques, counts = np.unique(all_classes, return_counts=True)
+    for u, c in zip(uniques, counts):
+        print(f"{u}: {c}")
+            
 
-    for i in range(20):
-        img = dataset[i]
-        print(type(img))
-        print(img.shape)
-        i += 1
-        img = img.to(device)
-        img = torch.squeeze(0).cpu().detach().numpy()
-        fig = plt.figure()
-        plt.imshow(img, cmap='hot')
-        fig.savefig(f"./dummy/temp{i}.png", dpi=1200, bbox_inches='tight')
-        plt.close(fig)
-        if i > 20:
-            exit()
 
     
 

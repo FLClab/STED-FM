@@ -1,4 +1,6 @@
+experiments/diffusion-experiments/model-checkpoints/
 experiments/figures/
+experiments/interpretability-experiments/TiffWrapper/
 logs/
 *.pdf
 *.png
