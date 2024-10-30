@@ -67,6 +67,13 @@ class SimCLRTransformConfig(Configuration):
     poisson_noise_prob : float = 0.5
     poisson_noise_lambda : float = 0.5  
 
+class DataModuleConfig(Configuration):
+
+    num_workers : int = None
+    shuffle : bool = True
+    use_cache : bool = True
+    max_cache_size : float = 32e+9
+    return_metadata : bool = True
 
 class SimCLRConfig(Configuration):
 
