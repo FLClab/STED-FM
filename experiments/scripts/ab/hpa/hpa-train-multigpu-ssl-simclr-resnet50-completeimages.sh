@@ -3,19 +3,17 @@
 #SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --mem=0
-#SBATCH --nodes=16
+#SBATCH --nodes=8
 #SBATCH --gres=gpu:p100:2
 #SBATCH --tasks-per-node=2
 #SBATCH --cpus-per-task=16
-#SBATCH --array=0-10%1
+#SBATCH --array=0-4%1
 #SBATCH --output=/home/anbil106/logs/%x-%A_%a.out
 #SBATCH --mail-user=anbil106@ulaval.ca
 #SBATCH --mail-type=ALL
 #
 
 export TORCH_NCCL_BLOCKING_WAIT=1 #Pytorch Lightning uses the NCCL backend for inter-GPU communication by default. Set this variable to avoid timeout errors.
-# export MASTER_ADDR=$(hostname)
-# export MASTER_PORT=42424
 
 #### PARAMETERS
 
@@ -37,29 +35,29 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done copy file"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-# Launch training 
+# Launch training
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_HPA" --host 0.0.0.0 --load_fast false &
+tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/resnet50_HPA" --host 0.0.0.0 --load_fast false &
 
-CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_HPA/result.pt"
+CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/resnet50_HPA/result.pt"
 if [ -f $CKPT ]; then
     echo "% Training from previous checkpoint: ${CKPT}"
 
-    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --backbone "convnext-tiny" \
+    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --backbone "resnet50" \
                                   --dataset "HPA" \
                                   --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
-                                  --opts "batch_size 32" \
+                                  --opts "batch_size 64" \
                                   --restore-from "${CKPT}"
 else
     echo "% Training from scratch"
 
-    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --backbone "convnext-tiny" \
+    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --backbone "resnet50" \
                                   --dataset "HPA" \
                                   --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
-                                  --opts "batch_size 32"
+                                  --opts "batch_size 64"
 fi
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

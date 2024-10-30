@@ -13,19 +13,20 @@ from configuration import Configuration
 class ResNetWeights:
 
     RESNET18_IMAGENET1K_V1 = torchvision.models.ResNet18_Weights.IMAGENET1K_V1
-    RESNET18_SSL_HPA = os.path.join(BASE_PATH, "baselines", "resnet18_HPA", "result.pt")
-    RESNET18_SSL_HPA = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu/resnet18_hpa", "result.pt")
-    RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet18_STED", "result.pt")
+    # RESNET18_SSL_HPA = os.path.join(BASE_PATH, "baselines", "resnet18_HPA", "result.pt")
+    RESNET18_SSL_HPA = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet18_HPA", "result.pt")
+    RESNET18_SSL_JUMP = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet18_JUMP", "result.pt")
+    # RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet18_STED", "result.pt")
     # RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "tests", "dataset-fullimages-200epochs-singlegpu/resnet18_STED", "result.pt")
     # RESNET18_SSL_STED = os.path.join("/home/anbil106/projects/def-flavielc", "baselines", "resnet18_STED", "result.pt")
-    # RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu/resnet18_STED", "result.pt")
-    RESNET18_SSL_STED_ABLATION = os.path.join(BASE_PATH, "baselines", "ablation/dataset-fullimages-1Msteps-multigpu/resnet18_STED", "result.pt")
-    RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu/resnet18_STED", "result.pt")
+    
+    RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-crops-1Msteps-multigpu", "resnet18_STED", "result.pt")
     RESNET18_SSL_CTC = os.path.join(BASE_PATH, "baselines", "resnet18_CTC", "result.pt")
 
     RESNET50_IMAGENET1K_V1 = torchvision.models.ResNet50_Weights.IMAGENET1K_V1
-    RESNET50_SSL_HPA = os.path.join(BASE_PATH, "baselines", "resnet50_HPA", "result.pt")
-    RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "resnet50_STED", "result.pt")
+    RESNET50_SSL_HPA = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet50_HPA", "result.pt")
+    RESNET50_SSL_JUMP = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet50_JUMP", "result.pt")
+    RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet50_STED", "result.pt")
     # RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu/resnet50_STED", "result.pt")
     # RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu/resnet50_STED", "checkpoint-145000.pt")
     RESNET50_SSL_CTC = os.path.join(BASE_PATH, "baselines", "resnet50_CTC", "result.pt")
@@ -92,6 +93,17 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
         
         cfg.batch_size = 64
         cfg.dim = 2048
+    elif name == "resnet152": 
+
+        # Use a resnet backbone.
+        backbone = torchvision.models.resnet152()
+        backbone.conv1 = torch.nn.Conv2d(in_channels=cfg.in_channels, out_channels=64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+
+        # Ignore the classification head as we only want the features.
+        backbone.fc = torch.nn.Identity()        
+        
+        cfg.batch_size = 64
+        cfg.dim = 2048        
     else:
         raise NotImplementedError(f"`{name}` not implemented")
     return backbone, cfg
