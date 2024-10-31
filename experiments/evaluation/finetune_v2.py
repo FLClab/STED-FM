@@ -21,7 +21,7 @@ sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH
 from loaders import get_dataset
 from model_builder import get_pretrained_model_v2 
-from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss, update_cfg, get_number_of_classes
+from utils import SaveBestModel, AverageMeter, ScoreTracker, compute_Nary_accuracy, track_loss_steps, update_cfg, get_number_of_classes
 
 plt.style.use("dark_background")
 
@@ -229,18 +229,19 @@ def main():
     #num_epochs = 300
     budget = train_loader.dataset.original_size * 300
     num_epochs = int(budget / (args.num_per_class * train_loader.dataset.num_classes))
+    warmup_epochs = 0.1 * num_epochs
     print(f"--- Training with {args.num_per_class} samples per class for {num_epochs} epochs ---")
 
     if probe == "from-scratch":
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
         scheduler = CosineWarmupScheduler(
-            optimizer=optimizer, warmup_epochs=10, max_epochs=num_epochs,
+            optimizer=optimizer, warmup_epochs=warmup_epochs, max_epochs=num_epochs,
             start_value=1.0, end_value=0.01
         )
     elif probe == "linear-probe":
         optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
         scheduler = CosineWarmupScheduler(
-            optimizer=optimizer, warmup_epochs=10, max_epochs=num_epochs,
+            optimizer=optimizer, warmup_epochs=warmup_epochs, max_epochs=num_epochs,
             start_value=1.0, end_value=0.01,
             period=num_epochs//10
         )        
@@ -250,7 +251,7 @@ def main():
     else:
         optimizer = torch.optim.SGD(model.parameters(), lr=1e-3) 
         scheduler = CosineWarmupScheduler(
-            optimizer=optimizer, warmup_epochs=10, max_epochs=num_epochs,
+            optimizer=optimizer, warmup_epochs=warmup_epochs, max_epochs=num_epochs,
             start_value=1.0, end_value=0.01
         )
 
@@ -261,7 +262,7 @@ def main():
     os.makedirs(model_path, exist_ok=True)
 
     # Training loop
-    train_loss, val_loss, val_acc, lrates = [], [], [], []
+    train_loss, val_loss, val_acc, lrates = ScoreTracker(), ScoreTracker(), ScoreTracker(), ScoreTracker()
     save_best_model = SaveBestModel(
         save_dir=f"{model_path}",
         model_name=f"{probe}_{args.num_per_class}_{args.seed}"
@@ -269,6 +270,7 @@ def main():
 
     # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=0)
 
+    step = 0
     for epoch in trange(num_epochs, desc="Epochs..."):
         model.train()
         loss_meter = AverageMeter()
@@ -284,33 +286,38 @@ def main():
             loss_meter.update(loss.item())
 
 
-        v_loss, v_acc = validation_step(
-            model=model,
-            valid_loader=valid_loader,
-            criterion=criterion,
-            epoch=epoch,
-            device=device,
-            save_dir = f"{save_best_model.save_dir}/{save_best_model.model_name}_pca.png",
-            classes = train_loader.dataset.classes
-        )
+            if step % 100 == 0:
+                v_loss, v_acc = validation_step(
+                    model=model,
+                    valid_loader=valid_loader,
+                    criterion=criterion,
+                    epoch=epoch,
+                    device=device,
+                    save_dir = f"{save_best_model.save_dir}/{save_best_model.model_name}_pca.png",
+                    classes = train_loader.dataset.classes
+                )
 
-        # Do not save best model if in a dry run
-        if not args.dry_run:
-            save_best_model(
-                v_loss,
-                epoch=epoch,
-                model=model,
-                optimizer=optimizer,
-                criterion=criterion
-            )
+                # Do not save best model if in a dry run
+                if not args.dry_run:
+                    save_best_model(
+                        v_loss,
+                        epoch=epoch,
+                        model=model,
+                        optimizer=optimizer,
+                        criterion=criterion
+                    )
+
+                val_loss.update(step, v_loss)
+                val_acc.update(step, v_acc)
+                
+            step += 1
+
         temp_lr = optimizer.param_groups[0]['lr']
-        lrates.append(temp_lr)
-        train_loss.append(loss_meter.avg)
-        val_loss.append(v_loss)
-        val_acc.append(v_acc)
-        # scheduler.step(v_loss)
-        scheduler.step()
-        track_loss(
+        lrates.update(step, temp_lr)
+        train_loss.update(step, loss_meter.avg)
+
+        scheduler.step()        
+        track_loss_steps(
             train_loss=train_loss,
             val_loss=val_loss,
             val_acc=val_acc,

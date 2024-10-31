@@ -216,6 +216,7 @@ def track_loss(train_loss: list, val_loss: list, val_acc: list, lrates: list, sa
     axs[1].legend()
     fig.savefig(f"{save_dir}")
     plt.close(fig)
+    
 
 class SaveBestModel:
     def __init__(self, save_dir: str, model_name: str, best_val: float = float('inf')):
@@ -235,6 +236,32 @@ class SaveBestModel:
                     'loss': criterion,
                 }, '{}/{}.pth'.format(self.save_dir, self.model_name))
             
+class ScoreTracker:
+    def __init__(self):
+        self.steps = []
+        self.scores = []
+    
+    def update(self, step, score):
+        self.steps.append(step)
+        self.scores.append(score)
+
+def track_loss_steps(train_loss: ScoreTracker, val_loss: ScoreTracker, val_acc: ScoreTracker, lrates: ScoreTracker, save_dir: str) -> None:
+    fig, axs = plt.subplots(2, 1, sharex=True)
+    ax1 = axs[0].twinx()
+    ax2 = axs[0].twinx()
+    axs[0].plot(train_loss.steps, train_loss.scores, color='lightblue', label="Train")
+    axs[0].plot(val_loss.steps, val_loss.scores, color='lightcoral', label="Validation")
+    ax1.plot(lrates.steps, lrates.scores, color='lightgreen', label='lr', ls='--')
+    axs[1].plot(val_acc.steps, val_acc.scores, color='lightcoral', label="Validation")
+    axs[1].set_xlabel('Steps')
+    ax2.plot(lrates.steps, lrates.scores, color='palegreen', label='lr', ls='--', alpha=0.1)
+    axs[1].set_ylabel('Accuracy')
+    axs[0].set_ylabel('Loss')
+    axs[0].legend()
+    axs[1].legend()
+    fig.savefig(f"{save_dir}")
+    plt.close(fig)    
+
 class AverageMeter:
     """Computes and stores the average and current value"""
 

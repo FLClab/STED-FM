@@ -20,7 +20,7 @@ class ResNetWeights:
     # RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "tests", "dataset-fullimages-200epochs-singlegpu/resnet18_STED", "result.pt")
     # RESNET18_SSL_STED = os.path.join("/home/anbil106/projects/def-flavielc", "baselines", "resnet18_STED", "result.pt")
     
-    RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-crops-1Msteps-multigpu", "resnet18_STED", "result.pt")
+    RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet18_STED", "result.pt")
     RESNET18_SSL_CTC = os.path.join(BASE_PATH, "baselines", "resnet18_CTC", "result.pt")
 
     RESNET50_IMAGENET1K_V1 = torchvision.models.ResNet50_Weights.IMAGENET1K_V1
