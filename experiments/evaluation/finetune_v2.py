@@ -136,6 +136,8 @@ def plot_features(features, labels, savename, classes=None, **kwargs):
     plt.close()
     
 def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None, **kwargs):
+    is_training = model.training
+
     model.eval()
     loss_meter = AverageMeter()
 
@@ -167,6 +169,9 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
         print("Class {} accuracy = {:.3f}".format(
             i, acc))  
     # plot_features(all_features, all_labels, savename=save_dir, **kwargs)
+
+    if is_training:
+        model.train()
 
     return loss_meter.avg, accuracies[0]
 
@@ -226,11 +231,12 @@ def main():
         num_samples=args.num_per_class,
     )
     
-    #num_epochs = 300
-    budget = train_loader.dataset.original_size * 300
-    num_epochs = int(budget / (args.num_per_class * train_loader.dataset.num_classes))
+    num_epochs = 300
+    if args.num_per_class:
+        budget = train_loader.dataset.original_size * num_epochs
+        num_epochs = int(budget / (args.num_per_class * train_loader.dataset.num_classes))
+        print(f"--- Training with {args.num_per_class} samples per class for {num_epochs} epochs ---")
     warmup_epochs = 0.1 * num_epochs
-    print(f"--- Training with {args.num_per_class} samples per class for {num_epochs} epochs ---")
 
     if probe == "from-scratch":
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
@@ -267,6 +273,10 @@ def main():
         save_dir=f"{model_path}",
         model_name=f"{probe}_{args.num_per_class}_{args.seed}"
     )
+    save_best_model_accuracy = SaveBestModel(
+        save_dir=f"{model_path}",
+        model_name=f"accuracy_{probe}_{args.num_per_class}_{args.seed}"
+    )
 
     # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=0)
 
@@ -286,7 +296,7 @@ def main():
             loss_meter.update(loss.item())
 
 
-            if step % 100 == 0:
+            if (epoch < warmup_epochs and step % 10 == 0) or (step % 100 == 0):
                 v_loss, v_acc = validation_step(
                     model=model,
                     valid_loader=valid_loader,
@@ -305,6 +315,9 @@ def main():
                         model=model,
                         optimizer=optimizer,
                         criterion=criterion
+                    )
+                    save_best_model_accuracy(
+                        v_acc, epoch=epoch, model=model, optimizer=optimizer, criterion=criterion
                     )
 
                 val_loss.update(step, v_loss)
@@ -326,33 +339,38 @@ def main():
         )
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
 
-    model, cfg = get_pretrained_model_v2(
-        name=args.model,
-        weights=args.weights,
-        path=None,
-        mask_ratio=0.0, 
-        pretrained=True if n_channels==3 else False,
-        in_channels=n_channels,
-        as_classifier=True,
-        blocks=args.blocks,
-        num_classes=num_classes
-    )
-    state_dict = torch.load(f"{save_best_model.save_dir}/{save_best_model.model_name}.pth", map_location="cpu")
-    model.load_state_dict(state_dict['model_state_dict'])
-    model = model.to(device)
+    for best_model in [save_best_model, save_best_model_accuracy]:
+        
+        model, cfg = get_pretrained_model_v2(
+            name=args.model,
+            weights=args.weights,
+            path=None,
+            mask_ratio=0.0, 
+            pretrained=True if n_channels==3 else False,
+            in_channels=n_channels,
+            as_classifier=True,
+            blocks=args.blocks,
+            num_classes=num_classes
+        )
 
-    loss, acc = validation_step(
-        model=model,
-        valid_loader=test_loader,
-        criterion=criterion,
-        epoch=num_epochs,
-        device=device
-    )
-    print("=====================================")
-    print(f"Dataset: {args.dataset}")
-    print(f"Testing loss: {loss}")
-    print(f"Testing accuracy: {acc * 100:0.2f}")
-    print("=====================================")
+        state_dict = torch.load(f"{best_model.save_dir}/{best_model.model_name}.pth", map_location="cpu")
+        model.load_state_dict(state_dict['model_state_dict'])
+        model = model.to(device)
+
+        loss, acc = validation_step(
+            model=model,
+            valid_loader=test_loader,
+            criterion=criterion,
+            epoch=num_epochs,
+            device=device
+        )
+        print("=====================================")
+        print(f"Dataset: {args.dataset}")
+        print(f"Testing loss: {loss}")
+        print(f"Testing accuracy: {acc * 100:0.2f}")
+        print("=====================================")
+
+
 
 if __name__=="__main__":
     main()
