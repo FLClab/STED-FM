@@ -188,7 +188,7 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
     for j in range(cm.shape[0]):
         for i in range(cm.shape[1]):
             ax.text(i, j, "{:0.2f}".format(cm[j, i]), ha="center", va="center", color="black" if cm[j, i] < 0.5 else "white")
-    fig.savefig(f"{save_dir}_confusion_matrix.png", bbox_inches="tight")
+    fig.savefig(f"{save_dir}_confusion-matrix.png", bbox_inches="tight")
     plt.close()        
 
     if is_training:
@@ -253,7 +253,7 @@ def main():
     ])
     train_loader, valid_loader, test_loader = get_dataset(
         name=args.dataset,
-        transform=transform,
+        transform=None,
         path=None,
         n_channels=n_channels,
         batch_size=cfg.batch_size,
@@ -305,7 +305,8 @@ def main():
     )
     save_best_model_accuracy = SaveBestModel(
         save_dir=f"{model_path}",
-        model_name=f"accuracy_{probe}_{args.num_per_class}_{args.seed}"
+        model_name=f"accuracy_{probe}_{args.num_per_class}_{args.seed}",
+        maximize=True
     )
 
     # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=0)
@@ -333,7 +334,7 @@ def main():
                     criterion=criterion,
                     epoch=epoch,
                     device=device,
-                    save_dir = f"{save_best_model.save_dir}/{save_best_model.model_name}-{args.num_per_class}",
+                    save_dir = f"{save_best_model.save_dir}/{save_best_model.model_name}",
                     classes = train_loader.dataset.classes
                 )
 
@@ -365,7 +366,7 @@ def main():
             val_loss=val_loss,
             val_acc=val_acc,
             lrates=lrates,
-            save_dir=f"{save_best_model.save_dir}/{save_best_model.model_name}-{args.num_per_class}_training-curves.png"
+            save_dir=f"{save_best_model.save_dir}/{save_best_model.model_name}_training-curves.png"
         )
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
 

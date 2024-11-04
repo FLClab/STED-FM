@@ -227,13 +227,24 @@ def track_loss(train_loss: list, val_loss: list, val_acc: list, lrates: list, sa
     
 
 class SaveBestModel:
-    def __init__(self, save_dir: str, model_name: str, best_val: float = float('inf')):
-        self.best_val = best_val
+    def __init__(self, save_dir: str, model_name: str, maximize: bool = False):
+
+        self.maximize = maximize
+        if maximize:
+            self.best_val = float('-inf')
+        else:
+            self.best_val = float('inf')
+
         self.model_name = model_name
         self.save_dir = save_dir
 
     def __call__(self, current_val: float, epoch: int, model, optimizer, criterion):
-        if current_val < self.best_val:
+        if self.maximize:
+            new_best = current_val > self.best_val
+        else:
+            new_best = current_val < self.best_val
+
+        if new_best:
             self.best_val = current_val
             print(f"Best loss: {self.best_val}")
             print(f"Saving best model for epoch: {epoch + 1} at {self.save_dir}\n")
