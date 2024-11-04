@@ -63,11 +63,17 @@ class SimCLRTransformConfig(Configuration):
     normalize : bool = False
     gaussian_noise_prob : float = 0.5
     gaussian_noise_mu: float = 0.
-    gaussian_noise_std: float = 0.25
+    gaussian_noise_std: float = 0.05
     poisson_noise_prob : float = 0.5
-    poisson_noise_lambda : float = 0.5
-    poisson_noise_prob : float = 0.5    
+    poisson_noise_lambda : float = 0.5  
 
+class DataModuleConfig(Configuration):
+
+    num_workers : int = None
+    shuffle : bool = True
+    use_cache : bool = True
+    max_cache_size : float = 32e+9
+    return_metadata : bool = True
 
 class SimCLRConfig(Configuration):
 
@@ -121,26 +127,8 @@ class SimCLR(LightningModule):
             # We simply convert to int using the hash method.
             metadata = torch.tensor([hash(m) for m in metadata["path"]], dtype=torch.long, device=view0.device)
 
-        if torch.any(torch.isnan(view0)):
-            print("view0 contains NaN")
-        if torch.any(torch.isinf(view0)):
-            print("view0 contains INF")
-        if torch.any(torch.isnan(view1)):
-            print("view1 contains NaN")
-        if torch.any(torch.isinf(view1)):
-            print("view1 contains INF")            
-
         z0 = self.forward(view0)
         z1 = self.forward(view1)
-
-        if torch.any(torch.isnan(z0)):
-            print("z0 contains NaN")
-        if torch.any(torch.isinf(z0)):
-            print("z0 contains INF")
-        if torch.any(torch.isnan(z1)):
-            print("z1 contains NaN")
-        if torch.any(torch.isinf(z1)):
-            print("z1 contains INF")
 
         loss = self.criterion(z0, z1, metadata=metadata)
 
@@ -224,16 +212,10 @@ class SimCLR(LightningModule):
 
     def forward(self, x):
         features = self.backbone(x)
-        if torch.any(torch.isinf(features)):
-            print("backbone features contains INF")
         if features.dim() > 2:
             features = self.avg_pool(features)
         features = torch.flatten(features, start_dim=1)
-        if torch.any(torch.isinf(features)):
-            print("backbone features contains INF after flatten and possible avg_pool")
         z = self.projection_head(features)
-        if torch.any(torch.isinf(z)):
-            print("projection head contains INF")
         return z
 
 if __name__ == "__main__":
@@ -294,7 +276,7 @@ if __name__ == "__main__":
     last_model_callback = ModelCheckpoint(
         dirpath=OUTPUT_FOLDER,
         filename="result",
-        every_n_epochs=1,
+        every_n_epochs=10,
         enable_version_counter=False
     )
     last_model_callback.FILE_EXTENSION = ".pt"

@@ -31,7 +31,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Copy file"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 cp "/project/def-flavielc/datasets/train.zip" "${SLURM_TMPDIR}/dataset.zip"
+srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 cp "/project/def-flavielc/datasets/jump.tar" "${SLURM_TMPDIR}/dataset.tar"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done copy file"
@@ -42,14 +42,14 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_HPA" --host 0.0.0.0 --load_fast false &
+tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_JUMP" --host 0.0.0.0 --load_fast false &
 
-CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_HPA/result.pt"
+CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_JUMP/result.pt"
 if [ -f $CKPT ]; then
     echo "% Training from previous checkpoint: ${CKPT}"
 
     srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --backbone "convnext-tiny" \
-                                  --dataset "HPA" \
+                                  --dataset "JUMP" \
                                   --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
                                   --opts "batch_size 32" \
                                   --restore-from "${CKPT}"
@@ -57,7 +57,7 @@ else
     echo "% Training from scratch"
 
     srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --backbone "convnext-tiny" \
-                                  --dataset "HPA" \
+                                  --dataset "JUMP" \
                                   --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
                                   --opts "batch_size 32"
 fi

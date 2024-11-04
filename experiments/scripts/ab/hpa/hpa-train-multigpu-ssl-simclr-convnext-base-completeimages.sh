@@ -3,7 +3,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --mem=0
-#SBATCH --nodes=16
+#SBATCH --nodes=32
 #SBATCH --gres=gpu:p100:2
 #SBATCH --tasks-per-node=2
 #SBATCH --cpus-per-task=16
@@ -42,24 +42,24 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_HPA" --host 0.0.0.0 --load_fast false &
+tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-base_HPA" --host 0.0.0.0 --load_fast false &
 
-CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_HPA/result.pt"
+CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-base_HPA/result.pt"
 if [ -f $CKPT ]; then
     echo "% Training from previous checkpoint: ${CKPT}"
 
-    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --backbone "convnext-tiny" \
+    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --backbone "convnext-base" \
                                   --dataset "HPA" \
                                   --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
-                                  --opts "batch_size 32" \
+                                  --opts "batch_size 16" \
                                   --restore-from "${CKPT}"
 else
     echo "% Training from scratch"
 
-    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --backbone "convnext-tiny" \
+    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --backbone "convnext-base" \
                                   --dataset "HPA" \
                                   --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
-                                  --opts "batch_size 32"
+                                  --opts "batch_size 16"
 fi
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

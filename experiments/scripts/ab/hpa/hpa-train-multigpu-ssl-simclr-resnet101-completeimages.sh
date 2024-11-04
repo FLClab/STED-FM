@@ -42,13 +42,13 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_HPA" --host 0.0.0.0 --load_fast false &
+tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/resnet101_HPA" --host 0.0.0.0 --load_fast false &
 
-CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/convnext-tiny_HPA/result.pt"
+CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/resnet101_HPA/result.pt"
 if [ -f $CKPT ]; then
     echo "% Training from previous checkpoint: ${CKPT}"
 
-    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --backbone "convnext-tiny" \
+    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --backbone "resnet101" \
                                   --dataset "HPA" \
                                   --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
                                   --opts "batch_size 32" \
@@ -56,7 +56,7 @@ if [ -f $CKPT ]; then
 else
     echo "% Training from scratch"
 
-    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --backbone "convnext-tiny" \
+    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.zip" --backbone "resnet101" \
                                   --dataset "HPA" \
                                   --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
                                   --opts "batch_size 32"
