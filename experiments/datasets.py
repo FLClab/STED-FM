@@ -509,7 +509,7 @@ class OptimDataset(Dataset):
                 quality_score = float(match.group(1))
                 if not self.apply_filter or quality_score >= self.min_quality_score:
                     filtered_files.append(file)
-        return filtered_files
+        return list(sorted(filtered_files))
 
     def _get_sampled_files(self, files_list, num_sample):
         if num_sample is not None:
@@ -872,7 +872,7 @@ class NeuralActivityStates(Dataset):
         for unique in uniques:
             ids = np.where(self.labels == unique)[0]
             ids = np.random.choice(ids, size=minority_count)
-            indices.extend(ids)
+            indices.extend(ids)        
         indices = np.sort(indices)
         self.images = self.images[indices]
         self.labels = self.labels[indices]
