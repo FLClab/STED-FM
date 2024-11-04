@@ -342,6 +342,12 @@ class DDPM(LightningModule):
             - _extract_into_tensor(self.sqrt_recipm1_alphas_cumprod, t, x_t.shape) * eps
         )
 
+    def _predict_eps_from_x0(self, x_t, t, pred_x0):
+        return (
+            _extract_into_tensor(self.sqrt_recip_alphas_cumprod, t, x_t.shape) * x_t
+            - pred_x0
+        ) / _extract_into_tensor(self.sqrt_recipm1_alphas_cumprod, t, x_t.shape)
+
     def p_sample(
         self,
         x: torch.Tensor,
@@ -386,7 +392,108 @@ class DDPM(LightningModule):
                 out = self.p_sample(x=x_t, t=t, clip_denoised=clip_denoised)
                 x_t = out["sample"]
         return x_t, noisy_img
-        
+
+    def ddim_sample(
+        self,
+        x: torch.Tensor,
+        t: torch.Tensor,
+        clip_denoised: bool = True,
+        denoised_fn: Optional[Callable] = None,
+        model_kwargs=None,
+        cond_fn=None,
+        eta: float = 0.0,
+        cond=None,
+    ) -> torch.Tensor:
+        out = self.p_mean_variance(
+            x=x,
+            t=t,
+            clip_denoised=clip_denoised,
+            denoised_fn=denoised_fn,
+            model_kwargs=model_kwargs,
+            cond=cond,
+        )
+        alpha_bar = _extract_into_tensor(self.alphas_cumprod, t, x.shape)
+        alpha_bar_prev = _extract_into_tensor(self.alphas_cumprod_prev, t, x.shape)
+        sigma = (
+            eta * torch.sqrt( (1 - alpha_bar_prev) / (1 - alpha_bar) ) * torch.sqrt(1 - alpha_bar / alpha_bar_prev)
+        )
+        noise = torch.randn_like(x)
+        eps = self._predict_eps_from_x0(x, t, out["pred_x0"])
+        mean_pred = out["pred_x0"] * torch.sqrt(alpha_bar_prev) + torch.sqrt(1 - alpha_bar_prev - sigma**2) * eps 
+        nonzero_mask = ((t != 0).float().view(-1, *([1] * (len(x.shape) - 1)))) 
+        sample = mean_pred + nonzero_mask * sigma * noise 
+        return {"sample": sample, "pred_x0": out["pred_x0"]}
+
+
+    def ddim_sample_loop(
+        self,
+        shape, 
+        noise=None,
+        clip_denoised=True,
+        denoised_fn=None,
+        model_kwargs=None,
+        device=None,
+        progress=False,
+        eta: float = 0.0,
+        cond=None
+    ):
+        final = None
+        for sample in self.ddim_sample_loop_progressive(
+            shape, 
+            noise=noise,
+            clip_denoised=clip_denoised,
+            denoised_fn=denoised_fn,
+            model_kwargs=model_kwargs,
+            device=device,
+            progress=progress,
+            eta=eta,
+            cond=cond,
+        ):
+            final = sample
+        return final["sample"]
+
+
+    def ddim_sample_loop_progressive(
+        self,
+        shape,
+        noise=None,
+        clip_denoised=True,
+        denoised_fn=None,
+        cond_fn=None,
+        model_kwargs=None,
+        device=None,
+        progress=False,
+        eta=0.0,
+        cond=None,
+    ):
+        if device is None:
+            device = next(self.model.parameters()).device
+        assert isinstance(shape, (tuple, list))
+        if noise is not None:
+            img = noise 
+        else:
+            img = torch.randn(*shape, device=device)
+        indices = list(range(self.T))[::-1] 
+
+        if progress:
+            from tqdm.auto import tqdm 
+            indices = tqdm(indices)
+
+        for i in indices:
+            t = torch.tensor([i] * shape[0], device=device)
+            with torch.no_grad():
+                out = self.ddim_sample(
+                    img, 
+                    t,
+                    clip_denoised=clip_denoised,
+                    denoised_fn=denoised_fn,
+                    cond_fn=cond_fn,
+                    model_kwargs=model_kwargs,
+                    eta=eta,
+                    cond=cond
+                )            
+                yield out 
+                img = out["sample"]
 
     def p_sample_loop(
         self,

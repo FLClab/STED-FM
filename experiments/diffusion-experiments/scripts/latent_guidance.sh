@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=2:00:00
+#SBATCH --time=48:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=10
 #SBATCH --mem=0
@@ -28,8 +28,8 @@ echo "% Beginning..."
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 # python main.py --dataset-path "${SLURM_TMPDIR}/dataset-250k.tar"
-tensorboard --logdir="./model-checkpoints/latent" --host 0.0.0.0 --load_fast false &
-srun python train_latent_guidance.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset-250k.tar" --use-tensorboard
+tensorboard --logdir="/home/frbea320/scratch/model_checkpoints/DiffusionModels/latent-guidance" --host 0.0.0.0 --load_fast false &
+srun python train_latent_guidance.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset-250k.tar" --use-tensorboard --weights MAE_TINY_IMAGENET1K_V1
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
