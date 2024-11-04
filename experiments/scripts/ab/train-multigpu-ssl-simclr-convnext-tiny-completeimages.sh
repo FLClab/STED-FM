@@ -7,7 +7,7 @@
 #SBATCH --gres=gpu:p100:2
 #SBATCH --tasks-per-node=2
 #SBATCH --cpus-per-task=16
-#SBATCH --array=0-4%1
+#SBATCH --array=0-10%1
 #SBATCH --output=/home/anbil106/logs/%x-%A_%a.out
 #SBATCH --mail-user=anbil106@ulaval.ca
 #SBATCH --mail-type=ALL

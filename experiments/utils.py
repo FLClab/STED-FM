@@ -173,9 +173,17 @@ def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4)
     # accuracies = []
     correct = []
     big_n = []
+    confusion_matrix = np.zeros((N, N))
     _, preds = torch.max(preds, 1)
+
+    preds_ = preds.cpu().detach().numpy()
+    labels_ = labels.cpu().detach().numpy()
+    for p, l in zip(preds_, labels_):
+        confusion_matrix[l, p] += 1
+
     assert preds.shape == labels.shape
     c = torch.sum(preds == labels)
+
     correct.append(c.item())
     big_n.append(preds.shape[0])
     for n in range(N):
@@ -185,7 +193,7 @@ def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4)
         big_n.append(n)
         # temp = ( (preds == labels) * (labels == n)).float().sum() / (labels == n).float().sum()
         # accuracies.append(temp.cpu().detach().numpy())
-    return np.array(correct), np.array(big_n)
+    return np.array(correct), np.array(big_n), confusion_matrix
 
 def compute_mean_average_precision(preds: np.ndarray, labels: np.ndarray) -> float:
     y_score = preds.permute(1, 0, 2, 3).cpu().detach().numpy()
@@ -216,15 +224,27 @@ def track_loss(train_loss: list, val_loss: list, val_acc: list, lrates: list, sa
     axs[1].legend()
     fig.savefig(f"{save_dir}")
     plt.close(fig)
+    
 
 class SaveBestModel:
-    def __init__(self, save_dir: str, model_name: str, best_val: float = float('inf')):
-        self.best_val = best_val
+    def __init__(self, save_dir: str, model_name: str, maximize: bool = False):
+
+        self.maximize = maximize
+        if maximize:
+            self.best_val = float('-inf')
+        else:
+            self.best_val = float('inf')
+
         self.model_name = model_name
         self.save_dir = save_dir
 
     def __call__(self, current_val: float, epoch: int, model, optimizer, criterion):
-        if current_val < self.best_val:
+        if self.maximize:
+            new_best = current_val > self.best_val
+        else:
+            new_best = current_val < self.best_val
+
+        if new_best:
             self.best_val = current_val
             print(f"Best loss: {self.best_val}")
             print(f"Saving best model for epoch: {epoch + 1} at {self.save_dir}\n")
@@ -235,6 +255,32 @@ class SaveBestModel:
                     'loss': criterion,
                 }, '{}/{}.pth'.format(self.save_dir, self.model_name))
             
+class ScoreTracker:
+    def __init__(self):
+        self.steps = []
+        self.scores = []
+    
+    def update(self, step, score):
+        self.steps.append(step)
+        self.scores.append(score)
+
+def track_loss_steps(train_loss: ScoreTracker, val_loss: ScoreTracker, val_acc: ScoreTracker, lrates: ScoreTracker, save_dir: str) -> None:
+    fig, axs = plt.subplots(2, 1, sharex=True)
+    ax1 = axs[0].twinx()
+    ax2 = axs[0].twinx()
+    axs[0].plot(train_loss.steps, train_loss.scores, color='lightblue', label="Train")
+    axs[0].plot(val_loss.steps, val_loss.scores, color='lightcoral', label="Validation")
+    ax1.plot(lrates.steps, lrates.scores, color='lightgreen', label='lr', ls='--')
+    axs[1].plot(val_acc.steps, val_acc.scores, color='lightcoral', label="Validation")
+    axs[1].set_xlabel('Steps')
+    ax2.plot(lrates.steps, lrates.scores, color='palegreen', label='lr', ls='--', alpha=0.1)
+    axs[1].set_ylabel('Accuracy')
+    axs[0].set_ylabel('Loss')
+    axs[0].legend()
+    axs[1].legend()
+    fig.savefig(f"{save_dir}")
+    plt.close(fig)    
+
 class AverageMeter:
     """Computes and stores the average and current value"""
 
