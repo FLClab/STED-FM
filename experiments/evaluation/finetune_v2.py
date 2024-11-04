@@ -10,6 +10,7 @@ import os
 from sklearn.neighbors import NearestNeighbors
 from sklearn.decomposition import PCA
 from scipy.spatial.distance import cdist
+from torchvision import transforms
 
 from lightly.utils.scheduler import CosineWarmupScheduler
 
@@ -136,6 +137,8 @@ def plot_features(features, labels, savename, classes=None, **kwargs):
     plt.close()
     
 def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None, **kwargs):
+    is_training = model.training
+
     model.eval()
     loss_meter = AverageMeter()
 
@@ -144,6 +147,7 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
     correct, N = np.array([0] * (num_classes+1)), np.array([0] * (num_classes+1))
     all_features, all_labels = [], []
     with torch.no_grad():
+        confusion_matrix = np.zeros((num_classes, num_classes))
         for imgs, data_dict in tqdm(valid_loader, desc="Validation...", leave=False):
             labels =  data_dict['label']
             imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
@@ -151,12 +155,13 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
 
             loss = criterion(predictions, labels)
             loss_meter.update(loss.item())
-            c, n = compute_Nary_accuracy(predictions, labels, N=num_classes)
+            c, n, cm = compute_Nary_accuracy(predictions, labels, N=num_classes)
+            confusion_matrix += cm
             correct = correct + c 
             N = n + N
             all_features.extend(features.cpu().detach().numpy())
             all_labels.extend(labels.cpu().detach().numpy())
-
+        
     accuracies = correct / N 
     print("********* Validation metrics **********")
     print("Epoch {} validation loss = {:.3f} ({:.3f})".format(
@@ -166,7 +171,24 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
         acc = accuracies[i]
         print("Class {} accuracy = {:.3f}".format(
             i, acc))  
-    # plot_features(all_features, all_labels, savename=save_dir, **kwargs)
+    # plot_features(all_features, all_labels, savename="{save_dir}_pca.png", **kwargs)
+
+    if is_training:
+        model.train()
+
+    fig, ax = plt.subplots(figsize=(4, 4))
+    confusion_matrix = confusion_matrix / confusion_matrix.sum(axis=1, keepdims=True)
+    ax.imshow(confusion_matrix, cmap="Blues")
+    ax.set(
+        xlabel="Predicted", ylabel="True",
+        xticks=np.arange(confusion_matrix.shape[1]),
+        yticks=np.arange(confusion_matrix.shape[0]),
+    )
+    for j in range(confusion_matrix.shape[0]):
+        for i in range(confusion_matrix.shape[1]):
+            ax.text(i, j, "{:0.2f}".format(confusion_matrix[j, i]), ha="center", va="center", color="black" if confusion_matrix[j, i] < 0.5 else "white")
+    fig.savefig(f"{save_dir}_confusion_matrix.png", bbox_inches="tight")
+    plt.close()        
 
     return loss_meter.avg, accuracies[0]
 
@@ -216,9 +238,18 @@ def main():
 
     # summary(model, input_size=(1, 224, 224), device=device.type)
 
+    transform = transforms.Compose([
+        transforms.RandomHorizontalFlip(p=0.5),
+        transforms.RandomVerticalFlip(p=0.5),
+        transforms.RandomChoice([
+            transforms.RandomRotation(degrees=90),
+            transforms.RandomRotation(degrees=180),
+            transforms.RandomRotation(degrees=270),
+        ])
+    ])
     train_loader, valid_loader, test_loader = get_dataset(
         name=args.dataset,
-        transform=None,
+        transform=transform,
         path=None,
         n_channels=n_channels,
         batch_size=cfg.batch_size,
@@ -286,14 +317,14 @@ def main():
             loss_meter.update(loss.item())
 
 
-            if step % 100 == 0:
+            if (epoch < warmup_epochs and step % 10 == 0) or (step % 100 == 0):
                 v_loss, v_acc = validation_step(
                     model=model,
                     valid_loader=valid_loader,
                     criterion=criterion,
                     epoch=epoch,
                     device=device,
-                    save_dir = f"{save_best_model.save_dir}/{save_best_model.model_name}_pca.png",
+                    save_dir = f"{save_best_model.save_dir}/{save_best_model.model_name}-{args.num_per_class}",
                     classes = train_loader.dataset.classes
                 )
 
