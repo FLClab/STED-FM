@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch 
 import random
+import json
 from tqdm import tqdm, trange
 from torch.optim.lr_scheduler import CosineAnnealingLR
 import argparse 
@@ -177,23 +178,23 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
         model.train()
 
     fig, ax = plt.subplots(figsize=(4, 4))
-    confusion_matrix = confusion_matrix / confusion_matrix.sum(axis=1, keepdims=True)
-    ax.imshow(confusion_matrix, cmap="Blues")
+    cm = confusion_matrix / confusion_matrix.sum(axis=1, keepdims=True)
+    ax.imshow(cm, cmap="Blues")
     ax.set(
         xlabel="Predicted", ylabel="True",
-        xticks=np.arange(confusion_matrix.shape[1]),
-        yticks=np.arange(confusion_matrix.shape[0]),
+        xticks=np.arange(cm.shape[1]),
+        yticks=np.arange(cm.shape[0]),
     )
-    for j in range(confusion_matrix.shape[0]):
-        for i in range(confusion_matrix.shape[1]):
-            ax.text(i, j, "{:0.2f}".format(confusion_matrix[j, i]), ha="center", va="center", color="black" if confusion_matrix[j, i] < 0.5 else "white")
+    for j in range(cm.shape[0]):
+        for i in range(cm.shape[1]):
+            ax.text(i, j, "{:0.2f}".format(cm[j, i]), ha="center", va="center", color="black" if cm[j, i] < 0.5 else "white")
     fig.savefig(f"{save_dir}_confusion_matrix.png", bbox_inches="tight")
     plt.close()        
 
     if is_training:
         model.train()
 
-    return loss_meter.avg, accuracies[0]
+    return loss_meter.avg, accuracies[0], confusion_matrix
 
 
 def main():
@@ -326,7 +327,7 @@ def main():
 
 
             if (epoch < warmup_epochs and step % 10 == 0) or (step % 100 == 0):
-                v_loss, v_acc = validation_step(
+                v_loss, v_acc, v_cm = validation_step(
                     model=model,
                     valid_loader=valid_loader,
                     criterion=criterion,
@@ -368,8 +369,9 @@ def main():
         )
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
 
+    # Evaluates for every model that were saved
     for best_model in [save_best_model, save_best_model_accuracy]:
-        
+
         model, cfg = get_pretrained_model_v2(
             name=args.model,
             weights=args.weights,
@@ -386,13 +388,19 @@ def main():
         model.load_state_dict(state_dict['model_state_dict'])
         model = model.to(device)
 
-        loss, acc = validation_step(
+        loss, acc, cm = validation_step(
             model=model,
             valid_loader=test_loader,
             criterion=criterion,
             epoch=num_epochs,
             device=device
         )
+        with open(f"{best_model.save_dir}/{best_model.model_name}.json", "w") as file:
+            json.dump({
+                "loss" : float(loss),
+                "acc" : float(acc),
+                "cm" : cm.tolist()
+            }, file, indent=4, sort_keys=True)
         print("=====================================")
         print(f"Dataset: {args.dataset}")
         print(f"Testing loss: {loss}")
