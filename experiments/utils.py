@@ -173,9 +173,17 @@ def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4)
     # accuracies = []
     correct = []
     big_n = []
+    confusion_matrix = np.zeros((N, N))
     _, preds = torch.max(preds, 1)
+
+    preds_ = preds.cpu().detach().numpy()
+    labels_ = labels.cpu().detach().numpy()
+    for p, l in zip(preds_, labels_):
+        confusion_matrix[l, p] += 1
+
     assert preds.shape == labels.shape
     c = torch.sum(preds == labels)
+
     correct.append(c.item())
     big_n.append(preds.shape[0])
     for n in range(N):
@@ -185,7 +193,7 @@ def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4)
         big_n.append(n)
         # temp = ( (preds == labels) * (labels == n)).float().sum() / (labels == n).float().sum()
         # accuracies.append(temp.cpu().detach().numpy())
-    return np.array(correct), np.array(big_n)
+    return np.array(correct), np.array(big_n), confusion_matrix
 
 def compute_mean_average_precision(preds: np.ndarray, labels: np.ndarray) -> float:
     y_score = preds.permute(1, 0, 2, 3).cpu().detach().numpy()

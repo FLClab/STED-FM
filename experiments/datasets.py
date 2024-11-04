@@ -558,8 +558,7 @@ class OptimDataset(Dataset):
         else:
             img = transforms.ToTensor()(image)
         
-        if self.transform:
-            img = self.transform(img)
+        img = self.transform(img) if self.transform is not None else img
         
         # label = np.float64(label)
         return img, {"label" : label, "dataset-idx" : dataset_idx, "score" : quality_score}
@@ -666,7 +665,9 @@ class PeroxisomeDataset(Dataset):
             img = transforms.Normalize(mean=[0.07, 0.07, 0.07], std=[0.03, 0.03, 0.03])(img)
         else:
             img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
-            img = self.transform(img) if self.transform is not None else img         
+        
+        img = self.transform(img) if self.transform is not None else img         
+        
         return img, {"label" : label, "dataset-idx" : idx}
 
     def __len__(self):
@@ -791,7 +792,9 @@ class PolymerRingsDataset(Dataset):
             img = transforms.Normalize(mean=[0.03, 0.03, 0.03], std=[0.09, 0.09, 0.09])(img)
         else:
             img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
-            img = self.transform(img) if self.transform is not None else img      
+        
+        img = self.transform(img) if self.transform is not None else img      
+        
         return img, {"label" : label, "dataset-idx" : idx}
 
     def __len__(self):
@@ -889,7 +892,9 @@ class NeuralActivityStates(Dataset):
 
         else:
             img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
-            img = self.transform(img) if self.transform is not None else img 
+        
+        img = self.transform(img) if self.transform is not None else img 
+        
         return img, {"label": label, "protein": protein}
 
 class ProteinDataset(Dataset):
@@ -1397,6 +1402,11 @@ class TarFLCDataset(ArchiveDataset):
 
         :returns : The item at the given index.
         """
+        # return [
+        #     torch.randn(1, 224, 224),
+        #     torch.randn(1, 224, 224)
+        # ]
+
         data = self.get_data(idx)
         
         img = data["image"] # assuming 'img' key
