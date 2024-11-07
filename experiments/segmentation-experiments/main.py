@@ -20,7 +20,7 @@ from tqdm import tqdm
 from collections import defaultdict
 from collections.abc import Mapping
 from multiprocessing import Manager
-from torch.utils.data import SubsetRandomSampler
+from torch.utils.data import Sampler, SubsetRandomSampler
 from torch.utils.tensorboard import SummaryWriter
 from torchsummary import summary
 
@@ -48,6 +48,38 @@ def intensity_scale_(images: torch.Tensor) -> numpy.ndarray:
     ])
     return images
 
+class RandomNumberOfSamplesSampler(Sampler):
+    def __init__(self, data_source: torch.utils.data.Dataset, num_samples_per_class: int, seed: int = None):
+        self.data_source = data_source
+        self.num_samples_per_class = num_samples_per_class
+        self.rng = numpy.random.default_rng(seed)
+
+        self.indices = self.__get_indices()
+        
+    def __get_indices(self):
+        indices_per_class = defaultdict(list)
+        for i, (image, mask) in enumerate(self.data_source):
+            sum_per_class = torch.sum(mask, dim=(1, 2))
+            for c, s in enumerate(sum_per_class):
+                if s > 0.1 * mask.size(-1) * mask.size(-2):
+                    indices_per_class[c].append(i)
+        indices = []
+        for key, values in indices_per_class.items():
+            if len(values) < self.num_samples_per_class:
+                print("Warning: Not enough samples for class", key)
+                print("Number of samples available: ", len(values))
+                print("Number of samples requested: ", self.num_samples_per_class)
+                indices.extend(values)
+            else:
+                indices.extend(self.rng.choice(values, size=self.num_samples_per_class, replace=False))
+        return indices
+            
+    def __iter__(self):
+        return iter(self.rng.permutation(self.indices))
+
+    def __len__(self):
+        return len(self.indices)
+
 class SegmentationConfiguration(Configuration):
     
     freeze_backbone: bool = False
@@ -60,7 +92,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, default=42,
                     help="Random seed")     
-    parser.add_argument("--restore-from", type=str, default="",
+    parser.add_argument("--restore-from", type=str, default=None,
                     help="Model from which to restore from") 
     parser.add_argument("--save-folder", type=str, default="./data/SSL/segmentation-baselines",
                     help="Model from which to restore from")     
@@ -72,8 +104,10 @@ if __name__ == "__main__":
                         help="Backbone model to load")    
     parser.add_argument("--use-tensorboard", action="store_true",
                         help="Logging using tensorboard")
-    parser.add_argument("--label-percentage", type=float, default=1.0,
+    parser.add_argument("--label-percentage", type=float, default=None,
                         help="Percentage of labels to use")
+    parser.add_argument("--num-per-class", type=int, default=None,
+                        help="Number of samples to use")
     parser.add_argument("--opts", nargs="+", default=[], 
                         help="Additional configuration options")
     parser.add_argument("--dry-run", action="store_true",
@@ -111,12 +145,21 @@ if __name__ == "__main__":
     for key, value in segmentation_cfg.__dict__.items():
         setattr(cfg, key, value)
     update_cfg(cfg, args.opts)
-    print(cfg.__dict__)
 
     if args.restore_from:
         # Loads checkpoint
         checkpoint = torch.load(args.restore_from)
         OUTPUT_FOLDER = os.path.dirname(args.restore_from)
+
+        # Loads previous configuration and updates it
+        cfg = Configuration.from_json(os.path.join(os.path.dirname(args.restore_from), "config.json"))
+
+        # Updates configuration with additional options; performs inplace
+        if args.opts:
+            print("Warning: Additional options are updated in the original configuration file. The original configuration file will be overwritten.")
+        update_cfg(cfg, args.opts)
+        args = cfg.args
+        
     else:
         checkpoint = {}
         model_name = ""
@@ -128,20 +171,24 @@ if __name__ == "__main__":
             model_name += f"{args.backbone_weights}"
         else:
             model_name += "from-scratch"
-        if args.label_percentage < 1.0:
+        if args.label_percentage is not None and args.label_percentage < 1.0:
             model_name += f"-{int(args.label_percentage * 100)}%-labels"
+        elif args.num_per_class is not None:
+            model_name += f"-{args.num_per_class}-samples"
+
+        model_name += f"-{args.seed}"
 
         OUTPUT_FOLDER = os.path.join(args.save_folder, args.backbone, args.dataset, model_name)
-    
-    if args.dry_run:
+
+    if args.dry_run and not args.restore_from:
         OUTPUT_FOLDER = os.path.join(args.save_folder, "debug")
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
-    
+
     if args.use_tensorboard:
         writer = SummaryWriter(os.path.join(OUTPUT_FOLDER, "logs"))
-
-    # Save configuration
+    # Save and print configuration
     cfg.save(os.path.join(OUTPUT_FOLDER, "config.json"))
+    print(cfg)
 
     # Build the UNet model.
     model = get_decoder(backbone, cfg)
@@ -155,7 +202,7 @@ if __name__ == "__main__":
     stats = checkpoint.get("stats", None)
     if not stats is None:
         min_valid_loss = numpy.min(stats["testMean"])
-        start_epoch = len(stats["testMean"])
+        start_epoch = len(stats["trainMean"])
     else:
         stats = defaultdict(list)
         min_valid_loss = numpy.inf
@@ -165,7 +212,8 @@ if __name__ == "__main__":
     # summary(model, input_size=(cfg.in_channels, 224, 224))
 
     # Sampler definition
-    if args.label_percentage < 1.0:
+    sampler = None
+    if args.label_percentage is not None and args.label_percentage < 1.0:
         # Ensures reporoducibility
         rng = numpy.random.default_rng(seed=args.seed)
         indices = list(range(len(training_dataset)))
@@ -173,8 +221,8 @@ if __name__ == "__main__":
         split = int(numpy.floor(args.label_percentage * len(training_dataset)))
         train_indices, _ = indices[:split], indices[split:]
         sampler = SubsetRandomSampler(train_indices)
-    else:
-        sampler = None
+    elif args.num_per_class is not None:
+        sampler = RandomNumberOfSamplesSampler(training_dataset, args.num_per_class, seed=args.seed)
     
     print("----------------------------------------")
     print("Training Dataset")
@@ -200,19 +248,35 @@ if __name__ == "__main__":
         num_workers=4
     )
 
-    optimizer = torch.optim.Adam(model.parameters(), lr = cfg.learning_rate)
+    # Defines the training budget
+    num_epochs = cfg.num_epochs
+    if args.label_percentage is not None and args.label_percentage < 1.0:
+        budget = len(training_dataset) * num_epochs
+        num_epochs = int(budget / (args.label_percentage * len(training_dataset)))
+        cfg.num_epochs = num_epochs
+        print(f"Training budget is updated: {cfg.num_epochs} epochs")
+    elif args.num_per_class is not None:
+        budget = len(training_dataset) * num_epochs
+        num_epochs = int(budget / (args.num_per_class * len(training_dataset.classes)))
+        cfg.num_epochs = num_epochs
+        print(f"Training budget is updated: {cfg.num_epochs} epochs")
+
+    optimizer = torch.optim.AdamW(model.parameters(), lr = cfg.learning_rate, weight_decay=1e-2)
     criterion = getattr(torch.nn, cfg.dataset_cfg.criterion)()
 
     # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience = 10, threshold = 0.01, min_lr=1e-5, factor=0.1,)
-    # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.99)
+    # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=cfg.num_epochs, eta_min=1e-5)
+
+    step = start_epoch * len(train_loader)
+    print(start_epoch, step, cfg.num_epochs)
     for epoch in range(start_epoch, cfg.num_epochs):
 
         start = time.time()
         print("[----] Starting epoch {}/{}".format(epoch + 1, cfg.num_epochs))
 
         # Keep track of the loss of train and test
-        statLossTrain, statLossTest = [], []
+        statLossTrain = []
 
         # Puts the model in training mode
         model.train()
@@ -251,57 +315,63 @@ if __name__ == "__main__":
             torch.cuda.empty_cache()
             del X, y, pred, loss
 
-        # Puts the model in evaluation mode
-        model.eval()
-        for i, (X, y) in enumerate(tqdm(valid_loader, desc="[----] ")):
+            # Puts the model in evaluation mode
+            if step % 25 == 0:
+                model.eval()
+                statLossTest = []
+                for i, (X, y) in enumerate(tqdm(valid_loader, desc="[----] ")):
 
-            # Reshape
-            if isinstance(X, (list, tuple)):
-                X = [_X.unsqueeze(0) if _X.dim() == 2 else _X for _X in X]
-            else:
-                if X.dim() == 3:
-                    X = X.unsqueeze(1)
-            
-            # Send to gpu
-            X = X.to(DEVICE)
-            y = y.to(DEVICE)
+                    # Reshape
+                    if isinstance(X, (list, tuple)):
+                        X = [_X.unsqueeze(0) if _X.dim() == 2 else _X for _X in X]
+                    else:
+                        if X.dim() == 3:
+                            X = X.unsqueeze(1)
+                    
+                    # Send to gpu
+                    X = X.to(DEVICE)
+                    y = y.to(DEVICE)
 
-            # Prediction and loss computation
-            pred = model.forward(X)
-            loss = criterion(pred, y)
+                    # Prediction and loss computation
+                    pred = model.forward(X)
+                    loss = criterion(pred, y)
 
-            # Keeping track of statistics
-            statLossTest.append(loss.item())
+                    # Keeping track of statistics
+                    statLossTest.append(loss.item())
 
-            if (i == 0) and args.use_tensorboard:
-                writer.add_images("Images-test/image", intensity_scale_(X[:16]), epoch, dataformats="NCHW")
-                for i in range(cfg.dataset_cfg.num_classes):
-                    writer.add_images(f"Images-test/label-{i}", y[:16, i:i+1], epoch, dataformats="NCHW")
-                    writer.add_images(f"Images-test/pred-{i}", pred[:16, i:i+1], epoch, dataformats="NCHW")            
+                    if (i == 0) and args.use_tensorboard:
+                        writer.add_images("Images-test/image", intensity_scale_(X[:16]), epoch, dataformats="NCHW")
+                        for i in range(cfg.dataset_cfg.num_classes):
+                            writer.add_images(f"Images-test/label-{i}", y[:16, i:i+1], epoch, dataformats="NCHW")
+                            writer.add_images(f"Images-test/pred-{i}", pred[:16, i:i+1], epoch, dataformats="NCHW")            
 
-            # To avoid memory leak
-            torch.cuda.empty_cache()
-            del X, y, pred, loss
+                    # To avoid memory leak
+                    torch.cuda.empty_cache()
+                    del X, y, pred, loss
+                model.train()
+
+                for key, func in zip(("testMean", "testMed", "testMin", "testStd"),
+                                     (numpy.mean, numpy.median, numpy.min, numpy.std)):
+                    stats[key].append(func(statLossTest))
+                    if args.use_tensorboard:
+                        writer.add_scalar(f"Loss/{key}", stats[key][-1], step)
+                stats["testStep"].append(step)
+            step += 1
 
         # Aggregate stats
         for key, func in zip(("trainMean", "trainMed", "trainMin", "trainStd"),
                 (numpy.mean, numpy.median, numpy.min, numpy.std)):
             stats[key].append(func(statLossTrain))
             if args.use_tensorboard:
-                writer.add_scalar(f"Loss/{key}", stats[key][-1], epoch)
-
-        for key, func in zip(("testMean", "testMed", "testMin", "testStd"),
-                (numpy.mean, numpy.median, numpy.min, numpy.std)):
-            stats[key].append(func(statLossTest))
-            if args.use_tensorboard:
-                writer.add_scalar(f"Loss/{key}", stats[key][-1], epoch)
+                writer.add_scalar(f"Loss/{key}", stats[key][-1], step)
 
         # scheduler.step(numpy.min(stats["testMean"]))
         scheduler.step()
         stats["lr"].append(numpy.array(scheduler.get_last_lr()))
         if args.use_tensorboard:
-            writer.add_scalar(f"Learning-rate/lr", stats["lr"][-1].item(), epoch)
-
+            writer.add_scalar(f"Learning-rate/lr", stats["lr"][-1].item(), step)
+        stats["trainStep"].append(step)
+ 
         # Save if best model so far
         if min_valid_loss > stats["testMean"][-1]:
             min_valid_loss = stats["testMean"][-1]
@@ -317,7 +387,7 @@ if __name__ == "__main__":
             del savedata
 
         # Save every 10 epochs
-        if (epoch + 1) % 10 == 0:
+        if (epoch + 1) % 100 == 0:
             savedata = {
                 "model" : model.state_dict(),
                 "optimizer" : optimizer.state_dict(),
