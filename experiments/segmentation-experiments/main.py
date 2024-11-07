@@ -106,7 +106,7 @@ if __name__ == "__main__":
                         help="Logging using tensorboard")
     parser.add_argument("--label-percentage", type=float, default=None,
                         help="Percentage of labels to use")
-    parser.add_argument("--num-samples", type=int, default=None,
+    parser.add_argument("--num-per-class", type=int, default=None,
                         help="Number of samples to use")
     parser.add_argument("--opts", nargs="+", default=[], 
                         help="Additional configuration options")
@@ -173,8 +173,8 @@ if __name__ == "__main__":
             model_name += "from-scratch"
         if args.label_percentage is not None and args.label_percentage < 1.0:
             model_name += f"-{int(args.label_percentage * 100)}%-labels"
-        elif args.num_samples is not None:
-            model_name += f"-{args.num_samples}-samples"
+        elif args.num_per_class is not None:
+            model_name += f"-{args.num_per_class}-samples"
 
         model_name += f"-{args.seed}"
 
@@ -221,8 +221,8 @@ if __name__ == "__main__":
         split = int(numpy.floor(args.label_percentage * len(training_dataset)))
         train_indices, _ = indices[:split], indices[split:]
         sampler = SubsetRandomSampler(train_indices)
-    elif args.num_samples is not None:
-        sampler = RandomNumberOfSamplesSampler(training_dataset, args.num_samples, seed=args.seed)
+    elif args.num_per_class is not None:
+        sampler = RandomNumberOfSamplesSampler(training_dataset, args.num_per_class, seed=args.seed)
     
     print("----------------------------------------")
     print("Training Dataset")
@@ -255,9 +255,9 @@ if __name__ == "__main__":
         num_epochs = int(budget / (args.label_percentage * len(training_dataset)))
         cfg.num_epochs = num_epochs
         print(f"Training budget is updated: {cfg.num_epochs} epochs")
-    elif args.num_samples is not None:
+    elif args.num_per_class is not None:
         budget = len(training_dataset) * num_epochs
-        num_epochs = int(budget / (args.num_samples * len(training_dataset.classes)))
+        num_epochs = int(budget / (args.num_per_class * len(training_dataset.classes)))
         cfg.num_epochs = num_epochs
         print(f"Training budget is updated: {cfg.num_epochs} epochs")
 
