@@ -311,8 +311,8 @@ def main():
     )
 
     # Makes sure that the model does not already exists, if so user can overwrite by passing the --overwrite
-    if os.path.isfile(f"{best_model.save_dir}/{best_model.model_name}.json") and not args.overwrite:
-        print(f"Model: `{best_model.save_dir}/{best_model.model_name}` already exists and will not be overwritten. Use the `--overwrite` to bypass this rule.")
+    if os.path.isfile(f"{save_best_model.save_dir}/{save_best_model.model_name}.json") and not args.overwrite:
+        print(f"Model: `{save_best_model.save_dir}/{save_best_model.model_name}` already exists and will not be overwritten. Use the `--overwrite` to bypass this rule.")
         exit()
 
     # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=0)

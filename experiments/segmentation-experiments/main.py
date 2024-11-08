@@ -33,6 +33,7 @@ sys.path.insert(0, "..")
 from model_builder import get_base_model, get_pretrained_model_v2
 from utils import update_cfg, save_cfg
 from configuration import Configuration
+from DEFAULTS import BASE_PATH
 
 def intensity_scale_(images: torch.Tensor) -> numpy.ndarray:
     """
@@ -94,7 +95,7 @@ if __name__ == "__main__":
                     help="Random seed")     
     parser.add_argument("--restore-from", type=str, default=None,
                     help="Model from which to restore from") 
-    parser.add_argument("--save-folder", type=str, default="./data/SSL/segmentation-baselines",
+    parser.add_argument("--save-folder", type=str, default=f"{BASE_PATH}/segmentation-baselines",
                     help="Model from which to restore from")     
     parser.add_argument("--dataset", required=True, type=str,
                     help="Name of the dataset to use")             
