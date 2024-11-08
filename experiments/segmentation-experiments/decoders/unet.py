@@ -105,7 +105,7 @@ class UNet(torch.nn.Module):
         super().__init__()
         self.backbone = backbone
         self.cfg = cfg
-        print(vars(self.cfg))
+
         if self.cfg.freeze_backbone:
             for param in self.backbone.parameters():
                 param.requires_grad = False

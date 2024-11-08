@@ -38,6 +38,7 @@ parser.add_argument("--from-scratch", action="store_true",
                     help="Activates the `from-scratch` training mode")
 parser.add_argument("--track-epochs", action="store_true")
 parser.add_argument("--num-per-class", type=int, default=None)
+parser.add_argument("--overwrite", action="store_true", help="Overwrite the training of previous model")
 parser.add_argument("--opts", nargs="+", default=[], 
                     help="Additional configuration options")    
 parser.add_argument("--dry-run", action="store_true")
@@ -308,6 +309,11 @@ def main():
         model_name=f"accuracy_{probe}_{args.num_per_class}_{args.seed}",
         maximize=True
     )
+
+    # Makes sure that the model does not already exists, if so user can overwrite by passing the --overwrite
+    if os.path.isfile(f"{save_best_model.save_dir}/{save_best_model.model_name}.json") and not args.overwrite:
+        print(f"Model: `{save_best_model.save_dir}/{save_best_model.model_name}` already exists and will not be overwritten. Use the `--overwrite` to bypass this rule.")
+        exit()
 
     # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=0)
 

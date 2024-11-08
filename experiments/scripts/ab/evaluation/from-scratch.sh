@@ -6,7 +6,7 @@
 #SBATCH --mem=16G
 #SBATCH --gpus-per-node=1
 #SBATCH --output=logs/%x-%A_%a.out
-#SBATCH --array=0-29
+#SBATCH --array=0-4
 #SBATCH --mail-user=anbil106@ulaval.ca
 #SBATCH --mail-type=ALL
 
@@ -22,20 +22,10 @@ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 cd ${HOME}/Documents/flc-dataset/experiments/evaluation
 
 MODELS=(
-    "resnet18"
     "resnet50"
-    "mae-lightning-tiny"
-    "mae-lightning-small"
-    "mae-lightning-base"
-    "mae-lightning-large"
 )
 OPTIONS=(
-    "batch_size 128"
-    "batch_size 128"
-    "batch_size 128"
-    "batch_size 128"
     "batch_size 64"
-    "batch_size 32"
 )
 SEEDS=(
     42
@@ -47,7 +37,7 @@ SEEDS=(
 
 # Creates an array of possible options to choose from
 opts=()
-for i in $(seq 0 5);
+for i in $(seq 0 0);
 do
     model="${MODELS[$i]}"
     option="${OPTIONS[$i]}"

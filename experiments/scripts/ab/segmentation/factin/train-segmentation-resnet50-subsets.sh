@@ -63,7 +63,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/anbil106/SSL/segmentation-baselines" --host 0.0.0.0 --load_fast false &
+tensorboard --logdir="/scratch/anbil106/projects/SSL/segmentation-baselines" --host 0.0.0.0 --load_fast false &
 python main.py --seed 42 --use-tensorboard --dataset "factin" \
     --backbone "resnet50" --backbone-weights ${weight} \
     --label-percentage ${subset} --opts ${options}
