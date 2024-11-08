@@ -83,7 +83,7 @@ class RandomNumberOfSamplesSampler(Sampler):
 
 class SegmentationConfiguration(Configuration):
     
-    freeze_backbone: bool = True
+    freeze_backbone: bool = False
     num_epochs: int = 100
     learning_rate: float = 0.001
 
@@ -146,14 +146,21 @@ if __name__ == "__main__":
     for key, value in segmentation_cfg.__dict__.items():
         setattr(cfg, key, value)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> eed69e1ec81ecd6dcf9192b90e899bdf6e908fbc
     # update_cfg(cfg, args.opts)
     # print(cfg.__dict__)
     cfg.backbone_weights = args.backbone_weights
     print(f"Config: {cfg.__dict__}")
 
+<<<<<<< HEAD
 =======
     update_cfg(cfg, args.opts)
 >>>>>>> main
+=======
+    update_cfg(cfg, args.opts)
+>>>>>>> eed69e1ec81ecd6dcf9192b90e899bdf6e908fbc
 
     if args.restore_from:
         # Loads checkpoint
