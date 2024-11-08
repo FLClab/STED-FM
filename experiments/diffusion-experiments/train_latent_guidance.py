@@ -23,12 +23,12 @@ from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--dataset-path", type=str, default="./Datasets/FLCDataset/baselines/dataset.tar")
-parser.add_argument("--model", default="mae-lightning-tiny")
+parser.add_argument("--model", type=str, default="mae-lightning-tiny")
 parser.add_argument("--weights", type=str, default="MAE_TINY_STED")
 parser.add_argument("--timesteps", type=int, default=1000)
 parser.add_argument("--epochs", type=int, default=1000)
 parser.add_argument("--dataset", type=str, default="STED")
-parser.add_argument("--save-folder", type=str, default='./model-checkpoints/latent')
+parser.add_argument("--save-folder", type=str, default='/home/frbea320/scratch/model_checkpoints/DiffusionModels/latent-guidance')
 parser.add_argument("--num-classes", type=int, default=24)
 parser.add_argument("--checkpoint", type=str, default=None)
 parser.add_argument("--batch-size", type=int, default=4)
@@ -36,9 +36,27 @@ parser.add_argument("--use-tensorboard", action='store_true')
 parser.add_argument("--restore-from", type=str, default=None)
 args = parser.parse_args() 
 
+def get_save_folder() -> str: 
+    if args.weights is None:
+        return "from-scratch"
+    elif "imagenet" in args.weights.lower():
+        return "ImageNet"
+    elif "sted" in args.weights.lower():
+        return "STED"
+    elif "jump" in args.weights.lower():
+        return "JUMP"
+    elif "ctc" in args.weights.lower():
+        return "CTC"
+    elif "hpa" in args.weights.lower():
+        return "HPA"
+    else:
+        raise NotImplementedError("The requested weights do not exist.")
+
+
 
 class ReconstructionCallback(Callback):
     def on_train_epoch_end(self, trainer, pl_module):
+        SAVEFOLDER = get_save_folder()
         imgs = pl_module.imgs # We've defined this in the training_step function of the LightningModule 
         pl_module.eval()
         with torch.no_grad():
@@ -54,9 +72,9 @@ class ReconstructionCallback(Callback):
                 axs[1].imshow(sample, cmap='hot', vmin=0.0, vmax=1.0)
                 axs[0].set_title("Original")
                 axs[1].set_title("Reconstruction")
-                axs[1].set_xticks([])
-                axs[1].set_yticks([])
-                fig.savefig(f"./model-checkpoints/latent/pl-latent-guidance-recon_{i}.png", dpi=1200)
+                for ax in axs:
+                    ax.axis("off")
+                fig.savefig(f"./viz/{SAVEFOLDER}/pl-latent-guidance-recon_{i}.png", dpi=1200)
                 plt.close(fig)
 
 class DatasetConfig:
@@ -68,11 +86,13 @@ class DatasetConfig:
     batch_size: int = args.batch_size
 
 if __name__=="__main__":
+    SAVEFOLDER = get_save_folder()
+    print(f"--- Dataset: {SAVEFOLDER} ---")
     if args.checkpoint is not None:
         raise NotImplementedError("Loading from checkpoint not implemented yet")
 
     else:
-        OUTPUT_FOLDER = args.save_folder 
+        OUTPUT_FOLDER = f"{args.save_folder}/{SAVEFOLDER}"
         latent_encoder, model_config = get_pretrained_model_v2(
             name=args.model,
             weights=args.weights,

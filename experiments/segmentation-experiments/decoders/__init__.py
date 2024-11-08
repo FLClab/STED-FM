@@ -15,10 +15,14 @@ MODELS = {
     "convenext-tiny" : get_unet_decoder,
     "convenext-small" : get_unet_decoder,
     "convenext-base" : get_unet_decoder,
-    "vit-small" : get_vit_decoder,
-    "vit-base" : get_vit_decoder,
-    "mae-small" : get_vit_decoder,
-    "mae-base" : get_vit_decoder,
+    "mae-lightning-tiny" : get_vit_decoder,
+    "mae-lightning-small" : get_vit_decoder,
+    "mae-lightning-base" : get_vit_decoder,
+    "mae-lightning-large" : get_vit_decoder,
+    "vit-tiny": get_vit_decoder,
+    "vit-small": get_vit_decoder,
+    "vit-base": get_vit_decoder,
+    "vit-large": get_vit_decoder
 }
 
 def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn.Module:

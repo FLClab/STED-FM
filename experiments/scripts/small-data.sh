@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=72:00:00
+#SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -20,10 +20,10 @@ source ~/phd/bin/activate
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 WEIGHTS=(
-    "MAE_SMALL_IMAGENET1K_V1"
-    "MAE_SMALL_HPA"
-    "MAE_SMALL_JUMP"
-    "MAE_SMALL_STED"
+    "MAE_TINY_IMAGENET1K_V1"
+    "MAE_TINY_HPA"
+    "MAE_TINY_JUMP"
+    "MAE_TINY_STED"
 )
 
 NUMCLASSES=(
@@ -75,7 +75,7 @@ echo $numclass
 echo $seed
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset polymer-rings --model mae-lightning-small --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
+python finetune_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
