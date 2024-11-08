@@ -33,6 +33,7 @@ from torchsummary import summary
 
 import sys 
 sys.path.insert(0, "..")
+from DEFAULTS import BASE_PATH
 from configuration import Configuration
 from modules.datamodule import MultiprocessingDataModule
 from modules.transforms import SimCLRTransform
@@ -226,7 +227,7 @@ if __name__ == "__main__":
                     help="Random seed")     
     parser.add_argument("--restore-from", type=str, default=None,
                     help="Model from which to restore from") 
-    parser.add_argument("--save-folder", type=str, default="./data/SSL/baselines",
+    parser.add_argument("--save-folder", type=str, default=f"{BASE_PATH}/baselines",
                     help="Model from which to restore from")     
     parser.add_argument("--dataset", type=str, default="STED",
                     help="Model from which to restore from")         
