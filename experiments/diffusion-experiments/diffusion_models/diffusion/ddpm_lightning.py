@@ -419,6 +419,7 @@ class DDPM(LightningModule):
         )
         noise = torch.randn_like(x)
         eps = self._predict_eps_from_x0(x, t, out["pred_x0"])
+        
         mean_pred = out["pred_x0"] * torch.sqrt(alpha_bar_prev) + torch.sqrt(1 - alpha_bar_prev - sigma**2) * eps 
         nonzero_mask = ((t != 0).float().view(-1, *([1] * (len(x.shape) - 1)))) 
         sample = mean_pred + nonzero_mask * sigma * noise 
@@ -494,6 +495,72 @@ class DDPM(LightningModule):
                 )            
                 yield out 
                 img = out["sample"]
+
+    def ddim_reverse_sample(
+        self,
+        x, 
+        t, 
+        clip_denoised=True,
+        denoised_fn=True,
+        model_kwargs=None,
+        eta=0.0,
+    ):
+        """
+        Use this function to sample x_{t+1} in a deterministic manner
+        """
+        assert eta == 0.0
+        out = self.p_mean_variance(
+            x=x,
+            t=t,
+            clip_denoised=clip_denoised,
+            denoised_fn=denoised_fn,
+            model_kwargs=model_kwargs,
+            cond=None,
+        )
+        eps = (
+            _extract_into_tensor(self.sqrt_recip_alphas_cumprod, t, x.shape) * x - out["pred_x0"]
+        ) / _extract_into_tensor(self.sqrt_recipm1_alphas_cumprod, t, x.shape)
+        alpha_bar_next = _extract_into_tensor(self.alphas_cumprod_next, t, x.shape)
+        mean_pred = (out["pred_x0"] * torch.sqrt(alpha_bar_next) + torch.sqrt(1 - alpha_bar_next) * eps)
+        return {"sample": mean_pred, "pred_x0": out["pred_x0"]}
+
+    def ddim_reverse_sample_loop(
+        self,
+        x: torch.Tensor,
+        clip_denoised=True,
+        denoised_fn=None,
+        model_kwargs=None,
+        eta=0.0, 
+        device=None,
+    ):
+        if device is None:
+            device = next(self.model.parameters()).device
+        sample_t = []
+        x0_t = []
+        T = []
+        indices = list(range(self.T))
+        sample = x 
+        for i in indices:
+            t = torch.tensor([i] * x.shape[0], device=device)
+            with torch.no_grad():
+                out = self.ddim_reverse_sample(
+                    x=sample,
+                    t=t,
+                    clip_denoised=clip_denoised,
+                    denoised_fn=denoised_fn,
+                    model_kwargs=model_kwargs,
+                    eta=eta
+                )
+                sample = out["sample"]
+                sample_t.append(sample)
+                x0_t.append(out["pred_x0"])
+                T.append(t)
+        return {
+            "sample": sample,
+            "sample_t": sample_t,
+            "x0_t": x0_t,
+            "T": T,
+        }
 
     def p_sample_loop(
         self,

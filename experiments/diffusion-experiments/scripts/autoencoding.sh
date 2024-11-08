@@ -21,7 +21,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Beginning..."
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python diversity.py --sampling "ddpm" --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset-250k.tar" --checkpoint "/home/frbea320/scratch/model_checkpoints/DiffusionModels/latent-guidance/STED/checkpoint-69.pth"
+python autoencoding.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset-250k.tar" --checkpoint "/home/frbea320/scratch/model_checkpoints/DiffusionModels/latent-guidance/STED/checkpoint-69.pth"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

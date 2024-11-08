@@ -1,16 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt 
-import torch 
+import torch
 from diffusion_models.diffusion.ddpm_lightning import DDPM
 from diffusion_models.diffusion.denoising.unet import UNet 
-from tqdm import trange, tqdm
-from torch import nn 
+from tqdm import trange, tqdm 
+from torch import nn
 import os 
 import argparse 
 from skimage.filters import threshold_otsu
-import sys 
 from datamodule import MultiprocessingDataModule 
 from class_dict import class_dict 
+import sys
 sys.path.insert(0, "../")
 from model_builder import get_pretrained_model_v2 
 from datasets import get_dataset
@@ -24,8 +24,7 @@ parser.add_argument("--timesteps", type=int, default=1000)
 parser.add_argument("--dataset", type=str, default="STED")
 parser.add_argument("--checkpoint", type=str, default='/home/frbea320/scratch/model_checkpoints/DiffusionModels/latent-guidance')
 parser.add_argument("--batch-size", type=int, default=4)
-parser.add_argument("--num-samples", type=int, default=10)
-parser.add_argument("--sampling", type=str, default="ddpm")
+parser.add_argument("--num-samples", type=int, default=5)
 args = parser.parse_args()
 
 def get_save_folder() -> str: 
@@ -48,7 +47,7 @@ def add_anomaly(img: np.ndarray):
     if isinstance(img, torch.Tensor):
         img = img.squeeze(0).detach().cpu().numpy()
 
-    num_emitters = np.max(img)
+    num_emitters = np.random.uniform(low=np.quantile(img, 0.60), high=np.max(img))
     size = np.random.randint(5, 25)
     y = np.random.randint(0, img.shape[0] - size)
     x = np.random.randint(img.shape[1] - size)
@@ -107,50 +106,29 @@ if __name__=="__main__":
         use_cache=False,
     )
     N = len(dataset)
-
     for i in range(5):
         idx = np.random.randint(N)
         img = dataset[idx]
         img, anomaly = add_anomaly(img)
-        residual = abs(anomaly - img)
-        fig, axs = plt.subplots(1, 3)
-        axs[0].imshow(anomaly, cmap='hot', vmin=0.0, vmax=1.0)
-        axs[1].imshow(img, cmap='hot', vmin=0.0, vmax=1.0)
-        axs[2].imshow(residual, cmap='coolwarm', vmin=0.0, vmax=1.0)
-        for ax in axs:
-            ax.axis("off")
-        fig.savefig(f"./viz/{SAVEFOLDER}/anomaly_schematic_{i}.pdf", dpi=1200, bbox_inches='tight')
-        plt.close(fig)
-        continue
-
-        img = torch.tensor(img[np.newaxis, ...], dtype=torch.float32).unsqueeze(0).to(device) # B = 1
-        print(img.shape)
+        img = torch.tensor(anomaly[np.newaxis, ...], dtype=torch.float32).unsqueeze(0).to(device)
         original = img.squeeze().detach().cpu().numpy()
-        fig, axs = plt.subplots(1, 11)
-        axs[0].imshow(original, cmap='hot', vmin=0.0, vmax=1.0)
-        axs[0].set_title("Original")
-        # axs[1][0].imshow(original, cmap='hot', vmin=0.0, vmax=1.0)
+        fig, axs = plt.subplots(2, 6)
+        axs[0][0].imshow(original, cmap='hot', vmin=0.0, vmax=1.0)
+        axs[0][0].set_title("Original")
         for s in range(args.num_samples):
             condition = model.latent_encoder.forward_features(img)
-            #if args.sampling == "ddpm":
-            #else:
-
-            # DDPM
-            sample = model.p_sample_loop(shape=img.shape, cond=condition, progress=True)
+            stochastic_code = model.ddim_reverse_sample_loop(x=img)
+            noise = stochastic_code["sample"]
+            noise_img = noise.squeeze().detach().cpu().numpy()
+            axs[1][s+1].imshow(noise_img, cmap='hot', vmin=0.0, vmax=1.0)
+            sample = model.ddim_sample_loop(shape=img.shape, noise=noise, cond=condition, progress=True)
             sample = sample.squeeze().detach().cpu().numpy()
             m, M = sample.min(), sample.max()
             sample = (sample - m) / (M - m)
-            axs[s + 1].imshow(sample, cmap='hot', vmin=0.0, vmax=1.0)
-
-            # DDIM
-            # sample = model.ddim_sample_loop(shape=img.shape, cond=condition, progress=True)
-            # sample = sample.squeeze().detach().cpu().numpy()
-            # m, M = sample.min(), sample.max()
-            # sample = (sample - m) / (M - m)
-            # axs[1][s + 1].imshow(sample, cmap='hot', vmin=0.0, vmax=1.0)
+            axs[0][s + 1].imshow(sample, cmap='hot', vmin=0.0, vmax=1.0)
         for ax in axs.ravel():
             ax.axis("off")
-        fig.savefig(f"./viz/{SAVEFOLDER}/anomaly_test_{i}.pdf", dpi=1200, bbox_inches='tight')
+        fig.savefig(f"./viz/{SAVEFOLDER}/diffae_anomaly_test_{i}.pdf", dpi=1200, bbox_inches='tight')
         plt.close(fig)
-            
-        
+
+
