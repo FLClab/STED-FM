@@ -122,7 +122,7 @@ def get_data():
     """
     augmentations, features = [], []
     for i in range(3):
-        features.extend(numpy.random.normal(0, 0.1, size=(1000, 512)))
+        features.extend(numpy.random.normal(i, 0.1, size=(1000, 512)))
         augmentations.extend([f"augmentation-{i}"] * 1000)
     features, augmentations = numpy.array(features), numpy.array(augmentations)
 
@@ -145,16 +145,16 @@ def main():
     print(adata)
 
     # Compute the batch correction metrics
-    print("Graph connectivity:", graph_connectivity(adata, "label", "cluster"))
-    # print("kbet:", kbet(adata, "label", "cluster"))
-    print("LISI batch:", lisi_batch(adata, "cluster"))
-    print("Silhouette batch:", silhouette_batch(adata, "label", "cluster"))
+    print("Graph connectivity:", graph_connectivity(adata.copy(), "label", "cluster"))
+    print("KBET:", kbet(adata.copy(), "label", "cluster"))
+    print("LISI batch:", lisi_batch(adata.copy(), "cluster"))
+    print("Silhouette batch:", silhouette_batch(adata.copy(), "label", "cluster"))
 
-    # Compute the bio metrics
-    print("LISI label:", lisi_label(adata, "label"))
-    print("Leiden ARI:", ari(adata, "label", "cluster"))
-    print("Leiden NMI:", nmi(adata, "label", "cluster"))
-    print("Silhouette label:", asw(adata, "label"))
+    # # # Compute the bio metrics
+    print("LISI label:", lisi_label(adata.copy(), "label"))
+    print("Leiden ARI:", ari(adata.copy(), "label", "cluster"))
+    print("Leiden NMI:", nmi(adata.copy(), "label", "cluster"))
+    print("Silhouette label:", asw(adata.copy(), "label"))
 
 
 
