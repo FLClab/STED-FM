@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
 #SBATCH --gpus-per-node=1
-#SBATCH --array=0-179
+#SBATCH --array=0-224
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=anbil106@ulaval.ca
 #SBATCH --mail-type=ALL
@@ -42,10 +42,11 @@ OPTS=(
     "freeze_backbone false"
 )
 SUBSETS=(
-    "0.01"
-    "0.10"
-    "0.25"
-    "0.50"
+    10
+    25
+    50
+    100
+    250
 )
 SEEDS=(
     42
@@ -86,10 +87,10 @@ echo "% Weight: ${weight}"
 echo "% Options: ${options}"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/projects/SSL/segmentation-baselines/resnet18" --host 0.0.0.0 --load_fast false &
+tensorboard --logdir="/scratch/anbil106/projects/SSL/segmentation-baselines/resnet18/lioness" --host 0.0.0.0 --load_fast false &
 python main.py --seed ${seed} --use-tensorboard --dataset "lioness" \
     --backbone "resnet18" --backbone-weights ${weight} \
-    --label-percentage ${subset} --opts ${options}
+    --num-per-class ${subset} --opts ${options}
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done training"
