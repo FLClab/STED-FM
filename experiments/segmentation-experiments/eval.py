@@ -180,7 +180,7 @@ def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
         scores["auap"].append(compute_auroc(truth_, prediction_, mask))
     return scores
 
-def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataLoader, savefolder: str = None) -> dict:
+def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataLoader, savefolder: str = None, device="cpu") -> dict:
     """
     Evaluates the segmentation model on the given loader
 
@@ -200,8 +200,8 @@ def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataL
                 X = X.unsqueeze(1)
 
         # Send to gpu
-        X = X.to(DEVICE)
-        y = y.to(DEVICE)
+        X = X.to(device)
+        y = y.to(device)
 
         pred = model(X)
 
@@ -306,7 +306,7 @@ if __name__ == "__main__":
     savedir = f"./results/{args.backbone}_{args.backbone_weights}/{args.dataset}/{os.path.basename(OUTPUT_FOLDER)}"
     os.makedirs(savedir, exist_ok=True)
 
-    scores = evaluate_segmentation(model, test_loader, savefolder=savedir)
+    scores = evaluate_segmentation(model, test_loader, savefolder=savedir, device=DEVICE)
     with open(os.path.join(OUTPUT_FOLDER, "segmentation-scores.json"), "w") as file: 
         json.dump(scores, file, indent=4)
 
