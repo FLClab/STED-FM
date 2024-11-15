@@ -83,7 +83,7 @@ class RandomNumberOfSamplesSampler(Sampler):
 
 class SegmentationConfiguration(Configuration):
     
-    freeze_backbone: bool = False
+    freeze_backbone: bool = True
     num_epochs: int = 100
     learning_rate: float = 0.001
 
@@ -145,7 +145,22 @@ if __name__ == "__main__":
     segmentation_cfg = SegmentationConfiguration()
     for key, value in segmentation_cfg.__dict__.items():
         setattr(cfg, key, value)
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> eed69e1ec81ecd6dcf9192b90e899bdf6e908fbc
+    # update_cfg(cfg, args.opts)
+    # print(cfg.__dict__)
+    cfg.backbone_weights = args.backbone_weights
+    print(f"Config: {cfg.__dict__}")
+
+<<<<<<< HEAD
+=======
     update_cfg(cfg, args.opts)
+>>>>>>> main
+=======
+    update_cfg(cfg, args.opts)
+>>>>>>> eed69e1ec81ecd6dcf9192b90e899bdf6e908fbc
 
     if args.restore_from:
         # Loads checkpoint
@@ -232,19 +247,20 @@ if __name__ == "__main__":
     print("----------------------------------------")
     print("Validation Dataset")
     print("Dataset size: ", len(validation_dataset))
+    print(f"Batch size: {cfg.batch_size}")
     print("----------------------------------------")
 
     # Build a PyTorch dataloader.
     train_loader = torch.utils.data.DataLoader(
         training_dataset,  # Pass the dataset to the dataloader.
-        batch_size=cfg.batch_size,  # A large batch size helps with the learning.
+        batch_size=32,  # A large batch size helps with the learning.
         shuffle=sampler is None,  # Shuffling is important!
         num_workers=4,
         sampler=sampler, drop_last=False
     )
     valid_loader = torch.utils.data.DataLoader(
         validation_dataset,  # Pass the dataset to the dataloader.
-        batch_size=cfg.batch_size,  # A large batch size helps with the learning.
+        batch_size=32,  # A large batch size helps with the learning.
         shuffle=True,  # Shuffling is important!
         num_workers=4
     )

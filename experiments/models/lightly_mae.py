@@ -69,6 +69,7 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
     elif name == "mae-lightning-small":
         cfg.dim = 384
         cfg.batch_size = 256
+        cfg.backbone = "vit-small"
         vit = vit_small_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
         backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 

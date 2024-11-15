@@ -116,7 +116,7 @@ class SimCLR(LightningModule):
 
     def on_save_checkpoint(self, checkpoint: dict) -> None:
         # Makes sure the configuration is converted to a dictionary
-        checkpoint["hyper_parameters"]["cfg"] = checkpoint["hyper_parameters"]["cfg"].to_dict()                
+        checkpoint["hyper_parameters"]["cfg"] = checkpoint["hyper_parameters"]["cfg"].to_dict()
 
     def training_step(self, batch, batch_idx):
         view0, view1 = batch
@@ -165,7 +165,12 @@ class SimCLR(LightningModule):
             lr = lr * self.cfg.batch_size * self.trainer.world_size / 256
         elif self.cfg.simclr.lr_scaling == "sqrt":
             lr = lr * math.sqrt(self.cfg.batch_size * self.trainer.world_size)
-         
+        
+        # optimizer = SGD(
+        #     [
+        #         {"params": params},
+        #         {"params": params_no_weight_decay, "weight_decay": 0.0},
+        #     ], lr=lr, momentum=self.cfg.simclr.momentum, weight_decay=self.cfg.simclr.weight_decay)
         optimizer = LARS(
             [
                 {
@@ -350,7 +355,8 @@ if __name__ == "__main__":
 
     trainer = Trainer(
         max_epochs=-1,
-        max_steps=1_000_000,
+        # max_steps=1_000_000,
+        max_steps=100,
         devices="auto",
         num_nodes=int(os.environ.get("SLURM_NNODES", 1)),
         accelerator="gpu",
