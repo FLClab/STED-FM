@@ -121,6 +121,36 @@ def compute_auroc(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.n
         auroc_per_class.append(roc_auc_score(t, p))
     return auroc_per_class
 
+def compute_auap(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> list:
+    """
+    Compute the area under the average precision curve between the truth and the prediction
+
+    :param truth: A `numpy.ndarray` of the ground truth
+    :param prediction: A `numpy.ndarray` of the prediction
+    :param mask: A `numpy.ndarray` of the mask to apply
+
+    :return: A `list` of the AUPR
+    """
+    auap_per_class = []
+    for t, p in zip(truth, prediction):
+        t, p = t[mask].ravel(), p[mask].ravel()
+
+        if not numpy.any(t):
+            auap_per_class.append(-1)
+            continue
+        if numpy.unique(t).size == 1:
+            auap_per_class.append(-1)
+            continue
+
+        precision, recall, _ = precision_recall_curve(t, p)
+        precision_star = [
+            numpy.max(precision[:i+1])
+            for i in reversed(range(len(recall)))
+        ]
+        precision_star = numpy.array(precision_star)[::-1]
+        auap_per_class.append(auc(recall, precision_star))
+    return auap_per_class
+
 def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
     """
     Compute the prediction between the truth and the prediction
@@ -147,6 +177,7 @@ def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
         scores["iou"].append(compute_iou(truth_, prediction_, mask))
         scores["aupr"].append(compute_aupr(truth_, prediction_, mask))
         scores["auroc"].append(compute_auroc(truth_, prediction_, mask))
+        scores["auap"].append(compute_auroc(truth_, prediction_, mask))
     return scores
 
 def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataLoader, savefolder: str = None) -> dict:
@@ -276,6 +307,9 @@ if __name__ == "__main__":
     os.makedirs(savedir, exist_ok=True)
 
     scores = evaluate_segmentation(model, test_loader, savefolder=savedir)
+    with open(os.path.join(OUTPUT_FOLDER, "segmentation-scores.json"), "w") as file: 
+        json.dump(scores, file, indent=4)
+
     for key, values in scores.items():
         print("Results for", key)
         values = numpy.array(values)

@@ -75,7 +75,7 @@ echo "% Weight: ${weight}"
 echo "% Options: ${options}"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/projects/SSL/segmentation-baselines/resnet18" --host 0.0.0.0 --load_fast false &
+tensorboard --logdir="/scratch/anbil106/projects/SSL/segmentation-baselines/resnet18/factin" --host 0.0.0.0 --load_fast false &
 python main.py --seed ${seed} --use-tensorboard --dataset "factin" \
     --backbone "resnet18" --backbone-weights ${weight} \
     --opts ${options}
