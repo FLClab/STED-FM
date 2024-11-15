@@ -31,15 +31,15 @@ BACKBONEWEIGHTS=(
     "None"
 )
 OPTS=(
-    "freeze_backbone true"
-    "freeze_backbone false"
-    "freeze_backbone true"
-    "freeze_backbone false"
-    "freeze_backbone true"
-    "freeze_backbone false"        
-    "freeze_backbone true"
-    "freeze_backbone false"
-    "freeze_backbone false"
+    "freeze_backbone true batch_size 64"
+    "freeze_backbone false batch_size 64"
+    "freeze_backbone true batch_size 64"
+    "freeze_backbone false batch_size 64"
+    "freeze_backbone true batch_size 64"
+    "freeze_backbone false batch_size 64"
+    "freeze_backbone true batch_size 64"
+    "freeze_backbone false batch_size 64"
+    "freeze_backbone false batch_size 64"
 )
 SEEDS=(
     42
@@ -75,8 +75,8 @@ echo "% Weight: ${weight}"
 echo "% Options: ${options}"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/projects/SSL/segmentation-baselines/resnet18" --host 0.0.0.0 --load_fast false &
-python main.py --seed ${seed} --use-tensorboard --dataset "factin" \
+tensorboard --logdir="/scratch/anbil106/projects/SSL/segmentation-baselines/resnet18/footprocess" --host 0.0.0.0 --load_fast false &
+python main.py --seed ${seed} --use-tensorboard --dataset "footprocess" \
     --backbone "resnet18" --backbone-weights ${weight} \
     --opts ${options}
 

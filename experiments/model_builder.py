@@ -66,25 +66,30 @@ def get_classifier_v3(name: str, dataset: str, pretraining: str, **kwargs):
         if "in_channels" not in kwargs:
             kwargs["in_channels"] = 3 if (pretraining is not None and "imagenet" in pretraining.lower()) else 1        
         backbone, cfg = get_base_model(name, **kwargs)
+
+        # Defines the probe
         probe = kwargs.get("probe", "linear-probe")
-        num_blocks = "all" if probe == "linear-probe" else "0"
+
         model = LinearProbe(
             backbone=backbone,
             name=name,
-            num_classes=4,
+            num_classes=kwargs["num_classes"],
             cfg=cfg,
-            num_blocks=num_blocks
+            num_blocks=kwargs['blocks'],
+            global_pool=kwargs.get("global_pool", "avg")
         )
+
+        # Loading the weights
         modelname = name.replace("-lightning", "")
-        path = os.path.join(BASE_PATH, "baselines", f"{modelname}_{pretraining}", dataset, f"{probe}.pth")
+        path = os.path.join(BASE_PATH, "baselines", f"{modelname}_{pretraining}", dataset, f"{probe}")
         checkpoint = torch.load(path)
-        model.load_state_dict(checkpoint["model_state_dict"])
+        model.load_state_dict(checkpoint["model_state_dict"], strict=True)
+        
         print(f"--- Loaded linear probe weights onto {name} ---")
+
         return model, cfg
     else:
         raise NotImplementedError(f"Cannot yet add a linear probe to `{name}`.")
-
-
 
 def get_classifier_v2(name: str, weights: str, task: str, path: str = None, dataset: str = None, **kwargs):
     if name in ['vit-small', 'vit-base']:
