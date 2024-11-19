@@ -64,7 +64,10 @@ class ReconstructionCallback(Callback):
             samples = pl_module.p_sample_loop(shape=imgs.shape, cond=conditions, progress=True)
             for i in range(samples.shape[0]):
                 img = imgs[i].squeeze().detach().cpu().numpy()
-                sample = samples[i].squeeze().detach().cpu().numpy()# .reshape(64, 64, 1)
+                if samples.shape[1] == 3:
+                    sample = samples[i][0].detach().cpu().numpy()
+                else:
+                    sample = samples[i].squeeze().detach().cpu().numpy()# .reshape(64, 64, 1)
                 m, M = sample.min(), sample.max()
                 sample = (sample - m) / (M - m)
                 fig, axs = plt.subplots(1, 2)
@@ -92,14 +95,15 @@ if __name__=="__main__":
         raise NotImplementedError("Loading from checkpoint not implemented yet")
 
     else:
+        channels = 3 if SAVEFOLDER == "ImageNet" else 1
         OUTPUT_FOLDER = f"{args.save_folder}/{SAVEFOLDER}"
         latent_encoder, model_config = get_pretrained_model_v2(
             name=args.model,
             weights=args.weights,
             path=None,
             mask_ratio=0.0, 
-            pretrained=False,
-            in_channels=1,
+            pretrained=True if channels == 3 else False,
+            in_channels=channels,
             as_classifier=True,
             blocks="all",
             num_classes=4, # will not be used
@@ -142,7 +146,7 @@ if __name__=="__main__":
     
     callbacks = [last_model_callback, checkpoint_callback, ReconstructionCallback()]
     cfg = DatasetConfig()
-    datamodule = MultiprocessingDataModule(args, cfg, transform=None)
+    datamodule = MultiprocessingDataModule(args, cfg, transform=None, in_channels=channels)
     trainer = Trainer(
         max_epochs=1000,
         devices='auto',

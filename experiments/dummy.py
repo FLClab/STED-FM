@@ -17,6 +17,8 @@ from datasets import get_dataset
 import io
 import tarfile
 
+test = "test"
+
 PATH = "/home/frbea320/scratch/Datasets/SynapticProteins/dataset"
 OUTPATH = "/home/frbea320/scratch/Datasets/FLCDataset/TheresaProteins"
 THRESHOLD = 0.001

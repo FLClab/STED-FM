@@ -20,10 +20,10 @@ source ~/phd/bin/activate
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 WEIGHTS=(
-    "MAE_TINY_IMAGENET1K_V1"
-    "MAE_TINY_HPA"
-    "MAE_TINY_JUMP"
-    "MAE_TINY_STED"
+    "MAE_BASE_IMAGENET1K_V1"
+    "MAE_BASE_HPA"
+    "MAE_BASE_JUMP"
+    "MAE_BASE_STED"
 )
 
 NUMCLASSES=(
@@ -75,7 +75,8 @@ echo $numclass
 echo $seed
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset neural-activity-states --model mae-lightning-tiny --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
+python finetune_v2.py --dataset neural-activity-states --model mae-lightning-base --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
+
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
