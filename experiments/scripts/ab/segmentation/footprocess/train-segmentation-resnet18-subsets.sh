@@ -31,15 +31,15 @@ BACKBONEWEIGHTS=(
     "None"
 )
 OPTS=(
+    "freeze_backbone true batch_size 64"
+    "freeze_backbone false batch_size 64"
     "freeze_backbone true"
-    "freeze_backbone false"
-    "freeze_backbone true"
-    "freeze_backbone false"
-    "freeze_backbone true"
-    "freeze_backbone false"        
-    "freeze_backbone true"
-    "freeze_backbone false"
-    "freeze_backbone false"
+    "freeze_backbone false batch_size 64"
+    "freeze_backbone true batch_size 64"
+    "freeze_backbone false batch_size 64"        
+    "freeze_backbone true batch_size 64"
+    "freeze_backbone false batch_size 64"
+    "freeze_backbone false batch_size 64"
 )
 SUBSETS=(
     10
