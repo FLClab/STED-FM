@@ -146,7 +146,7 @@ if __name__=="__main__":
     
     callbacks = [last_model_callback, checkpoint_callback, ReconstructionCallback()]
     cfg = DatasetConfig()
-    datamodule = MultiprocessingDataModule(args, cfg, transform=None, n_channels=channels)
+    datamodule = MultiprocessingDataModule(args, cfg, transform=None, in_channels=channels)
     trainer = Trainer(
         max_epochs=1000,
         devices='auto',
