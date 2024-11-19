@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
 #SBATCH --gpus-per-node=1
-#SBATCH --array=0-35
+#SBATCH --array=0-45
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=anbil106@ulaval.ca
 #SBATCH --mail-type=ALL
@@ -75,7 +75,7 @@ echo "% Weight: ${weight}"
 echo "% Options: ${options}"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/projects/SSL/segmentation-baselines/resnet18" --host 0.0.0.0 --load_fast false &
+tensorboard --logdir="/scratch/anbil106/projects/SSL/segmentation-baselines/resnet18/factin" --host 0.0.0.0 --load_fast false &
 python main.py --seed ${seed} --use-tensorboard --dataset "factin" \
     --backbone "resnet18" --backbone-weights ${weight} \
     --opts ${options}

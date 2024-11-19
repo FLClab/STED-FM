@@ -9,6 +9,7 @@ from matplotlib import pyplot
 
 sys.path.insert(0, "../../")
 from DEFAULTS import BASE_PATH
+from utils import savefig
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, 
@@ -71,7 +72,7 @@ def plot_data(pretraining, data, figax=None):
     ax.set(
         xlabel="Num. samples per class", ylabel=args.metric,
         ylim=(0, 1),
-        xticks=[int(s) for s in args.samples],
+        xticks=[int(s) for s in data.keys()],
     )
 
     return (fig, ax)
@@ -83,7 +84,7 @@ def main():
         data = get_data(pretraining=pretraining)
         fig, ax = plot_data(pretraining, data, figax=(fig, ax))
     ax.legend()
-    fig.savefig(os.path.join(".", "results", f"{args.dataset}_small-dataset-samples.png"), bbox_inches="tight")
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_small-dataset-samples"), extension="png")
 
 if __name__ == "__main__":
     main()
