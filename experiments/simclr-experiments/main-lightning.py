@@ -355,8 +355,8 @@ if __name__ == "__main__":
 
     trainer = Trainer(
         max_epochs=-1,
-        # max_steps=1_000_000,
-        max_steps=100,
+        max_steps=1_000_000,
+        # max_steps=100,
         devices="auto",
         num_nodes=int(os.environ.get("SLURM_NNODES", 1)),
         accelerator="gpu",
