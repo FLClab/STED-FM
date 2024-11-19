@@ -32,6 +32,8 @@ def get_dataset(name: str, path: str, **kwargs):
         dataset = TarJUMPDataset(path, **kwargs)
     elif name == "STED": 
         dataset = TarFLCDataset(path, **kwargs)
+    elif name == "SIM": 
+        dataset = TarFLCDataset(path, **kwargs)        
     elif name == "optim":
         dataset = OptimDataset(
             os.path.join(BASE_PATH, "evaluation-data", "optim-data"), 
@@ -1274,7 +1276,7 @@ class TarJUMPDataset(ArchiveDataset):
             tar_path: str,
             use_cache: bool = False,
             max_cache_size: int = 16e9,
-            image_channels: int = 1,
+            in_channels: int = 1,
             transform: Callable = None,
             cache_system=None,
             world_size: int = 1,
@@ -1290,7 +1292,7 @@ class TarJUMPDataset(ArchiveDataset):
             world_size=world_size,
             rank=rank
         )
-        self.image_channels = image_channels
+        self.in_channels = in_channels
 
     def get_members(self):
         return list(sorted(self.get_reader().getmembers(), key=lambda m: m.name))
@@ -1329,7 +1331,7 @@ class TarFLCDataset(ArchiveDataset):
     def __init__(self, tar_path: str, 
                  use_cache: bool = False, 
                  max_cache_size: int = 16e9, 
-                 image_channels: int = 1, 
+                 in_channels: int = 1, 
                  transform: Any = None, 
                  cache_system=None, 
                  return_metadata: bool=False,
@@ -1344,13 +1346,13 @@ class TarFLCDataset(ArchiveDataset):
         :param tar_path: The path to the TarFile object to load data from.
         :param use_cache: Whether to use a cache system to store data.
         :param max_cache_size: The maximum size of the cache in bytes.
-        :param image_channels: The number of channels in the image data.
+        :param in_channels: The number of channels in the image data.
         :param transform: The transformation to apply to the image data.
         :param cache_system: The cache system to use for storing data. This is 
             used to share a cache system across multiple workers using ``multiprocessing.Manager``.
         :param return_metadata: Whether to return metadata along with the image data.
         """
-        self.image_channels = image_channels
+        self.in_channels = in_channels
         self.return_metadata = return_metadata
         self.debug = debug        
 
@@ -1428,6 +1430,8 @@ class TarFLCDataset(ArchiveDataset):
             if img.ndim == 2:
                 img = img[np.newaxis]
             img = torch.tensor(img, dtype=torch.float32)
+            if self.in_channels == 3:
+                img = img.repeat(3, 1, 1)
 
         if self.return_metadata:
             # Ensures all keys are not None
@@ -1462,7 +1466,7 @@ class HPADataset(ArchiveDataset):
             zip_path: str,
             use_cache: bool = False, 
             max_cache_size: int = 16e9, 
-            image_channels: int = 1, 
+            in_channels: int = 1, 
             transform: Any = None, 
             cache_system=None, 
             return_metadata: bool=False,
@@ -1486,7 +1490,7 @@ class HPADataset(ArchiveDataset):
             rank=rank
         )
 
-        self.image_channels = image_channels
+        self.in_channels = in_channels
         self.return_metadata = return_metadata
     
     def get_members(self):
