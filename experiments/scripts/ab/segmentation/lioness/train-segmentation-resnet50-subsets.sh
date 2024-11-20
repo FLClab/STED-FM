@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
 #SBATCH --gpus-per-node=1
-#SBATCH --array=0-19
+#SBATCH --array=0-224
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=anbil106@ulaval.ca
 #SBATCH --mail-type=ALL
@@ -22,38 +22,58 @@ source $VENV_DIR/bin/activate
 BACKBONEWEIGHTS=(
     "RESNET50_IMAGENET1K_V1"
     "RESNET50_IMAGENET1K_V1"
+    "RESNET50_SSL_HPA"
+    "RESNET50_SSL_HPA"    
+    "RESNET50_SSL_JUMP"
+    "RESNET50_SSL_JUMP"
     "RESNET50_SSL_STED"
-    "RESNET50_SSL_STED"
+    "RESNET50_SSL_STED"    
     "None"
 )
 OPTS=(
-    "freeze_backbone true batch_size 32"
-    "freeze_backbone false batch_size 32"
-    "freeze_backbone true batch_size 32"
-    "freeze_backbone false batch_size 32"
-    "freeze_backbone false batch_size 32"
+    "freeze_backbone true batch_size 16"
+    "freeze_backbone false batch_size 16"
+    "freeze_backbone true batch_size 16"
+    "freeze_backbone false batch_size 16"
+    "freeze_backbone true batch_size 16"
+    "freeze_backbone false batch_size 16"        
+    "freeze_backbone true batch_size 16"
+    "freeze_backbone false batch_size 16"
+    "freeze_backbone false batch_size 16"
 )
 SUBSETS=(
-    "0.01"
-    "0.10"
-    "0.25"
-    "0.50"
+    10
+    25
+    50
+    100
+    250
+)
+SEEDS=(
+    42
+    43
+    44
+    45
+    46
 )
 
 opts=()
-for subset in "${SUBSETS[@]}"
+for seed in "${SEEDS[@]}"
 do
-    for i in $(seq 0 3)
+    for subset in "${SUBSETS[@]}"
     do
-        opts+=("$subset;${BACKBONEWEIGHTS[$i]};${OPTS[$i]}")
+        for i in $(seq 0 8)
+        do
+            opts+=("${seed};$subset;${BACKBONEWEIGHTS[$i]};${OPTS[$i]}")
+        done
     done
 done
 # Reads a specific item in the array and asign the values
 # to the opt variable
 IFS=';' read -r -a opt <<< "${opts[${SLURM_ARRAY_TASK_ID}]}"
-subset="${opt[0]}"
-weight="${opt[1]}"
-options="${opt[2]}"
+seed="${opt[0]}"
+subset="${opt[1]}"
+weight="${opt[2]}"
+options="${opt[3]}"
 
 # Moves to working directory
 cd ${HOME}/Documents/flc-dataset/experiments/segmentation-experiments
@@ -61,12 +81,16 @@ cd ${HOME}/Documents/flc-dataset/experiments/segmentation-experiments
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
+echo "% Seed: ${seed}"
+echo "% Subset: ${subset}"
+echo "% Weight: ${weight}"
+echo "% Options: ${options}"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/anbil106/SSL/segmentation-baselines" --host 0.0.0.0 --load_fast false &
-python main.py --seed 42 --use-tensorboard --dataset "footprocess" \
+tensorboard --logdir="/scratch/anbil106/projects/SSL/segmentation-baselines/resnet50/lioness" --host 0.0.0.0 --load_fast false &
+python main.py --seed ${seed} --use-tensorboard --dataset "lioness" \
     --backbone "resnet50" --backbone-weights ${weight} \
-    --label-percentage ${subset} --opts ${options}
+    --num-per-class ${subset} --opts ${options}
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done training"
