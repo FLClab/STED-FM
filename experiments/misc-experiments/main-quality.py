@@ -115,7 +115,11 @@ if __name__ == "__main__":
     )
 
     X_train, y_train, _ = get_features(model, train_loader)
-    # X_valid, y_valid, _ = get_features(model, valid_loader)
+    X_valid, y_valid, _ = get_features(model, valid_loader)
+    X_test, y_test, _ = get_features(model, test_loader)
+
+    numpy.savez(f"features-{args.weights}.npz", X_train=X_train, y_train=y_train, X_valid=X_valid, y_valid=y_valid, X_test=X_test, y_test=y_test)
+
     noise_level = numpy.mean(numpy.std(X_train, axis=0)) * 0.1
 
     print(X_train.shape, y_train.shape)

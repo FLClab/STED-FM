@@ -32,6 +32,8 @@ def get_dataset(name: str, path: str, **kwargs):
         dataset = TarJUMPDataset(path, **kwargs)
     elif name == "STED": 
         dataset = TarFLCDataset(path, **kwargs)
+    elif name == "SIM": 
+        dataset = TarFLCDataset(path, **kwargs)        
     elif name == "optim":
         dataset = OptimDataset(
             os.path.join(BASE_PATH, "evaluation-data", "optim-data"), 
