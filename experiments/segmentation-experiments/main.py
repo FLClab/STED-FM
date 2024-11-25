@@ -52,7 +52,8 @@ def intensity_scale_(images: torch.Tensor) -> numpy.ndarray:
     return images
 
 class RandomNumberOfSamplesSampler(Sampler):
-    def __init__(self, data_source: torch.utils.data.Dataset, num_samples_per_class: int, seed: int = None):
+    def __init__(self, cfg: Configuration, data_source: torch.utils.data.Dataset, num_samples_per_class: int, seed: int = None):
+        self.cfg = cfg
         self.data_source = data_source
         self.num_samples_per_class = num_samples_per_class
         self.rng = numpy.random.default_rng(seed)
@@ -64,8 +65,9 @@ class RandomNumberOfSamplesSampler(Sampler):
         for i, (image, mask) in enumerate(self.data_source):
             sum_per_class = torch.sum(mask, dim=(1, 2))
             for c, s in enumerate(sum_per_class):
-                if s > 0.1 * mask.size(-1) * mask.size(-2):
+                if s > self.cfg.dataset_cfg.min_annotated_ratio * mask.size(-1) * mask.size(-2):
                     indices_per_class[c].append(i)
+        print("Number of samples per class: ", {k: len(v) for k, v in indices_per_class.items()})
         indices = []
         for key, values in indices_per_class.items():
             if len(values) < self.num_samples_per_class:
@@ -230,7 +232,7 @@ if __name__ == "__main__":
         train_indices, _ = indices[:split], indices[split:]
         sampler = SubsetRandomSampler(train_indices)
     elif args.num_per_class is not None:
-        sampler = RandomNumberOfSamplesSampler(training_dataset, args.num_per_class, seed=args.seed)
+        sampler = RandomNumberOfSamplesSampler(cfg, training_dataset, args.num_per_class, seed=args.seed)
     
     print("----------------------------------------")
     print("Training Dataset")

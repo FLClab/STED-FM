@@ -29,6 +29,7 @@ DATAPATH = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiment
 class SynProtConfiguration(Configuration):
     num_classes: int = 1
     criterion: str = "MSELoss"
+    min_annotated_ratio: float = 0.1
 
 class ProteinSegmentationDataset(Dataset):
     def __init__(
