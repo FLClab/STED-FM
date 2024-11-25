@@ -4,7 +4,7 @@ import os, glob
 import json
 import argparse
 import sys
-
+from matplotlib.lines import Line2D
 from matplotlib import pyplot
 
 sys.path.insert(0, "../../")
@@ -18,7 +18,7 @@ parser.add_argument("--dataset", type=str,
                     help="Name of the dataset")
 parser.add_argument("--best-model", type=str, default=None, 
                     help="Which model to keep")
-parser.add_argument("--metric", default="auap", type=str,
+parser.add_argument("--metric", default="aupr", type=str,
                     help="Name of the metric to access from the saved file")
 args = parser.parse_args()
 
@@ -72,7 +72,7 @@ def plot_data(pretraining, data, figax=None, position=0, **kwargs):
         values = numpy.array([value[args.metric] for value in values])
         values_masked = numpy.ma.masked_equal(values, -1)
 
-        mean, std = numpy.ma.mean(values, axis=1), numpy.ma.std(values, axis=1)
+        mean, std = numpy.ma.mean(values_masked, axis=1), numpy.ma.std(values_masked, axis=1)
         mean = numpy.mean(mean, axis=-1)
         print(mean)
         averaged.append(mean)
@@ -86,8 +86,7 @@ def plot_data(pretraining, data, figax=None, position=0, **kwargs):
     return (fig, ax)
 
 def main():
-
-    fig, ax = pyplot.subplots(figsize=(4,3))
+    fig, ax = pyplot.subplots()
     modes = ["from-scratch", "pretrained-frozen", "pretrained"]
     pretrainings = ["STED", "HPA", "JUMP", "ImageNet"]
 
@@ -103,8 +102,16 @@ def main():
         xticks=numpy.arange(len(modes)) + width * len(pretrainings) / 2 - 0.5 * width,
     )
     ax.set_xticklabels(modes, rotation=30)
+    legend_elements = [ 
+        Line2D([0], [0], marker='o', color='tab:red', label='ImageNet', markerfacecolor='tab:red'),
+        Line2D([0], [0], marker='o', color='tab:green', label='JUMP', markerfacecolor='tab:green'),
+        Line2D([0], [0], marker='o', color='tab:orange', label='HPA', markerfacecolor='tab:orange'),
+        Line2D([0], [0], marker='o', color='tab:blue', label='STED', markerfacecolor='tab:blue'),
 
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_scratch-pretrained"), extension="png")
+    ]
+    pyplot.legend(handles=legend_elements)
+
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_scratch-pretrained"), extension="png", save_white=True)
 
 if __name__ == "__main__":
     main()
