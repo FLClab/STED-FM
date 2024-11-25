@@ -33,15 +33,15 @@ BACKBONEWEIGHTS=(
     "None"
 )
 OPTS=(
-    "freeze_backbone true batch_size 64"
-    "freeze_backbone false batch_size 64"
-    "freeze_backbone true batch_size 64"
-    "freeze_backbone false batch_size 64"
-    "freeze_backbone true batch_size 64"
-    "freeze_backbone false batch_size 64"
-    "freeze_backbone true batch_size 64"
-    "freeze_backbone false batch_size 64"
-    "freeze_backbone false batch_size 64"
+    "freeze_backbone true batch_size 32"
+    "freeze_backbone false batch_size 32"
+    "freeze_backbone true batch_size 32"
+    "freeze_backbone false batch_size 32"
+    "freeze_backbone true batch_size 32"
+    "freeze_backbone false batch_size 32"
+    "freeze_backbone true batch_size 32"
+    "freeze_backbone false batch_size 32"
+    "freeze_backbone false batch_size 32"
 )
 SEEDS=(
     42
@@ -76,7 +76,7 @@ echo "% Options: ${options}"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 tensorboard --logdir="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/segmentation-experiments/logs" --host 0.0.0.0 --load_fast false &
-python main.py --seed ${seed} --use-tensorboard --dataset "factin" \
+python main.py --seed ${seed} --use-tensorboard --dataset "lioness" \
     --backbone "mae-lightning-tiny" --backbone-weights ${weight} \
     --opts ${options}
 
