@@ -22,6 +22,7 @@ class LionessConfiguration(Configuration):
 
     num_classes: int = 2
     criterion: str = "MSELoss"
+    min_annotated_ratio: float = 0.1
 
 def convert_to_semantic_segmentation(label, tickness=1):
     """
