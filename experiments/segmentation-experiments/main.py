@@ -383,9 +383,15 @@ if __name__ == "__main__":
 
         # scheduler.step(numpy.min(stats["testMean"]))
         scheduler.step()
-        stats["lr"].append(numpy.array(scheduler.get_last_lr()))
+        stats["lr"].append(scheduler.get_last_lr())
         if args.use_tensorboard:
-            writer.add_scalar(f"Learning-rate/lr", stats["lr"][-1].item(), step)
+            _lr = stats["lr"][-1]
+            if isinstance(_lr, list):
+                for i in range(len(_lr)):
+                    writer.add_scalar(f"Learning-rate/lr-{i}", _lr[i], step)
+            else:
+                writer.add_scalar(f"Learning-rate/lr", _lr, step)
+            writer.add_scalar(f"Epochs/epoch", epoch, step)
         stats["trainStep"].append(step)
  
         # Save if best model so far
