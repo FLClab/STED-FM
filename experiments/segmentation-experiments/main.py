@@ -23,6 +23,7 @@ from multiprocessing import Manager
 from torch.utils.data import Sampler, SubsetRandomSampler
 from torch.utils.tensorboard import SummaryWriter
 from torchsummary import summary
+from lightly.utils.scheduler import CosineWarmupScheduler
 
 from decoders import get_decoder
 from datasets import get_dataset
@@ -88,8 +89,8 @@ class RandomNumberOfSamplesSampler(Sampler):
 class SegmentationConfiguration(Configuration):
     
     freeze_backbone: bool = True
-    num_epochs: int = 100
-    learning_rate: float = 0.001
+    num_epochs: int = 300
+    learning_rate: float = 1e-4
 
 if __name__ == "__main__":
 
@@ -277,7 +278,11 @@ if __name__ == "__main__":
 
     # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience = 10, threshold = 0.01, min_lr=1e-5, factor=0.1,)
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=cfg.num_epochs, eta_min=1e-5)
+    # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=cfg.num_epochs, eta_min=1e-5)
+    scheduler = CosineWarmupScheduler(
+        optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, max_epochs=num_epochs,
+        start_value=1.0, end_value=0.01
+    )    
 
     step = start_epoch * len(train_loader)
     print(start_epoch, step, cfg.num_epochs)
