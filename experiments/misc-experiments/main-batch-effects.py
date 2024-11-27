@@ -429,24 +429,24 @@ def main():
         
         features, labels, augmentations = get_features(model, train_loader, batch_effects=effects, device=device)
 
-        # if args.weights == "MAE_SMALL_STED" or args.weights == "RESNET18_SSL_STED":
-        #     print("Loading feature mask")
-        #     mask = numpy.load(f"feature-ids-{args.weights}.npy")
-        #     features = features[:, mask]
-        #     print("Features:", features.shape)
+        if args.weights == "MAE_SMALL_STED" or args.weights == "RESNET18_SSL_STED":
+            print("Loading feature mask")
+            mask = numpy.load(f"feature-ids-{args.weights}.npy")
+            features = features[:, mask]
+            print("Features:", features.shape)
 
         adata = get_data(features, labels, augmentations, categories=[effect.name for effect in effects])
-        adata.write(os.path.join("results", f"{args.dataset}_{args.model}_{args.weights}_{name}.h5ad"))
-    #     scores[name] = get_scores(
-    #         adata, 
-    #         label_key="labels", 
-    #         batch_key="augmentations", 
-    #         cluster_key="cluster"
-    #     )
-    #     plot_embeddings(adata, name, ["labels", "augmentations"], mapper=args.mapper)
+        # adata.write(os.path.join("results", f"{args.dataset}_{args.model}_{args.weights}_{name}.h5ad"))
+        scores[name] = get_scores(
+            adata, 
+            label_key="labels", 
+            batch_key="augmentations", 
+            cluster_key="cluster"
+        )
+        plot_embeddings(adata, name, ["labels", "augmentations"], mapper=args.mapper)
 
-    # with open(os.path.join("results", f"{args.dataset}_{args.model}_{args.weights}.json"), "w") as f:
-    #     json.dump(scores, f, indent=4, sort_keys=True)
+    with open(os.path.join("results", f"{args.dataset}_{args.model}_{args.weights}.json"), "w") as f:
+        json.dump(scores, f, indent=4, sort_keys=True)
 
 if __name__ == "__main__":
     main()

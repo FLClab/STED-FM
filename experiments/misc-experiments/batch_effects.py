@@ -3,6 +3,8 @@ import random
 import torch
 import numpy
 
+from torchvision.transforms.functional import gaussian_blur
+
 class BaseBatchEffect:
     @property
     def name(self):
