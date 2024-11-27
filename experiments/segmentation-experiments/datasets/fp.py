@@ -35,6 +35,7 @@ class FPConfiguration(Configuration):
 
     num_classes: int = 2
     criterion: str = "MSELoss"
+    min_annotated_ratio: float = 0.1
 
 class FPDataset(Dataset):
 

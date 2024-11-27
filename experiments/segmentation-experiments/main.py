@@ -23,6 +23,7 @@ from multiprocessing import Manager
 from torch.utils.data import Sampler, SubsetRandomSampler
 from torch.utils.tensorboard import SummaryWriter
 from torchsummary import summary
+from lightly.utils.scheduler import CosineWarmupScheduler
 
 from decoders import get_decoder
 from datasets import get_dataset
@@ -52,7 +53,8 @@ def intensity_scale_(images: torch.Tensor) -> numpy.ndarray:
     return images
 
 class RandomNumberOfSamplesSampler(Sampler):
-    def __init__(self, data_source: torch.utils.data.Dataset, num_samples_per_class: int, seed: int = None):
+    def __init__(self, cfg: Configuration, data_source: torch.utils.data.Dataset, num_samples_per_class: int, seed: int = None):
+        self.cfg = cfg
         self.data_source = data_source
         self.num_samples_per_class = num_samples_per_class
         self.rng = numpy.random.default_rng(seed)
@@ -64,8 +66,9 @@ class RandomNumberOfSamplesSampler(Sampler):
         for i, (image, mask) in enumerate(self.data_source):
             sum_per_class = torch.sum(mask, dim=(1, 2))
             for c, s in enumerate(sum_per_class):
-                if s > 0.1 * mask.size(-1) * mask.size(-2):
+                if s > self.cfg.dataset_cfg.min_annotated_ratio * mask.size(-1) * mask.size(-2):
                     indices_per_class[c].append(i)
+        print("Number of samples per class: ", {k: len(v) for k, v in indices_per_class.items()})
         indices = []
         for key, values in indices_per_class.items():
             if len(values) < self.num_samples_per_class:
@@ -86,8 +89,8 @@ class RandomNumberOfSamplesSampler(Sampler):
 class SegmentationConfiguration(Configuration):
     
     freeze_backbone: bool = True
-    num_epochs: int = 100
-    learning_rate: float = 0.001
+    num_epochs: int = 300
+    learning_rate: float = 1e-4
 
 if __name__ == "__main__":
 
@@ -230,7 +233,7 @@ if __name__ == "__main__":
         train_indices, _ = indices[:split], indices[split:]
         sampler = SubsetRandomSampler(train_indices)
     elif args.num_per_class is not None:
-        sampler = RandomNumberOfSamplesSampler(training_dataset, args.num_per_class, seed=args.seed)
+        sampler = RandomNumberOfSamplesSampler(cfg, training_dataset, args.num_per_class, seed=args.seed)
     
     print("----------------------------------------")
     print("Training Dataset")
@@ -275,7 +278,11 @@ if __name__ == "__main__":
 
     # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience = 10, threshold = 0.01, min_lr=1e-5, factor=0.1,)
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=cfg.num_epochs, eta_min=1e-5)
+    # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=cfg.num_epochs, eta_min=1e-5)
+    scheduler = CosineWarmupScheduler(
+        optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, max_epochs=num_epochs,
+        start_value=1.0, end_value=0.01
+    )    
 
     step = start_epoch * len(train_loader)
     print(start_epoch, step, cfg.num_epochs)
@@ -376,9 +383,15 @@ if __name__ == "__main__":
 
         # scheduler.step(numpy.min(stats["testMean"]))
         scheduler.step()
-        stats["lr"].append(numpy.array(scheduler.get_last_lr()))
+        stats["lr"].append(scheduler.get_last_lr())
         if args.use_tensorboard:
-            writer.add_scalar(f"Learning-rate/lr", stats["lr"][-1].item(), step)
+            _lr = stats["lr"][-1]
+            if isinstance(_lr, list):
+                for i in range(len(_lr)):
+                    writer.add_scalar(f"Learning-rate/lr-{i}", _lr[i], step)
+            else:
+                writer.add_scalar(f"Learning-rate/lr", _lr, step)
+            writer.add_scalar(f"Epochs/epoch", epoch, step)
         stats["trainStep"].append(step)
  
         # Save if best model so far

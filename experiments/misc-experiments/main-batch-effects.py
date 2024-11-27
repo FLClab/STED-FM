@@ -30,6 +30,7 @@ with warnings.catch_warnings():
     from scib import metrics
 
 from tiffwrapper import make_composite
+from batch_effects import IdendityBatchEffect, RotationBatchEffect, FlipBatchEffect, PoissonBatchEffect, GaussianBatchEffect, ContrastBatchEffect, GaussianBlurBatchEffect
 
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH
@@ -42,6 +43,7 @@ parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--dataset", type=str, required=True)
 parser.add_argument("--model", type=str, default='mae-lightning-small')
 parser.add_argument("--weights", type=str, default=None)
+parser.add_argument("--mapper", type=str, default="phate")
 parser.add_argument("--opts", nargs="+", default=[], 
                     help="Additional configuration options")    
 args = parser.parse_args()
@@ -62,89 +64,6 @@ def set_seeds():
     random.seed(args.seed)
     numpy.random.seed(args.seed)
     torch.manual_seed(args.seed)
-
-class PoissonBatchEffect:
-    def __init__(self, _lambda):
-        self._lambda = _lambda
-
-    @property
-    def name(self):
-        return f"PoissonBatchEffect({self._lambda})"
-
-    def apply(self, X):
-        noise = torch.poisson(torch.ones_like(X) * self._lambda) / 255.0
-        return X + noise
-    
-class GaussianBatchEffect:
-    def __init__(self, mean, std):
-        self.mean = mean
-        self.std = std
-
-    @property
-    def name(self):
-        return f"GaussianBatchEffect({self.mean}, {self.std})"
-
-    def apply(self, X):
-        noise = torch.normal(mean=self.mean, std=self.std, size=X.size())
-        if X.size(0) == 1:
-            return torch.clamp(X + noise, 0, None)
-        return X + noise
-    
-class ContrastBatchEffect:
-    def __init__(self, cutoff, gain=10):
-        self.cutoff = cutoff
-        self.gain = gain
-
-    @property
-    def name(self):
-        return f"ContrastBatchEffect({self.cutoff}, {self.gain})"
-
-    def apply(self, X):
-        vmin, vmax = X.min(), X.max()
-        X = (X - vmin) / (vmax - vmin)
-        output = 1 / (1 + torch.exp(self.gain * (self.cutoff - X)))
-        return torch.clamp(output * (vmax - vmin) + vmin, vmin, vmax)
-
-class ScaleBatchEffect:
-    def __init__(self, scale):
-        self.scale = scale
-
-    @property
-    def name(self):
-        return f"ScaleBatchEffect({self.scale})"
-
-    def apply(self, X):
-        return X * self.scale
-    
-class OffsetBatchEffect:
-    def __init__(self, offset):
-        self.offset = offset
-
-    @property
-    def name(self):
-        return f"OffsetBatchEffect({self.offset})"
-
-    def apply(self, X):
-        return X + self.offset
-    
-class GaussianBlurBatchEffect:
-    def __init__(self, sigma):
-        self.sigma = sigma
-
-    @property
-    def name(self):
-        return f"GaussianBlurBatchEffect({self.sigma})"
-
-    def apply(self, X):
-        return gaussian_blur(X, kernel_size=5, sigma=self.sigma)
-    
-class IdendityBatchEffect:
-    @property
-    def name(self):
-        return "IdendityBatchEffect()"
-
-    def apply(self, X):
-        return X
     
 def nmi(adata, label_key, cluster_key):
     """
@@ -392,7 +311,7 @@ def plot_embeddings(adata, effect, keys, mapper="phate"):
             fontsize=8
         )
         os.makedirs(os.path.join("results", "embeddings"), exist_ok=True)
-        savefig(fig, os.path.join("results", "embeddings", f"{args.dataset}_{args.model}_{args.weights}_{effect}_{key}"), extension="pdf", save_white=True)
+        # savefig(fig, os.path.join("results", "embeddings", f"{args.dataset}_{args.model}_{args.weights}_{effect}_{key}"), extension="pdf", save_white=True)
         savefig(fig, os.path.join("results", "embeddings", f"{args.dataset}_{args.model}_{args.weights}_{effect}_{key}"), extension="png", save_white=True)
         pyplot.close(fig)
 
@@ -452,25 +371,31 @@ def main():
 
     # histogram; 
     batch_effects = {
+        "geometric" : [
+            IdendityBatchEffect(),
+            RotationBatchEffect(),
+            FlipBatchEffect(),
+        ],
         "poisson" : [
             IdendityBatchEffect(),
             PoissonBatchEffect(1.0),
+            PoissonBatchEffect(2.0),
+            PoissonBatchEffect(3.0),
+            PoissonBatchEffect(4.0),
             PoissonBatchEffect(5.0),
-            PoissonBatchEffect(10.0),
-            PoissonBatchEffect(25.0),
         ],
-        "gaussian" : [
+        "gaussian-noise" : [
             IdendityBatchEffect(),
             GaussianBatchEffect(0.0, 0.01),
+            GaussianBatchEffect(0.0, 0.025),
             GaussianBatchEffect(0.0, 0.05),
-            GaussianBatchEffect(0.0, 0.10),
         ],
-        "contrast" : [
-            IdendityBatchEffect(),
-            ContrastBatchEffect(0.30, 10.0),
-            ContrastBatchEffect(0.40, 10.0),
-            ContrastBatchEffect(0.50, 10.0),
-        ],
+        # "contrast" : [
+        #     IdendityBatchEffect(),
+        #     ContrastBatchEffect(0.30, 10.0),
+        #     ContrastBatchEffect(0.40, 10.0),
+        #     ContrastBatchEffect(0.50, 10.0),
+        # ],
         "gaussian-blur" : [
             IdendityBatchEffect(),
             GaussianBlurBatchEffect(0.1),
@@ -478,6 +403,13 @@ def main():
             GaussianBlurBatchEffect(1.0),
             GaussianBlurBatchEffect(2.0),
         ],
+        "mixed" : [
+            IdendityBatchEffect(),
+            RotationBatchEffect(),
+            PoissonBatchEffect(1.0),
+            GaussianBatchEffect(0.0, 0.01),
+            GaussianBlurBatchEffect(1.0),
+        ]
     }
 
     # Save the results
@@ -496,9 +428,22 @@ def main():
         show_examples(name, images)
         
         features, labels, augmentations = get_features(model, train_loader, batch_effects=effects, device=device)
+
+        if args.weights == "MAE_SMALL_STED" or args.weights == "RESNET18_SSL_STED":
+            print("Loading feature mask")
+            mask = numpy.load(f"feature-ids-{args.weights}.npy")
+            features = features[:, mask]
+            print("Features:", features.shape)
+
         adata = get_data(features, labels, augmentations, categories=[effect.name for effect in effects])
-        scores[name] = get_scores(adata, label_key="labels", batch_key="augmentations", cluster_key="cluster")
-        plot_embeddings(adata, name, ["labels", "augmentations"])
+        # adata.write(os.path.join("results", f"{args.dataset}_{args.model}_{args.weights}_{name}.h5ad"))
+        scores[name] = get_scores(
+            adata, 
+            label_key="labels", 
+            batch_key="augmentations", 
+            cluster_key="cluster"
+        )
+        plot_embeddings(adata, name, ["labels", "augmentations"], mapper=args.mapper)
 
     with open(os.path.join("results", f"{args.dataset}_{args.model}_{args.weights}.json"), "w") as f:
         json.dump(scores, f, indent=4, sort_keys=True)
