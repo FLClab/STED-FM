@@ -118,7 +118,7 @@ def knn_sanity_check(
     print(f"--- Epoch {epoch} --> {args.dataset} ; {args.model} ; {savename} ---\n\tAccuracy: {accuracy * 100:0.2f}\n")
 
 def plot_features(features, labels, savename, classes=None, **kwargs):
-    pca = PCA(n_components=2)
+    pca = PCA(n_components=2, random_state=42)
     pca_features = pca.fit_transform(features)
 
     fig, ax = plt.subplots(figsize=(4, 4))
@@ -172,9 +172,10 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
     for i in range(1, num_classes+1):
         acc = accuracies[i]
         print("Class {} accuracy = {:.3f}".format(
-            i, acc))  
-    # plot_features(all_features, all_labels, savename="{save_dir}_pca.png", **kwargs)
-
+            i, acc)) 
+         
+    plot_features(all_features, all_labels, savename=f"{save_dir}_pca.png", **kwargs)
+    
     if is_training:
         model.train()
 
@@ -191,9 +192,6 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
             ax.text(i, j, "{:0.2f}".format(cm[j, i]), ha="center", va="center", color="black" if cm[j, i] < 0.5 else "white")
     fig.savefig(f"{save_dir}_confusion-matrix.png", bbox_inches="tight")
     plt.close()        
-
-    if is_training:
-        model.train()
 
     return loss_meter.avg, accuracies[0], confusion_matrix
 
@@ -281,10 +279,7 @@ def main():
             optimizer=optimizer, warmup_epochs=warmup_epochs, max_epochs=num_epochs,
             start_value=1.0, end_value=0.01,
             period=num_epochs//10
-        )        
-        # scheduler = CosineAnnealingLR(
-        #     optimizer=optimizer, T_max=num_epochs/10, eta_min=1e-5
-        # )
+        )
     else:
         optimizer = torch.optim.SGD(model.parameters(), lr=1e-3) 
         scheduler = CosineWarmupScheduler(
@@ -321,6 +316,7 @@ def main():
     for epoch in trange(num_epochs, desc="Epochs..."):
         model.train()
         loss_meter = AverageMeter()
+
         for imgs, data_dict in tqdm(train_loader, desc="Training...", leave=False):
             labels = data_dict['label']
             imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
@@ -331,7 +327,6 @@ def main():
             loss.backward()
             optimizer.step()
             loss_meter.update(loss.item())
-
 
             if (epoch < warmup_epochs and step % 10 == 0) or (step % 100 == 0):
                 v_loss, v_acc, v_cm = validation_step(
@@ -359,7 +354,7 @@ def main():
 
                 val_loss.update(step, v_loss)
                 val_acc.update(step, v_acc)
-                
+
             step += 1
 
         temp_lr = optimizer.param_groups[0]['lr']
