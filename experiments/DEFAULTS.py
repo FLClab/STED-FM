@@ -6,7 +6,7 @@ USER = os.environ.get("USER")
 if USER == "frbea320":
     BASE_PATH = "/home/frbea320/projects/def-flavielc/"
 elif USER == "anbil106":
-    BASE_PATH = "/home/anbil106/scratch/anbil106/SSL"
+    BASE_PATH = "/home/anbil106/scratch/projects/SSL"
 elif USER == "anthony":
     BASE_PATH = "/home-local2/projects/SSL"
 else:

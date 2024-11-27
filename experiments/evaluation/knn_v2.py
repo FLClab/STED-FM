@@ -12,6 +12,7 @@ import seaborn
 from scipy.spatial.distance import pdist, cdist
 import pandas 
 sys.path.insert(0, "../")
+from DEFAULTS import BASE_PATH
 from loaders import get_dataset 
 from model_builder import get_pretrained_model_v2 
 
@@ -135,6 +136,7 @@ def knn_predict(model: torch.nn.Module, valid_loader: DataLoader, test_loader: D
     os.makedirs(f"./results/{args.model}", exist_ok=True)
     fig.savefig(f"./results/{args.model}/{savename}_{args.dataset}_knn_results.pdf", dpi=1200, bbox_inches='tight', transparent=True)
     plt.close(fig)
+    return confusion_matrix
 
 
 def get_save_folder() -> str: 
@@ -156,16 +158,6 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
     n_channels = 3 if SAVE_NAME == "ImageNet" else 1
-    model, cfg = get_pretrained_model_v2(
-        name=args.model,
-        weights=args.weights,
-        path=None,
-        mask_ratio=0.0,
-        pretrained=True if SAVE_NAME == "ImageNet" else False,
-        in_channels=n_channels,
-        as_classifier=False,
-        blocks='0', # Not used with as_classifier = False
-    ) 
 
     _, valid_loader, test_loader = get_dataset(
         name=args.dataset,
@@ -177,9 +169,29 @@ def main():
         num_samples=None, # Not used when only getting test dataset
     )
 
+    # confusion_matrices = {}
+    # for ckpt in ["100000", "200000", "300000", "400000", "500000", "600000", "700000", "800000", "900000", "1000000"]:
+        # weights = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet50_STED", f"checkpoint-{ckpt}.pt")
+
+    model, cfg = get_pretrained_model_v2(
+        name=args.model,
+        weights=args.weights,
+        path=None,
+        mask_ratio=0.0,
+        pretrained=True if SAVE_NAME == "ImageNet" else False,
+        in_channels=n_channels,
+        as_classifier=False,
+        blocks='0', # Not used with as_classifier = False
+    ) 
+
     model = model.to(device)
     model.eval()
-    knn_predict(model=model, valid_loader=valid_loader, test_loader=test_loader, device=device, savename=SAVE_NAME)
+    confusion_matrix = knn_predict(model=model, valid_loader=valid_loader, test_loader=test_loader, device=device, savename=SAVE_NAME)
+    # confusion_matrices[ckpt] = confusion_matrix.tolist()
+    # import json
+    # with open(os.path.join("results", "scores.json"), "w") as handle:
+    #     json.dump(confusion_matrices, handle, indent=4)
+    
 
 if __name__=="__main__":
     main()

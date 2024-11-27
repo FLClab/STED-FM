@@ -17,6 +17,7 @@ class ZooniverseConfiguration(Configuration):
     num_classes: int = 6
     criterion: str = "MSELoss"
     in_channels: int = 1
+    min_annotated_ratio: float = 0.1
 
 
 class SemanticZooniverseDataset(Dataset):

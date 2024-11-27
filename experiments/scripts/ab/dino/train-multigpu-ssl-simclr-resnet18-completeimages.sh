@@ -3,7 +3,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --mem=0
-#SBATCH --nodes=16
+#SBATCH --nodes=8
 #SBATCH --gres=gpu:p100:2
 #SBATCH --tasks-per-node=2
 #SBATCH --cpus-per-task=16
@@ -14,6 +14,10 @@
 #
 
 export TORCH_NCCL_BLOCKING_WAIT=1 #Pytorch Lightning uses the NCCL backend for inter-GPU communication by default. Set this variable to avoid timeout errors.
+# export NCCL_DEBUG=INFO
+# export NCCL_DEBUG_SUBSYS=ALL
+# export TORCH_DISTRIBUTED_DEBUG=INFO
+
 # export MASTER_ADDR=$(hostname)
 # export MASTER_PORT=42424
 
@@ -25,41 +29,39 @@ VENV_DIR=${HOME}/venvs/ssl
 source $VENV_DIR/bin/activate
 
 # Moves to working directory
-cd ${HOME}/Documents/flc-dataset/experiments/simclr-experiments
+cd ${HOME}/Documents/flc-dataset/experiments/dino-experiments
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Copy file"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 cp "/project/def-flavielc/datasets/sim-dataset-full-images.tar" "${SLURM_TMPDIR}/dataset.tar"
+srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 cp "/project/def-flavielc/datasets/FLCDataset/dataset-full-images.tar" "${SLURM_TMPDIR}/dataset.tar"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Done copy file"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-# Launch training 
+# Launch training
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/resnet101_SIM" --host 0.0.0.0 --load_fast false &
+tensorboard --logdir="/scratch/anbil106/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu-dino/resnet18_STED" --host 0.0.0.0 --load_fast false &
 
-CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu/resnet101_SIM/result.pt"
+CKPT="/home/anbil106/scratch/projects/SSL/baselines/dataset-fullimages-1Msteps-multigpu-dino/resnet18_STED/result.pt"
 if [ -f $CKPT ]; then
     echo "% Training from previous checkpoint: ${CKPT}"
 
-    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet101" \
-                                  --dataset "SIM" \
-                                  --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
-                                  --opts "batch_size 32 datamodule.return_metadata False" \
+    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet18" \
+                                  --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu-dino" \
+                                  --opts "batch_size 64 datamodule.return_metadata False" \
                                   --restore-from "${CKPT}"
 else
     echo "% Training from scratch"
 
-    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet101" \
-                                  --dataset "SIM" \
-                                  --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu" \
-                                  --opts "batch_size 32 datamodule.return_metadata False"
+    srun python main-lightning.py --seed 42 --use-tensorboard --dataset-path "${SLURM_TMPDIR}/dataset.tar" --backbone "resnet18" \
+                                  --save-folder "./data/SSL/baselines/dataset-fullimages-1Msteps-multigpu-dino" \
+                                  --opts "batch_size 64 datamodule.return_metadata False"
 fi
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

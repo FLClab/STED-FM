@@ -1,9 +1,12 @@
 
 import numpy
+import anndata
+import os
 
 from matplotlib import pyplot
-from sklearn.linear_model import Ridge, Lasso
-from sklearn.feature_selection import RFE, SelectKBest, r_regression, f_regression, mutual_info_regression, SequentialFeatureSelector
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import Ridge, Lasso, RidgeClassifier
+from sklearn.feature_selection import RFE, SelectKBest, r_regression, f_regression, mutual_info_regression, SequentialFeatureSelector, f_classif, mutual_info_classif
 
 import sys
 sys.path.insert(0, "..")
@@ -13,7 +16,11 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42,
                 help="Random seed")     
+parser.add_argument("--dataset", type=str, default="optim",
+                    help="model model to load")
 parser.add_argument("--model", type=str, default="resnet18",
+                    help="model model to load")
+parser.add_argument("--batch-effect", type=str, default="poisson",
                     help="model model to load")
 parser.add_argument("--weights", type=str, default=None,
                     help="Backbone model to load")
@@ -30,6 +37,76 @@ assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
 # Ensure backbone weights are provided if necessary
 if args.weights in (None, "null", "None", "none"):
     args.weights = None
+
+def main_h5ad():
+    data = anndata.read_h5ad(os.path.join("results", f"{args.dataset}_{args.model}_{args.weights}_{args.batch_effect}.h5ad"))
+    
+    X = data.X
+    y = data.obs["augmentations"].cat.codes.values
+
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, shuffle=True, test_size=0.2, random_state=args.seed)
+    feature_ids = numpy.arange(X_train.shape[1])
+
+    model = RidgeClassifier()
+    model.fit(X_train, y_train)
+    print(model.score(X_test, y_test))
+    pred = model.predict(X_test)
+
+    cm = numpy.zeros((y_test.max()+1, y_test.max()+1))
+    for i in range(len(y_test)):
+        cm[y_test[i], pred[i]] += 1
+
+    fig, ax = pyplot.subplots(figsize=(3, 3))
+    ax.imshow(cm, cmap="Purples")
+    ax.set(
+        xlabel="True quality score",
+        ylabel="Predicted quality score",
+        # ylim=(0, 1),
+        # xlim=(0, 1),
+    )
+    savefig(fig, "tmp/quality-0", save_white=True)    
+
+    f_statistic, p_values = f_classif(X_train, y_train)
+
+    # Benjamini-Hochberg
+    FDR = 0.05
+    argsorted = numpy.argsort(p_values)
+    correction = p_values[argsorted] < (numpy.arange(len(p_values)) + 1) / len(X_train) * FDR
+    print(p_values[argsorted], (numpy.arange(len(p_values)) + 1) / len(X_train) * FDR)
+    minimal_p = p_values[argsorted[max(numpy.nonzero(correction)[0])]] # last pvalue
+    print(minimal_p)
+
+    print(p_values.shape)
+    print(p_values.max(), p_values.min())
+    print("Num features (p>0.05)", numpy.sum(p_values > 0.05))
+    print("Num features (p>minimal_p)", numpy.sum(p_values > minimal_p))
+    mask = p_values > minimal_p
+
+    X_train = X_train[:, mask]
+    X_test = X_test[:, mask]
+
+    model = RidgeClassifier()
+    model.fit(X_train, y_train)
+    print(model.score(X_test, y_test))
+    pred = model.predict(X_test)
+
+    cm = numpy.zeros((y_test.max()+1, y_test.max()+1))
+    for i in range(len(y_test)):
+        cm[y_test[i], pred[i]] += 1
+
+    numpy.save(f"feature-ids-{args.weights}.npy", feature_ids[mask])
+
+    fig, ax = pyplot.subplots(figsize=(3, 3))
+    print(cm)
+    ax.imshow(cm, cmap="Purples")
+    ax.set(
+        xlabel="True quality score",
+        ylabel="Predicted quality score",
+        # ylim=(0, 1),
+        # xlim=(0, 1),
+    )
+    savefig(fig, "tmp/quality-1", save_white=True)
 
 def main():
 
@@ -106,4 +183,5 @@ def main():
 
 if __name__ == "__main__":
 
-    main()
+    # main()
+    main_h5ad()

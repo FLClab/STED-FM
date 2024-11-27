@@ -36,6 +36,14 @@ class LinearProbe(torch.nn.Module):
             torch.nn.Linear(in_features=cfg.dim, out_features=self.num_classes)
         )
 
+    def train(self, mode: bool = True) -> None:
+        if self.frozen_blocks == "all":
+            # Linear probe only
+            self.backbone.eval()
+        else:
+            self.backbone.train(mode)
+        self.classification_head.train(mode)
+
     def _freeze_blocks(self, blocks: Union[List, int]) -> None:
         raise NotImplementedError("Partial fine-tuning not yet implemented.") 
     
@@ -51,7 +59,7 @@ class LinearProbe(torch.nn.Module):
             else:
                 raise NotImplementedError(f"Invalid `{self.global_pool}` pooling function.")
         else:
-            features = self.backbone.forward(x)    
+            features = self.backbone.forward(x)  
         return features    
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
