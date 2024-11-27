@@ -294,7 +294,7 @@ def main():
 
     criterion = torch.nn.CrossEntropyLoss()
     modelname = args.model.replace("-lightning", "")
-    model_path= os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
+    model_path = os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
     #model_path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{SAVENAME}/{args.dataset}"
     os.makedirs(model_path, exist_ok=True)
 
