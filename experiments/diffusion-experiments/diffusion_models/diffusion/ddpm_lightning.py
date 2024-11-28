@@ -8,7 +8,6 @@ from torch import nn
 import torch.nn.functional as F 
 from typing import List, Callable, Optional, Dict, List
 from .denoising.unet import UNet
-import copy
 from lightning.pytorch.core import LightningModule
 import sys 
 
