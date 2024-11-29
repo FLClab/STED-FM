@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
 #SBATCH --gpus-per-node=1
-#SBATCH --array=1-4
+#SBATCH --array=0-19
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=anbil106@ulaval.ca
 #SBATCH --mail-type=ALL
@@ -57,11 +57,11 @@ echo "% dataset: ${dataset}"
 echo "% seed: ${seed}"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset $dataset --model resnet18 --weights RESNET18_IMAGENET1K_V1 --blocks 0 --seed $seed
-python finetune_v2.py --dataset $dataset --model resnet18 --weights RESNET18_SSL_HPA --blocks 0 --seed $seed
-python finetune_v2.py --dataset $dataset --model resnet18 --weights RESNET18_SSL_JUMP --blocks 0 --seed $seed
-python finetune_v2.py --dataset $dataset --model resnet18 --weights RESNET18_SSL_STED --blocks 0 --seed $seed
+python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_IMAGENET1K_V1 --blocks 0 --seed $seed
+python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_SSL_HPA --blocks 0 --seed $seed
+python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_SSL_JUMP --blocks 0 --seed $seed
+python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_SSL_STED --blocks 0 --seed $seed
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% DONE %"
+echo "% DONE"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

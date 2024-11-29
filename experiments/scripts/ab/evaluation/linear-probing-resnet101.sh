@@ -57,24 +57,25 @@ echo "% dataset: ${dataset}"
 echo "% seed: ${seed}"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset $dataset --model resnet18 --weights RESNET18_IMAGENET1K_V1 --seed $seed --overwrite
-python finetune_v2.py --dataset $dataset --model resnet18 --weights RESNET18_SSL_HPA --seed $seed --overwrite
-python finetune_v2.py --dataset $dataset --model resnet18 --weights RESNET18_SSL_JUMP --seed $seed --overwrite
-python finetune_v2.py --dataset $dataset --model resnet18 --weights RESNET18_SSL_STED --seed $seed --overwrite
+python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_IMAGENET1K_V1 --seed $seed
+python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_SSL_HPA --seed $seed
+python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_SSL_JUMP --seed $seed
+python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_SSL_STED --seed $seed
 
 # echo -e "==================== OPTIM ===================="
 
 # # python finetune_v2.py --dataset optim --model micranet --weights MICRANET_SSL_HPA
 # # python finetune_v2.py --dataset optim --model micranet --weights MICRANET_SSL_STED
 
-# python finetune_v2.py --dataset optim --model resnet18 --weights RESNET18_IMAGENET1K_V1 --seed $seed
-# python finetune_v2.py --dataset optim --model resnet18 --weights RESNET18_SSL_HPA --seed $seed
-# python finetune_v2.py --dataset optim --model resnet18 --weights RESNET18_SSL_JUMP --seed $seed
-# python finetune_v2.py --dataset optim --model resnet18 --weights RESNET18_SSL_STED --seed $seed
+# # python finetune_v2.py --dataset optim --model resnet18 --weights RESNET18_IMAGENET1K_V1 --seed $seed
+# # python finetune_v2.py --dataset optim --model resnet18 --weights RESNET18_SSL_HPA --seed $seed
+# # python finetune_v2.py --dataset optim --model resnet18 --weights RESNET18_SSL_JUMP --seed $seed
+# # python finetune_v2.py --dataset optim --model resnet18 --weights RESNET18_SSL_STED --seed $seed
 
-# # python finetune_v2.py --dataset optim --model resnet50 --weights RESNET50_IMAGENET1K_V1
-# # python finetune_v2.py --dataset optim --model resnet50 --weights RESNET50_SSL_HPA
-# # python finetune_v2.py --dataset optim --model resnet50 --weights RESNET50_SSL_STED
+# python finetune_v2.py --dataset optim --model resnet50 --weights RESNET50_IMAGENET1K_V1 --seed $seed
+# python finetune_v2.py --dataset optim --model resnet50 --weights RESNET50_SSL_JUMP --seed $seed
+# python finetune_v2.py --dataset optim --model resnet50 --weights RESNET50_SSL_HPA --seed $seed
+# python finetune_v2.py --dataset optim --model resnet50 --weights RESNET50_SSL_STED --seed $seed
 
 # # python finetune_v2.py --dataset optim --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
 # # python finetune_v2.py --dataset optim --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
@@ -158,13 +159,14 @@ python finetune_v2.py --dataset $dataset --model resnet18 --weights RESNET18_SSL
 # # python finetune_v2.py --dataset neural-activity-states --model micranet --weights MICRANET_SSL_STED
 
 # # python finetune_v2.py --dataset neural-activity-states --model resnet18 --weights RESNET18_IMAGENET1K_V1 --seed $seed
-# python finetune_v2.py --dataset neural-activity-states --model resnet18 --weights RESNET18_SSL_HPA --seed $seed
-# python finetune_v2.py --dataset neural-activity-states --model resnet18 --weights RESNET18_SSL_JUMP --seed $seed
-# python finetune_v2.py --dataset neural-activity-states --model resnet18 --weights RESNET18_SSL_STED --seed $seed
+# # python finetune_v2.py --dataset neural-activity-states --model resnet18 --weights RESNET18_SSL_HPA --seed $seed
+# # python finetune_v2.py --dataset neural-activity-states --model resnet18 --weights RESNET18_SSL_JUMP --seed $seed
+# # python finetune_v2.py --dataset neural-activity-states --model resnet18 --weights RESNET18_SSL_STED --seed $seed
 
-# # python finetune_v2.py --dataset neural-activity-states --model resnet50 --weights RESNET50_IMAGENET1K_V1
-# # python finetune_v2.py --dataset neural-activity-states --model resnet50 --weights RESNET50_SSL_HPA
-# # python finetune_v2.py --dataset neural-activity-states --model resnet50 --weights RESNET50_SSL_STED
+# python finetune_v2.py --dataset neural-activity-states --model resnet50 --weights RESNET50_IMAGENET1K_V1 --seed $seed
+# python finetune_v2.py --dataset neural-activity-states --model resnet50 --weights RESNET50_SSL_HPA --seed $seed
+# python finetune_v2.py --dataset neural-activity-states --model resnet50 --weights RESNET50_SSL_JUMP --seed $seed
+# python finetune_v2.py --dataset neural-activity-states --model resnet50 --weights RESNET50_SSL_STED --seed $seed
 
 # # python finetune_v2.py --dataset neural-activity-states --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
 # # python finetune_v2.py --dataset neural-activity-states --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
@@ -205,13 +207,14 @@ python finetune_v2.py --dataset $dataset --model resnet18 --weights RESNET18_SSL
 # # python finetune_v2.py --dataset peroxisome --model micranet --weights MICRANET_SSL_STED
 
 # # python finetune_v2.py --dataset peroxisome --model resnet18 --weights RESNET18_IMAGENET1K_V1 --seed $seed
-# python finetune_v2.py --dataset peroxisome --model resnet18 --weights RESNET18_SSL_HPA --seed $seed
-# python finetune_v2.py --dataset peroxisome --model resnet18 --weights RESNET18_SSL_JUMP --seed $seed
-# python finetune_v2.py --dataset peroxisome --model resnet18 --weights RESNET18_SSL_STED --seed $seed
+# # python finetune_v2.py --dataset peroxisome --model resnet18 --weights RESNET18_SSL_HPA --seed $seed
+# # python finetune_v2.py --dataset peroxisome --model resnet18 --weights RESNET18_SSL_JUMP --seed $seed
+# # python finetune_v2.py --dataset peroxisome --model resnet18 --weights RESNET18_SSL_STED --seed $seed
 
-# # python finetune_v2.py --dataset peroxisome --model resnet50 --weights RESNET50_IMAGENET1K_V1
-# # python finetune_v2.py --dataset peroxisome --model resnet50 --weights RESNET50_SSL_HPA
-# # python finetune_v2.py --dataset peroxisome --model resnet50 --weights RESNET50_SSL_STED
+# python finetune_v2.py --dataset peroxisome --model resnet50 --weights RESNET50_IMAGENET1K_V1 --seed $seed
+# python finetune_v2.py --dataset peroxisome --model resnet50 --weights RESNET50_SSL_HPA --seed $seed
+# python finetune_v2.py --dataset peroxisome --model resnet50 --weights RESNET50_SSL_JUMP --seed $seed
+# python finetune_v2.py --dataset peroxisome --model resnet50 --weights RESNET50_SSL_STED --seed $seed
 
 # # python finetune_v2.py --dataset peroxisome --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
 # # python finetune_v2.py --dataset peroxisome --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED
@@ -252,13 +255,14 @@ python finetune_v2.py --dataset $dataset --model resnet18 --weights RESNET18_SSL
 # # python finetune_v2.py --dataset polymer-rings --model micranet --weights MICRANET_SSL_STED
 
 # # python finetune_v2.py --dataset polymer-rings --model resnet18 --weights RESNET18_IMAGENET1K_V1 --seed $seed
-# python finetune_v2.py --dataset polymer-rings --model resnet18 --weights RESNET18_SSL_HPA --seed $seed
-# python finetune_v2.py --dataset polymer-rings --model resnet18 --weights RESNET18_SSL_JUMP --seed $seed
-# python finetune_v2.py --dataset polymer-rings --model resnet18 --weights RESNET18_SSL_STED --seed $seed
+# # python finetune_v2.py --dataset polymer-rings --model resnet18 --weights RESNET18_SSL_HPA --seed $seed
+# # python finetune_v2.py --dataset polymer-rings --model resnet18 --weights RESNET18_SSL_JUMP --seed $seed
+# # python finetune_v2.py --dataset polymer-rings --model resnet18 --weights RESNET18_SSL_STED --seed $seed
 
-# # python finetune_v2.py --dataset polymer-rings --model resnet50 --weights RESNET50_IMAGENET1K_V1
-# # python finetune_v2.py --dataset polymer-rings --model resnet50 --weights RESNET50_SSL_HPA
-# # python finetune_v2.py --dataset polymer-rings --model resnet50 --weights RESNET50_SSL_STED
+# python finetune_v2.py --dataset polymer-rings --model resnet50 --weights RESNET50_IMAGENET1K_V1 --seed $seed
+# python finetune_v2.py --dataset polymer-rings --model resnet50 --weights RESNET50_SSL_HPA --seed $seed
+# python finetune_v2.py --dataset polymer-rings --model resnet50 --weights RESNET50_SSL_JUMP --seed $seed
+# python finetune_v2.py --dataset polymer-rings --model resnet50 --weights RESNET50_SSL_STED --seed $seed
 
 # # python finetune_v2.py --dataset polymer-rings --model convnext-tiny --weights CONVNEXT_TINY_IMAGENET1K_V1
 # # python finetune_v2.py --dataset polymer-rings --model convnext-tiny --weights CONVNEXT_TINY_SSL_STED

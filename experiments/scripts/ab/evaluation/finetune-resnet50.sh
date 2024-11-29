@@ -25,7 +25,28 @@ SEEDS=(
     45
     46
 )
+DATASETS=(
+    "optim"
+    "neural-activity-states"
+    "peroxisome"
+    "polymer-rings"
+)
+
 seed="${SEEDS[${SLURM_ARRAY_TASK_ID}]}"
+params=()
+for dataset in "${DATASETS[@]}"
+do
+    for seed in "${SEEDS[@]}"
+    do
+        params+=("$dataset;$seed")
+    done
+done
+
+# Reads a specific item in the array and asign the values
+# to the opt variable
+IFS=';' read -r -a param <<< "${params[${SLURM_ARRAY_TASK_ID}]}"
+dataset="${param[0]}"
+seed="${param[1]}"
 
 # Moves to working directory
 cd ${HOME}/Documents/flc-dataset/experiments/evaluation
