@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
 #SBATCH --gpus-per-node=1
-#SBATCH --array=1-4
+#SBATCH --array=0-19
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=anbil106@ulaval.ca
 #SBATCH --mail-type=ALL
