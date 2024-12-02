@@ -38,6 +38,46 @@ from utils import update_cfg, save_cfg
 from configuration import Configuration
 from DEFAULTS import BASE_PATH
 
+def validation_step(model: torch.nn.Module, valid_loader: torch.utils.data.DataLoader, criterion: torch.nn.Module, epoch: int, device: torch.device, writer: SummaryWriter = None):
+    is_training = model.training
+
+    model.eval()
+    
+    statLossTest = []
+    for i, (X, y) in enumerate(tqdm(valid_loader, desc="[----] ")):
+
+        # Reshape
+        if isinstance(X, (list, tuple)):
+            X = [_X.unsqueeze(0) if _X.dim() == 2 else _X for _X in X]
+        else:
+            if X.dim() == 3:
+                X = X.unsqueeze(1)
+        
+        # Send to gpu
+        X = X.to(DEVICE)
+        y = y.to(DEVICE)
+
+        # Prediction and loss computation
+        pred = model.forward(X)
+        loss = criterion(pred, y)
+
+        # Keeping track of statistics
+        statLossTest.append(loss.item())
+
+        if (i == 0) and args.use_tensorboard:
+            writer.add_images("Images-test/image", intensity_scale_(X[:16]), epoch, dataformats="NCHW")
+            for i in range(cfg.dataset_cfg.num_classes):
+                writer.add_images(f"Images-test/label-{i}", y[:16, i:i+1], epoch, dataformats="NCHW")
+                writer.add_images(f"Images-test/pred-{i}", pred[:16, i:i+1], epoch, dataformats="NCHW")            
+
+        # To avoid memory leak
+        torch.cuda.empty_cache()
+        del X, y, pred, loss  
+    
+    if is_training:
+        model.train()
+    return statLossTest  
+
 def intensity_scale_(images: torch.Tensor) -> numpy.ndarray:
     """
     Helper function to scale the intensity of the images
@@ -332,40 +372,9 @@ if __name__ == "__main__":
             del X, y, pred, loss
 
             # Puts the model in evaluation mode
-            if step % 25 == 0:
-                model.eval()
-                statLossTest = []
-                for i, (X, y) in enumerate(tqdm(valid_loader, desc="[----] ")):
-
-                    # Reshape
-                    if isinstance(X, (list, tuple)):
-                        X = [_X.unsqueeze(0) if _X.dim() == 2 else _X for _X in X]
-                    else:
-                        if X.dim() == 3:
-                            X = X.unsqueeze(1)
-                    
-                    # Send to gpu
-                    X = X.to(DEVICE)
-                    y = y.to(DEVICE)
-
-                    # Prediction and loss computation
-                    pred = model.forward(X)
-                    loss = criterion(pred, y)
-
-                    # Keeping track of statistics
-                    statLossTest.append(loss.item())
-
-                    if (i == 0) and args.use_tensorboard:
-                        writer.add_images("Images-test/image", intensity_scale_(X[:16]), epoch, dataformats="NCHW")
-                        for i in range(cfg.dataset_cfg.num_classes):
-                            writer.add_images(f"Images-test/label-{i}", y[:16, i:i+1], epoch, dataformats="NCHW")
-                            writer.add_images(f"Images-test/pred-{i}", pred[:16, i:i+1], epoch, dataformats="NCHW")            
-
-                    # To avoid memory leak
-                    torch.cuda.empty_cache()
-                    del X, y, pred, loss
-                model.train()
-
+            if step % int(25 * 32 / cfg.batch_size) == 0:
+                # Validation step
+                statLossTest = validation_step(model, valid_loader, criterion, epoch, DEVICE, writer)
                 for key, func in zip(("testMean", "testMed", "testMin", "testStd"),
                                      (numpy.mean, numpy.median, numpy.min, numpy.std)):
                     stats[key].append(func(statLossTest))

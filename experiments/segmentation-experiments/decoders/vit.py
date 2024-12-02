@@ -102,6 +102,18 @@ class ViTDecoder(torch.nn.Module):
             SingleConv(64, self.cfg.dataset_cfg.num_classes, 1)
         )
 
+    def train(self, mode : bool = True):
+        """
+        Sets the model to training mode
+
+        :param mode: A `bool` indicating whether to set the model to training mode
+        """
+        if self.cfg.freeze_backbone:
+            self.backbone.eval()
+        else:
+            self.backbone.train(mode)
+        self.decoder.train(mode)
+
     def forward_encoder(self, x: torch.Tensor):
         x = self.backbone.vit.patch_embed.proj(x)
         B, Hp, Wp = x.shape[0], x.shape[2], x.shape[3]

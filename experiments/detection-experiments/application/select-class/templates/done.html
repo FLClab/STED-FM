@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Done!</title>
+</head>
+<body></body>
+    <h1>Done with success!</h1>
+    <form action="{{ url_for('logout') }}" method="POST">
+        <div class="logout-container">
+            <button type="submit" name="logout" value="true">Logout</button>
+        </div>
+    </form>
+</body>
+</html>
