@@ -16,14 +16,13 @@ import logging
 
 gunicorn_logger = logging.getLogger('gunicorn.error')
 
-sys.path.insert(0, "..")
 from annotation import build_tree, Queue, Tree
 
 app = Flask(__name__)
 app.secret_key = str(uuid.uuid4())
 
 # Restore users
-with open("users.json", "w") as f:
+with open(os.path.join("data", "users.json"), "w") as f:
     json.dump({}, f)
 
 class User:
@@ -197,7 +196,7 @@ def choose():
         current_idx += 1
 
         # Save the tree to a file
-        tree.save(f"{user.name}-{CLASS_ID}-tree.pkl")
+        tree.save(os.path.join("data", f"{user.name}-{CLASS_ID}-tree.pkl"))
 
         if current_idx > len(candidate_images):
             return redirect(url_for('index'))
@@ -210,10 +209,10 @@ def logout():
 
     global tree, current_idx, user, queue, candidate_images
     
-    with open("users.json", "r") as f:
+    with open(os.path.join("data", "users.json"), "r") as f:
         users = json.load(f)
         users[user.name] = 0
-    with open("users.json", "w") as f:
+    with open(os.path.join("data", "users.json"), "w") as f:
         json.dump(users, f)
 
     session.pop('user', None)

@@ -1,6 +1,7 @@
 MODELS=(
     "resnet18"
     "resnet50"
+    "resnet101"
 )
 DATASET=(
     "optim"
