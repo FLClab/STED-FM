@@ -132,6 +132,18 @@ class UNet(torch.nn.Module):
             torch.nn.Conv2d(in_channels=layer_sizes[0][0], out_channels=self.cfg.dataset_cfg.num_classes, kernel_size=1)
         ])
 
+    def train(self, mode : bool = True):
+        """
+        Sets the model to training mode
+
+        :param mode: A `bool` indicating whether to set the model to training mode
+        """
+        if self.cfg.freeze_backbone:
+            self.backbone.eval()
+        else:
+            self.backbone.train(mode)
+        self.decoder.train(mode)
+
     def get_layer_sizes(self) -> list[tuple[int, int, int]]:
         """
         Computes the sizes of the layers in the decoder

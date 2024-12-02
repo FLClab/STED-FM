@@ -14,8 +14,6 @@ from utils import savefig
 from stats import resampling_stats, plot_p_values
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--model", type=str, 
-                    help="Name of the model")
 parser.add_argument("--dataset", type=str, 
                     help="Name of the dataset")
 parser.add_argument("--best-model", type=str, default=None, 
@@ -32,24 +30,35 @@ COLORS = {
     "ImageNet" : "tab:red",
     "JUMP" : "tab:green"
 }
+FORMATTED = {
+    "ImageNet": "Image-Net",
+    "JUMP": "JUMP",
+    "HPA": "HPA",
+    "STED": "STED",
+    "resnet18": "ResNet-18",
+    "resnet50": "ResNet-50",
+    "resnet101": "ResNet-101",
+    "linear-probe": "Linear Probe",
+    "finetuned": "Finetuned"
+}
 
 def load_file(file):
     with open(file, "r") as handle:
         data = json.load(handle)
     return data
 
-def get_data(mode="linear-probe", pretraining="STED"):
-    data = {}
-    files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"{mode}_None_*.json"), recursive=True)
+def get_data(model, mode="linear-probe", pretraining="STED"):
+    data = {
+        mode: []
+    }
+    files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{model}_{pretraining}", args.dataset, f"{mode}_None_*.json"), recursive=True)
     if len(files) < 1: 
         print(f"Could not find files for mode: `{mode}` and pretraining: `{pretraining}`")
         return data
     if len(files) != 5:
         print(f"Could not find all files for mode: `{mode}` and pretraining: `{pretraining}`")
-    scores = []
     for file in files:
-        scores.append(load_file(file))
-    data[mode] = scores
+        data[mode].append(load_file(file))
     return data
 
 def plot_data(pretraining, data, figax=None, position=0, **kwargs):
@@ -77,43 +86,40 @@ def plot_data(pretraining, data, figax=None, position=0, **kwargs):
 def main():
 
     fig, ax = pyplot.subplots(figsize=(4,3))
+    models = ["resnet18", "resnet50", "resnet101"]
     modes = ["linear-probe", "finetuned"]
-    pretrainings = ["STED", "HPA", "JUMP", "ImageNet"]
+    pretrainings = ["ImageNet", "JUMP", "HPA", "STED"]
 
+    df = pandas.DataFrame(
+        columns=[f"{FORMATTED[mode]};{FORMATTED[pretraining]}" for mode in modes for pretraining in pretrainings],
+        index=[f"{FORMATTED[model]}"for model in models],
+        dtype=str
+    )
+    
     width = 1/(len(pretrainings) + 1)
-    samples = {}
-    for j, mode in enumerate(modes):
-        for i, pretraining in enumerate(pretrainings):
-            data = get_data(mode=mode, pretraining=pretraining)
-            (fig, ax), samps = plot_data(pretraining, data, figax=(fig, ax), position=j + i / (len(pretrainings) + 1), widths=width)
-
-            samples[f"{mode}-{pretraining}"] = samps
+    for model in models:
+        for j, mode in enumerate(modes):
+            max_col = 0
+            mean = 0
+            for i, pretraining in enumerate(pretrainings):
+                data = get_data(model=model, mode=mode, pretraining=pretraining)
+                values = [value[args.metric] for value in data[mode]]
+                if numpy.mean(values) > mean:
+                    max_col = i
+                    mean = numpy.mean(values)
+                
+                if not values:
+                    values = [-1] 
+                df.loc[FORMATTED[model], f"{FORMATTED[mode]};{FORMATTED[pretraining]}"] = "\\SI{{ {:0.1f} \\pm {:0.1f} }}{{}}".format(numpy.mean(values) * 100, numpy.std(values) * 100)
     
-    ax.set(
-        ylabel=args.metric,
-        ylim=(0, 1),
-        xticks=numpy.arange(len(modes)) + width * len(pretrainings) / 2 - 0.5 * width,
-        xticklabels=modes
-    )
-    ax.legend(
-        handles=[
-            patches.Patch(color=COLORS[label], label=label) for label in pretrainings
-        ]
-    )
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_linear-probe-finetuned"), extension="png")
+            df.loc[FORMATTED[model], f"{FORMATTED[mode]};{FORMATTED[pretrainings[max_col]]}"] = "\\textbf{" + df.loc[FORMATTED[model], f"{FORMATTED[mode]};{FORMATTED[pretrainings[max_col]]}"] + "}"
 
-    # Calculate statistics
-    values = []
-    for samps in samples.values():
-        values.extend(samps)
-    
-    p_values, F_p_values = resampling_stats(values, list(samples.keys()))
-    print(F_p_values)
-    print(p_values)
-    if F_p_values < 0.05:
-        fig, ax = plot_p_values(p_values)
-        savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_linear-probe-finetuned_stats"), extension="png")
-
+    df.columns = pandas.MultiIndex.from_tuples([col.split(";") for col in df.columns])
+    df.to_latex(
+        f"./results/table-linear-probe-finetuned_{args.dataset}.tex",
+        column_format="l" + "c" * len(df.columns),
+        multicolumn_format="c",
+    )
 
 if __name__ == "__main__":
     main()
