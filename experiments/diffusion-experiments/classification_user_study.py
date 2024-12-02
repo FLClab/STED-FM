@@ -22,7 +22,7 @@ parser.add_argument("--dataset-path", type=str, default="/home/frbea320/projects
 parser.add_argument("--latent-encoder", type=str, default="mae-lightning-tiny")
 parser.add_argument("--weights", type=str, default="MAE_TINY_STED")
 parser.add_argument("--ckpt_path", type=str, default="/home/frbea320/scratch/model_checkpoints/DiffusionModels/latent-guidance")
-parser.add_argument("--num-samples", type=int, default=50)
+parser.add_argument("--num-samples", type=int, default=40)
 args = parser.parse_args()
 
 def get_save_folder(key: str) -> str: 
@@ -104,29 +104,31 @@ def main():
     os.makedirs("./classification-study/templates", exist_ok=True)
     os.makedirs("./classification-study/candidates", exist_ok=True)
 
-    counters = {
-        "f-actin": 0,
-        "psd95": 0,
-        "tom20": 0,
-        "tubulin": 0
-    }
+    # counters = {
+    #     "f-actin": 0,
+    #     "psd95": 0,
+    #     "tom20": 0,
+    #     "tubulin": 0
+    # }
+    counters = {"beta-camkii": 0}
     indices = np.arange(len(dataset))
-    random.shuffle(indices)
+    np.random.shuffle(indices)
     
     model.eval()
     with torch.no_grad():
         for idx in tqdm(indices, total=len(indices), desc="Processing samples"):
             original_img, metadata = dataset[idx]
             class_name = metadata["protein-id"]
-            if class_name not in list(counters.keys()):
-                continue
-            if counters[class_name] >= 10:
-                continue
-            if sum(list(counters.values())) >= 40:
+            if sum(list(counters.values())) >= 10: # args.num_samples:
                 print(f"Finished; sampled {counters}")
                 break
+            elif class_name not in list(counters.keys()):
+                continue
+            elif counters[class_name] >= 10: # args.num_samples // len(counters):
+                continue
             else:
                 counters[class_name] += 1
+                print(counters)
             
             image = torch.tensor(original_img, dtype=torch.float32).unsqueeze(0).to(DEVICE)
             condition = model.latent_encoder.forward_features(image)

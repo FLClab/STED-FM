@@ -70,6 +70,8 @@ class ReconstructionCallback(Callback):
                     sample = samples[i].squeeze().detach().cpu().numpy()# .reshape(64, 64, 1)
                 m, M = sample.min(), sample.max()
                 sample = (sample - m) / (M - m)
+                if SAVEFOLDER == "ImageNet":
+                    img = img[0]
                 fig, axs = plt.subplots(1, 2)
                 axs[0].imshow(img, cmap='hot', vmin=0.0, vmax=1.0)
                 axs[1].imshow(sample, cmap='hot', vmin=0.0, vmax=1.0)
@@ -110,7 +112,7 @@ if __name__=="__main__":
         )
         denoising_model = UNet(
             dim=64, 
-            channels=1, 
+            channels=channels, 
             cond_dim=model_config.dim,
             dim_mults=(1,2,4),
             condition_type="latent",
