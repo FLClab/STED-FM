@@ -23,8 +23,8 @@ from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--dataset-path", type=str, default="./Datasets/FLCDataset/baselines/dataset.tar")
-parser.add_argument("--model", type=str, default="mae-lightning-tiny")
-parser.add_argument("--weights", type=str, default="MAE_TINY_STED")
+parser.add_argument("--model", type=str, default="mae-lightning-small")
+parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--timesteps", type=int, default=1000)
 parser.add_argument("--epochs", type=int, default=1000)
 parser.add_argument("--dataset", type=str, default="STED")
@@ -98,7 +98,7 @@ if __name__=="__main__":
 
     else:
         channels = 3 if SAVEFOLDER == "ImageNet" else 1
-        OUTPUT_FOLDER = f"{args.save_folder}/{SAVEFOLDER}"
+        OUTPUT_FOLDER = f"{args.save_folder}/{args.weights}"
         latent_encoder, model_config = get_pretrained_model_v2(
             name=args.model,
             weights=args.weights,
