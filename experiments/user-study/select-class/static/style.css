@@ -25,6 +25,7 @@ body {
     padding: 0 20px 0 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 30%;
 }
 
 .candidates {
@@ -135,7 +136,7 @@ button:hover {
     color: #fff;
     border: none;
     border-radius: 5px;
-    cursor: pointer;
+    cursor: pointer; 
     transition: background-color 0.3s ease;
 }
 
