@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
 #SBATCH --gpus-per-node=1
-#SBATCH --array=0-4
+#SBATCH --array=0-19
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=anbil106@ulaval.ca
 #SBATCH --mail-type=ALL
@@ -25,7 +25,28 @@ SEEDS=(
     45
     46
 )
+DATASETS=(
+    "optim"
+    "neural-activity-states"
+    "peroxisome"
+    "polymer-rings"
+)
+
 seed="${SEEDS[${SLURM_ARRAY_TASK_ID}]}"
+params=()
+for dataset in "${DATASETS[@]}"
+do
+    for seed in "${SEEDS[@]}"
+    do
+        params+=("$dataset;$seed")
+    done
+done
+
+# Reads a specific item in the array and asign the values
+# to the opt variable
+IFS=';' read -r -a param <<< "${params[${SLURM_ARRAY_TASK_ID}]}"
+dataset="${param[0]}"
+seed="${param[1]}"
 
 # Moves to working directory
 cd ${HOME}/Documents/flc-dataset/experiments/evaluation

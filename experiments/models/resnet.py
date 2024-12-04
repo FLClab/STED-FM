@@ -31,21 +31,10 @@ class ResNetWeights:
     # RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu/resnet50_STED", "checkpoint-145000.pt")
     RESNET50_SSL_CTC = os.path.join(BASE_PATH, "baselines", "resnet50_CTC", "result.pt")
 
-
-    # RESNET18_LINEARPROBE_IMAGENET_PROTEINS = None
-    # RESNET18_LINEARPROBE_CTC_PROTEINS = None
-    # RESNET18_LINEARPROBE_STED_PROTEINS = None 
-    # RESNET18_LINEARPROBE_IMAGENET_OPTIM = None
-    # RESNET18_LINEARPROBE_CTC_OPTIM = None
-    # RESNET18_LINEARPROBE_STED_OPTIM = None     
-
-    # RESNET18_LINEARPROBE_IMAGENET_PROTEINS = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_ImageNet/optim/finetuned_4blocks_model.pth"
-    # RESNET18_LINEARPROBE_CTC_PROTEINS = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_CTC/optim/finetuned_4blocks_model.pth"
-    # RESNET18_LINEARPROBE_STED_PROTEINS = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_STED/synaptic-proteins/finetuned_4blocks_model.pth" 
-    # RESNET18_LINEARPROBE_IMAGENET_OPTIM = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_ImageNet/optim/finetuned_4blocks_model.pth"
-    # RESNET18_LINEARPROBE_CTC_OPTIM = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_CTC/optim/finetuned_4blocks_model.pth"
-    # RESNET18_LINEARPROBE_STED_OPTIM = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/resnet18_STED/optim/finetuned_4blocks_model.pth" 
-
+    RESNET101_IMAGENET1K_V1 = torchvision.models.ResNet101_Weights.IMAGENET1K_V1
+    RESNET101_SSL_HPA = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet101_HPA", "result.pt")
+    RESNET101_SSL_JUMP = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet101_JUMP", "result.pt")
+    RESNET101_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet101_STED", "result.pt")
 
 class ResNetConfiguration(Configuration):
     

@@ -41,7 +41,7 @@ def load_file(file):
 def get_data(pretraining="STED"):
     data = {}
     for sample in args.samples:
-        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"accuracy_linear-probe_{sample}_*.json"), recursive=True)
+        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"linear-probe_{sample}_*.json"), recursive=True)
         if len(files) < 1:
             print(f"Could not find files for sample: `{sample}` and pretraining: `{pretraining}`")
             continue
