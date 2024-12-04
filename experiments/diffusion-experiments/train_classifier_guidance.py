@@ -27,7 +27,7 @@ parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--timesteps", type=int, default=1000)
 parser.add_argument("--epochs", type=int, default=1000)
 parser.add_argument("--dataset", type=str, default="STED")
-parser.add_argument("--save-folder", type=str, default='./model-checkpoints')
+parser.add_argument("--save-folder", type=str, default='/home/frbea320/scratch/model_checkpoints/DiffusionModels/classifier-guidance')
 parser.add_argument("--num-classes", type=int, default=24)
 parser.add_argument("--checkpoint", type=str, default=None)
 parser.add_argument("--batch-size", type=int, default=4)
@@ -53,7 +53,7 @@ class SamplingCallback(Callback):
                 plt.title(names[conditions[i]])
                 plt.xticks([])
                 plt.yticks([])
-                fig.savefig(f"./model-checkpoints/pl-classifier-guidance_sample_{i}.png", dpi=1200)
+                fig.savefig(f"./viz/classifier-guidance/pl-classifier-guidance_sample_{i}.png", dpi=1200)
                 plt.close(fig)
 
 class DatasetConfig:

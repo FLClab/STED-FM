@@ -85,8 +85,6 @@ if __name__=="__main__":
         model = model.to(DEVICE)
         MODELS[key] = model
 
-    print(MODELS["MAE_TINY_STED"])
-
     dataset = get_dataset(
         name="STED",
         path=args.dataset_path,

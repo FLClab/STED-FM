@@ -76,7 +76,7 @@ echo "% Options: ${options}"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 tensorboard --logdir="/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/segmentation-experiments/logs" --host 0.0.0.0 --load_fast false &
-python main.py --seed ${seed} --use-tensorboard --dataset "lioness" \
+python main.py --seed ${seed} --use-tensorboard --dataset "footprocess" \
     --backbone "mae-lightning-tiny" --backbone-weights ${weight} \
     --opts ${options}
 
