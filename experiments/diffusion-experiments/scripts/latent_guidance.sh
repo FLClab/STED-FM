@@ -4,7 +4,7 @@
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=10
 #SBATCH --mem=0
-#SBATCH --nodes=2
+#SBATCH --nodes=4
 #SBATCH --tasks-per-node=4  
 #SBATCH --gres=gpu:4
 #SBATCH --output=logs/%x-%A_%a.out
@@ -29,7 +29,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 # python main.py --dataset-path "${SLURM_TMPDIR}/dataset-250k.tar"
 tensorboard --logdir="/home/frbea320/scratch/model_checkpoints/DiffusionModels/latent-guidance" --host 0.0.0.0 --load_fast false &
-srun python train_latent_guidance.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset-250k.tar" --use-tensorboard --weights MAE_TINY_IMAGENET1K_V1
+srun python train_latent_guidance.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset-250k.tar" --use-tensorboard --weights MAE_SMALL_STED 
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

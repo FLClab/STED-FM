@@ -21,8 +21,9 @@ parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--dataset-path", type=str, default="/home/frbea320/projects/def-flavielc/datasets/FLCDataset/dataset-250k.tar")
 parser.add_argument("--latent-encoder", type=str, default="mae-lightning-tiny")
 parser.add_argument("--weights", type=str, default="MAE_TINY_STED")
-parser.add_argument("--ckpt_path", type=str, default="/home/frbea320/scratch/model_checkpoints/DiffusionModels/latent-guidance")
-parser.add_argument("--num-samples", type=int, default=50)
+parser.add_argument("--ckpt-path", type=str, default="/home/frbea320/scratch/model_checkpoints/DiffusionModels/latent-guidance")
+parser.add_argument("--num-samples", type=int, default=40)
+parser.add_argument("--guidance", type=str, default="latent")
 args = parser.parse_args()
 
 def get_save_folder(key: str) -> str: 
@@ -45,13 +46,13 @@ def save_image(image: np.ndarray, generation: np.ndarray, i: int, class_name: st
     fig = plt.figure()
     plt.imshow(image, cmap='hot')
     plt.axis("off")
-    plt.savefig(f"./classification-study/templates/template{i}_{class_name}.png", dpi=1200, bbox_inches="tight")
+    plt.savefig(f"./classification-study/{args.guidance}-guidance/templates/template{i}_{class_name}.png", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
     fig = plt.figure()
     plt.imshow(generation, cmap='hot')
     plt.axis("off")
-    plt.savefig(f"./classification-study/candidates/{args.weights}_template{i}_{class_name}.png", dpi=1200, bbox_inches="tight")
+    plt.savefig(f"./classification-study/{args.guidance}-guidance/candidates/template{i}_{class_name}.png", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
 def main():
@@ -60,6 +61,7 @@ def main():
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {DEVICE} ---")
     n_channels = 3 if SAVENAME == "ImageNet" else 1 
+    
 
     latent_encoder, model_config = get_pretrained_model_v2(
         name=args.latent_encoder,
@@ -78,7 +80,7 @@ def main():
         channels=n_channels,
         dim_mults=(1,2,4),
         cond_dim=model_config.dim,
-        condition_type="latent",
+        condition_type=args.guidance,
         num_classes=4
     )
 
@@ -86,11 +88,13 @@ def main():
         denoising_model=denoising_model,
         timesteps=1000,
         beta_schedule="linear",
-        condition_type="latent",
-        latent_encoder=latent_encoder,
+        condition_type=args.guidance,
+        latent_encoder=latent_encoder if args.guidance == "latent" else None,
     )
 
-    ckpt = torch.load(f"{args.ckpt_path}/{SAVENAME}/checkpoint-69.pth")
+    path = f"{args.ckpt_path}/{SAVENAME}/checkpoint-69.pth" if args.guidance == "latent" else f"{args.ckpt_path}/checkpoint-59.pth"
+    print(path)
+    ckpt = torch.load(path)
     model.load_state_dict(ckpt["state_dict"])
     model = model.to(DEVICE)
 
@@ -101,8 +105,8 @@ def main():
         return_metadata=True
     )
 
-    os.makedirs("./classification-study/templates", exist_ok=True)
-    os.makedirs("./classification-study/candidates", exist_ok=True)
+    os.makedirs(f"./classification-study/{args.guidance}-guidance/templates", exist_ok=True)
+    os.makedirs(f"./classification-study/{args.guidance}-guidance/candidates", exist_ok=True)
 
     counters = {
         "f-actin": 0,
@@ -110,26 +114,29 @@ def main():
         "tom20": 0,
         "tubulin": 0
     }
+    # counters = {"beta-camkii": 0}
     indices = np.arange(len(dataset))
-    random.shuffle(indices)
+    np.random.shuffle(indices)
     
     model.eval()
     with torch.no_grad():
         for idx in tqdm(indices, total=len(indices), desc="Processing samples"):
             original_img, metadata = dataset[idx]
             class_name = metadata["protein-id"]
-            if class_name not in list(counters.keys()):
-                continue
-            if counters[class_name] >= 10:
-                continue
-            if sum(list(counters.values())) >= 40:
+            
+            if sum(list(counters.values())) >= 10: # args.num_samples:
                 print(f"Finished; sampled {counters}")
                 break
+            elif class_name not in list(counters.keys()):
+                continue
+            elif counters[class_name] >= 10: # args.num_samples // len(counters):
+                continue
             else:
                 counters[class_name] += 1
+                print(counters)
             
             image = torch.tensor(original_img, dtype=torch.float32).unsqueeze(0).to(DEVICE)
-            condition = model.latent_encoder.forward_features(image)
+            condition = model.latent_encoder.forward_features(image) if args.guidance == "latent" else torch.tensor(class_dict[class_name], dtype=torch.int8).to(DEVICE).long()
 
             original_img = original_img[0] 
             m, M = original_img.min(), original_img.max()
