@@ -10,6 +10,7 @@ logs/
 experiments/detection-experiments/**/*.pkl
 experiments/detection-experiments/application/users.json
 experiments/autonomous-experiments/**/*.pkl
+experiments/user-study/**/*.pkl
 
 # data symlink
 experiments/simclr-experiments/data

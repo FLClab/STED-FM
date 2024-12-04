@@ -31,14 +31,10 @@ class User:
     def __init__(self, name):
         self.name = name
 
-CLASS_ID = "example"
-CALLED = 0
-IMAGE_IDS = [
-    "0", "1", "2", "3"
-]
+CLASS_ID = "classification-study"
 
 # Dummy data for images
-template_images = glob.glob(os.path.join("static", CLASS_ID, "templates", "*.png"))
+template_images = glob.glob(os.path.join("static", CLASS_ID, "candidates", "*.png"))
 template_images = [os.path.relpath(path, "static") for path in template_images]
 random.seed(42)
 random.shuffle(template_images)
@@ -92,7 +88,7 @@ def save_globals(response):
             "current_idx": current_idx,
             "user_choices": user_choices
         }
-        logger.log(logging.INFO, f"[{user.name}] Saving data: {data}")
+        logger.log(logging.INFO, f"[{user.name}] Saving data: {data['current_idx']}")
         with open(os.path.join("data", f"{user.name}.pkl"), "wb") as f:
             pickle.dump(data, f)
 
@@ -200,4 +196,4 @@ def logout():
 
 if __name__ == '__main__':
     
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)
