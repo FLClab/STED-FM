@@ -75,7 +75,7 @@ echo $numclass
 echo $seed
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset optim --model mae-lightning-large --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
+python finetune_v2.py --dataset neural-activity-states --model mae-lightning-large --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
