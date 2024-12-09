@@ -112,7 +112,15 @@ class ViTDecoder(torch.nn.Module):
             self.backbone.eval()
         else:
             self.backbone.train(mode)
-        self.decoder.train(mode)
+        self.decoder12_upsampler.train(mode)
+        self.decoder9.train(mode)
+        self.decoder9_upsampler.train(mode)
+        self.decoder6.train(mode)
+        self.decoder6_upsampler.train(mode)
+        self.decoder3.train(mode)
+        self.decoder3_upsampler.train(mode)
+        self.decoder0.train(mode)
+        self.decoder0_predict.train(mode)
 
     def forward_encoder(self, x: torch.Tensor):
         x = self.backbone.vit.patch_embed.proj(x)
