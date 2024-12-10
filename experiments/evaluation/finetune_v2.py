@@ -61,6 +61,8 @@ def get_save_folder() -> str:
         return "ImageNet"
     elif "sted" in args.weights.lower():
         return "STED"
+    elif "sim" in args.weights.lower():
+        return "SIM"        
     elif "jump" in args.weights.lower():
         return "JUMP"
     elif "ctc" in args.weights.lower():
