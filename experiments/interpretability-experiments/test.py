@@ -14,10 +14,7 @@ import sys
 import numpy as np
 from tiffwrapper import make_composite
 import torch.nn.functional as F
-import random
 import torch
-from tqdm import tqdm
-import tarfile
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH
 from loaders import get_dataset 
@@ -25,7 +22,7 @@ from model_builder import get_pretrained_model_v2
 from utils import SaveBestModel, AverageMeter, update_cfg, get_number_of_classes 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--seed", type=int, default=4242)
+parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--dataset", type=str, default="optim")
 parser.add_argument("--model", type=str, default="mae-lightning-small")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
@@ -52,27 +49,6 @@ def get_save_folder() -> str:
 def get_scale_factor() -> float:
     pass 
 
-def save_image(image, a_map, i):
-    image = image.squeeze().cpu().data.numpy()
-    a_map = a_map.squeeze().cpu().data.numpy()
-    if image.ndim == 3:
-        image = image[0]
-
-    m, M = np.min(image), np.max(image)
-    image_rgb = make_composite(np.array([image]), luts=["grey"], ranges=[(m, M)])
-    image_amap_rgb = make_composite(np.stack([image, a_map]), luts=["grey", "Orange Hot"], ranges=[(m, M), (a_map.min() + 0.25 *(a_map.max() - a_map.min()), a_map.max())])
-
-    fig = plt.figure()
-    plt.imshow(image_rgb)
-    plt.axis("off")
-    plt.savefig(f"./attention-map-examples/templates/template{i}.png", dpi=1200, bbox_inches="tight")
-    plt.close(fig)
-    
-    fig = plt.figure()
-    plt.imshow(image_amap_rgb)
-    plt.axis("off")
-    plt.savefig(f"./attention-map-examples/candidates/{args.weights}_template{i}.png", dpi=1200, bbox_inches="tight")
-    plt.close(fig)
 
 def show_image(image, a_map, i):
     image = image.squeeze().cpu().data.numpy()
@@ -97,31 +73,16 @@ def show_image(image, a_map, i):
     axes[2].set_title("Overlay")
     for ax in axes:
         ax.axis("off")
-    fig.savefig(f"./attention-map-examples/results/{args.weights}_amap_{i}.png", bbox_inches="tight", dpi=1200, facecolor=None)
+    fig.savefig(f"./attention-map-examples/debug/{args.weights}_amap_{i}.png", bbox_inches="tight", dpi=1200, facecolor=None)
     plt.close()
 
-def set_seeds():
-    random.seed(args.seed)
-    np.random.seed(args.seed)
-    torch.manual_seed(args.seed)
-
 def main():
-    np.random.seed(args.seed)
     SAVENAME = get_save_folder()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
     n_channels =  3 if SAVENAME == "ImageNet" else 1
     _, _, test_loader = get_dataset(name=args.dataset, training=True, n_channels=n_channels)
     test_dataset = test_loader.dataset
-    labels = test_dataset.labels 
-    uniques = np.unique(labels)
-    indices = []
-    for u in uniques:
-        cls_indices = np.where(labels == u)[0]
-        cls_indices = np.random.choice(cls_indices, size=10, replace=False)
-        indices.extend(cls_indices)
-    
-
     model, cfg = get_pretrained_model_v2(
         name=args.model,
         weights=args.weights,
@@ -130,21 +91,20 @@ def main():
         pretrained=True if n_channels==3 else False,
         in_channels=n_channels,
         as_classifier=True,
-        blocks="all",
+        blocks="0",
         num_classes=4
     )
 
-    print(model)
-
     nodes, _ = get_graph_node_names(model.backbone, tracer_kwargs={'leaf_modules': [PatchEmbed]})
-    # pprint(nodes)   
+    pprint(nodes)   
     num_blocks = 12
-    for i in tqdm(indices, total=len(indices), desc="Processing images"):
+    for i in range(20):
         img, _ = test_dataset[i]
         attention_maps = []
-    
+       
         img = img.clone().detach().unsqueeze(0) # B = 1
         with torch.no_grad():
+            
             for n in range(num_blocks):
                 feature_extractor = create_feature_extractor(
                     model, return_nodes=[f'backbone.blocks.{n}.attn.q_norm', f'backbone.blocks.{n}.attn.k_norm'],
@@ -161,12 +121,14 @@ def main():
                 cls_attn_map = cls_attn_map.mean(dim=1).view(14, 14).detach() # (14, 14)
                 cls_resized = F.interpolate(cls_attn_map.view(1, 1, 14, 14), (224, 224), mode='bilinear').view(224, 224, 1) # (224, 224, C)
                 m, M = cls_resized.min(), cls_resized.max()
-                cls_resized = (cls_resized - m) / (M - m)
-                attention_maps.append(cls_resized)
+                cls_resized = (cls_resized - m) / (M - m)   
 
+                # show_image(img, cls_resized, i=n)
+                attention_maps.append(cls_resized)
+                
             attention_maps = torch.stack(attention_maps)
             attention_map = torch.sum(attention_maps, dim=0)
-            save_image(img, attention_map, i=i)
+            show_image(img, attention_map, i=i)
 
 if __name__=="__main__":
     main()

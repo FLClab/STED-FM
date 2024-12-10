@@ -23,8 +23,8 @@ from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--dataset-path", type=str, default="./Datasets/FLCDataset/baselines/dataset.tar")
-parser.add_argument("--model", type=str, default="mae-lightning-tiny")
-parser.add_argument("--weights", type=str, default="MAE_TINY_STED")
+parser.add_argument("--model", type=str, default="mae-lightning-small")
+parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--timesteps", type=int, default=1000)
 parser.add_argument("--epochs", type=int, default=1000)
 parser.add_argument("--dataset", type=str, default="STED")
@@ -70,6 +70,8 @@ class ReconstructionCallback(Callback):
                     sample = samples[i].squeeze().detach().cpu().numpy()# .reshape(64, 64, 1)
                 m, M = sample.min(), sample.max()
                 sample = (sample - m) / (M - m)
+                if SAVEFOLDER == "ImageNet":
+                    img = img[0]
                 fig, axs = plt.subplots(1, 2)
                 axs[0].imshow(img, cmap='hot', vmin=0.0, vmax=1.0)
                 axs[1].imshow(sample, cmap='hot', vmin=0.0, vmax=1.0)
@@ -96,7 +98,7 @@ if __name__=="__main__":
 
     else:
         channels = 3 if SAVEFOLDER == "ImageNet" else 1
-        OUTPUT_FOLDER = f"{args.save_folder}/{SAVEFOLDER}"
+        OUTPUT_FOLDER = f"{args.save_folder}/{args.weights}"
         latent_encoder, model_config = get_pretrained_model_v2(
             name=args.model,
             weights=args.weights,
@@ -110,7 +112,7 @@ if __name__=="__main__":
         )
         denoising_model = UNet(
             dim=64, 
-            channels=1, 
+            channels=channels, 
             cond_dim=model_config.dim,
             dim_mults=(1,2,4),
             condition_type="latent",

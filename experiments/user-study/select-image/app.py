@@ -31,28 +31,62 @@ class User:
     def __init__(self, name):
         self.name = name
 
-DATASET = "attention-maps"
-CALLED = 0
-IMAGE_IDS = [
-    "MAE_SMALL_IMAGENET1K_V1",
-    "MAE_SMALL_JUMP",
-    "MAE_SMALL_HPA",
-    "MAE_SMALL_STED"
-]
+DATASET = "preference-study"
+os.makedirs(os.path.join("data", DATASET), exist_ok=True)
 
-# Dummy data for images
-template_images = glob.glob(os.path.join("static", DATASET, "templates", "*.png"))
-template_images = [os.path.relpath(path, "static") for path in template_images]
-random.seed(42)
-random.shuffle(template_images)
+if DATASET == "attention-maps":
 
-candidate_images = []
-for image in template_images:
-    basename = os.path.basename(image)
-    candidate_images.append([
-        image.replace("templates", "candidates").replace(basename, f"{image_id}_{basename}")
-        for image_id in IMAGE_IDS
-    ])
+    IMAGE_IDS = [
+        "MAE_SMALL_IMAGENET1K_V1",
+        "MAE_SMALL_JUMP",
+        "MAE_SMALL_HPA",
+        "MAE_SMALL_STED"
+    ]
+
+    # Dummy data for images
+    template_images = glob.glob(os.path.join("static", DATASET, "templates", "*.png"))
+    template_images = [os.path.relpath(path, "static") for path in template_images]
+    random.seed(42)
+    random.shuffle(template_images)
+
+    candidate_images = []
+    for image in template_images:
+        basename = os.path.basename(image)
+        candidate_images.append([
+            image.replace("templates", "candidates").replace(basename, f"{image_id}_{basename}")
+            for image_id in IMAGE_IDS
+        ])
+
+elif DATASET == "preference-study":
+
+    IMAGE_IDS = [
+        "MAE_TINY_IMAGENET1K_V1",
+        "MAE_TINY_JUMP",
+        "MAE_TINY_HPA",
+        "MAE_TINY_STED"
+    ]
+
+    # Dummy data for images
+    template_images = glob.glob(os.path.join("static", DATASET, "templates", "*.png"))
+    template_images = [os.path.relpath(path, "static") for path in template_images]
+    random.seed(42)
+    random.shuffle(template_images)
+
+    candidate_images = []
+    for image in template_images:
+        basename = os.path.basename(image)
+
+        to_append = [
+            image.replace("templates", "candidates").replace(basename, f"{image_id}_{basename}")
+            for image_id in IMAGE_IDS
+        ]
+        if any([os.path.isfile(os.path.join("static", path)) for path in to_append]):
+            candidate_images.append(to_append)
+        # candidate_images.append([
+        #     image.replace("templates", "candidates").replace(basename, f"{image_id}_{basename}")
+        #     for image_id in IMAGE_IDS
+        # ])
+
 # Shuffle the candidate images
 for i in range(len(candidate_images)):
     random.shuffle(candidate_images[i])
@@ -68,10 +102,10 @@ def get_globals():
         current_idx = 0
         user_choices = {}
     else:
-        if os.path.isfile(os.path.join("data", f"{username}.pkl")):
+        if os.path.isfile(os.path.join("data", DATASET, f"{username}.pkl")):
             logger.log(logging.INFO, f"Found data for `{username}`")
             try:
-                with open(os.path.join("data", f"{username}.pkl"), "rb") as f:
+                with open(os.path.join("data", DATASET, f"{username}.pkl"), "rb") as f:
                     data = pickle.load(f)
                     user = data["user"]
                     current_idx = data["current_idx"]
@@ -103,7 +137,7 @@ def save_globals(response):
             "user_choices": user_choices
         }
         logger.log(logging.INFO, f"[{user.name}] Saving data: {data}")
-        with open(os.path.join("data", f"{user.name}.pkl"), "wb") as f:
+        with open(os.path.join("data", DATASET, f"{user.name}.pkl"), "wb") as f:
             pickle.dump(data, f)
 
     return response
@@ -142,9 +176,9 @@ def login():
     
     session['user'] = user.name
 
-    if os.path.isfile(os.path.join("data", f"{user.name}.pkl")):
+    if os.path.isfile(os.path.join("data", DATASET, f"{user.name}.pkl")):
         logger.log(logging.INFO, "Loading data for user: {}".format(user.name))
-        with open(os.path.join("data", f"{user.name}.pkl"), "rb") as f:
+        with open(os.path.join("data", DATASET, f"{user.name}.pkl"), "rb") as f:
             data = pickle.load(f)
             user = data["user"]
             current_idx = data["current_idx"]
