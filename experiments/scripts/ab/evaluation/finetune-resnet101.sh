@@ -57,10 +57,11 @@ echo "% dataset: ${dataset}"
 echo "% seed: ${seed}"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_IMAGENET1K_V1 --blocks 0 --seed $seed
-python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_SSL_HPA --blocks 0 --seed $seed
-python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_SSL_JUMP --blocks 0 --seed $seed
-python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_SSL_STED --blocks 0 --seed $seed
+python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_IMAGENET1K_V1 --blocks 0 --seed $seed --overwrite
+python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_SSL_HPA --blocks 0 --seed $seed --overwrite
+python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_SSL_JUMP --blocks 0 --seed $seed --overwrite
+python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_SSL_SIM --blocks 0 --seed $seed --overwrite
+python finetune_v2.py --dataset $dataset --model resnet101 --weights RESNET101_SSL_STED --blocks 0 --seed $seed --overwrite
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE"

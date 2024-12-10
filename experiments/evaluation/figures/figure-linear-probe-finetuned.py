@@ -40,7 +40,7 @@ def load_file(file):
 
 def get_data(mode="linear-probe", pretraining="STED"):
     data = {}
-    files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"{mode}_None_*.json"), recursive=True)
+    files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"accuracy_{mode}_None_*.json"), recursive=True)
     if len(files) < 1: 
         print(f"Could not find files for mode: `{mode}` and pretraining: `{pretraining}`")
         return data
@@ -91,7 +91,7 @@ def main():
     
     ax.set(
         ylabel=args.metric,
-        ylim=(0, 1),
+        # ylim=(0, 1),
         xticks=numpy.arange(len(modes)) + width * len(pretrainings) / 2 - 0.5 * width,
         xticklabels=modes
     )
@@ -100,7 +100,7 @@ def main():
             patches.Patch(color=COLORS[label], label=label) for label in pretrainings
         ]
     )
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_linear-probe-finetuned"), extension="png")
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_linear-probe-finetuned"), extension="png", save_white=True)
 
     # Calculate statistics
     values = []
