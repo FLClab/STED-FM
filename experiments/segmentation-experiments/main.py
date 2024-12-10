@@ -313,7 +313,7 @@ if __name__ == "__main__":
         cfg.num_epochs = num_epochs
         print(f"Training budget is updated: {cfg.num_epochs} epochs")
 
-    optimizer = torch.optim.AdamW(model.parameters(), lr = cfg.learning_rate, weight_decay=1e-2)
+    optimizer = torch.optim.Adam(model.parameters(), lr = cfg.learning_rate)
     criterion = getattr(torch.nn, cfg.dataset_cfg.criterion)()
 
     # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience = 10, threshold = 0.01, min_lr=1e-5, factor=0.1,)
