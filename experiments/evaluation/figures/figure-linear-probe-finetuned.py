@@ -30,7 +30,8 @@ COLORS = {
     "STED" : "tab:blue",
     "HPA" : "tab:orange",
     "ImageNet" : "tab:red",
-    "JUMP" : "tab:green"
+    "JUMP" : "tab:green",
+    "SIM" : "tab:pink"
 }
 
 def load_file(file):
@@ -78,7 +79,7 @@ def main():
 
     fig, ax = pyplot.subplots(figsize=(4,3))
     modes = ["linear-probe", "finetuned"]
-    pretrainings = ["STED", "HPA", "JUMP", "ImageNet"]
+    pretrainings = ["STED", "SIM", "HPA", "JUMP", "ImageNet"]
 
     width = 1/(len(pretrainings) + 1)
     samples = {}
