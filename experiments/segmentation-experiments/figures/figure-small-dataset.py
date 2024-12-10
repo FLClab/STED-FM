@@ -79,13 +79,12 @@ def plot_data(pretraining, data, figax=None, **kwargs):
         values_masked = numpy.ma.masked_equal(values, -1)
 
         mean, std = numpy.ma.mean(values_masked, axis=1), numpy.ma.std(values_masked, axis=1)
-        print(std)
+
         averaged.append(mean)
         xs.append(float(key))
         ys.append(numpy.mean(mean))
 
-        print(xs, ys )
-        ax.errorbar(xs[-1], ys[-1], yerr=numpy.mean(std), color=COLORS[pretraining])
+        ax.errorbar(xs[-1], ys[-1], yerr=numpy.std(mean), color=COLORS[pretraining])
 
         # ax.bar(position, mean, yerr=std, color=COLORS[pretraining], align="edge", **kwargs)
         # ax.scatter([position] * len(mean), mean, color=COLORS[pretraining])
@@ -102,14 +101,13 @@ def main():
     fig, ax = pyplot.subplots(figsize=(4,3))
     pretrainings = ["STED", "HPA", "JUMP", "ImageNet"]
     
-    width = 1/(len(pretrainings) + 1)
     for i, pretraining in enumerate(pretrainings):
         data = get_data(pretraining=pretraining)
         fig, ax = plot_data(pretraining, data, figax=(fig, ax))
 
     ax.set(
         ylabel=args.metric,
-        ylim=(0, 1),
+        # ylim=(0, 1),
         xticks=[float(s) for s in args.samples],
     )
 
