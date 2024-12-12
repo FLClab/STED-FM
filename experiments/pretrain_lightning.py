@@ -91,8 +91,8 @@ if __name__=="__main__":
     last_model_callback.FILE_EXTENSION = ".pth"
     checkpoint_callback = ModelCheckpoint(
         dirpath=OUTPUT_FOLDER,
-        every_n_train_steps=5000,
-        filename="checkpoint-{step}",
+        every_n_epochs=100,
+        filename="checkpoint-{epoch}",
         save_top_k=-1,
         auto_insert_metric_name=False,
         enable_version_counter=False
@@ -103,8 +103,7 @@ if __name__=="__main__":
     datamodule = MultiprocessingDataModule(args, cfg, transform=MAETransform, debug=args.dry_run)
 
     trainer = Trainer(
-        max_epochs=-1,
-        max_steps=1000000,
+        max_epochs=1000,
         devices='auto',
         accelerator='gpu',
         num_nodes=int(os.environ.get("SLURM_NNODES", 1)),

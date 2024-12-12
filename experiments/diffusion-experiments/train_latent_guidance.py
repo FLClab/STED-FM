@@ -61,7 +61,7 @@ class ReconstructionCallback(Callback):
         pl_module.eval()
         with torch.no_grad():
             conditions = pl_module.latent_encoder.forward_features(imgs)
-            samples = pl_module.p_sample_loop(shape=imgs.shape, cond=conditions, progress=True)
+            samples = pl_module.p_sample_loop(shape=(imgs.shape[0], 1, imgs.shape[2], imgs.shape[3]), cond=conditions, progress=True)
             for i in range(samples.shape[0]):
                 img = imgs[i].squeeze().detach().cpu().numpy()
                 if samples.shape[1] == 3:
@@ -98,6 +98,7 @@ if __name__=="__main__":
 
     else:
         channels = 3 if SAVEFOLDER == "ImageNet" else 1
+        print(f"Number of channels {channels}")
         OUTPUT_FOLDER = f"{args.save_folder}/{args.weights}"
         latent_encoder, model_config = get_pretrained_model_v2(
             name=args.model,
@@ -112,7 +113,7 @@ if __name__=="__main__":
         )
         denoising_model = UNet(
             dim=64, 
-            channels=channels, 
+            channels=1, 
             cond_dim=model_config.dim,
             dim_mults=(1,2,4),
             condition_type="latent",

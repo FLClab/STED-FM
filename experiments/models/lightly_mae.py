@@ -37,6 +37,8 @@ class MAEWeights:
     MAE_BASE_HPA = os.path.join(BASE_PATH, "baselines", "mae-base_HPA", "pl_checkpoint-999.pth")
     MAE_LARGE_HPA = os.path.join(BASE_PATH, "baselines", "mae-large_HPA", "pl_checkpoint-999.pth")
 
+    MAE_SMALL_SIM = os.path.join(BASE_PATH, "baselines", "mae-small_SIM", "checkpoint-240000.pth")
+
 class MAEConfiguration(Configuration):
 
     backbone: str = "vit-small"
