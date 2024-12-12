@@ -6,24 +6,28 @@ import numpy
 
 from matplotlib import pyplot
 
+import sys
+sys.path.insert(0, "../../")
+from utils import savefig
+
 CLASSES = [
-    "MAE_SMALL_IMAGENET1K_V1",
-    "MAE_SMALL_JUMP",
-    "MAE_SMALL_HPA",
-    "MAE_SMALL_STED"
+    "MAE_TINY_IMAGENET1K_V1",
+    "MAE_TINY_JUMP",
+    "MAE_TINY_HPA",
+    "MAE_TINY_STED"
 ]
 NAMES = {
-    "MAE_SMALL_IMAGENET1K_V1" : "ImageNet",
-    "MAE_SMALL_JUMP" : "JUMP",
-    "MAE_SMALL_HPA" : "HPA",
-    "MAE_SMALL_STED" : "STED"
+    "MAE_TINY_IMAGENET1K_V1" : "ImageNet",
+    "MAE_TINY_JUMP" : "JUMP",
+    "MAE_TINY_HPA" : "HPA",
+    "MAE_TINY_STED" : "STED"
 }
 COLORS = {
-    "MAE_SMALL_IMAGENET1K_V1" : "tab:red",
-    "MAE_SMALL_JUMP" : "tab:green",
-    "MAE_SMALL_HPA" : "tab:orange",
-    "MAE_SMALL_STED" : "tab:blue"
-}    
+    "MAE_TINY_IMAGENET1K_V1" : "tab:red",
+    "MAE_TINY_JUMP" : "tab:green",
+    "MAE_TINY_HPA" : "tab:orange",
+    "MAE_TINY_STED" : "tab:blue"
+}
 
 def get_class(filename):
     basename = os.path.basename(filename)
@@ -33,7 +37,7 @@ def get_class(filename):
     return None
 
 def get_user_choices():
-    files = glob.glob("data/*.pkl")
+    files = glob.glob("data/preference-study/*.pkl")
     per_user_scores = {}
     for file in files:
         scores = {c : 0 for c in CLASSES}
@@ -60,7 +64,7 @@ def merge_dicts(dicts):
     return merged
 
 def get_selections():
-    files = glob.glob("data/*.pkl")
+    files = glob.glob("data/preference-study/*.pkl")
     per_user_data = []
     for file in files:
         with open(file, "rb") as f:
@@ -101,14 +105,13 @@ def get_selections():
     ax.set(
         ylabel="Disagreement (-)"
     )
-    pyplot.savefig("disagreement.png", bbox_inches="tight")
+    savefig(fig, "./results/preference-study/disagreement", save_white=True)
         
 def main():
 
     numpy.random.seed(42)
 
-    get_selections()
-
+    # get_selections()
     per_user_scores = get_user_choices()
 
     all_values = []
@@ -131,7 +134,7 @@ def main():
     ax.set(
         ylabel="Proportion (-)", ylim=(0, 1)
     )
-    pyplot.savefig("figure.png", bbox_inches="tight")
+    savefig(fig, "./results/preference-study/choices", save_white=True)
 
 if __name__ == "__main__":
     main()

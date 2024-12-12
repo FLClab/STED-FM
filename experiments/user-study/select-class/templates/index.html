@@ -7,27 +7,27 @@
     <title>Choose the Most Similar Image</title>
 </head>
 <body>
-    <h1>Select the biologically relevant map</h1>
+    <h1>Select the class of the displayed image</h1>
     <div class="image-container">
         <div class="example">
             <h2>Example Image</h2>
             <img src="{{ url_for('static', filename=template_image) }}" alt="Example Image">
         </div>
         <div class="candidates">
-            <h2>Candidate Images</h2>
+            <h2>Classes</h2>
             <form action="{{ url_for('choose') }}" method="POST">
                 <div class="candidates-row">
                     <div class="candidate">
-                        <button type="submit" name="selected_image" value="{{ candidate_images[0] }}"><img src="{{ url_for('static', filename=candidate_images[0]) }}" alt="Candidate 1"></button>
+                        <button type="submit" name="selected_image" value="{{ candidate_classes[0] }}">{{ candidate_classes[0] }}</button>
                     </div>
                     <div class="candidate">
-                        <button type="submit" name="selected_image" value="{{ candidate_images[1] }}"><img src="{{ url_for('static', filename=candidate_images[1]) }}" alt="Candidate 2"></button>
+                        <button type="submit" name="selected_image" value="{{ candidate_classes[1] }}">{{ candidate_classes[1] }}</button>
                     </div>
                     <div class="candidate">
-                        <button type="submit" name="selected_image" value="{{ candidate_images[2] }}"><img src="{{ url_for('static', filename=candidate_images[2]) }}" alt="Candidate 3"></button>
+                        <button type="submit" name="selected_image" value="{{ candidate_classes[2] }}">{{ candidate_classes[2] }}</button>
                     </div>
                     <div class="candidate">
-                        <button type="submit" name="selected_image" value="{{ candidate_images[3] }}"><img src="{{ url_for('static', filename=candidate_images[3]) }}" alt="Candidate 4"></button>
+                        <button type="submit" name="selected_image" value="{{ candidate_classes[3] }}">{{ candidate_classes[3] }}</button>
                     </div>
                 </div>
             </form>

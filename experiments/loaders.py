@@ -320,6 +320,31 @@ def get_polymer_rings_dataset(path: str, num_samples: int, batch_size: int = 128
     test_loader = DataLoader(dataset=testing_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
     return train_loader, valid_loader, test_loader
 
+def get_dl_sim_dataset(path: str, num_samples: int, batch_size: int = 128, **kwargs):
+
+    training_dataset = datasets.DLSIMDataset(source=os.path.join(path, "DL-SIM-training.txt"), num_samples=num_samples, **kwargs)
+    validation_dataset = datasets.DLSIMDataset(source=os.path.join(path, "DL-SIM-validation.txt"), num_samples=None, **kwargs)
+    testing_dataset = datasets.DLSIMDataset(source=os.path.join(path, "DL-SIM-testing.txt"), num_samples=None, **kwargs)
+
+    print(f"Training size: {len(training_dataset)}")
+    print(f"Validation size: {len(validation_dataset)}")
+    print(f"Test size: {len(testing_dataset)}")
+
+    # statistics = []
+    # for img, _ in training_dataset:
+    #     statistics.append(np.mean(img.numpy()))
+    # print(f"Training mean: {np.mean(statistics)}")
+    # statistics = []
+    # for img, _ in training_dataset:
+    #     statistics.append(np.std(img.numpy()))
+    # print(f"Training std: {np.std(statistics)}")
+
+    train_loader = DataLoader(dataset=training_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    valid_loader = DataLoader(dataset=validation_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    test_loader = DataLoader(dataset=testing_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    return train_loader, valid_loader, test_loader
+
+
 def get_dataset(name, path=None, **kwargs):
     if name == "optim":
         return get_optim_dataset(
@@ -371,6 +396,14 @@ def get_dataset(name, path=None, **kwargs):
             batch_size=kwargs.get("batch_size", 64),
             num_samples=kwargs.get("num_samples", None),
         )
+    elif name == "dl-sim":
+        return get_dl_sim_dataset(
+            path=os.path.join(BASE_PATH, "evaluation-data", "DL-SIM"), 
+            n_channels=kwargs.get("n_channels", 1), 
+            transform=kwargs.get("transform", None),
+            batch_size=kwargs.get("batch_size", 64),
+            num_samples=kwargs.get("num_samples", None),
+        )    
     else:
         raise NotImplementedError(f"`{name}` dataset is not supported.")
 

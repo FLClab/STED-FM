@@ -61,6 +61,8 @@ def get_save_folder() -> str:
         return "ImageNet"
     elif "sted" in args.weights.lower():
         return "STED"
+    elif "sim" in args.weights.lower():
+        return "SIM"        
     elif "jump" in args.weights.lower():
         return "JUMP"
     elif "ctc" in args.weights.lower():
@@ -268,7 +270,6 @@ def main():
         num_epochs = int(budget / (args.num_per_class * train_loader.dataset.num_classes))
         print(f"--- Training with {args.num_per_class} samples per class for {num_epochs} epochs ---")
     warmup_epochs = 0.1 * num_epochs
-
     if probe == "from-scratch":
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
         scheduler = CosineWarmupScheduler(
@@ -283,7 +284,7 @@ def main():
             period=num_epochs//10
         )
     else:
-        optimizer = torch.optim.SGD(model.parameters(), lr=1e-3) 
+        optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
         scheduler = CosineWarmupScheduler(
             optimizer=optimizer, warmup_epochs=warmup_epochs, max_epochs=num_epochs,
             start_value=1.0, end_value=0.01

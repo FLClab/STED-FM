@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=08:00:00
+#SBATCH --time=12:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -60,6 +60,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 python finetune_v2.py --dataset $dataset --model resnet50 --weights RESNET50_IMAGENET1K_V1 --seed $seed --overwrite
 python finetune_v2.py --dataset $dataset --model resnet50 --weights RESNET50_SSL_HPA --seed $seed --overwrite
 python finetune_v2.py --dataset $dataset --model resnet50 --weights RESNET50_SSL_JUMP --seed $seed --overwrite
+python finetune_v2.py --dataset $dataset --model resnet50 --weights RESNET50_SSL_SIM --seed $seed --overwrite
 python finetune_v2.py --dataset $dataset --model resnet50 --weights RESNET50_SSL_STED --seed $seed --overwrite
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

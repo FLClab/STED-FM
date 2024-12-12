@@ -74,7 +74,6 @@ def plot_data(pretraining, data, figax=None, position=0, **kwargs):
 
         mean, std = numpy.ma.mean(values_masked, axis=1), numpy.ma.std(values_masked, axis=1)
         mean = numpy.mean(mean, axis=-1)
-        print(mean)
         averaged.append(mean)
         # ax.bar(position, mean, yerr=std, color=COLORS[pretraining], align="edge", **kwargs)
         ax.scatter([position] * len(mean), mean, color=COLORS[pretraining])

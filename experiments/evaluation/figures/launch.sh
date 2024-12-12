@@ -9,6 +9,10 @@ DATASET=(
     "peroxisome"
     "polymer-rings"
 )
+for dataset in ${DATASET[@]};
+do
+    python table-linear-probe-finetuned.py --dataset $dataset
+done
 for model in ${MODELS[@]};
 do
     for dataset in ${DATASET[@]};

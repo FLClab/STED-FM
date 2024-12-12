@@ -41,7 +41,7 @@ def load_file(file):
 def get_data(pretraining="STED"):
     data = {}
     for sample in args.samples:
-        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"linear-probe_{sample}_*.json"), recursive=True)
+        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"accuracy_linear-probe_{sample}_*.json"), recursive=True)
         if len(files) < 1:
             print(f"Could not find files for sample: `{sample}` and pretraining: `{pretraining}`")
             continue
@@ -71,7 +71,7 @@ def plot_data(pretraining, data, figax=None):
     ax.plot([float(key) for key in data.keys()], averaged, color=COLORS[pretraining], label=pretraining)
     ax.set(
         xlabel="Num. samples per class", ylabel=args.metric,
-        ylim=(0, 1),
+        # ylim=(0, 1),
         xticks=[int(s) for s in data.keys()],
     )
 
@@ -84,7 +84,7 @@ def main():
         data = get_data(pretraining=pretraining)
         fig, ax = plot_data(pretraining, data, figax=(fig, ax))
     ax.legend()
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_small-dataset-samples"), extension="png")
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_small-dataset-samples"), extension="png", save_white=True)
 
 if __name__ == "__main__":
     main()

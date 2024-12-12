@@ -322,7 +322,7 @@ if __name__ == "__main__":
     scheduler = CosineWarmupScheduler(
         optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, max_epochs=num_epochs,
         start_value=1.0, end_value=0.01
-    )    
+    )
 
     step = start_epoch * len(train_loader)
     print(start_epoch, step, cfg.num_epochs)
