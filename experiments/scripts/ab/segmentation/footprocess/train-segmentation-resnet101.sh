@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=12:00:00
+#SBATCH --time=16:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
@@ -20,14 +20,14 @@ source $VENV_DIR/bin/activate
 
 # Training options
 BACKBONEWEIGHTS=(
-    "RESNET50_IMAGENET1K_V1"
-    "RESNET50_IMAGENET1K_V1"
-    "RESNET50_SSL_HPA"
-    "RESNET50_SSL_HPA"    
-    "RESNET50_SSL_JUMP"
-    "RESNET50_SSL_JUMP"
-    "RESNET50_SSL_STED"
-    "RESNET50_SSL_STED"    
+    "RESNET101_IMAGENET1K_V1"
+    "RESNET101_IMAGENET1K_V1"
+    "RESNET101_SSL_HPA"
+    "RESNET101_SSL_HPA"    
+    "RESNET101_SSL_JUMP"
+    "RESNET101_SSL_JUMP"
+    "RESNET101_SSL_STED"
+    "RESNET101_SSL_STED"    
     "None"
 )
 OPTS=(
@@ -75,9 +75,9 @@ echo "% Weight: ${weight}"
 echo "% Options: ${options}"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/projects/SSL/segmentation-baselines/resnet50/footprocess" --host 0.0.0.0 --load_fast false &
+tensorboard --logdir="/scratch/anbil106/projects/SSL/segmentation-baselines/resnet101/footprocess" --host 0.0.0.0 --load_fast false &
 python main.py --seed ${seed} --use-tensorboard --dataset "footprocess" \
-    --backbone "resnet50" --backbone-weights ${weight} \
+    --backbone "resnet101" --backbone-weights ${weight} \
     --opts ${options}
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=08:00:00
+#SBATCH --time=12:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
@@ -75,8 +75,8 @@ echo "% Weight: ${weight}"
 echo "% Options: ${options}"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/scratch/anbil106/projects/SSL/segmentation-baselines/resnet50/footprocess" --host 0.0.0.0 --load_fast false &
-python main.py --seed ${seed} --use-tensorboard --dataset "footprocess" \
+tensorboard --logdir="/scratch/anbil106/projects/SSL/segmentation-baselines/resnet50/lioness" --host 0.0.0.0 --load_fast false &
+python main.py --seed ${seed} --use-tensorboard --dataset "lioness" \
     --backbone "resnet50" --backbone-weights ${weight} \
     --opts ${options}
 

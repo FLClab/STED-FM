@@ -30,6 +30,7 @@ DATASETS=(
     "neural-activity-states"
     "peroxisome"
     "polymer-rings"
+    "dl-sim"
 )
 
 seed="${SEEDS[${SLURM_ARRAY_TASK_ID}]}"
