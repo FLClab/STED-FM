@@ -23,7 +23,7 @@ sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH
 from loaders import get_dataset
 from model_builder import get_pretrained_model_v2 
-from utils import SaveBestModel, AverageMeter, ScoreTracker, compute_Nary_accuracy, track_loss_steps, update_cfg, get_number_of_classes
+from utils import SaveBestModel, AverageMeter, ScoreTracker, EarlyStopper, compute_Nary_accuracy, track_loss_steps, update_cfg, get_number_of_classes
 
 plt.style.use("dark_background")
 
@@ -56,21 +56,24 @@ def set_seeds():
 
 def get_save_folder() -> str: 
     if args.weights is None:
-        return "from-scratch"
-    elif "imagenet" in args.weights.lower():
-        return "ImageNet"
-    elif "sted" in args.weights.lower():
-        return "STED"
-    elif "sim" in args.weights.lower():
-        return "SIM"        
-    elif "jump" in args.weights.lower():
-        return "JUMP"
-    elif "ctc" in args.weights.lower():
-        return "CTC"
-    elif "hpa" in args.weights.lower():
-        return "HPA"
+        modelname = args.model.replace("-lightning", "")
+        return f"{modelname}_from-scratch"
     else:
-        raise NotImplementedError("The requested weights do not exist.")
+        return args.weights
+    # elif "imagenet" in args.weights.lower():
+    #     return "ImageNet"
+    # elif "sted" in args.weights.lower():
+    #     return "STED"
+    # elif "sim" in args.weights.lower():
+    #     return "SIM"        
+    # elif "jump" in args.weights.lower():
+    #     return "JUMP"
+    # elif "ctc" in args.weights.lower():
+    #     return "CTC"
+    # elif "hpa" in args.weights.lower():
+    #     return "HPA"
+    # else:
+    #     raise NotImplementedError("The requested weights do not exist.")
 
 def knn_sanity_check(
         model: torch.nn.Module, 
@@ -216,7 +219,7 @@ def main():
     SAVENAME = get_save_folder()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
-    n_channels = 3 if SAVENAME == "ImageNet" else 1
+    n_channels = 3 if "IMAGENET" in SAVENAME else 1
 
     probe = "linear-probe" if args.blocks == "all" else "finetuned"
     if args.from_scratch:
@@ -290,12 +293,14 @@ def main():
 
     criterion = torch.nn.CrossEntropyLoss()
     modelname = args.model.replace("-lightning", "")
-    model_path = os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
+    model_path = os.path.join(BASE_PATH, "baselines", SAVENAME, args.dataset)
     #model_path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{SAVENAME}/{args.dataset}"
     os.makedirs(model_path, exist_ok=True)
 
     # Training loop
     train_loss, val_loss, val_acc, lrates = ScoreTracker(), ScoreTracker(), ScoreTracker(), ScoreTracker()
+    early_stopper = EarlyStopper(patience=1000) # in steps
+
     save_best_model = SaveBestModel(
         save_dir=f"{model_path}",
         model_name=f"{probe}_{args.num_per_class}_{args.seed}"
@@ -370,6 +375,10 @@ def main():
             lrates=lrates,
             save_dir=f"{save_best_model.save_dir}/{save_best_model.model_name}_training-curves.png"
         )
+
+        if early_stopper(val_loss):
+            print("Early stopping... Validation loss did not improve for {} steps.".format(early_stopper.patience))
+            break
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
 
     # Evaluates for every model that were saved

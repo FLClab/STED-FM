@@ -55,11 +55,14 @@ def handle_str_state_dict(name: str, weights: Union[str, Enum]) -> dict:
         return state_dict["state_dict"]["backbone"]
 
     elif "resnet" in name.lower():
-        # if "hpa" in weights.lower():
-        #     return state_dict["state_dict"]["backbone"]
-        # elif "sted" in weights.lower():     
-        return {key.replace("backbone.", ""): values for key, values in state_dict["state_dict"].items() if "backbone" in key}
-
+        if "simclr" in state_dict["hyper_parameters"]["cfg"]:
+            print("SimCLR weights detected.")
+            return {key.replace("backbone.", ""): values for key, values in state_dict["state_dict"].items() if "backbone" in key}
+        elif "dino" in state_dict["hyper_parameters"]["cfg"]:
+            print("DINO weights detected.")
+            return {key.replace("student_backbone.", ""): values for key, values in state_dict["state_dict"].items() if "student_backbone" in key}
+        else:
+            raise NotImplementedError(f"Weights `{weights}` not implemented yet for this resnet model.")
     elif "convnext" in name.lower():
         return {key.replace("backbone.", ""): values for key, values in state_dict["state_dict"].items() if "backbone" in key}
         # return state_dict["state_dict"]["backbone"]

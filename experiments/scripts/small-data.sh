@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=24:00:00
+#SBATCH --time=36:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -75,7 +75,7 @@ echo $numclass
 echo $seed
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset optim --model mae-lightning-large --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
+python finetune_v2.py --dataset polymer-rings --model mae-lightning-large --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

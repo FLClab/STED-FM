@@ -19,8 +19,8 @@ from model_builder import get_pretrained_model_v2
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--dataset-path", type=str, default="/home/frbea320/projects/def-flavielc/datasets/FLCDataset/dataset-250k.tar")
-parser.add_argument("--latent-encoder", type=str, default="mae-lightning-tiny")
-parser.add_argument("--weights", type=str, default="MAE_TINY_STED")
+parser.add_argument("--latent-encoder", type=str, default="mae-lightning-small")
+parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--ckpt-path", type=str, default="/home/frbea320/scratch/model_checkpoints/DiffusionModels/latent-guidance")
 parser.add_argument("--num-samples", type=int, default=40)
 parser.add_argument("--guidance", type=str, default="latent")
@@ -81,7 +81,7 @@ def main():
         dim_mults=(1,2,4),
         cond_dim=model_config.dim,
         condition_type=args.guidance,
-        num_classes=4
+        num_classes=24 if args.guidance == "class" else 4
     )
 
     model = DDPM(
@@ -124,12 +124,12 @@ def main():
             original_img, metadata = dataset[idx]
             class_name = metadata["protein-id"]
             
-            if sum(list(counters.values())) >= 10: # args.num_samples:
+            if sum(list(counters.values())) >= 40: # args.num_samples:
                 print(f"Finished; sampled {counters}")
                 break
             elif class_name not in list(counters.keys()):
                 continue
-            elif counters[class_name] >= 10: # args.num_samples // len(counters):
+            elif counters[class_name] >= args.num_samples // len(counters):
                 continue
             else:
                 counters[class_name] += 1
