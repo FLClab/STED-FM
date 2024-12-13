@@ -80,6 +80,7 @@ class MultiprocessingDataModule(LightningDataModule):
 
         self.dataset_name = args.dataset
         self.dataset_path = args.dataset_path
+        self.args = args
         self.kwargs = kwargs
 
     def setup(self, stage : str = None):
@@ -94,9 +95,9 @@ class MultiprocessingDataModule(LightningDataModule):
         manager = Manager()
         cache_system = manager.dict()
         if self.dataset_name == "Hybrid":
-            hpa_path = args.hpa_path 
-            sim_path = args.sim_path 
-            sted_path = args.sted_path 
+            hpa_path = self.args.hpa_path 
+            sim_path = self.args.sim_path 
+            sted_path = self.args.sted_path 
             self.dataset = get_dataset(
                 self.dataset_name, "",
                 hpa_path=hpa_path,
