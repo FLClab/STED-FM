@@ -107,6 +107,7 @@ class UNet(torch.nn.Module):
         self.cfg = cfg
 
         if self.cfg.freeze_backbone:
+            print("Creating a model with a frozen backbone")
             for param in self.backbone.parameters():
                 param.requires_grad = False
 
@@ -122,13 +123,12 @@ class UNet(torch.nn.Module):
         ])
 
         if layer_sizes[0][-1] != 224:
-            resizer = Expander(in_channels=layer_sizes[0][0], out_channels=layer_sizes[0][0], 
+            self.resizer = Expander(in_channels=layer_sizes[0][0], out_channels=layer_sizes[0][0], 
                          kernel_size=224//layer_sizes[0][-1], stride=224//layer_sizes[0][-1])
         else:
-            resizer = torch.nn.Identity()
+            self.resizer = torch.nn.Identity()
 
         self.out_conv = torch.nn.Sequential(*[
-            resizer,
             torch.nn.Conv2d(in_channels=layer_sizes[0][0], out_channels=self.cfg.dataset_cfg.num_classes, kernel_size=1)
         ])
 
@@ -142,7 +142,10 @@ class UNet(torch.nn.Module):
             self.backbone.eval()
         else:
             self.backbone.train(mode)
+
         self.decoder.train(mode)
+        self.resizer.train(mode)
+        self.out_conv.train(mode)
 
     def get_layer_sizes(self) -> list[tuple[int, int, int]]:
         """
@@ -268,6 +271,34 @@ class UNet(torch.nn.Module):
                 out.append(x)
         return x, out
 
+    def forward_decoder(self, x : torch.Tensor, out : list[torch.Tensor]) -> torch.Tensor:
+        """
+        Forward pass for the decoder of the `UNet` model. This method is used
+        to decode the features extracted by the encoder and segment the input data.
+
+        :param x: A `torch.tensor` of the input data
+        :param out: A `list` of the intermediate outputs
+
+        :returns : A `torch.tensor` of the segmented input data
+        """
+        for i, layer in enumerate(self.decoder):
+            x = layer(x, out[-i-2])
+        return x
+    
+    def forward_features(self, x : torch.Tensor) -> torch.Tensor:
+        """
+        Implements the forward method of `UNet`.
+        The output image is upsampled to the original size of the input image.
+
+        :param x: A `torch.tensor` of the input data
+
+        :returns : A `torch.tensor` of the segmented input data
+        """
+        x, out = self.forward_encoder(x)
+        x = self.forward_decoder(x, out)
+        x = self.resizer(x)
+        return x
+    
     def forward(self, x : torch.Tensor):
         """
         Implements the forward method of `UNet`.
@@ -277,12 +308,7 @@ class UNet(torch.nn.Module):
 
         :returns : A `torch.tensor` of the segmented input data
         """
-        size = x.shape[-2:]
-        # Forward pass through the encoder
-        x, out = self.forward_encoder(x)
-        for i, layer in enumerate(self.decoder):
-            x = layer(x, out[-i-2])
-
+        x = self.forward_features(x)
         x = self.out_conv(x)
         x = torch.sigmoid(x)
         

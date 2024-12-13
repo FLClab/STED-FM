@@ -13,22 +13,23 @@ from configuration import Configuration
 class ResNetWeights:
 
     RESNET18_IMAGENET1K_V1 = torchvision.models.ResNet18_Weights.IMAGENET1K_V1
-    RESNET18_SSL_HPA = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet18_HPA", "result.pt")
-    RESNET18_SSL_JUMP = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet18_JUMP", "result.pt")
-    RESNET18_SSL_SIM = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet18_SIM", "result.pt")    
-    RESNET18_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet18_STED", "result.pt")
+    RESNET18_SIMCLR_HPA = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet18_HPA", "result.pt")
+    RESNET18_SIMCLR_JUMP = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet18_JUMP", "result.pt")
+    RESNET18_SIMCLR_SIM = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet18_SIM", "result.pt")    
+    RESNET18_SIMCLR_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet18_STED", "result.pt")
+    RESNET18_DINO_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu-dino", "resnet18_STED", "result.pt")
 
     RESNET50_IMAGENET1K_V1 = torchvision.models.ResNet50_Weights.IMAGENET1K_V1
-    RESNET50_SSL_HPA = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet50_HPA", "result.pt")
-    RESNET50_SSL_JUMP = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet50_JUMP", "result.pt")
-    RESNET50_SSL_SIM = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet50_SIM", "result.pt")
-    RESNET50_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet50_STED", "result.pt")
+    RESNET50_SIMCLR_HPA = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet50_HPA", "result.pt")
+    RESNET50_SIMCLR_JUMP = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet50_JUMP", "result.pt")
+    RESNET50_SIMCLR_SIM = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet50_SIM", "result.pt")
+    RESNET50_SIMCLR_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet50_STED", "result.pt")
 
     RESNET101_IMAGENET1K_V1 = torchvision.models.ResNet101_Weights.IMAGENET1K_V1
-    RESNET101_SSL_HPA = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet101_HPA", "result.pt")
-    RESNET101_SSL_JUMP = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet101_JUMP", "result.pt")
-    RESNET101_SSL_SIM = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet101_SIM", "result.pt")    
-    RESNET101_SSL_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet101_STED", "result.pt")
+    RESNET101_SIMCLR_HPA = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet101_HPA", "result.pt")
+    RESNET101_SIMCLR_JUMP = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet101_JUMP", "result.pt")
+    RESNET101_SIMCLR_SIM = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet101_SIM", "result.pt")    
+    RESNET101_SIMCLR_STED = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet101_STED", "result.pt")
 
 class ResNetConfiguration(Configuration):
     

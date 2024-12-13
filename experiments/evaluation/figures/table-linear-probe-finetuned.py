@@ -28,13 +28,15 @@ COLORS = {
     "STED" : "tab:blue",
     "HPA" : "tab:orange",
     "ImageNet" : "tab:red",
-    "JUMP" : "tab:green"
+    "JUMP" : "tab:green",
+    "SIM" : "tab:pink"
 }
 FORMATTED = {
     "ImageNet": "Image-Net",
     "JUMP": "JUMP",
     "HPA": "HPA",
     "STED": "STED",
+    "SIM": "SIM",
     "resnet18": "ResNet-18",
     "resnet50": "ResNet-50",
     "resnet101": "ResNet-101",
@@ -51,7 +53,7 @@ def get_data(model, mode="linear-probe", pretraining="STED"):
     data = {
         mode: []
     }
-    files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{model}_{pretraining}", args.dataset, f"{mode}_None_*.json"), recursive=True)
+    files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{pretraining}", args.dataset, f"accuracy_{mode}_None_*.json"), recursive=True)
     if len(files) < 1: 
         print(f"Could not find files for mode: `{mode}` and pretraining: `{pretraining}`")
         return data
@@ -88,7 +90,14 @@ def main():
     fig, ax = pyplot.subplots(figsize=(4,3))
     models = ["resnet18", "resnet50", "resnet101"]
     modes = ["linear-probe", "finetuned"]
-    pretrainings = ["ImageNet", "JUMP", "HPA", "STED"]
+    pretrainings = ["STED", "SIM", "HPA", "JUMP", "ImageNet"]
+    WEIGHTS = {
+        "STED" : "{}_SIMCLR_STED",
+        "SIM" : "{}_SIMCLR_SIM",
+        "HPA" : "{}_SIMCLR_HPA",
+        "JUMP" : "{}_SIMCLR_JUMP",
+        "ImageNet" : "{}_IMAGENET1K_V1",
+    }    
 
     df = pandas.DataFrame(
         columns=[f"{FORMATTED[mode]};{FORMATTED[pretraining]}" for mode in modes for pretraining in pretrainings],
@@ -102,7 +111,7 @@ def main():
             max_col = 0
             mean = 0
             for i, pretraining in enumerate(pretrainings):
-                data = get_data(model=model, mode=mode, pretraining=pretraining)
+                data = get_data(model=model, mode=mode, pretraining=WEIGHTS[pretraining].format(model.upper()))
                 values = [value[args.metric] for value in data[mode]]
                 if numpy.mean(values) > mean:
                     max_col = i
