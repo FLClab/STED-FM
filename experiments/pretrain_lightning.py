@@ -34,6 +34,11 @@ parser.add_argument("--restore-from", type=str, default=None)
 parser.add_argument("--model", type=str, default='mae-small')
 parser.add_argument("--save-folder", type=str, default=f"{BASE_PATH}/baselines")
 parser.add_argument("--dataset-path", type=str, default="./Datasets/FLCDataset/dataset.tar")
+### Used only with Hybrid dataset
+parser.add_argument("--hpa-path", type=str, default=None)
+parser.add_argument("--sim-path", type=str, default=None)
+parser.add_argument("--sted-path", type=str, default=None)
+### 
 parser.add_argument("--use-tensorboard", action='store_true')
 parser.add_argument("--opts", nargs="+", default=[], 
                     help="Additional configuration options")    

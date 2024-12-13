@@ -93,15 +93,32 @@ class MultiprocessingDataModule(LightningDataModule):
         # Builds one dataset per process
         manager = Manager()
         cache_system = manager.dict()
-        self.dataset = get_dataset(
-            self.dataset_name, self.dataset_path, 
-            use_cache=self.cfg.datamodule.use_cache, 
-            cache_system=cache_system, 
-            max_cache_size=self.cfg.datamodule.max_cache_size,
-            world_size = self.world_size, rank = self.rank,
-            return_metadata=self.cfg.datamodule.return_metadata,
-            **self.kwargs
-        )
+        if self.dataset_name == "Hybrid":
+            hpa_path = args.hpa_path 
+            sim_path = args.sim_path 
+            sted_path = args.sted_path 
+            self.dataset = get_dataset(
+                self.dataset_name, "",
+                hpa_path=hpa_path,
+                sim_path=sim_path,
+                sted_path=sted_path,
+                use_cache=self.cfg.datamodule.use_cache,
+                cache_system=cache_system,
+                max_cache_size=self.cfg.datamodule.max_cache_size,
+                world_size = self.world_size, rank = self.rank,
+                return_metadata=self.cfg.datamodule.return_metadata,
+                **self.kwargs
+            )
+        else:
+            self.dataset = get_dataset(
+                self.dataset_name, self.dataset_path, 
+                use_cache=self.cfg.datamodule.use_cache, 
+                cache_system=cache_system, 
+                max_cache_size=self.cfg.datamodule.max_cache_size,
+                world_size = self.world_size, rank = self.rank,
+                return_metadata=self.cfg.datamodule.return_metadata,
+                **self.kwargs
+            )
         
     def train_dataloader(self):
         # sampler = RepeatedSampler(self.dataset)
