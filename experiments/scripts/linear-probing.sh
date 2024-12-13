@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=3:00:00
+#SBATCH --time=8:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -8,7 +8,7 @@
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-3
+#SBATCH --array=0-19
 
 
 #### PARAMETERS
@@ -21,33 +21,46 @@ source ~/phd/bin/activate
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 WEIGHTS=(
-    "MAE_LARGE_IMAGENET1K_V1"
-    "MAE_LARGE_HPA"
-    "MAE_LARGE_JUMP"
-    "MAE_LARGE_STED"
+    "MAE_SMALL_IMAGENET1K_V1"
+    "MAE_SMALL_HPA"
+    "MAE_SMALL_JUMP"
+    "MAE_SMALL_SIM"
+    "MAE_SMALL_STED"
 )
 
 # DATASETS=(
 #     "optim"
-#     "synaptic-proteins"
+#     "neural-activity-states"
+#     "peroxisome"
+#     "polymer-rings"
+#     "dl-sim"
 # )
 
-# opts=()
-# for weight in "${WEIGHTS[@]}"
-# do
-#     for dataset in "${DATASETS[@]}"
-#     do
-#         opts+=("$weight;$dataset")
-#     done
-# done
+SEEDS=(
+    42
+    43
+    44
+    45
+    46
+)
+
+opts=()
+for weight in "${WEIGHTS[@]}"
+do
+    for seed in "${SEEDS[@]}"
+    do
+        opts+=("$weight;$seed")
+    done
+done
 
 # # Reads a specific item in the array and asign the values
 # # to the opt variable
-# IFS=';' read -r -a opt <<< "${opts[${SLURM_ARRAY_TASK_ID}]}"
-# weight="${opt[0]}"
-# dataset="${opt[1]}"
+IFS=';' read -r -a opt <<< "${opts[${SLURM_ARRAY_TASK_ID}]}"
+weight="${opt[0]}"
+seed="${opt[1]}"
 
-weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
+# weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
+# dataset=${DATASETS[${SLURM_ARRAY_TASK_ID}]}
 
 
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
@@ -56,7 +69,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset polymer-rings --model mae-lightning-large --weights $weight --blocks "all"
+python finetune_v2.py --dataset "dl-sim" --model mae-lightning-small --weights $weight --blocks "all" --seed $seed
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

@@ -751,6 +751,11 @@ class DDPM(LightningModule):
             cond = latent_code
         else: 
             cond = None
+        # Special case where the ImageNet pre-trained encoder needs 3 channel-inputs (which is why we don't do this before the latent encoding of the image)
+        # But we want the diffusion model to work with 1 channel inputs
+        if imgs.shape[1] == 3:
+            imgs = imgs[:, [0], :, :]
+
         t = torch.randint(0, 1000, (imgs.shape[0],), device=device).long()
         losses, model_outputs = self(x_0=imgs, t=t, cond=cond)
         loss = losses["loss"].mean()
