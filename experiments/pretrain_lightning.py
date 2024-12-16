@@ -73,8 +73,11 @@ if __name__=="__main__":
         print("--- Restoring model ---")
         in_channels = cfg.in_channels
         model = MAE.load_from_checkpoint(args.restore_from, vit=model.backbone.vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+        print(f"--- Restored model {args.model}  from {args.restore_from} successfully ---")
     else:
         OUTPUT_FOLDER = args.save_folder
+        print(f"--- Exiting while debugging the restore-from argument ---") # TODO: Remove this once the restore-from argument is working
+        exit()
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
     print(f"--- Loaded model {args.model} successfully ---")
 

@@ -22,7 +22,7 @@ cp "/project/def-flavielc/datasets/sim-dataset-crops.tar" "${SLURM_TMPDIR}/sim-d
 cp "/project/def-flavielc/datasets/train.zip" "${SLURM_TMPDIR}/train.zip"
 cp "/project/def-flavielc/datasets/FLCDataset/dataset.tar" "${SLURM_TMPDIR}/dataset.tar"
 
-restore="/home/frbea320/scratch/baselines/mae-small_Hybrid/pl_current_model.pth"
+restore="/home/frbea320/scratch/baselines/mae-small_Hybrid/current_model.pth"
 
 savefolder="/home/frbea320/scratch/baselines/mae-small_Hybrid"
 
@@ -32,7 +32,7 @@ echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 
-if test -e ./Datasets/FLCDataset/baselines/mae-small_Hybrid/pl_current_model.pth; then
+if test -e "/home/frbea320/scratch/baselines/mae-small_Hybrid/current_model.pth"; then
     tensorboard --logdir="./Datasets/FLCDataset/baselines" --host 0.0.0.0 --load_fast false & 
     srun python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset Hybrid --use-tensorboard --save-folder $savefolder --restore-from $restore --hpa-path "${SLURM_TMPDIR}/train.zip" --sim-path "${SLURM_TMPDIR}/sim-dataset-crops.tar" --sted-path "${SLURM_TMPDIR}/dataset.tar"
 else

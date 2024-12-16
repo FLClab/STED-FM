@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=36:00:00
+#SBATCH --time=16:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -8,7 +8,7 @@
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-119
+#SBATCH --array=0-29
 
 #### PARAMETERS
 # Use this directory venv, reusable across RUNs
@@ -19,12 +19,12 @@ source ~/phd/bin/activate
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-WEIGHTS=(
-    "MAE_LARGE_IMAGENET1K_V1"
-    "MAE_LARGE_HPA"
-    "MAE_LARGE_JUMP"
-    "MAE_LARGE_STED"
-)
+# WEIGHTS=(
+#     "MAE_LARGE_IMAGENET1K_V1"
+#     "MAE_LARGE_HPA"
+#     "MAE_LARGE_JUMP"
+#     "MAE_LARGE_STED"
+# )
 
 NUMCLASSES=(
     10
@@ -44,23 +44,23 @@ SEEDS=(
 )
 
 params=()
-for weight in "${WEIGHTS[@]}"
+# for weight in "${WEIGHTS[@]}"
+# do
+for numclass in "${NUMCLASSES[@]}"
 do
-    for numclass in "${NUMCLASSES[@]}"
+    for seed in "${SEEDS[@]}"
     do
-        for seed in "${SEEDS[@]}"
-        do
-            params+=("$weight;$numclass;$seed")
-        done
+        params+=("$numclass;$seed")
     done
 done
+# done
 
 # Reads a specific item in the array and asign the values
 # to the opt variable
 IFS=';' read -r -a param <<< "${params[${SLURM_ARRAY_TASK_ID}]}"
-weight="${param[0]}"
-numclass="${param[1]}"
-seed="${param[2]}"
+# weight="${param[0]}"
+numclass="${param[0]}"
+seed="${param[1]}"
 
 # opts="batch_size 32"
 
@@ -70,12 +70,11 @@ cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started fine tuning in low data regime ($numclass samples per class)"
-echo $weight
 echo $numclass 
 echo $seed
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset polymer-rings --model mae-lightning-large --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
+python finetune_v2.py --dataset neural-activity-states --model mae-lightning-small --weights "MAE_SMALL_SIM" --blocks "all" --num-per-class $numclass --seed $seed
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

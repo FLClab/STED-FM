@@ -27,7 +27,7 @@ from lightly.utils.scheduler import CosineWarmupScheduler
 
 from decoders import get_decoder
 from datasets import get_dataset
-
+from utils import patchify, unpatchify
 from eval import evaluate_segmentation
 
 import sys 

@@ -71,7 +71,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset $dataset --model mae-lightning-tiny --weights "MAE_TINY_SIM" --blocks "all" --seed ${seed}
+python finetune_v2.py --dataset $dataset --model mae-lightning-small --weights "MAE_SMALL_HYBRID" --blocks "all" --seed ${seed}
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

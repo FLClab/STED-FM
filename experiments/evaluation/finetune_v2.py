@@ -71,6 +71,8 @@ def get_save_folder() -> str:
         return "HPA"
     elif "sim" in args.weights.lower():
         return "SIM"
+    elif "hybrid" in args.weights.lower():
+        return "Hybrid"
     else:
         raise NotImplementedError("The requested weights do not exist.")
 

@@ -16,16 +16,24 @@ args = parser.parse_args()
 
 
 def main():
-    model, cfg = get_pretrained_model_v2(
-        name="mae-lightning-small",
-        weights="MAE_SMALL_STED",
-        path=None,
-        mask_ratio=0.0, 
-        pretrained=False,
-        in_channels=1,
-        as_classifier=False,
+#     train_loader, _, _ = get_dataset(
+#         name="peroxisome",
+#         training=True
+#     )
+#     print(f"Peroxisome: {len(train_loader.dataset)}")
+
+#     train_loader, _, _ = get_dataset(
+#         name="polymer-rings",
+#         training=True
+#     )
+#     print(f"Polymer Rings: {len(train_loader.dataset)}")
+
+    train_loader, _, _ = get_dataset(
+        name="dl-sim",
+        training=True
     )
-    print(model)
+    print(f"DL Sim: {len(train_loader.dataset)}")
+    
 
         
         
