@@ -10,7 +10,7 @@ import time
 import json
 import argparse
 import uuid
-
+import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from lightly import loss
 from lightly import transforms
@@ -27,7 +27,6 @@ from lightly.utils.scheduler import CosineWarmupScheduler
 
 from decoders import get_decoder
 from datasets import get_dataset
-from utils import patchify, unpatchify
 from eval import evaluate_segmentation
 
 import sys 

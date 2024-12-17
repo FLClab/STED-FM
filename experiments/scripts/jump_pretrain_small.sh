@@ -14,16 +14,16 @@ export TORCH_NCCL_BLOCKING_WAIT=1 #Pytorch Lightning uses the NCCL backend for i
 
 module load python/3.10 scipy-stack/2023b
 module load cuda cudnn
-source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
+source ~/phd/bin/activate
 
 # export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-cp "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/JUMP_CP/jump.hdf5" "${SLURM_TMPDIR}/jump.hdf5"
+cp "/home/frbea320/scratch/Datasets/JUMP_CP/jump.tar" "${SLURM_TMPDIR}/jump.tar"
 
 
-restore="./Datasets/JUMP_CP/baselines/mae-small/pl_current_model.pth"
+restore="/home/frbea320/scratch/baselines/mae-small_JUMP/current_model.pth"
 
-savefolder="./Datasets/JUMP_CP/baselines/mae-small"
+savefolder="/home/frbea320/scratch/baselines/mae-small_JUMP"
 
 # Launch training 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
@@ -31,12 +31,12 @@ echo "% Started training"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 
-if test -e ./Datasets/JUMP_CP/baselines/mae-small/pl_current_model.pth; then
-    tensorboard --logdir="./Datasets/JUMP_CP/baselines" --host 0.0.0.0 --load_fast false & 
-    srun python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset JUMP --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/jump.hdf5" --restore-from $restore 
+if test -e /home/frbea320/scratch/baselines/mae-small_JUMP/current_model.pth; then
+    tensorboard --logdir="/home/frbea320/scratch/baselines/mae-small_JUMP" --host 0.0.0.0 --load_fast false & 
+    srun python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset JUMP --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/jump.tar" --restore-from $restore 
 else
-    tensorboard --logdir="./Datasets/JUMP_CP/baselines" --host 0.0.0.0 --load_fast false & 
-    srun python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset JUMP --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/jump.hdf5"
+    tensorboard --logdir="/home/frbea320/scratch/baselines/mae-small_JUMP" --host 0.0.0.0 --load_fast false & 
+    srun python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset JUMP --use-tensorboard --save-folder $savefolder --dataset-path "${SLURM_TMPDIR}/jump.tar"
 fi
 
 # Launch training 
