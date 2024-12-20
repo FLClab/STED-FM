@@ -13,15 +13,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--epochs", type=int, default=350)
 args = parser.parse_args()
 
-def validation_step(model, loader, device):
+def validation_step(model, loader, device, criterion):
     model.eval()
     with torch.no_grad():
         loss_meter = AverageMeter()
-        for images, metadata in loader:
-            masks = metadata["mask"].to(device)
+        for images, metadata in tqdm(loader):
             images = images.to(device)
-            targets = metadata["score"].to(device).float()
-            _, outputs = model(images, masks)
+            targets = metadata["score"].to(device).unsqueeze(-1).float()
+            outputs = model(images)
             loss = criterion(outputs, targets)
             loss_meter.update(loss.item())
     return loss_meter.avg
@@ -39,8 +38,10 @@ def loss_tracker(train_loss: list, val_loss: list):
 def main():
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     train_dataset, valid_dataset = get_dataset(name="quality", training=True)
-    train_dataloader = DataLoader(train_dataset, batch_size=256, shuffle=True, drop_last=True)
-    valid_dataloader = DataLoader(valid_dataset, batch_size=256, shuffle=True, drop_last=True)
+    train_dataloader = DataLoader(train_dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
+    valid_dataloader = DataLoader(valid_dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
+
+    print(len(train_dataset), len(valid_dataset))
 
     model = NetTrueFCN().to(DEVICE)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
@@ -53,16 +54,16 @@ def main():
         model.train()
         loss_meter = AverageMeter()
         for images, metadata in tqdm(train_dataloader):
-            masks = metadata["mask"].to(DEVICE)
             images = images.to(DEVICE)
-            targets = metadata["score"].to(DEVICE).float()
+            targets = metadata["score"].to(DEVICE).unsqueeze(-1).float()
             optimizer.zero_grad()
-            _, outputs = model(images, masks)
+            outputs = model(images)
             loss = criterion(outputs, targets)
             loss.backward()
             optimizer.step()
+            loss_meter.update(loss.item())
 
-        valid_loss = validation_step(model=model, loader=valid_dataloader, device=DEVICE)
+        valid_loss = validation_step(model=model, loader=valid_dataloader, device=DEVICE, criterion=criterion)
         train_loss.append(loss_meter.avg)
         val_loss.append(valid_loss)
         save_best_model(current_val=valid_loss, epoch=epoch, model=model, optimizer=optimizer, criterion=criterion)

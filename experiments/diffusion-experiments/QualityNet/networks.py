@@ -68,66 +68,19 @@ class NetTrueFCN(nn.Module):
                                 stride=1,
                                 padding=1)
         self.conv6_bn = nn.BatchNorm2d(self.conv6.out_channels)
-
-        self.map7x7 = nn.Conv2d(in_channels=self.conv6.out_channels,
-                                out_channels=1,
-                                kernel_size=1,
-                                padding=0)
-        self.map14x14 = nn.Conv2d(in_channels=self.conv4.out_channels,
-                                out_channels=1,
-                                kernel_size=1,
-                                padding=0)
-        self.map28x28 = nn.Conv2d(in_channels=self.conv3.out_channels,
-                                out_channels=1,
-                                kernel_size=1,
-                                padding=0)
-        self.map56x56 = nn.Conv2d(in_channels=self.conv2.out_channels,
-                                out_channels=1,
-                                kernel_size=1,
-                                padding=0)
-
-        self.upscore2 = nn.ConvTranspose2d(
-            1, 1, 4, stride=2, bias=False)
-        self.upscore2b = nn.ConvTranspose2d(
-            1, 1, 4, stride=2, bias=False)
-        self.upscore2c = nn.ConvTranspose2d(
-            1, 1, 4, stride=2, bias=False)
-        self.upscore4 = nn.ConvTranspose2d(
-            1, 1, 4, stride=4, bias=False)
-        self.upscore8 = nn.ConvTranspose2d(
-            1, 1, 8, stride=8, bias=False)
+        self.avg_pool = nn.AdaptiveAvgPool2d(output_size=1)
+        self.fc = nn.Linear(64, 1)
 
     
-    def forward(self, x, mask):
+    def forward(self, x):
         # Convolutional layers
         y = F.elu(self.conv1_maxpool(self.conv1_bn(self.conv1(x)))) # 1/2
         y = F.elu(self.conv2_maxpool(self.conv2_bn(self.conv2(y)))) # 1/4
         y = F.elu(self.conv3_maxpool(self.conv3_bn(self.conv3(y)))) # 1/8
-        pool28x28 = y
         y = F.elu(self.conv4_maxpool(self.conv4_bn(self.conv4(y)))) # 1/16
-        pool14x14 = y
         y = F.elu(self.conv5_maxpool(self.conv5_bn(self.conv5(y)))) # 1/32
         y = F.elu(self.conv6_bn(self.conv6(y)))
-
-        # Skip links and upsample
-        out7x7 = self.map7x7(y)
-        up7x7_14x14 = self.upscore2(out7x7)[:,:,1:-1,1:-1]
-
-        out14x14 = self.map14x14(pool14x14)
-        up14x14_28x28 = self.upscore2b(out14x14 + up7x7_14x14)[:,:,1:-1,1:-1]
-
-        out28x28 = self.map28x28(pool28x28)
-
-        up28x28_224x224 = self.upscore8(out28x28 + up14x14_28x28)
-        y = up28x28_224x224
-
-        # To help the network reach extreme scores (0 and 1), we stretch a bit
-        # the sigmoid. This does not change anything in terms of loss computation.
-        y = F.sigmoid(y*1.5 - 0.25)
-
-        mm = mask.view(y.size()[0], y.size()[-2] * y.size()[-1])
-        ysingle = torch.sum(y.view(y.size()[0], -1) * mm, dim=1)
-        ysingle = ysingle / (mm.sum(dim=1)+1)
-
+        y = torch.flatten(self.avg_pool(y), start_dim=1)
+        y = F.sigmoid(self.fc(y))
         # We return both the mask and the averaged prediction
-        return y, ysingle
+        return y

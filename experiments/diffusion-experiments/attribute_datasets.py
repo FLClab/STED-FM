@@ -98,9 +98,7 @@ class OptimQualityDataset(Dataset):
 
         data = np.load(path)
         image = data['arr_0']
-        mask = data["arr_3"]
         
-        original = copy.deepcopy(image)
         m, M = np.quantile(image, [0.01, 0.995])
         m, M = image.min(), image.max()
         image = (image - m) / (M - m)
@@ -113,13 +111,11 @@ class OptimQualityDataset(Dataset):
                 img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
         else:
             img = transforms.ToTensor()(image)
-            mask = transforms.ToTensor()(mask)
-            original = transforms.ToTensor()(original)
         
         img = self.transform(img) if self.transform is not None else img
         
         # label = np.float64(label)
-        return img, {"label" : label, "dataset-idx" : dataset_idx, "score" : quality_score, "mask": mask, "original": original}
+        return img, {"label" : label, "dataset-idx" : dataset_idx, "score" : quality_score}
 
     def __repr__(self):
         out = "\n"

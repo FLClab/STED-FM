@@ -187,7 +187,6 @@ class ViTSegmentationClassifier(torch.nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         features = self.forward_encoder(x) 
         out = self.classification_head(features)
-        print(out.shape)
         out = unpatchify(out, self.patch_size, self.cfg.dataset_cfg.num_classes)
         return out
 
@@ -245,10 +244,8 @@ def unpatchify(
      Returns:
          Reconstructed images tensor with shape (batch_size, channels, height, width).
     """
-    print(patches.shape)
     N, C = patches.shape[0], channels
     patch_h = patch_w = int(patches.shape[1] ** 0.5)
-    print(f"N: {N}, C: {C}, patch_h: {patch_h}, patch_w: {patch_w}, patches.shape[1]: {patches.shape[1]}")
     assert patch_h * patch_w == patches.shape[1]
 
     images = patches.reshape(shape=(N, patch_h, patch_w, patch_size, patch_size, C))

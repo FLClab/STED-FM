@@ -1393,6 +1393,38 @@ class ArchiveDataset(Dataset):
         state['archive_obj'] = {}
         return state  
 
+class HybridDatasetV2(ArchiveDataset):
+    def __init__(
+        self,
+        datasets: List[str] = ["hpa", "sim", "sted"],
+        hpa_path: str = None, 
+        sim_path: str = None,
+        sted_path: str = None,
+        use_cache: bool = False,
+        max_cache_size: int = 16e9,
+        in_channels: int = 1, 
+        transform: Optional[Callable] = None,
+        cache_system: str = None, 
+        return_metadata: bool = False,
+        world_size: int = 1,
+        rank: int = 0,
+        **kwargs
+    ) -> None:
+        self.dataset_names = datasets
+        self.hpa_path = hpa_path  
+        self.sim_path = sim_path
+        self.sted_path = sted_path
+        self.in_channels = in_channels
+        self.return_metadata = return_metadata
+
+        self.datasets = self.__setup_datasets()
+
+    def __setup_datasets(self):
+        datasets = {}
+        for dataset_name in self.dataset_names:
+            datasets[dataset_name] = get_dataset(dataset_name)
+        return datasets
+
 
 class HybridDataset(ArchiveDataset):
     def __init__(

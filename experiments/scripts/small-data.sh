@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=16:00:00
+#SBATCH --time=12:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -74,7 +74,7 @@ echo $numclass
 echo $seed
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset neural-activity-states --model mae-lightning-small --weights "MAE_SMALL_SIM" --blocks "all" --num-per-class $numclass --seed $seed
+python finetune_v2.py --dataset polymer-rings --model mae-lightning-small --weights "MAE_SMALL_SIM" --blocks "all" --num-per-class $numclass --seed $seed
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
