@@ -4,6 +4,7 @@ import re
 import random
 import numpy as np
 import torch
+import copy
 from torch.utils.data import Dataset
 from typing import List
 from torchvision import transforms
@@ -59,7 +60,7 @@ class OptimQualityDataset(Dataset):
                 if quality_score >= self.high_score_threshold:
                     filtered_files.append(file)
                     labels.append(0)
-                if quality_score <= self.low_score_threshold:
+                if quality_score < self.low_score_threshold:
                     filtered_files.append(file)
                     labels.append(1)
         return filtered_files, labels
@@ -121,3 +122,29 @@ class OptimQualityDataset(Dataset):
         for key, values in self.samples.items():
             out += f"{key} - {len(values)}\n"        
         return "Dataset(optim) -- length: {}".format(len(self)) + out
+
+def get_dataset(name: str, training: bool = False,**kwargs): 
+    if name == "quality":
+        if training:
+            train_dataset = OptimQualityDataset(
+                data_folder="/home/frbea320/scratch/evaluation-data/optim_train",
+                high_score_threshold=kwargs.get("high_score_threshold", 0.70),
+                low_score_threshold=kwargs.get("low_score_threshold", 0.70),
+                **kwargs
+            )
+            valid_dataset = OptimQualityDataset(
+                data_folder="/home/frbea320/scratch/evaluation-data/optim_valid",
+                high_score_threshold=kwargs.get("high_score_threshold", 0.70),
+                low_score_threshold=kwargs.get("low_score_threshold", 0.70),
+                **kwargs
+            )
+            return train_dataset, valid_dataset
+        else:
+            return OptimQualityDataset(
+                data_folder="/home/frbea320/scratch/evaluation-data/optim-data",
+                high_score_threshold=kwargs.get("high_score_threshold", 0.70),
+                low_score_threshold=kwargs.get("low_score_threshold", 0.50),
+                **kwargs
+            )
+    else:
+        raise ValueError(f"Dataset {name} not implemented yet or invalid.")

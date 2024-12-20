@@ -25,10 +25,12 @@ args = parser.parse_args()
 print(args)
 
 COLORS = {
-    "STED" : "tab:blue",
-    "HPA" : "tab:orange",
-    "ImageNet" : "tab:red",
-    "JUMP" : "tab:green"
+    "ImageNet": "#6667ab",
+    "JUMP": "#f18aad",
+    "HPA": "#ea6759",
+    "SIM": "#f88f58",
+    "STED": "#f3c65f",
+    "Hybrid": "#8bc28c",
 }
 
 def load_file(file):
@@ -87,7 +89,7 @@ def plot_data(pretraining, data, figax=None, position=0, **kwargs):
 def main():
     fig, ax = pyplot.subplots()
     modes = ["from-scratch", "pretrained-frozen", "pretrained"]
-    pretrainings = ["STED", "HPA", "JUMP", "ImageNet"]
+    pretrainings = ["STED", "SIM", "HPA", "ImageNet"] # TODO: Include JUMP when retraining is completed
 
     width = 1/(len(pretrainings) + 1)
     for j, mode in enumerate(modes):
@@ -101,13 +103,8 @@ def main():
         xticks=numpy.arange(len(modes)) + width * len(pretrainings) / 2 - 0.5 * width,
     )
     ax.set_xticklabels(modes, rotation=30)
-    legend_elements = [ 
-        Line2D([0], [0], marker='o', color='tab:red', label='ImageNet', markerfacecolor='tab:red'),
-        Line2D([0], [0], marker='o', color='tab:green', label='JUMP', markerfacecolor='tab:green'),
-        Line2D([0], [0], marker='o', color='tab:orange', label='HPA', markerfacecolor='tab:orange'),
-        Line2D([0], [0], marker='o', color='tab:blue', label='STED', markerfacecolor='tab:blue'),
+    legend_elements = [Line2D([0], [0], color=COLORS[pretraining], label=pretraining, markerfacecolor=COLORS[pretraining]) for pretraining in pretrainings]
 
-    ]
     pyplot.legend(handles=legend_elements)
 
     savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_scratch-pretrained"), extension="png", save_white=True)

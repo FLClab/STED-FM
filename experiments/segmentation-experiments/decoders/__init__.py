@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from .unet import get_decoder as get_unet_decoder
 from .vit import get_decoder as get_vit_decoder
+from .mae import get_decoder as get_mae_decoder
 
 MODELS = {
     "resnet" : get_unet_decoder,
@@ -15,10 +16,10 @@ MODELS = {
     "convenext-tiny" : get_unet_decoder,
     "convenext-small" : get_unet_decoder,
     "convenext-base" : get_unet_decoder,
-    "mae-lightning-tiny" : get_vit_decoder,
-    "mae-lightning-small" : get_vit_decoder,
-    "mae-lightning-base" : get_vit_decoder,
-    "mae-lightning-large" : get_vit_decoder,
+    "mae-lightning-tiny" : get_mae_decoder,
+    "mae-lightning-small" : get_mae_decoder,
+    "mae-lightning-base" : get_mae_decoder,
+    "mae-lightning-large" : get_mae_decoder,
     "vit-tiny": get_vit_decoder,
     "vit-small": get_vit_decoder,
     "vit-base": get_vit_decoder,

@@ -80,6 +80,7 @@ class MultiprocessingDataModule(LightningDataModule):
 
         self.dataset_name = args.dataset
         self.dataset_path = args.dataset_path
+        self.args = args
         self.kwargs = kwargs
 
     def setup(self, stage : str = None):
@@ -93,15 +94,32 @@ class MultiprocessingDataModule(LightningDataModule):
         # Builds one dataset per process
         manager = Manager()
         cache_system = manager.dict()
-        self.dataset = get_dataset(
-            self.dataset_name, self.dataset_path, 
-            use_cache=self.cfg.datamodule.use_cache, 
-            cache_system=cache_system, 
-            max_cache_size=self.cfg.datamodule.max_cache_size,
-            world_size = self.world_size, rank = self.rank,
-            return_metadata=self.cfg.datamodule.return_metadata,
-            **self.kwargs
-        )
+        if self.dataset_name == "Hybrid":
+            hpa_path = self.args.hpa_path 
+            sim_path = self.args.sim_path 
+            sted_path = self.args.sted_path 
+            self.dataset = get_dataset(
+                self.dataset_name, "",
+                hpa_path=hpa_path,
+                sim_path=sim_path,
+                sted_path=sted_path,
+                use_cache=self.cfg.datamodule.use_cache,
+                cache_system=cache_system,
+                max_cache_size=self.cfg.datamodule.max_cache_size,
+                world_size = self.world_size, rank = self.rank,
+                return_metadata=self.cfg.datamodule.return_metadata,
+                **self.kwargs
+            )
+        else:
+            self.dataset = get_dataset(
+                self.dataset_name, self.dataset_path, 
+                use_cache=self.cfg.datamodule.use_cache, 
+                cache_system=cache_system, 
+                max_cache_size=self.cfg.datamodule.max_cache_size,
+                world_size = self.world_size, rank = self.rank,
+                return_metadata=self.cfg.datamodule.return_metadata,
+                **self.kwargs
+            )
         
     def train_dataloader(self):
         # sampler = RepeatedSampler(self.dataset)

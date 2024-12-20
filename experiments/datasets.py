@@ -4,7 +4,7 @@ import numpy as np
 import io
 import torch
 import skimage.transform
-from typing import Any, List, Tuple, Callable
+from typing import Any, List, Tuple, Callable, Optional
 from torch.utils.data import Dataset, get_worker_info
 from tqdm import tqdm
 from torchvision import transforms
@@ -34,6 +34,12 @@ def get_dataset(name: str, path: str, **kwargs):
         dataset = TarFLCDataset(path, **kwargs)
     elif name == "SIM": 
         dataset = TarFLCDataset(path, **kwargs)        
+    elif name == "Hybrid":
+        dataset = HybridDataset(
+            **kwargs # hpa_path, sim_path, sted_path have been handled in the datamodule
+        )
+        print(f"--- Hybrid dataset size: {len(dataset)} ---")
+        return dataset
     elif name == "optim":
         dataset = OptimDataset(
             os.path.join(BASE_PATH, "evaluation-data", "optim-data"), 
@@ -801,6 +807,7 @@ class PolymerRingsDataset(Dataset):
 
     def __len__(self):
         return len(self.info)    
+
     
 class DLSIMDataset(Dataset):
     """
@@ -1231,7 +1238,8 @@ class JUMPCPDataset(Dataset):
             img = img[np.newaxis]
             img = torch.tensor(img, dtype=torch.float32)
         return img
-    
+            
+
 class ArchiveDataset(Dataset):
     """
     This is an attempt at reading both zip and tar from a single class.
@@ -1320,7 +1328,7 @@ class ArchiveDataset(Dataset):
         elif isinstance(obj, (list, tuple)):
             return sum([self.__getsizeof(o) for o in obj])
         elif isinstance(obj, str):
-            return len(str)
+            return len(obj)
         else:
             return obj.size * obj.dtype.itemsize
     
@@ -1384,6 +1392,171 @@ class ArchiveDataset(Dataset):
         state = dict(self.__dict__)
         state['archive_obj'] = {}
         return state  
+
+class HybridDatasetV2(ArchiveDataset):
+    def __init__(
+        self,
+        datasets: List[str] = ["hpa", "sim", "sted"],
+        hpa_path: str = None, 
+        sim_path: str = None,
+        sted_path: str = None,
+        use_cache: bool = False,
+        max_cache_size: int = 16e9,
+        in_channels: int = 1, 
+        transform: Optional[Callable] = None,
+        cache_system: str = None, 
+        return_metadata: bool = False,
+        world_size: int = 1,
+        rank: int = 0,
+        **kwargs
+    ) -> None:
+        self.dataset_names = datasets
+        self.hpa_path = hpa_path  
+        self.sim_path = sim_path
+        self.sted_path = sted_path
+        self.in_channels = in_channels
+        self.return_metadata = return_metadata
+
+        self.datasets = self.__setup_datasets()
+
+    def __setup_datasets(self):
+        datasets = {}
+        for dataset_name in self.dataset_names:
+            datasets[dataset_name] = get_dataset(dataset_name)
+        return datasets
+
+
+class HybridDataset(ArchiveDataset):
+    def __init__(
+        self,
+        hpa_path: str,
+        sim_path: str,
+        sted_path: str,
+        use_cache: bool = False,
+        max_cache_size: int = 16e9,
+        in_channels: int = 1,
+        transform: Optional[Callable] = None,
+        cache_system: str = None,
+        return_metadata: bool = False,
+        world_size: int = 1,
+        rank: int = 0,
+        **kwargs
+    ) -> None:
+        self.hpa_path = hpa_path
+        self.sim_path = sim_path
+        self.sted_path = sted_path
+        self.in_channels = in_channels
+        self.return_metadata = return_metadata
+        self.archive_readers = {
+            "hpa": {None: self.READERS['.zip'](hpa_path, "r")},
+            "sim": {None: self.READERS['.tar'](sim_path, "r")}, 
+            "sted": {None: self.READERS['.tar'](sted_path, "r")},
+        }
+
+        # The call to super below, in this case, only serves the purpose of setting up the multiprocessing.
+        # We will override many of the ArchiveDataset methods in this class, as well as the archive_reader(s) attribute.
+        super(HybridDataset, self).__init__(
+            hpa_path, # Will not be used as we will override the archive reader
+            use_cache=use_cache,
+            max_cache_size=max_cache_size,
+            transform=transform,
+            cache_system=cache_system,
+            world_size=world_size,
+            rank=rank,
+        )
+
+    def get_members(self):
+        hpa_members = []
+        for f in self.archive_readers["hpa"][None].namelist():
+            if f.endswith(".png"):
+                hpa_members.append(("hpa", f))
+
+        print(f"Number of HPA members: {len(hpa_members)}")
+
+        sted_members = [(
+            "sted",
+            member
+        ) for member in sorted(self.archive_readers["sted"][None].getmembers(), key=lambda m: m.name)]
+
+
+        print(f"Number of STED members: {len(sted_members)}")
+        sim_members = [(
+            "sim",
+            member
+        ) for member in sorted(self.archive_readers["sim"][None].getmembers(), key=lambda m: m.name)]
+
+        print(f"Number of SIM members: {len(sim_members)}")
+        members = hpa_members + sted_members + sim_members
+
+        print(f"Total number of members: {len(members)}")
+        return members
+
+    def get_reader(self, dataset_type: str):
+        worker = get_worker_info()
+        worker = worker.id if worker else None 
+
+        if worker not in self.archive_readers[dataset_type]:
+            if dataset_type == "hpa": 
+                self.archive_readers[dataset_type][worker] = self.READERS[".zip"](self.hpa_path, "r")
+            elif dataset_type == "sim":
+                self.archive_readers[dataset_type][worker] = self.READERS[".tar"](self.sim_path, "r")
+            elif dataset_type == "sted":
+                self.archive_readers[dataset_type][worker] = self.READERS[".tar"](self.sted_path, "r")
+        return self.archive_readers[dataset_type][worker]
+
+    def get_item_from_archive(self, member):
+        dataset_type, item = member
+        if dataset_type == "hpa":
+            data = self.get_reader("hpa").read(item)
+            img = Image.open(io.BytesIO(data))
+            img = np.array(img)
+            return {"image": img} # To be the same return type as the other datasets
+        elif dataset_type in ["sim", "sted"]:
+            buffer = io.BytesIO()
+            buffer.write(self.get_reader(dataset_type).extractfile(item).read())
+            buffer.seek(0)
+            data = np.load(buffer, allow_pickle=True)
+            data = {key: values for key, values in data.items()}
+            return data
+
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        data = self.get_data(idx)
+        img = data["image"] / 255. 
+        if self.transform is not None:
+            img = self.transform(img)
+            if isinstance(img, list):
+                img = [x.float() for x in img]
+            else:
+                img = img.float()
+        else:
+            if img.ndim == 2:
+                img = img[np.newaxis]
+            img = torch.tensor(img, dtype=torch.float32)
+            if self.in_channels == 3: 
+                img = img.repeat(3, 1, 1)
+
+        return img
+
+    def __getstate__(self):
+        state = super().__getstate__()
+        state["archive_readers"] = {k: {} for k in self.archive_readers.keys()}
+        return state
+
+    def __del__(self):
+        """
+        Clean up all archive handles properly for all datasets.
+        """
+        try:
+            # Clean up archive readers for each dataset type
+            for dataset_type in self.archive_readers:
+                for worker_id in self.archive_readers[dataset_type]:
+                    try:
+                        self.archive_readers[dataset_type][worker_id].close()
+                    except:
+                        pass
+        except AttributeError:
+            # Handle case where archive_readers wasn't fully initialized
+            pass
 
 class TarJUMPDataset(ArchiveDataset):
     def __init__(
