@@ -6,7 +6,7 @@ import numpy
 import json
 import random
 import ast
-
+import io
 from tqdm.auto import tqdm
 from torch.utils.data import Dataset
 from typing import Tuple, Optional, Callable
@@ -32,7 +32,6 @@ class SynProtConfiguration(Configuration):
     criterion: str = "MSELoss"
     min_annotated_ratio: float = 0.1
 
-
 class ProteinSegmentationDataset(Dataset):
     def __init__(
         self,
@@ -43,22 +42,27 @@ class ProteinSegmentationDataset(Dataset):
         self.archive_path = archive_path
         self.transform = transform
         self.n_channels = n_channels
-        self.archive_obj = tarfile.open(self.archive_path, "r")
-        self.members = list(sorted(self.archive_obj.getmembers(), key=lambda m: m.name))
+        with tarfile.open(self.archive_path, "r") as archive_obj:
+            self.members = list(sorted(archive_obj.getmembers(), key=lambda m: m.name))
 
     def __len__(self) -> int:
         return len(self.members)
     
     def __getitem__(self, idx: int) -> Tuple[torch.tensor, torch.Tensor]:
         member = self.members[idx]
-        buffer = io.BytesIO()
-        buffer.write(self.archive_obj.extractfile(member).read())
-        buffer.seek(0)
-        data = np.load(buffer, allow_pickle=True)
-        data = {key : values for key, values in data.items()}
-        img, mask = data["img"], data["segmentation"]
-        img = torch.tensor(img, dtype=torch.float32)
-        mask = torch.tensor(mask, dtype=torch.float32)
+        with tarfile.open(self.archive_path, "r") as archive_obj:
+            buffer = io.BytesIO()
+            buffer.write(archive_obj.extractfile(member).read())
+            buffer.seek(0)
+            data = np.load(buffer, allow_pickle=True)
+            data = {key : values for key, values in data.items()}
+            img, mask = data["img"], data["segmentation"]
+        if self.n_channels == 3:
+            img = np.tile(img[np.newaxis], (3, 1, 1))
+            img = torch.tensor(img, dtype=torch.float32)
+        else:
+            img = torch.tensor(img[np.newaxis, ...], dtype=torch.float32)
+        mask = torch.tensor(mask[np.newaxis, ...], dtype=torch.float32)
         if self.transform is not None:
             img = self.transform(img)
         return img, mask
@@ -602,20 +606,21 @@ def get_dataset(name, cfg, **kwargs):
     else:
         transform = transforms.ToTensor()
 
-    if name == "synaptic-segmentation":
+    if name == "synaptic-protein-segmentation":
+        datapath = os.path.join(BASE_PATH, "Datasets/Neural-Activity-States/PSD95-Basson")
         train_dataset = ProteinSegmentationDataset(
-            h5file=f"{DATAPATH}/train_segmentation.hdf5",
-            transform=transform, 
+            archive_path=f"{datapath}/synaptic-protein-segmentation_train.tar",
+            transform=None, 
             n_channels=cfg.in_channels
         )
         valid_dataset = ProteinSegmentationDataset(
-            h5file=f"{DATAPATH}/valid_segmentation.hdf5",
-            transform=transform, 
+            archive_path=f"{datapath}/synaptic-protein-segmentation_valid.tar",
+            transform=None, 
             n_channels=cfg.in_channels
         )
         test_dataset = ProteinSegmentationDataset(
-            h5file=f"{DATAPATH}/test_segmentation.hdf5",
-            transform=transform, 
+            archive_path=f"{datapath}/synaptic-protein-segmentation_test.tar",
+            transform=None, 
             n_channels=cfg.in_channels
         )
         print(f"Train dataset size: {len(train_dataset)}")

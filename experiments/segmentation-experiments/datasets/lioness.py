@@ -6,7 +6,7 @@ import torch
 import random
 import h5py
 import tifffile
-
+from typing import Tuple
 from dataclasses import dataclass
 from skimage import morphology, filters
 from torch.utils.data import Dataset
@@ -115,7 +115,7 @@ class LionessDataset(Dataset):
         """
         return len(self.samples)
     
-    def __getitem__(self, index : int) -> tuple[torch.Tensor, torch.Tensor]:
+    def __getitem__(self, index : int) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Implements the `__getitem__` method for the `Dataset` class
 
@@ -235,7 +235,7 @@ class TestingLionessDataset(Dataset):
             self.cache[image_name] = {"data" : volume[:, 1], "label" : label}
         return samples      
 
-    def __getitem__(self, index : int) -> tuple[torch.Tensor, torch.Tensor]:
+    def __getitem__(self, index : int) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Implements the `__getitem__` method for the `Dataset` class
 
@@ -272,7 +272,7 @@ class TestingLionessDataset(Dataset):
         """        
         return len(self.samples)
 
-def get_dataset(cfg : dataclass, test_only : bool = False, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
+def get_dataset(cfg : dataclass, test_only : bool = False, **kwargs) -> Tuple[Dataset, Dataset, Dataset]:
 
     # Updates the configuration inplace
     cfg.dataset_cfg = LionessConfiguration()

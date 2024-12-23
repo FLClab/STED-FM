@@ -22,7 +22,7 @@ parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--timesteps", type=int, default=1000)
 parser.add_argument("--boundary", type=str, default="quality")
 parser.add_argument("--num-samples", type=int, default=10)
-parser.add_argument("--ckpt-path", type=str, default="/home/frbea320/scratch/model_checkpoints/DiffusionModels/latent-guidance")
+parser.add_argument("--ckpt-path", type=str, default="/home-local/Frederic/baselines/DiffusionModels/latent-guidance")
 args = parser.parse_args()
 
 def linear_interpolate(latent_code,

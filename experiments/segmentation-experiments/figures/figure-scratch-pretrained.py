@@ -89,7 +89,7 @@ def plot_data(pretraining, data, figax=None, position=0, **kwargs):
 def main():
     fig, ax = pyplot.subplots()
     modes = ["from-scratch", "pretrained-frozen", "pretrained"]
-    pretrainings = ["STED", "SIM", "HPA", "ImageNet"] # TODO: Include JUMP when retraining is completed
+    pretrainings = ["STED", "Hybrid", "SIM", "HPA", "ImageNet"] # TODO: Include JUMP when retraining is completed
 
     width = 1/(len(pretrainings) + 1)
     for j, mode in enumerate(modes):
