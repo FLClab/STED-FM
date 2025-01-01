@@ -5,12 +5,12 @@ import random
 import json 
 from tqdm import tqdm 
 import argparse 
-from quality_dataset import OptimQualityDataset 
+from attribute_datasets import OptimQualityDataset 
 import os
 from torch.utils.data import DataLoader
 import sys 
-from DEFAULTS import BASE_PATH 
-from model_builder import get_pretrained_model
+sys.path.insert(0, "../")
+from model_builder import get_pretrained_model_v2
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mae-small")
@@ -26,7 +26,7 @@ if __name__=="__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Running on {device}")
 
-    model, cfg = get_pretrained_model(
+    model, cfg = get_pretrained_model_v2(
         name=args.model,
         weights=args.weights,
         path=None,

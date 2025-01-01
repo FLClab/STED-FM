@@ -83,33 +83,40 @@ def load_quality_net() -> nn.Module:
     return quality_net
 
 def infer_quality(img: torch.Tensor, quality_net: nn.Module) -> float:
+    if img.shape[1] == 3:
+        img = img[:, [0], :, :]
     quality_net.eval()
     with torch.no_grad():
         score = quality_net(img)
     return score.item()
 
-def plot_correlation(all_scores, all_distances):
+def plot_correlation(all_scores, all_distances, start_score):
     scores = np.mean(all_scores, axis=0)
+    scores = [s - start_score for s in scores]
     distances = np.mean(all_distances, axis=0)
+    distances = [round(d, 3) for d in distances]
     err = np.std(all_scores, axis=0)
+    np.savez(f"./lerp-results/correlation/{args.weights}-quality-correlation.npz", scores=scores, distances=distances, err=err)
     fig = plt.figure(figsize=(5,5))
     plt.plot(distances, scores, c="black")
     plt.fill_between(distances, scores-err, scores+err, color="black", alpha=0.2)
     plt.xlabel("Distance")
     plt.ylabel("Score")
     plt.title("Distance vs Score")
-    fig.savefig("./temp.png", bbox_inches="tight", dpi=1200)
+    fig.savefig(f"./lerp-results/correlation/{args.weights}-quality-correlation.png", bbox_inches="tight", dpi=1200)
     plt.close()
 
 def save_examples(samples, distances, scores, index):
     N = len(samples)
     fig, axs = plt.subplots(1, N, figsize=(10, 5))
     for i, (s, d, sc) in enumerate(zip(samples, distances, scores)):
+        if s.shape[0] == 3:
+            s = s[0, :, :]
         axs[i].imshow(s, cmap='hot', vmin=0.0, vmax=1.0)
         axs[i].set_title("Distance: {:.2f}\nScore: {:.2f}".format(d, sc))
         axs[i].axis("off")
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
-    fig.savefig(f"./lerp-results/examples/image_{index}.pdf", dpi=1200, bbox_inches='tight')
+    fig.savefig(f"./lerp-results/examples/{args.weights}-image_{index}.pdf", dpi=1200, bbox_inches='tight')
     plt.close(fig)
 
 
@@ -125,7 +132,7 @@ def main():
         path=None, 
         mask_ratio=0.0,
         pretrained=False,
-        in_channels=1,
+        in_channels=3 if "imagenet" in args.weights.lower() else 1,
         as_classifier=True,
         blocks="all",
         num_classes=4
@@ -168,23 +175,30 @@ def main():
         if args.boundary == "quality" and score > 0.50:
             continue 
 
-        img = torch.tensor(img, dtype=torch.float32).unsqueeze(0).to(DEVICE)
+        if "imagenet" in args.weights.lower():
+            img = torch.tensor(img, dtype=torch.float32).repeat(3, 1, 1).unsqueeze(0).to(DEVICE)
+        else:
+            img = torch.tensor(img, dtype=torch.float32).unsqueeze(0).to(DEVICE)
         original = img.squeeze().detach().cpu().numpy()
 
         latent_code = diffusion_model.latent_encoder.forward_features(img) 
         numpy_code = latent_code.detach().cpu().numpy() 
-        original_sample = diffusion_model.p_sample_loop(shape=img.shape, cond=latent_code, progress=True) 
+        original_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=latent_code, progress=True) 
+
+        original_score = infer_quality(img, quality_net)
+        scores.append(original_score)
+        scores.append(infer_quality(original_sample, quality_net))
+
         original_sample = original_sample.squeeze().detach().cpu().numpy()
         samples = [original, original_sample]
-        scores.append(infer_quality(img, quality_net))
-        scores.append(infer_quality(original_sample, quality_net))
+
         distances.extend([0.0, 0.0])
 
-        lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, start_distance=-1.0, end_distance=-5.0, steps=n_steps)
+        lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, start_distance=-1.0, end_distance=-4.0, steps=n_steps)
 
         for c, code in enumerate(lerped_codes):
             lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
-            lerped_sample = diffusion_model.p_sample_loop(shape=img.shape, cond=lerped_code, progress=True)
+            lerped_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=lerped_code, progress=True)
             lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
             samples.append(lerped_sample_numpy)
             scores.append(infer_quality(lerped_sample, quality_net))
@@ -197,7 +211,7 @@ def main():
         counter += 1
         save_examples(samples, distances, scores, counter)
 
-    plot_correlation(all_scores, all_distances)
+    plot_correlation(all_scores, all_distances, start_score=original_score)
 
 
         # img = torch.tensor(img, dtype=torch.float32).unsqueeze(0).to(DEVICE)
