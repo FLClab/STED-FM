@@ -6,8 +6,9 @@ import numpy as np
 import torch
 import copy
 from torch.utils.data import Dataset
-from typing import List
+from typing import List, Optional, Callable, Tuple
 from torchvision import transforms
+import h5py
 
 class ProteinActivityDataset(Dataset):
     """
@@ -19,7 +20,7 @@ class ProteinActivityDataset(Dataset):
     def __init__(
         self,
         h5file: str,    
-        transform: Callable = None,
+        transform: Optional[Callable] = None,
         n_channels: int = 1,
         num_samples: int = None,
         num_classes: int = 2,
@@ -58,6 +59,7 @@ class ProteinActivityDataset(Dataset):
         }
         self.images = images
         self.conditions = conditions
+        self.labels = self.conditions
         self.proteins = proteins
 
         if balance:
@@ -88,7 +90,7 @@ class ProteinActivityDataset(Dataset):
         if self.n_channels == 3:
             img = np.tile(img[np.newaxis, :], (3, 1, 1))
             img = torch.tensor(img, dtype=torch.float32)
-            img = transforms.Normalize(mean=[0.014, 0.014, 0.014], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+            img = transforms.Normalize(mean=[0.014, 0.014, 0.014], std=[0.03, 0.03, 0.03])(img)
         else:
             img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
         img = self.transform(img) if self.transform is not None else img 
