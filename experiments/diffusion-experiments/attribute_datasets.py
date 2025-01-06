@@ -123,17 +123,17 @@ class OptimQualityDataset(Dataset):
             out += f"{key} - {len(values)}\n"        
         return "Dataset(optim) -- length: {}".format(len(self)) + out
 
-def get_dataset(name: str, training: bool = False,**kwargs): 
+def get_dataset(name: str, training: bool = False, **kwargs): 
     if name == "quality":
         if training:
             train_dataset = OptimQualityDataset(
-                data_folder="/home/frbea320/scratch/evaluation-data/optim_train",
+                data_folder="/home-local/Frederic/Datasets/evaluation-data/optim_train",
                 high_score_threshold=kwargs.get("high_score_threshold", 0.70),
                 low_score_threshold=kwargs.get("low_score_threshold", 0.70),
                 **kwargs
             )
             valid_dataset = OptimQualityDataset(
-                data_folder="/home/frbea320/scratch/evaluation-data/optim_valid",
+                data_folder="/home-local/Frederic/Datasets/evaluation-data/optim_valid",
                 high_score_threshold=kwargs.get("high_score_threshold", 0.70),
                 low_score_threshold=kwargs.get("low_score_threshold", 0.70),
                 **kwargs
@@ -141,7 +141,7 @@ def get_dataset(name: str, training: bool = False,**kwargs):
             return train_dataset, valid_dataset
         else:
             return OptimQualityDataset(
-                data_folder="/home/frbea320/scratch/evaluation-data/optim-data",
+                data_folder="/home-local/Frederic/Datasets/evaluation-data/optim-data",
                 high_score_threshold=kwargs.get("high_score_threshold", 0.70),
                 low_score_threshold=kwargs.get("low_score_threshold", 0.50),
                 **kwargs

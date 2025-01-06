@@ -3,6 +3,13 @@ import matplotlib.pyplot as plt
 import torch 
 from sklearn import svm
 from typing import Tuple
+import argparse 
+
+PATH = "./lerp-results/embeddings/quality"
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
+args = parser.parse_args()
 
 
 def load_embedding(path: str ) -> Tuple[np.ndarray, np.ndarray]:
@@ -12,9 +19,9 @@ def load_embedding(path: str ) -> Tuple[np.ndarray, np.ndarray]:
 
 
 def main():
-    train_embeddings, train_labels = load_embedding("./lerp-results/mae-small-MAE_SMALL_STED-optimquality-embeddings_train.npz")
+    train_embeddings, train_labels = load_embedding(f"{PATH}/{args.weights}-optimquality-embeddings_train.npz")
     num_train_samples, latent_dim = train_embeddings.shape
-    valid_embeddings, valid_labels = load_embedding("./lerp-results/mae-small-MAE_SMALL_STED-optimquality-embeddings_valid.npz")
+    valid_embeddings, valid_labels = load_embedding(f"{PATH}/{args.weights}-optimquality-embeddings_valid.npz")
     num_valid_samples, _ = valid_embeddings.shape
 
     clf = svm.SVC(kernel="linear")
@@ -26,7 +33,7 @@ def main():
 
     boundary = clf.coef_.reshape(1, latent_dim).astype(np.float32)
     boundary = boundary / np.linalg.norm(boundary)
-    np.savez("./lerp-results/optim_quality_boundary.npz", boundary=boundary)
+    np.savez(f"./lerp-results/boundaries/quality/{args.weights}_quality_boundary.npz", boundary=boundary)
 
 
 
