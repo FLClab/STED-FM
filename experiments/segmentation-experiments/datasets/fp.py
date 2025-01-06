@@ -5,7 +5,7 @@ import os
 import torch
 import random
 import h5py
-
+from typing import Tuple
 import tifffile
 from dataclasses import dataclass
 from skimage import io, transform
@@ -154,7 +154,7 @@ class FPDataset(Dataset):
         """
         return len(self.samples)
     
-    def __getitem__(self, index : int) -> tuple[torch.Tensor, torch.Tensor]:
+    def __getitem__(self, index : int) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Implements the `__getitem__` function of the `Dataset`
 
@@ -223,7 +223,7 @@ class FPDataset(Dataset):
         mask = torch.tensor(label_crop > 0, dtype=torch.float32)
         return img, mask             
     
-def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
+def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> Tuple[Dataset, Dataset, Dataset]:
 
     # Updates the configuration inplace
     cfg.dataset_cfg = FPConfiguration()

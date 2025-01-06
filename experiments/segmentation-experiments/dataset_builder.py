@@ -5,164 +5,95 @@ import random
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import argparse 
+import tarfile 
+from typing import List
+import io
+import tifffile
+from wavelet import detect_spots
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--one-per-set", action="store_true")
+parser.add_argument("--dataset_path", type=str, default="/home-local/Frederic/Datasets/Neural-Activity-States/PSD95-Basson")
+parser.add_argument("--crop-size", type=int, default=224)
+parser.add_argument("--foreground-threshold", type=int, default=0.001)
+parser.add_argument("--num-files", type=int, default=500)
 args = parser.parse_args()
 
-OUTPATH = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/zooniverse/"
+def load_image_files(dataset_path: str) -> List[str]:
+    image_files = glob.glob(f"{dataset_path}/**/*.tif", recursive=True)
+    image_files = list(set(image_files))
+    return image_files
 
-def get_files():
-    path = f"{OUTPATH}/processed" 
-    files = glob.glob(f"{path}/*.npz")
-    files = list(set(files))
-    if args.one_per_set:
-        assert len(files) == 3
-        random.shuffle(files)
-        return files
-    return files
-
-def normalize(data):
-    return (data - np.min(data)) / (np.max(data) - np.min(data))
-
-def old_main():
-    files = get_files()
-    crop_size = 224
-
-    with h5py.File(f"{OUTPATH}/train.hdf5", "a") as train_handle:
-        with h5py.File(f"{OUTPATH}/valid.hdf5", "a") as valid_handle:
-            with h5py.File(f"{OUTPATH}/test.hdf5", "a") as test_handle:
-                train_imgs = train_handle.create_dataset(name="images", shape=(0, 224, 224), maxshape=(None, 224, 224))
-                valid_imgs = valid_handle.create_dataset(name="images", shape=(0, 224, 224), maxshape=(None, 224, 224))
-                test_imgs = test_handle.create_dataset(name="images", shape=(0, 224, 224), maxshape=(None, 224, 224))
-
-                train_masks = train_handle.create_dataset(name="masks", shape=(0, 6, 224, 224), maxshape=(None, 6, 224, 224))
-                valid_masks = valid_handle.create_dataset(name="masks", shape=(0, 6, 224, 224), maxshape=(None, 6, 224, 224))
-                test_masks = test_handle.create_dataset(name="masks", shape=(0, 6, 224, 224), maxshape=(None, 6, 224, 224))
-
-              
-
-                for f in tqdm(files):
-                    data = np.load(f)
-                    img, mask = data['img'], data["semantic_mask"]
-                    img = normalize(img)
-                    fig, axs = plt.subplots(1, 7, figsize=(20, 5))
-                    axs[0].imshow(img, cmap='hot', vmax=1.0)
-                    axs[1].imshow(mask[0], cmap='gray')
-                    axs[2].imshow(mask[1], cmap='gray')
-                    axs[3].imshow(mask[2], cmap='gray')   
-                    axs[4].imshow(mask[3], cmap='gray')
-                    axs[5].imshow(mask[4], cmap='gray')
-                    axs[6].imshow(mask[5], cmap='gray')
-                    for t, ax in zip(["img", "round", "elongated", "multidomain", "irregular", "perforated", "noise"], axs):
-                        ax.set_xticks([])
-                        ax.set_yticks([])
-                        ax.set_title(t)
-                    plt.tight_layout()
-                    fig.savefig(f"{OUTPATH}/temp.pdf", bbox_inches='tight', dpi=1200)
-
-                    
-                    Y, X = img.shape
-                    ys = np.arange(0, Y - crop_size, crop_size)
-                    xs = np.arange(0, X - crop_size, crop_size)
-                    for y in ys:
-                        for x in xs:
-                            crop = img[y:y+crop_size, x:x+crop_size]
-                            mask_crop = mask[:, y:y+crop_size, x:x+crop_size]
-
-                            set_prob = random.random()
-                            if set_prob <= 0.80:
-                                train_imgs.resize(train_imgs.shape[0] + 1, axis=0)
-                                train_masks.resize(train_masks.shape[0] + 1, axis=0)
-                                train_imgs[-1:] = crop
-                                train_masks[-1:] = mask_crop
-
-                            elif 0.80 < set_prob <= 0.90:
-                                valid_imgs.resize(valid_imgs.shape[0] + 1, axis=0)
-                                valid_masks.resize(valid_masks.shape[0] + 1, axis=0)
-                                valid_imgs[-1:] = crop
-                                valid_masks[-1:] = mask_crop
-
-                            else:
-                                test_imgs.resize(test_imgs.shape[0] + 1, axis=0)
-                                test_masks.resize(test_masks.shape[0] + 1, axis=0)
-                                test_imgs[-1:] = crop
-                                test_masks[-1:] = mask_crop
+def save_image(img: np.ndarray, mask: np.ndarray):
+    fig, axs = plt.subplots(1, 2, figsize=(7,5))
+    axs[0].imshow(img, cmap="hot", vmin=0.0, vmax=1.0)
+    axs[1].imshow(mask, cmap="gray")
+    for ax in axs:
+        ax.axis("off")
+    plt.subplots_adjust(left=0.1, right=0.9, bottom=0.1, top=0.9, wspace=0.05, hspace=0.05)
+    plt.savefig("temp.png", dpi=1200)
+    plt.close(fig)
 
 
 def main():
-    train_file, valid_file, test_file = get_files()
-    crop_size = 224
-    
-    with h5py.File(f"{OUTPATH}/train_semantic.hdf5", "a") as train_handle:
-        train_imgs = train_handle.create_dataset(name="images", shape=(0, 224, 224), maxshape=(None, 224, 224))
-        train_masks = train_handle.create_dataset(name="masks", shape=(0, 6, 224, 224), maxshape=(None, 6, 224, 224))
+    image_files = load_image_files(args.dataset_path)
+    counters = {
+        "train": 0,
+        "valid": 0, 
+        "test": 0,
+    }
+    max_counters = {
+        "train": 1000,
+        "valid": 300,
+        "test": 500,
+    }
+    pbar = tqdm(image_files)
+    for f in pbar:
+        ch = np.random.randint(2)
+        protein = ["PSD95", "Bassoon"][ch]
+        img = tifffile.imread(f)[ch]
+        m, M = np.quantile(img, 0.001), np.quantile(img, 0.999)
+        img = (img - m) / (M - m)
+        img = np.clip(img, 0.0, 1.0)
+        mask = detect_spots(img)
 
-        data = np.load(train_file)
-        img, mask = data['img'], data["semantic_mask"]
-
-        if img.max() != 1.0 or img.min() != 0.0:
-            print(img.max(), img.min())
-            img = normalize(img)
-        
-        Y, X = img.shape 
-        ys = np.arange(0, Y - crop_size, crop_size)
-        xs = np.arange(0, X - crop_size, crop_size)
-        for y in tqdm(ys, desc="...Train set..."):
+        num_y = np.floor(img.shape[0] / args.crop_size)
+        num_x = np.floor(img.shape[1] / args.crop_size)
+        ys = np.arange(0, num_y * args.crop_size, args.crop_size).astype("int")
+        xs = np.arange(0, num_x * args.crop_size, args.crop_size).astype("int")
+        for y in ys:
             for x in xs:
-                crop = img[y:y+crop_size, x:x+crop_size]
-                mask_crop = mask[:, y:y+crop_size, x:x+crop_size]
-                train_imgs.resize(train_imgs.shape[0] + 1, axis=0)
-                train_masks.resize(train_masks.shape[0] + 1 , axis=0)
-                train_imgs[-1:] = crop
-                train_masks[-1:] = mask_crop 
+                split = np.random.choice(["train", "valid", "test"])
+                if sum(counters.values()) >= sum(max_counters.values()):
+                    print("--- DONE ---")
+                    print(counters)
+                    exit()
+                if counters[split] >= max_counters[split]:
+                    continue
+                with tarfile.open(f"{args.dataset_path}/synaptic-protein-segmentation_{split}.tar", "a") as handle:
+                        crop = img[y:y+args.crop_size, x:x+args.crop_size]
+                        mask_crop = mask[y:y+args.crop_size, x:x+args.crop_size]
 
+                        assert crop.shape == mask_crop.shape
+                        assert crop.shape == (args.crop_size, args.crop_size)
+                        # save_image(crop, mask_crop)
+                        foreground = np.count_nonzero(mask_crop) 
+                        ratio = foreground / (args.crop_size**2) 
+                        if ratio <= args.foreground_threshold:
+                            continue
+                        else:
+                            counters[split] += 1
+                            pbar.set_description(f"Saved {counters[split]} {split} files to tarball")
+                            buffer = io.BytesIO()
+                            np.savez(
+                                file=buffer,
+                                img=crop,
+                                segmentation=mask_crop,
+                            )
+                            buffer.seek(0)
+                            tarinfo = tarfile.TarInfo(f"{counters[split]}-{protein}")
+                            tarinfo.size = len(buffer.getbuffer())
+                            handle.addfile(tarinfo=tarinfo, fileobj=buffer)
 
-    with h5py.File(f"{OUTPATH}/valid_semantic.hdf5", "a") as valid_handle:
-        valid_imgs = valid_handle.create_dataset(name="images", shape=(0, 224, 224), maxshape=(None, 224, 224))
-        valid_masks = valid_handle.create_dataset(name="masks", shape=(0, 6, 224, 224), maxshape=(None, 6, 224, 224))
-
-        data = np.load(valid_file)
-        img, mask = data['img'], data["semantic_mask"]
-
-        if img.max() != 1.0 or img.min() != 0.0:
-            print(img.max(), img.min())
-            img = normalize(img)
-        
-        Y, X = img.shape 
-        ys = np.arange(0, Y - crop_size, crop_size)
-        xs = np.arange(0, X - crop_size, crop_size)
-        for y in tqdm(ys, desc="...Valid set..."):
-            for x in xs:
-                crop = img[y:y+crop_size, x:x+crop_size]
-                mask_crop = mask[:, y:y+crop_size, x:x+crop_size]
-                valid_imgs.resize(valid_imgs.shape[0] + 1, axis=0)
-                valid_masks.resize(valid_masks.shape[0] + 1 , axis=0)
-                valid_imgs[-1:] = crop
-                valid_masks[-1:] = mask_crop 
-
-    with h5py.File(f"{OUTPATH}/test_semantic.hdf5", "a") as valid_handle:
-        test_imgs = valid_handle.create_dataset(name="images", shape=(0, 224, 224), maxshape=(None, 224, 224))
-        test_masks = valid_handle.create_dataset(name="masks", shape=(0, 6, 224, 224), maxshape=(None, 6, 224, 224))
-
-        data = np.load(test_file)
-        img, mask = data['img'], data["semantic_mask"]
-
-        if img.max() != 1.0 or img.min() != 0.0:
-            print(img.max(), img.min())
-            img = normalize(img)
-        
-        Y, X = img.shape 
-        ys = np.arange(0, Y - crop_size, crop_size)
-        xs = np.arange(0, X - crop_size, crop_size)
-        for y in tqdm(ys, desc="...Test set..."):
-            for x in xs:
-                crop = img[y:y+crop_size, x:x+crop_size]
-                mask_crop = mask[:, y:y+crop_size, x:x+crop_size]
-                test_imgs.resize(test_imgs.shape[0] + 1, axis=0)
-                test_masks.resize(test_masks.shape[0] + 1 , axis=0)
-                test_imgs[-1:] = crop
-                test_masks[-1:] = mask_crop 
-
+    print(f"=== Done, saved {sum(counters.values())} files to tarball ===")
 if __name__=="__main__":
     main()

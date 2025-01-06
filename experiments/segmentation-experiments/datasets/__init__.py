@@ -12,7 +12,7 @@ from .mitochondria import get_dataset as get_mitochondria_dataset
 DATASETS = {
     "factin" : get_actin_dataset,
     "footprocess" : get_fp_dataset,
-    'synaptic-segmentation': get_synaptic_protein_dataset,
+    'synaptic-protein-segmentation': get_synaptic_protein_dataset,
     "lioness" : get_lioness_dataset,
     "zooniverse": get_zooniverse_dataset,
     "synaptic-semantic-segmentation" : get_synaptic_protein_dataset,
