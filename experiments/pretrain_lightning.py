@@ -76,8 +76,8 @@ if __name__=="__main__":
         print(f"--- Restored model {args.model}  from {args.restore_from} successfully ---")
     else:
         OUTPUT_FOLDER = args.save_folder
-        print(f"--- Exiting while debugging the restore-from argument ---") # TODO: Remove this once the restore-from argument is working
-        exit()
+        # print(f"--- Exiting while debugging the restore-from argument ---") # TODO: Remove this once the restore-from argument is working
+        # exit()
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
     print(f"--- Loaded model {args.model} successfully ---")
 
