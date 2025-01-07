@@ -5,7 +5,7 @@ import random
 import json 
 from tqdm import tqdm 
 import argparse 
-from attribute_datasets import OptimQualityDataset
+from attribute_datasets import OptimQualityDataset, ProteinActivityDataset
 import os
 from torch.utils.data import DataLoader
 import sys 
@@ -20,7 +20,35 @@ parser.add_argument("--global-pool", type=str, default="avg")
 parser.add_argument("--num-per-class", type=int, default=None)
 parser.add_argument("--precomputed", action="store_true")
 parser.add_argument("--split", type=str, default="train")
+parser.add_argument("--dataset", type=str, default="quality")
 args = parser.parse_args()
+
+def load_dataset() -> torch.utils.data.Dataset: 
+    if args.dataset == "quality":
+        dataset = OptimQualityDataset(
+        data_folder=f"/home-local/Frederic/Datasets/evaluation-data/optim_{args.split}",
+        num_samples={"actin": None, "tubulin": None, "CaMKII_Neuron": None, "PSD95_Neuron": None},
+        apply_filter=True,
+        classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
+        high_score_threshold=0.70,
+        low_score_threshold=0.60,
+        n_channels=3 if "imagenet" in args.weights.lower() else 1
+        )
+    elif args.dataset == "activity":
+        dataset = ProteinActivityDataset(
+            h5file=f"/home-local/Frederic/Datasets/evaluation-data/NeuralActivityStates/NAS_{args.split}.hdf5",
+            num_samples=None,
+            transform=None,
+            n_channels=3 if "imagenet" in args.weights.lower() else 1,
+            num_classes=2,
+            protein_id=3,
+            balance=True,
+            keepclasses=[0, 1]
+        )
+    else:
+        raise ValueError(f"Dataset {args.dataset} not found")
+    return dataset
+
 
 if __name__=="__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -39,17 +67,13 @@ if __name__=="__main__":
     )
     model = model.to(device)
 
-    dataset = OptimQualityDataset(
-        data_folder=f"/home-local/Frederic/Datasets/evaluation-data/optim_{args.split}",
-        num_samples={"actin": None, "tubulin": None, "CaMKII_Neuron": None, "PSD95_Neuron": None},
-        apply_filter=True,
-        classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
-        high_score_threshold=0.70,
-        low_score_threshold=0.60,
-        n_channels=3 if "imagenet" in args.weights.lower() else 1
-    )
+    dataset = load_dataset()
 
+    
     print(f"Dataset size: {len(dataset)}")
+    uniques, counts = np.unique(dataset.labels, return_counts=True)
+    for u, c in zip(uniques, counts):
+        print(f"{dataset.classes[u]}: {c}")
 
     dataloader = DataLoader(dataset, batch_size=cfg.batch_size, shuffle=True, drop_last=False, num_workers=1)
 
@@ -70,5 +94,5 @@ if __name__=="__main__":
     all_labels = np.array(all_labels)
     print(all_labels.shape)
 
-    np.savez(f"./lerp-results/embeddings/quality/{args.weights}-optimquality-embeddings_{args.split}.npz", embeddings=embeddings, labels=all_labels)
+    np.savez(f"./lerp-results/embeddings/{args.dataset}/{args.weights}-{args.dataset}-embeddings_{args.split}.npz", embeddings=embeddings, labels=all_labels)
 
