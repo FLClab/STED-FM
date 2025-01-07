@@ -28,6 +28,7 @@ parser.add_argument("--boundary", type=str, default="activity")
 parser.add_argument("--num-samples", type=int, default=5)
 parser.add_argument("--ckpt-path", type=str, default="/home-local/Frederic/baselines/DiffusionModels/latent-guidance")
 parser.add_argument("--figure", action="store_true")
+parser.add_argument("--sanity-check", action="store_true")
 parser.add_argument("--direction", type=str, default="0Mg")
 args = parser.parse_args()
 
@@ -83,7 +84,11 @@ def extract_features(img: Union[np.ndarray, torch.Tensor], check_foreground: boo
     
     mean_features = np.mean(features, axis=0)
     if np.any(np.isnan(mean_features)):
+        print("\n\n")
         print("NaN features")
+        print(features)
+        print("\n\n")
+        print(mean_features)
         exit()
     mean_features = np.r_[mean_features, num_proteins]
     return features, mean_features
@@ -117,13 +122,79 @@ def save_examples(samples, distances, index):
 
 
 def plot_results():
-    # TODO
-    pass 
+    results = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to{args.direction}_RESULTS.npz")
+    num_proteins = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to{args.direction}_NUM_PROTEINS.npz")
+    features = ["area", "perimeter", "mean_intensity", "eccentricity", "solidity", "1nn_dist"]
+    keys = list(results.keys()) 
+    for i, f in enumerate(features):
+        ### Protein-wise feature violin plots
+        data = [results[k][:, i] for k in keys]
+        fig = plt.figure()
+        parts = plt.violinplot(data, showmeans=True)
+        
+        for pc in parts['bodies']:
+            pc.set_facecolor('grey')
+            pc.set_alpha(0.7)
+        
+        parts['cmeans'].set_color('black')
+        
+        parts['cbars'].set_color('black')
+        parts['cmaxes'].set_color('black')
+        parts['cmins'].set_color('black')
+        plt.ylabel(f)
+        plt.xlabel("Distance")
+        plt.xticks([1, 2, 3, 4, 5, 6], ["0", "0", "1", "2", "3", "4"])
+        
+        fig.savefig(f"./lerp-results/wavelet_features/combined/{f}_to{args.direction}.pdf", bbox_inches='tight')
+        plt.close(fig)
+
+        # Image-wise number of proteins violin plot
+        data = [num_proteins[k] for k in keys]
+        fig = plt.figure()
+        parts = plt.violinplot(data, showmeans=True)
+        
+        for pc in parts['bodies']:
+            pc.set_facecolor('grey')
+            pc.set_alpha(0.7)
+        
+        parts['cmeans'].set_color('black')
+        
+        parts['cbars'].set_color('black')
+        parts['cmaxes'].set_color('black')
+        parts['cmins'].set_color('black')
+        plt.ylabel("Number of proteins")
+        plt.xlabel("Distance")
+        plt.xticks([1, 2, 3, 4, 5, 6], ["0", "0", "1", "2", "3", "4"])
+        
+        fig.savefig(f"./lerp-results/wavelet_features/combined/num_proteins_to{args.direction}.pdf", bbox_inches='tight')
+        plt.close(fig)
+    
 
 def main():
     if args.figure:
         plot_results()
+    elif args.sanity_check:
+        dataset = ProteinActivityDataset(
+            h5file=f"/home-local/Frederic/Datasets/evaluation-data/NeuralActivityStates/NAS_test.hdf5",
+            num_samples=None,
+            transform=None,
+            n_channels=3 if "imagenet" in args.weights.lower() else 1,
+            num_classes=2,
+            protein_id=3,
+            balance=True,
+            keepclasses=[0, 1]
+        )
     else:
+        RESULTS = {}
+        NUM_PROTEINS = {
+            "original": [],
+            "sample": [],
+            "lerp_1": [],
+            "lerp_2": [],
+            "lerp_3": [],
+            "lerp_4": [],
+        }
+
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         boundary = load_boundary(args.boundary)
         latent_encoder, model_config = get_pretrained_model_v2(
@@ -171,8 +242,6 @@ def main():
         np.random.shuffle(indices)
         counter = 0
         n_steps = 4  
-        # all_features = np.zeros((args.num_samples, n_steps+2, 7))
-        all_distances = np.zeros((args.num_samples, n_steps+2))
 
         for i in tqdm(indices):
             distances = [] 
@@ -194,10 +263,14 @@ def main():
 
             original = img.squeeze().detach().cpu().numpy()
             original_features, original_mean_features = extract_features(original, check_foreground=True)
-
+            
             if original_features is None:
                 print("Not enough foreground, skipping...")
                 continue
+            
+            RESULTS["original"] = original_features if counter == 0 else np.r_[RESULTS["original"], original_features]
+            NUM_PROTEINS["original"].append(original_mean_features[6])
+
             all_features[0] = original_mean_features
             features.append(original_features)
 
@@ -208,6 +281,8 @@ def main():
             original_sample_numpy = original_sample.squeeze().detach().cpu().numpy() 
             samples = [original, original_sample_numpy]
             sample_features, sample_mean_features = extract_features(original_sample_numpy)
+            RESULTS["sample"] = sample_features if counter == 0 else np.r_[RESULTS["sample"], sample_features]
+            NUM_PROTEINS["sample"].append(sample_mean_features[6])
             all_features[1] = sample_mean_features
             features.append(sample_features)
 
@@ -220,21 +295,21 @@ def main():
                 lerped_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=lerped_code, progress=True)
                 lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
                 lerped_sample_features, lerped_sample_mean_features = extract_features(lerped_sample_numpy)
+                RESULTS["lerp_" + str(c+1)] = lerped_sample_features if counter == 0 else np.r_[RESULTS["lerp_" + str(c+1)], lerped_sample_features]
                 samples.append(lerped_sample_numpy)
+                NUM_PROTEINS["lerp_" + str(c+1)].append(lerped_sample_mean_features[6])
                 all_features[c+2] = lerped_sample_mean_features
                 features.append(lerped_sample_features)
                 distances.append(abs(d[c][0]))
          
 
             distances = np.array(distances)
-
-            all_distances[counter] = distances
             counter += 1
 
             plot_features(features=all_features, distances=distances, index=counter)
             save_examples(samples, distances, counter)
-            
-            
+        np.savez(f"./lerp-results/wavelet_features/{args.weights}_{args.boundary}_all_to{args.direction}_RESULTS.npz", **RESULTS)
+        np.savez(f"./lerp-results/wavelet_features/{args.weights}_{args.boundary}_all_to{args.direction}_NUM_PROTEINS.npz", **NUM_PROTEINS)
 
 
 if __name__ == "__main__":
