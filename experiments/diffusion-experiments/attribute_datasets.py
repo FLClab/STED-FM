@@ -3,12 +3,57 @@ import glob
 import re
 import random
 import numpy as np
+from sympy import igcd
 import torch
 import copy
 from torch.utils.data import Dataset
 from typing import List, Optional, Callable, Tuple
 from torchvision import transforms
 import h5py
+
+class LowHighResolutionDataset(Dataset):
+    def __init__(
+            self,
+            h5path: str,
+            transform: Optional[Callable] = None,
+            n_channels: int = 1,
+            num_samples: int = None,
+            num_classes: int = 2,
+            class_names: List[str] = ["low", "high"],
+    ) -> None:
+        with h5py.File(f"{h5path}/high", "r") as handle:
+            high_images = handle["images"][()]
+            high_labels = [1] * len(high_images)
+        with h5py.File(f"{h5path}/low", "r") as handle:
+            low_images = handle["images"][()]
+            low_labels = [0] * len(low_images)
+        self.images = np.concatenate([high_images, low_images], axis=0)
+        self.labels = np.concatenate([high_labels, low_labels], axis=0)
+
+        indices = np.arange(self.images.shape[0])
+        np.random.shuffle(indices)
+        self.images = self.images[indices]
+        self.labels = self.labels[indices]
+        
+        self.transform = transform
+        self.n_channels = n_channels
+        self.num_samples = num_samples
+        self.num_classes = num_classes
+        self.class_names = class_names
+        self.dataset_size = self.images.shape[0]
+
+    def __len__(self) -> int:
+        return self.images.shape[0]
+
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
+        img, label = self.images[idx], self.labels[idx]
+        if self.n_channels == 3:
+            img = np.tile(img[np.newaxis, :], (3, 1, 1))
+            img = torch.tensor(img, dtype=torch.float32)
+        else:
+            img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
+        img = self.transform(img) if self.transform is not None else img
+        return img, {"label": label}
 
 class ProteinActivityDataset(Dataset):
     """
