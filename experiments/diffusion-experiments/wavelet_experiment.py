@@ -168,6 +168,28 @@ def plot_results():
         
         fig.savefig(f"./lerp-results/wavelet_features/combined/num_proteins_to{args.direction}.pdf", bbox_inches='tight')
         plt.close(fig)
+
+def plot_sanity_check(block_features: np.ndarray, mg_features: np.ndarray):
+    keys = ["Block", "0Mg"]
+    features = ["area", "perimeter", "mean_intensity", "eccentricity", "solidity", "1nn_dist", "num_proteins"]
+    for i, f in enumerate(features):
+        data = [ary[:, i] for ary in [block_features, mg_features]]
+        fig = plt.figure()
+        parts = plt.violinplot(data, showmeans=True)
+        for pc in parts['bodies']:
+            pc.set_facecolor('grey')
+            pc.set_alpha(0.7)
+        
+        parts['cmeans'].set_color('black')
+        
+        parts['cbars'].set_color('black')
+        parts['cmaxes'].set_color('black')
+        parts['cmins'].set_color('black')
+        plt.ylabel(f)
+        plt.xticks([1, 2], ["Block", "0Mg"])
+        
+        fig.savefig(f"./lerp-results/wavelet_features/sanity-check/{f}.pdf", bbox_inches='tight')
+        plt.close(fig)
     
 
 def main():
@@ -175,7 +197,7 @@ def main():
         plot_results()
     elif args.sanity_check:
         dataset = ProteinActivityDataset(
-            h5file=f"/home-local/Frederic/Datasets/evaluation-data/NeuralActivityStates/NAS_test.hdf5",
+            h5file=f"/home-local/Frederic/Datasets/evaluation-data/NeuralActivityStates/NAS_train.hdf5",
             num_samples=None,
             transform=None,
             n_channels=3 if "imagenet" in args.weights.lower() else 1,
@@ -184,6 +206,39 @@ def main():
             balance=True,
             keepclasses=[0, 1]
         )
+        N = len(dataset)
+        indices = np.arange(N)
+        np.random.shuffle(indices)
+
+        counters = {0: 0, 1: 0}
+        for i, idx in tqdm(enumerate(indices)):
+            
+            img, metadata = dataset[idx]
+            label = metadata["label"]
+           
+
+            original = img.squeeze().detach().cpu().numpy() 
+            _, mean_features = extract_features(original, check_foreground=True)
+
+            if mean_features is None:
+                print("Not enough foreground, skipping...")
+                continue 
+
+            mean_features = mean_features.reshape(1, -1)
+            if label == 0:
+                if counters[0] == 0:
+                    block_features = mean_features
+                else:
+                    block_features = np.r_[block_features, mean_features]
+            else:
+                if counters[1] == 0:
+                    mg_features = mean_features
+                else:
+                    mg_features = np.r_[mg_features, mean_features]
+            counters[label] += 1
+        print(f"Block: {block_features.shape}, 0Mg: {mg_features.shape}")
+        plot_sanity_check(block_features=block_features, mg_features=mg_features)
+
     else:
         RESULTS = {}
         NUM_PROTEINS = {
