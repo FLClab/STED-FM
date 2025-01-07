@@ -21,11 +21,10 @@ class LowHighResolutionDataset(Dataset):
             num_classes: int = 2,
             classes: List[str] = ["low", "high"],
     ) -> None:
-        with h5py.File(f"{h5path}/high", "r") as handle:
-            high_images = handle["images"][()]
+        with h5py.File(h5path, "r") as handle:
+            high_images = handle["high/rabBassoon STAR635P"][()]
             high_labels = [1] * len(high_images)
-        with h5py.File(f"{h5path}/low", "r") as handle:
-            low_images = handle["images"][()]
+            low_images = handle["low/rabBassoon STAR635P"][()]
             low_labels = [0] * len(low_images)
         self.images = np.concatenate([high_images, low_images], axis=0)
         self.labels = np.concatenate([high_labels, low_labels], axis=0)

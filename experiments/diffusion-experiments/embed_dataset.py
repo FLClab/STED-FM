@@ -48,7 +48,7 @@ def load_dataset() -> torch.utils.data.Dataset:
     elif args.dataset == "resolution":
         path = "/home-local/Frederic/evaluation-data/low-high-quality"
         dataset = LowHighResolutionDataset(
-            h5path=f"{path}/training.hdf5",
+            h5path=f"{path}/{args.split}.hdf5",
             num_samples=None,
             transform=None,
             n_channels=3 if "imagenet" in args.weights.lower() else 1,
