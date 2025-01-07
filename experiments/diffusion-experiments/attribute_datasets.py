@@ -19,7 +19,7 @@ class LowHighResolutionDataset(Dataset):
             n_channels: int = 1,
             num_samples: int = None,
             num_classes: int = 2,
-            class_names: List[str] = ["low", "high"],
+            classes: List[str] = ["low", "high"],
     ) -> None:
         with h5py.File(f"{h5path}/high", "r") as handle:
             high_images = handle["images"][()]
@@ -34,12 +34,12 @@ class LowHighResolutionDataset(Dataset):
         np.random.shuffle(indices)
         self.images = self.images[indices]
         self.labels = self.labels[indices]
-        
+
         self.transform = transform
         self.n_channels = n_channels
         self.num_samples = num_samples
         self.num_classes = num_classes
-        self.class_names = class_names
+        self.classes = classes
         self.dataset_size = self.images.shape[0]
 
     def __len__(self) -> int:
