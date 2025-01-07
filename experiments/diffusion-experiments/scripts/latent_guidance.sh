@@ -29,7 +29,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 # python main.py --dataset-path "${SLURM_TMPDIR}/dataset-250k.tar"
 tensorboard --logdir="/home/frbea320/scratch/model_checkpoints/DiffusionModels/latent-guidance" --host 0.0.0.0 --load_fast false &
-srun python train_latent_guidance.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset-250k.tar" --use-tensorboard --weights MAE_SMALL_SIM
+srun python train_latent_guidance.py --seed 42 --dataset-path "${SLURM_TMPDIR}/dataset-250k.tar" --use-tensorboard --weights MAE_SMALL_JUMP
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
