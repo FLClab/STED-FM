@@ -9,7 +9,7 @@ import pandas
 from matplotlib import pyplot, patches
 
 sys.path.insert(0, "../../")
-from DEFAULTS import BASE_PATH
+from DEFAULTS import BASE_PATH, COLORS
 from utils import savefig
 from stats import resampling_stats, plot_p_values
 
@@ -26,13 +26,6 @@ args = parser.parse_args()
 
 print(args)
 
-COLORS = {
-    "STED" : "tab:blue",
-    "HPA" : "tab:orange",
-    "ImageNet" : "tab:red",
-    "JUMP" : "tab:green",
-    "SIM" : "tab:pink"
-}
 
 def load_file(file):
     with open(file, "r") as handle:
