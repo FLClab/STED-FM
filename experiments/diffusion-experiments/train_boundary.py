@@ -29,6 +29,7 @@ def main():
     clf.fit(train_embeddings, train_labels) 
 
     val_prediction = clf.predict(valid_embeddings)
+    print(np.unique(val_prediction, return_counts=True))
     accuracy = np.sum(val_prediction == valid_labels) / num_valid_samples
     print(f"Validation accuracy: {accuracy}")
 

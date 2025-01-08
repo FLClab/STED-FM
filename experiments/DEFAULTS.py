@@ -16,6 +16,7 @@ else:
 
 COLORS = {
     "IMAGENET1K_V1": "#5F4690",
+    "ImageNet": "#5F4690",
     "JUMP": "#1D6996",
     "HPA": "#0F8554",
     "SIM": "#EDAD08",
