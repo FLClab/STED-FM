@@ -11,6 +11,7 @@ import random
 import os
 from attribute_datasets import LowHighResolutionDataset
 import sys
+from banditopt.objectives import Resolution 
 import glob
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH, COLORS
@@ -53,14 +54,16 @@ def load_boundary() -> np.ndarray:
 
 # TODO
 def compute_resolution(img: np.ndarray) -> float:
-    pass
+    resolution_objective = Resolution(pixelsize=20e-9)
+    resolution = resolution_objective.evaluate([img], None, None, None, None)
+    return resolution
 
 def save_examples(samples, distances, resolutions, index):
    N = len(samples)
    fig, axs = plt.subplots(1, N, figsize=(10,5))
    for i, (s, d, r) in enumerate(zip(samples, distances, resolutions)):
        axs[i].imshow(s, cmap="hot", vmin=0.0, vmax=1.0)
-       axs[i].set_title(f"Distance: {d:.2f}\nResolution: {r:.2f}")
+       axs[i].set_title(f"Distance: {d:.2f}\nRes: {r:.2f}")
        axs[i].axis("off")
    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
    fig.savefig(f"./lerp-results/examples/resolution/{args.weights}-image_{index}.pdf", dpi=1200, bbox_inches="tight")
@@ -121,7 +124,7 @@ def main():
     transform=None,
     n_channels=3 if "imagenet" in args.weights.lower() else 1,
     num_classes=2,
-    class_names=["low", "high"] 
+    classes=["low", "high"] 
     )
 
     N = len(dataset)
@@ -153,15 +156,16 @@ def main():
         numpy_code = latent_code.detach().cpu().numpy() 
         original_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=latent_code, progress=True) 
 
-        resolutions.append(original_resolution - original_resolution)
-        sample_resolution = compute_resolution(img=original_sample)
-        resolutions.append(sample_resolution - original_resolution)
-
+        resolutions.append(original_resolution)
+    
         original_sample = original_sample.squeeze().detach().cpu().numpy()
+        sample_resolution = compute_resolution(img=original_sample)
+        resolutions.append(sample_resolution)
+
         samples = [original, original_sample]
         distances.extend([0.0, 0.0])
 
-        lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, start_distance=1.0, end_distance=4.0, steps=n_steps)
+        lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, start_distance=1.0, end_distance=3.0, steps=n_steps)
 
         for c, code in enumerate(lerped_codes):
             lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
@@ -169,7 +173,7 @@ def main():
             lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
             samples.append(lerped_sample_numpy)
             lerped_resolution = compute_resolution(img=lerped_sample_numpy)
-            resolutions.append(lerped_resolution - original_resolution)
+            resolutions.append(lerped_resolution)
             distances.append(abs(d[c][0]))
 
         resolutions = np.array(resolutions)

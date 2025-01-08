@@ -53,7 +53,7 @@ def load_dataset() -> torch.utils.data.Dataset:
             transform=None,
             n_channels=3 if "imagenet" in args.weights.lower() else 1,
             num_classes=2,
-            class_names=["low", "high"] 
+            classes=["low", "high"] 
         )
     else:
         raise ValueError(f"Dataset {args.dataset} not found")

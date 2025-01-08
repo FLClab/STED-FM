@@ -1,3 +1,4 @@
+experiments/diffusion-experiments/lerp-results/embeddings/
 experiments/diffusion-experiments/lerp-results/wavelet_features/  
 experiments/diffusion-experiments/lerp-results/boundaries/activity/
 experiments/diffusion-experiments/lerp-results/embeddings/quality/*.npz
