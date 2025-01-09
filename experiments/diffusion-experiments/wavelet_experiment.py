@@ -16,6 +16,7 @@ from attribute_datasets import ProteinActivityDataset
 import sys 
 from scipy.spatial.distance import cdist
 import glob 
+import pickle
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH, COLORS 
 from model_builder import get_pretrained_model_v2 
@@ -52,9 +53,15 @@ def linear_interpolate(latent_code,
   raise ValueError(f'Input `latent_code` should be with shape '
                    f'[1, latent_space_dim] but {latent_code.shape} was received.')
 
-def load_boundary(boundary: str) -> np.ndarray:
+def load_svm():
+    with open(f"./lerp-results/boundaries/{args.boundary}/{args.weights}_{args.boundary}_svm.pkl", "rb") as f:
+        return pickle.load(f)
+
+def load_boundary() -> np.ndarray:
     print(f"--- Loading boundary trained from {args.weights} embeddings ---")
-    return np.load(f"./lerp-results/boundaries/{args.boundary}/{args.weights}_{args.boundary}_boundary.npz")["boundary"]
+    data = np.load(f"./lerp-results/boundaries/{args.boundary}/{args.weights}_{args.boundary}_boundary.npz")
+    boundary, intercept, norm = data["boundary"], data["intercept"], data["norm"]
+    return boundary, intercept, norm
 
 def extract_features(img: Union[np.ndarray, torch.Tensor], check_foreground: bool = False) -> np.ndarray:
     if isinstance(img, torch.Tensor):
@@ -130,20 +137,16 @@ def plot_results():
         ### Protein-wise feature violin plots
         data = [results[k][:, i] for k in keys]
         fig = plt.figure()
-        parts = plt.violinplot(data, showmeans=True)
+        ax = fig.add_subplot(111)
+        parts = ax.boxplot(data, medianprops={'color': 'black'}, patch_artist=True)
         
-        for pc in parts['bodies']:
+        for pc in parts['boxes']:
             pc.set_facecolor('grey')
             pc.set_alpha(0.7)
-        
-        parts['cmeans'].set_color('black')
-        
-        parts['cbars'].set_color('black')
-        parts['cmaxes'].set_color('black')
-        parts['cmins'].set_color('black')
-        plt.ylabel(f)
-        plt.xlabel("Distance")
-        plt.xticks([1, 2, 3, 4, 5, 6], ["0", "0", "1", "2", "3", "4"])
+    
+        ax.set_ylabel(f)
+        ax.set_xlabel("Distance")
+        ax.set_xticks([1, 2, 3, 4, 5, 6], ["0", "0", "1", "2", "3", "4"])
         
         fig.savefig(f"./lerp-results/wavelet_features/combined/{f}_to{args.direction}.pdf", bbox_inches='tight')
         plt.close(fig)
@@ -151,53 +154,128 @@ def plot_results():
         # Image-wise number of proteins violin plot
         data = [num_proteins[k] for k in keys]
         fig = plt.figure()
-        parts = plt.violinplot(data, showmeans=True)
+        ax = fig.add_subplot(111)   
+        parts = ax.boxplot(data, medianprops={'color': 'black'}, patch_artist=True)
         
-        for pc in parts['bodies']:
+        for pc in parts['boxes']:
             pc.set_facecolor('grey')
             pc.set_alpha(0.7)
-        
-        parts['cmeans'].set_color('black')
-        
-        parts['cbars'].set_color('black')
-        parts['cmaxes'].set_color('black')
-        parts['cmins'].set_color('black')
-        plt.ylabel("Number of proteins")
-        plt.xlabel("Distance")
-        plt.xticks([1, 2, 3, 4, 5, 6], ["0", "0", "1", "2", "3", "4"])
+        ax.set_ylabel("Number of proteins")
+        ax.set_xlabel("Distance")
+        ax.set_xticks([1, 2, 3, 4, 5, 6], ["0", "0", "1", "2", "3", "4"])
         
         fig.savefig(f"./lerp-results/wavelet_features/combined/num_proteins_to{args.direction}.pdf", bbox_inches='tight')
         plt.close(fig)
 
 def plot_sanity_check(block_features: np.ndarray, mg_features: np.ndarray):
     keys = ["Block", "0Mg"]
+    np.savez(f"./lerp-results/wavelet_features/sanity-check/train-features.npz", block_features=block_features, mg_features=mg_features)
     features = ["area", "perimeter", "mean_intensity", "eccentricity", "solidity", "1nn_dist", "num_proteins"]
     for i, f in enumerate(features):
         data = [ary[:, i] for ary in [block_features, mg_features]]
         fig = plt.figure()
-        parts = plt.violinplot(data, showmeans=True)
-        for pc in parts['bodies']:
+        ax = fig.add_subplot(111)
+        parts = ax.boxplot(data, medianprops={'color': 'black'}, patch_artist=True)
+        for pc in parts['boxes']:
             pc.set_facecolor('grey')
             pc.set_alpha(0.7)
-        
-        parts['cmeans'].set_color('black')
-        
-        parts['cbars'].set_color('black')
-        parts['cmaxes'].set_color('black')
-        parts['cmins'].set_color('black')
+    
         plt.ylabel(f)
         plt.xticks([1, 2], ["Block", "0Mg"])
         
         fig.savefig(f"./lerp-results/wavelet_features/sanity-check/{f}.pdf", bbox_inches='tight')
         plt.close(fig)
+
+def plot_feature_path():
+    mg_path = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to0Mg_RESULTS.npz")
+    block_path = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_toBlock_RESULTS.npz")
+    mg_proteins = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to0Mg_NUM_PROTEINS.npz")
+    block_proteins = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_toBlock_NUM_PROTEINS.npz")
+    keys_to = list(mg_path.keys())
+    keys_back = list(block_path.keys())
+    keys_to.remove("sample")
+    keys_to.remove("original")
+    keys_back.remove("original")
+    keys_back.remove("sample")
+
+    train_features = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/sanity-check/train-features.npz")
+    block_features = train_features["block_features"]
+    mg_features = train_features["mg_features"]
+    source_area = block_features[:, 0]
+    source_proteins = block_features[:, -1]
+    destination_area = mg_features[:, 0]
+    destination_proteins = mg_features[:, -1]
+
+    area_to = [mg_path[k][:, 0] for k in keys_to] 
+    area_back = [block_path[k][:, 0] for k in keys_back]
+    proteins_to = [mg_proteins[k] for k in keys_to]
+    proteins_back = [block_proteins[k] for k in keys_back]
+
+    area_data = [source_area] + area_to + [destination_area] + area_back + [source_area]
+    protein_data = [source_proteins] + proteins_to + [destination_proteins] + proteins_back + [source_proteins]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    parts = ax.boxplot(area_data, medianprops={'color': 'black'}, patch_artist=True)
+    for pc in parts['boxes']:
+        pc.set_facecolor('grey')
+        pc.set_alpha(0.7)
+        
+    ax.set_ylabel("Area")
+    ax.set_xlabel("Distance")
+    ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], ["Block", "1", "2", "3", "4", "0Mg", "4", "3", "2", "1", "Block"])
     
+    fig.savefig(f"./lerp-results/wavelet_features/combined/area_full_path.pdf", bbox_inches='tight')
+    plt.close(fig)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    parts = ax.boxplot(protein_data, medianprops={'color': 'black'}, patch_artist=True)
+    for pc in parts['boxes']:
+        pc.set_facecolor('grey')
+        pc.set_alpha(0.7)
+        
+    ax.set_ylabel("# Proteins")
+    ax.set_xlabel("Distance")
+    ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], ["Block", "1", "2", "3", "4", "0Mg", "4", "3", "2", "1", "Block"])
+    
+    fig.savefig(f"./lerp-results/wavelet_features/combined/num_proteins_full_path.pdf", bbox_inches='tight')
+    plt.close(fig)
+
+def plot_distance_distribution(distances_to_boundary: dict):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(distances_to_boundary["Block"], bins=100, alpha=0.5, label="Block")
+    ax.hist(distances_to_boundary["0Mg"], bins=100, alpha=0.5, label="0Mg")
+    ax.axvline(0.0, color="black", linestyle="--", label="Decision boundary")
+    ax.set_xlabel("Distance")
+    ax.set_ylabel("Frequency")
+    ax.legend()
+    fig.savefig(f"./lerp-results/wavelet_features/combined/distance_distribution.pdf", bbox_inches='tight')
+    plt.close(fig)
 
 def main():
     if args.figure:
         plot_results()
+        plot_feature_path()
     elif args.sanity_check:
+        DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        boundary, intercept, norm = load_boundary()
+        latent_encoder, model_config = get_pretrained_model_v2(
+            name=args.latent_encoder,
+            weights=args.weights,
+            path=None,
+            mask_ratio=0.0,
+            pretrained=False,
+            in_channels=1,
+            as_classifier=True,
+            blocks="all",
+            num_classes=4
+        )
+        latent_encoder.to(DEVICE)
+        latent_encoder.eval()
         dataset = ProteinActivityDataset(
-            h5file=f"/home-local/Frederic/Datasets/evaluation-data/NeuralActivityStates/NAS_train.hdf5",
+            h5file="/home-local/Frederic/evaluation-data/NeuralActivityStates/NAS_train.hdf5",
             num_samples=None,
             transform=None,
             n_channels=3 if "imagenet" in args.weights.lower() else 1,
@@ -211,33 +289,47 @@ def main():
         np.random.shuffle(indices)
 
         counters = {0: 0, 1: 0}
-        for i, idx in tqdm(enumerate(indices)):
+        distances_to_boundary = {"Block": [], "0Mg": []}
+        with torch.no_grad():
+            for i, idx in tqdm(enumerate(indices), total=N):
+                
+                img, metadata = dataset[idx]
+                img = img.to(DEVICE)
+                label = metadata["label"]
             
-            img, metadata = dataset[idx]
-            label = metadata["label"]
-           
 
-            original = img.squeeze().detach().cpu().numpy() 
-            _, mean_features = extract_features(original, check_foreground=True)
+                original = img.squeeze().detach().cpu().numpy() 
+                _, mean_features = extract_features(original, check_foreground=True)
 
-            if mean_features is None:
-                print("Not enough foreground, skipping...")
-                continue 
+                if mean_features is None:
+                    # print("Not enough foreground, skipping...")
+                    continue 
 
-            mean_features = mean_features.reshape(1, -1)
-            if label == 0:
-                if counters[0] == 0:
-                    block_features = mean_features
+                torch_img = img.clone().detach().unsqueeze(0).to(DEVICE)
+                latent_code = latent_encoder.forward_features(torch_img)
+                numpy_code = latent_code.detach().cpu().numpy()
+
+                d = numpy_code.dot(boundary.T) + intercept
+                d = d[0][0]
+            
+                mean_features = mean_features.reshape(1, -1)
+                if label == 0:
+                    if counters[0] == 0:
+                        block_features = mean_features
+                    else:
+                        block_features = np.r_[block_features, mean_features]
+                    distances_to_boundary["Block"].append(d)
                 else:
-                    block_features = np.r_[block_features, mean_features]
-            else:
-                if counters[1] == 0:
-                    mg_features = mean_features
-                else:
-                    mg_features = np.r_[mg_features, mean_features]
-            counters[label] += 1
+                    distances_to_boundary["0Mg"].append(d)
+                    if counters[1] == 0:
+                        mg_features = mean_features
+                    else:
+                        mg_features = np.r_[mg_features, mean_features]
+                counters[label] += 1
+            
         print(f"Block: {block_features.shape}, 0Mg: {mg_features.shape}")
         plot_sanity_check(block_features=block_features, mg_features=mg_features)
+        plot_distance_distribution(distances_to_boundary)
 
     else:
         RESULTS = {}
@@ -251,7 +343,7 @@ def main():
         }
 
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        boundary = load_boundary(args.boundary)
+        boundary, _, _ = load_boundary(args.boundary)
         latent_encoder, model_config = get_pretrained_model_v2(
             name=args.latent_encoder,
             weights=args.weights,
@@ -283,7 +375,7 @@ def main():
         diffusion_model.load_state_dict(ckpt["state_dict"])
         diffusion_model.to(DEVICE)
         dataset = ProteinActivityDataset(
-            h5file=f"/home-local/Frederic/Datasets/evaluation-data/NeuralActivityStates/NAS_test.hdf5",
+            h5file=f"/home-local/Frederic/evaluation-data/NeuralActivityStates/NAS_test.hdf5",
             num_samples=None,
             transform=None,
             n_channels=3 if "imagenet" in args.weights.lower() else 1,

@@ -54,6 +54,8 @@ def load_boundary() -> np.ndarray:
 
 # TODO
 def compute_resolution(img: np.ndarray) -> float:
+    if img.shape[0] == 3:
+        img = img[0]
     resolution_objective = Resolution(pixelsize=20e-9)
     resolution = resolution_objective.evaluate([img], None, None, None, None)
     return resolution
@@ -62,6 +64,8 @@ def save_examples(samples, distances, resolutions, index):
    N = len(samples)
    fig, axs = plt.subplots(1, N, figsize=(10,5))
    for i, (s, d, r) in enumerate(zip(samples, distances, resolutions)):
+       if s.shape[0] == 3:
+           s = s[0]
        axs[i].imshow(s, cmap="hot", vmin=0.0, vmax=1.0)
        axs[i].set_title(f"Distance: {d:.2f}\nRes: {r:.2f}")
        axs[i].axis("off")
@@ -84,106 +88,127 @@ def plot_correlation(all_resolutions, all_distances):
     fig.savefig(f"./lerp-results/correlation/{args.weights}-resolution-correlation.png", bbox_inches="tight", dpi=1200)
     plt.close()
 
+def plot_results():
+    files = glob.glob(f"./lerp-results/correlation/**-resolution-correlation.npz")
+    fig = plt.figure()
+    for f in files:
+        weight = f.split("/")[-1].split("-")[0].replace("MAE_SMALL_", "")
+        data = np.load(f)
+        resolutions, distances, err = data["resolutions"], data["distances"], data["err"]
+        x = np.arange(distances.shape[0])
+        x[1] = 0.0 
+        plt.plot(x, resolutions, c=COLORS[weight], label=weight)
+    plt.legend()
+    plt.xlabel("Distance from original embedding")
+    plt.ylabel("Resolution")
+    fig.savefig(f"./lerp-results/correlation/resolution-correlation.png", bbox_inches="tight", dpi=1200)
+    plt.close()
+
 def main():
-    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    boundary = load_boundary()
-    latent_encoder, model_config = get_pretrained_model_v2(
-    name=args.latent_encoder,
-    weights=args.weights,
-    path=None, 
-    mask_ratio=0.0,
-    pretrained=False,
-    in_channels=3 if "imagenet" in args.weights.lower() else 1,
-    as_classifier=True,
-    blocks="all",
-    num_classes=4
-    )
-    denoising_model = UNet(
-    dim=64,
-    channels=1, 
-    dim_mults=(1,2,4),
-    cond_dim=model_config.dim,
-    condition_type="latent",
-    num_classes=4
-    )
-    diffusion_model = DDPM(
-    denoising_model=denoising_model,
-    timesteps=args.timesteps,
-    beta_schedule="linear",
-    condition_type="latent",
-    latent_encoder=latent_encoder,
-    )
+    if args.figure:
+        plot_results()
+    elif args.sanity_check:
+        pass
+    else:   
+        DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        boundary = load_boundary()
+        latent_encoder, model_config = get_pretrained_model_v2(
+        name=args.latent_encoder,
+        weights=args.weights,
+        path=None, 
+        mask_ratio=0.0,
+        pretrained=False,
+        in_channels=3 if "imagenet" in args.weights.lower() else 1,
+        as_classifier=True,
+        blocks="all",
+        num_classes=4
+        )
+        denoising_model = UNet(
+        dim=64,
+        channels=1, 
+        dim_mults=(1,2,4),
+        cond_dim=model_config.dim,
+        condition_type="latent",
+        num_classes=4
+        )
+        diffusion_model = DDPM(
+        denoising_model=denoising_model,
+        timesteps=args.timesteps,
+        beta_schedule="linear",
+        condition_type="latent",
+        latent_encoder=latent_encoder,
+        )
 
-    ckpt = torch.load(f"{args.ckpt_path}/{args.weights}/checkpoint-69.pth") 
-    diffusion_model.load_state_dict(ckpt["state_dict"])
-    diffusion_model.to(DEVICE)
+        ckpt = torch.load(f"{args.ckpt_path}/{args.weights}/checkpoint-69.pth") 
+        diffusion_model.load_state_dict(ckpt["state_dict"])
+        diffusion_model.to(DEVICE)
 
-    dataset = LowHighResolutionDataset(
-    h5path=f"/home-local/Frederic/evaluation-data/low-high-quality/testing.hdf5",
-    num_samples=None,
-    transform=None,
-    n_channels=3 if "imagenet" in args.weights.lower() else 1,
-    num_classes=2,
-    classes=["low", "high"] 
-    )
+        dataset = LowHighResolutionDataset(
+        h5path=f"/home-local/Frederic/evaluation-data/low-high-quality/testing.hdf5",
+        num_samples=None,
+        transform=None,
+        n_channels=1,
+        num_classes=2,
+        classes=["low", "high"] 
+        )
 
-    N = len(dataset)
-    indices = np.arange(N)
-    np.random.shuffle(indices)
-    counter = 0
-    n_steps = 4
-    all_resolutions = np.zeros((args.num_samples, n_steps+2))
-    all_distances = np.zeros((args.num_samples, n_steps+2))
+        N = len(dataset)
+        indices = np.arange(N)
+        np.random.shuffle(indices)
+        counter = 0
+        n_steps = 4
+        all_resolutions = np.zeros((args.num_samples, n_steps+2))
+        all_distances = np.zeros((args.num_samples, n_steps+2))
 
-    for i in tqdm(indices):
-        resolutions, distances = [], [] 
-        img, metadata = dataset[i]
-        label = metadata["label"]
-        if counter >= args.num_samples:
-            break 
-        if args.boundary == "resolution" and label != 0: # We will only sample low poor image and move in the good res direction
-            continue 
+        for i in tqdm(indices):
+            resolutions, distances = [], [] 
+            img, metadata = dataset[i]
+            label = metadata["label"]
+            if counter >= args.num_samples:
+                break 
+            if args.boundary == "resolution" and label != 0: # We will only sample low poor image and move in the good res direction
+                continue 
 
-        if "imagenet" in args.weights.lower():
-            img = torch.tensor(img, dtype=torch.float32).repeat(3, 1, 1).unsqueeze(0).to(DEVICE)
-        else:
-            img = torch.tensor(img, dtype=torch.float32).unsqueeze(0).to(DEVICE)
+            if "imagenet" in args.weights.lower():
+                img = torch.tensor(img, dtype=torch.float32).repeat(3, 1, 1).unsqueeze(0).to(DEVICE)
+            else:
+                img = torch.tensor(img, dtype=torch.float32).unsqueeze(0).to(DEVICE)
 
-        original = img.squeeze().detach().cpu().numpy()
-        original_resolution = compute_resolution(img=original)
+            original = img.squeeze().detach().cpu().numpy()
+            original_resolution = compute_resolution(img=original)
 
-        latent_code = diffusion_model.latent_encoder.forward_features(img) 
-        numpy_code = latent_code.detach().cpu().numpy() 
-        original_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=latent_code, progress=True) 
+            latent_code = diffusion_model.latent_encoder.forward_features(img) 
+            numpy_code = latent_code.detach().cpu().numpy() 
+            original_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=latent_code, progress=True) 
 
-        resolutions.append(original_resolution)
-    
-        original_sample = original_sample.squeeze().detach().cpu().numpy()
-        sample_resolution = compute_resolution(img=original_sample)
-        resolutions.append(sample_resolution)
+            resolutions.append(original_resolution)
+        
+            original_sample = original_sample.squeeze().detach().cpu().numpy()
+            sample_resolution = compute_resolution(img=original_sample)
+            resolutions.append(sample_resolution)
 
-        samples = [original, original_sample]
-        distances.extend([0.0, 0.0])
+            samples = [original, original_sample]
+            distances.extend([0.0, 0.0])
 
-        lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, start_distance=1.0, end_distance=3.0, steps=n_steps)
+            lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, start_distance=1.0, end_distance=3.0, steps=n_steps)
 
-        for c, code in enumerate(lerped_codes):
-            lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
-            lerped_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=lerped_code, progress=True)
-            lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
-            samples.append(lerped_sample_numpy)
-            lerped_resolution = compute_resolution(img=lerped_sample_numpy)
-            resolutions.append(lerped_resolution)
-            distances.append(abs(d[c][0]))
+            for c, code in enumerate(lerped_codes):
+                lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
+                lerped_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=lerped_code, progress=True)
+                lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
+                samples.append(lerped_sample_numpy)
+                lerped_resolution = compute_resolution(img=lerped_sample_numpy)
+                resolutions.append(lerped_resolution)
+                distances.append(abs(d[c][0]))
 
-        resolutions = np.array(resolutions)
-        distances = np.array(distances)
-        all_resolutions[counter] = resolutions
-        all_distances[counter] = distances
-        counter += 1
-        save_examples(samples, distances, resolutions, counter)
-    
-    plot_correlation(all_resolutions, all_distances, start_score=original_resolution)
+            resolutions = np.array(resolutions)
+            distances = np.array(distances)
+            all_resolutions[counter] = resolutions
+            all_distances[counter] = distances
+            counter += 1
+            save_examples(samples, distances, resolutions, counter)
+        
+        plot_correlation(all_resolutions, all_distances)
 
 
 

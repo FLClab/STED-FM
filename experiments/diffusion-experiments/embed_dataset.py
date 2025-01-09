@@ -36,7 +36,7 @@ def load_dataset() -> torch.utils.data.Dataset:
         )
     elif args.dataset == "activity":
         dataset = ProteinActivityDataset(
-            h5file=f"/home-local/Frederic/Datasets/evaluation-data/NeuralActivityStates/NAS_{args.split}.hdf5",
+            h5file=f"/home-local/Frederic/evaluation-data/NeuralActivityStates/NAS_{args.split}.hdf5",
             num_samples=None,
             transform=None,
             n_channels=3 if "imagenet" in args.weights.lower() else 1,
@@ -81,9 +81,8 @@ if __name__=="__main__":
 
     
     print(f"Dataset size: {len(dataset)}")
-    uniques, counts = np.unique(dataset.labels, return_counts=True)
-    for u, c in zip(uniques, counts):
-        print(f"{dataset.classes[u]}: {c}")
+    print(np.unique(dataset.labels, return_counts=True))
+    
 
     dataloader = DataLoader(dataset, batch_size=cfg.batch_size, shuffle=True, drop_last=False, num_workers=1)
 
