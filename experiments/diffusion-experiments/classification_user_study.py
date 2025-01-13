@@ -39,6 +39,8 @@ def get_save_folder(key: str) -> str:
         return "CTC"
     elif "hpa" in key.lower():
         return "HPA"
+    elif "sim" in key.lower():
+        return "SIM"
     else:
         raise NotImplementedError("The requested weights do not exist.")
 
