@@ -45,6 +45,8 @@ def get_save_folder() -> str:
         return "CTC"
     elif "hpa" in args.weights.lower():
         return "HPA"
+    elif "sim" in args.weights.lower():
+        return "SIM"
     else:
         raise NotImplementedError("The requested weights do not exist.")
 

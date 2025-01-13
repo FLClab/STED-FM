@@ -26,7 +26,6 @@ args = parser.parse_args()
 
 print(args)
 
-
 def load_file(file):
     with open(file, "r") as handle:
         data = json.load(handle)
@@ -72,7 +71,7 @@ def main():
 
     fig, ax = pyplot.subplots(figsize=(4,3))
     modes = ["linear-probe", "finetuned"]
-    pretrainings = ["STED", "SIM", "HPA", "JUMP", "ImageNet"]
+    pretrainings = ["Hybrid","STED", "SIM", "HPA", "JUMP", "ImageNet"]
 
     width = 1/(len(pretrainings) + 1)
     samples = {}
@@ -92,7 +91,8 @@ def main():
     ax.legend(
         handles=[
             patches.Patch(color=COLORS[label], label=label) for label in pretrainings
-        ]
+        ],
+        fontsize=8
     )
     savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_linear-probe-finetuned"), extension="png", save_white=True)
 
