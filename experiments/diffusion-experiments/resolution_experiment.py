@@ -28,6 +28,7 @@ args = parser.parse_args()
 
 def linear_interpolate(latent_code,
                        boundary,
+                       intercept,
                        start_distance=-4.0,
                        end_distance=4.0,
                        steps=8):
@@ -107,12 +108,11 @@ def plot_results():
         data = np.load(f)
         resolutions, distances, err = data["resolutions"], data["distances"], data["err"]
         x = np.arange(distances.shape[0])
-        x[1] = 0.0 
         plt.plot(x, resolutions, c=COLORS[weight], label=weight)
     plt.legend()
     plt.xlabel("Distance from original embedding")
     plt.ylabel("Resolution")
-    fig.savefig(f"./lerp-results/correlation/resolution/resolution-correlation.png", bbox_inches="tight", dpi=1200)
+    fig.savefig(f"./lerp-results/correlation/resolution/resolution-correlation.pdf", bbox_inches="tight", dpi=1200)
     plt.close()
 
 def main():
@@ -126,7 +126,7 @@ def main():
             weights=args.weights,
             path=None,
             mask_ratio=0.0, 
-            prertrained=False,
+            pretrained=True if "imagenet" in args.weights.lower() else False,
             in_channels=3 if "imagenet" in args.weights.lower() else 1,
             as_classifier=True,
             blocks="all",
