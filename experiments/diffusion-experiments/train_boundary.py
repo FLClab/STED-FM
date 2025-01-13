@@ -4,6 +4,7 @@ import torch
 from sklearn import svm
 from typing import Tuple
 import argparse 
+import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default="quality")
@@ -29,12 +30,17 @@ def main():
     clf.fit(train_embeddings, train_labels) 
 
     val_prediction = clf.predict(valid_embeddings)
+    print(np.unique(val_prediction, return_counts=True))
     accuracy = np.sum(val_prediction == valid_labels) / num_valid_samples
     print(f"Validation accuracy: {accuracy}")
 
     boundary = clf.coef_.reshape(1, latent_dim).astype(np.float32)
-    boundary = boundary / np.linalg.norm(boundary)
-    np.savez(f"./lerp-results/boundaries/{args.dataset}/{args.weights}_{args.dataset}_boundary.npz", boundary=boundary)
+    norm = np.linalg.norm(boundary)
+    intercept = clf.intercept_ / norm
+    boundary = boundary / norm
+    with open(f"./lerp-results/boundaries/{args.dataset}/{args.weights}_{args.dataset}_svm.pkl", "wb") as f:
+        pickle.dump(clf, f)
+    np.savez(f"./lerp-results/boundaries/{args.dataset}/{args.weights}_{args.dataset}_boundary.npz", boundary=boundary, intercept=intercept, norm=norm)
 
 
 

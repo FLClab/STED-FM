@@ -5,7 +5,7 @@ import random
 import json 
 from tqdm import tqdm 
 import argparse 
-from attribute_datasets import OptimQualityDataset, ProteinActivityDataset
+from attribute_datasets import OptimQualityDataset, ProteinActivityDataset, LowHighResolutionDataset, TubulinActinDataset
 import os
 from torch.utils.data import DataLoader
 import sys 
@@ -26,17 +26,17 @@ args = parser.parse_args()
 def load_dataset() -> torch.utils.data.Dataset: 
     if args.dataset == "quality":
         dataset = OptimQualityDataset(
-        data_folder=f"/home-local/Frederic/Datasets/evaluation-data/optim_{args.split}",
-        num_samples={"actin": None, "tubulin": None, "CaMKII_Neuron": None, "PSD95_Neuron": None},
+        data_folder=f"/home-local/Frederic/evaluation-data/optim_{args.split}",
+        num_samples={"actin": None},
         apply_filter=True,
-        classes=['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
+        classes=['actin'],
         high_score_threshold=0.70,
         low_score_threshold=0.60,
         n_channels=3 if "imagenet" in args.weights.lower() else 1
         )
     elif args.dataset == "activity":
         dataset = ProteinActivityDataset(
-            h5file=f"/home-local/Frederic/Datasets/evaluation-data/NeuralActivityStates/NAS_{args.split}.hdf5",
+            h5file=f"/home-local/Frederic/evaluation-data/NeuralActivityStates/NAS_{args.split}.hdf5",
             num_samples=None,
             transform=None,
             n_channels=3 if "imagenet" in args.weights.lower() else 1,
@@ -44,6 +44,24 @@ def load_dataset() -> torch.utils.data.Dataset:
             protein_id=3,
             balance=True,
             keepclasses=[0, 1]
+        )
+    elif args.dataset == "resolution":
+        path = "/home-local/Frederic/evaluation-data/low-high-quality"
+        dataset = LowHighResolutionDataset(
+            h5path=f"{path}/{args.split}.hdf5",
+            num_samples=None,
+            transform=None,
+            n_channels=3 if "imagenet" in args.weights.lower() else 1,
+            num_classes=2,
+            classes=["low", "high"] 
+        )
+    elif args.dataset == "tubulin-actin":
+        path = f"/home-local/Frederic/evaluation-data/optim_{args.split}"
+        dataset = TubulinActinDataset(
+            data_folder=path,
+            classes=["tubulin", "actin"],
+            n_channels=3 if "imagenet" in args.weights.lower() else 1,
+            min_quality_score=0.70
         )
     else:
         raise ValueError(f"Dataset {args.dataset} not found")
@@ -69,11 +87,9 @@ if __name__=="__main__":
 
     dataset = load_dataset()
 
-    
     print(f"Dataset size: {len(dataset)}")
-    uniques, counts = np.unique(dataset.labels, return_counts=True)
-    for u, c in zip(uniques, counts):
-        print(f"{dataset.classes[u]}: {c}")
+    print(np.unique(dataset.labels, return_counts=True))
+    
 
     dataloader = DataLoader(dataset, batch_size=cfg.batch_size, shuffle=True, drop_last=False, num_workers=1)
 
