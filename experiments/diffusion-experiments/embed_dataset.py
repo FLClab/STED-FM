@@ -77,7 +77,7 @@ if __name__=="__main__":
         weights=args.weights,
         path=None,
         mask_ratio=0.0,
-        pretrained=False,
+        pretrained=True if "imagenet" in args.weights.lower() else False,
         in_channels=3 if "imagenet" in args.weights.lower() else 1,
         as_classifier=True, 
         blocks=args.blocks,

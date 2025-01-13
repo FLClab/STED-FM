@@ -24,12 +24,11 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
             kwargs["in_channels"] = 3 if (weights is not None and "imagenet" in weights.lower()) else 1
         backbone, cfg = get_base_model(name, **kwargs)
         state_dict = get_weights(name, weights)
-    
         # This is could lead to errors if the model is not exactly the same as the one used for pretraining
         if weights is None:
             print("--- Loaded model from scratch ---")
         elif state_dict is not None:
-            print(f"--- Loading from state dict ---")
+            print(f"--- Loading from ImageNet state dict ---")
             backbone.load_state_dict(state_dict, strict=True)
             print(f"--- Loaded model {name} with weights {weights} ---")
         elif "imagenet" in weights.lower():

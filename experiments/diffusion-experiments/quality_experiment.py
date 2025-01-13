@@ -31,6 +31,7 @@ args = parser.parse_args()
 
 def linear_interpolate(latent_code,
                        boundary,
+                       intercept,
                        start_distance=-4.0,
                        end_distance=4.0,
                        steps=8):
@@ -68,7 +69,7 @@ def linear_interpolate(latent_code,
 
   linspace = np.linspace(start_distance, end_distance, steps)
   if len(latent_code.shape) == 2:
-    linspace = linspace - latent_code.dot(boundary.T)
+    linspace = linspace - (latent_code.dot(boundary.T) + intercept)
     linspace = linspace.reshape(-1, 1).astype(np.float32)
     return latent_code + linspace * boundary, linspace
   if len(latent_code.shape) == 3:
@@ -82,6 +83,15 @@ def load_boundary() -> np.ndarray:
     data = np.load(f"./lerp-results/boundaries/{args.boundary}/{args.weights}_{args.boundary}_boundary.npz")
     boundary, intercept, norm = data["boundary"], data["intercept"], data["norm"]
     return boundary, intercept, norm
+
+def load_distance_distribution() -> np.ndarray:
+    data = np.load(f"./lerp-results/examples/quality/sanity-check/{args.weights}-quality-distance_distribution.npz")
+    scores = data["key2"]
+    avg, std = np.mean(scores), np.std(scores)
+    print("--- SCORE STATISTICS ---")
+    print(np.min(scores), np.max(scores), np.mean(scores), np.std(scores))
+    print("---------------------\n")
+    return avg - (3*std), avg + (3*std)
 
 def load_quality_net() -> nn.Module:
     quality_net = NetTrueFCN()
@@ -142,6 +152,8 @@ def plot_results():
     plt.close()
 
 def plot_distance_distribution(distances_to_boundary: dict):
+    key1, key2 = list(distances_to_boundary.keys())
+    np.savez(f"./lerp-results/examples/quality/sanity-check/{args.weights}-quality-distance_distribution.npz", key1=distances_to_boundary[key1], key2=distances_to_boundary[key2])
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist(distances_to_boundary["low"], bins=100, alpha=0.5, color='fuchsia', label="Low")
@@ -150,7 +162,7 @@ def plot_distance_distribution(distances_to_boundary: dict):
     ax.set_xlabel("Distance")
     ax.set_ylabel("Frequency")
     ax.legend()
-    fig.savefig(f"./lerp-results/examples/quality/sanity-check/{args.weights}-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
+    fig.savefig(f"./lerp-results/examples/quality/sanity-check/{args.weights}-quality-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
 def main():
@@ -164,14 +176,14 @@ def main():
             weights=args.weights,
             path=None,
             mask_ratio=0.0, 
-            prertrained=False,
+            pretrained=True if "imagenet" in args.weights.lower() else False,
             in_channels=3 if "imagenet" in args.weights.lower() else 1,
             as_classifier=True,
             blocks="all",
             num_classes=4
         )
         latent_encoder.to(DEVICE)
-        latent_encoder.eval()
+        latent_encoder.eval()        
 
         dataset = OptimQualityDataset(
             data_folder="/home-local/Frederic/evaluation-data/optim_train",
@@ -182,15 +194,17 @@ def main():
             n_channels=1
         )
         N = len(dataset)
-        indices = np.arange(N)
-        np.random.shuffle(indices)
 
         distances_to_boundary = {"low": [], "high": []}
         with torch.no_grad():
-            for i in tqdm(indices, total=N):
+            for i in tqdm(range(N), total=N):
                 img, metadata = dataset[i]
+                if "imagenet" in args.weights.lower():
+                    torch_img = img.clone().detach().repeat(3, 1, 1).unsqueeze(0).to(DEVICE)
+                else:
+                    torch_img = img.clone().detach().unsqueeze(0).to(DEVICE)
                 label = metadata["label"]
-                torch_img = img.clone().detach().unsqueeze(0).to(DEVICE)
+
                 latent_code = latent_encoder.forward_features(torch_img)
                 numpy_code = latent_code.detach().cpu().numpy()
                 d = numpy_code.dot(boundary.T) + intercept
@@ -202,7 +216,11 @@ def main():
     else:
         np.random.seed(42)
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        boundary, _, _ = load_boundary()
+        boundary, intercept, _ = load_boundary()
+        distance_min, distance_max = load_distance_distribution()
+
+  
+        print(f"\nMIN_DISTANCE: {distance_min} MAX_DISTANCE: {distance_max}\n")
         quality_net = load_quality_net()
         quality_net.to(DEVICE)
 
@@ -211,7 +229,7 @@ def main():
             weights=args.weights,
             path=None, 
             mask_ratio=0.0,
-            pretrained=False,
+            pretrained=True if "imagenet" in args.weights.lower() else False,
             in_channels=3 if "imagenet" in args.weights.lower() else 1,
             as_classifier=True,
             blocks="all",
@@ -285,7 +303,7 @@ def main():
 
             distances.append(0.0)
 
-            lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, start_distance=0.1, end_distance=1.5, steps=args.n_steps)
+            lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, start_distance=0.0, end_distance=distance_max, steps=args.n_steps)
 
             for c, code in enumerate(lerped_codes):
                 lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
