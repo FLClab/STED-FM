@@ -218,9 +218,8 @@ def main():
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         boundary, intercept, _ = load_boundary()
         distance_min, distance_max = load_distance_distribution()
-
-  
         print(f"\nMIN_DISTANCE: {distance_min} MAX_DISTANCE: {distance_max}\n")
+        
         quality_net = load_quality_net()
         quality_net.to(DEVICE)
 

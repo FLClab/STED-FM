@@ -38,7 +38,7 @@ def linear_interpolate(latent_code,
 
   linspace = np.linspace(start_distance, end_distance, steps)
   if len(latent_code.shape) == 2:
-    linspace = linspace - latent_code.dot(boundary.T)
+    linspace = linspace - (latent_code.dot(boundary.T) + intercept)
     linspace = linspace.reshape(-1, 1).astype(np.float32)
     return latent_code + linspace * boundary, linspace
   if len(latent_code.shape) == 3:
@@ -74,6 +74,8 @@ def save_examples(samples, distances, resolutions, index):
    plt.close(fig)
 
 def plot_distance_distribution(distances_to_boundary: dict):
+    key1, key2 = list(distances_to_boundary.keys())
+    np.savez(f"./lerp-results/examples/resolution/sanity-check/{args.weights}-resolution-distance_distribution.npz", key1=distances_to_boundary[key1], key2=distances_to_boundary[key2])
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist(distances_to_boundary["low"], bins=50, alpha=0.5, color='fuchsia', label="Low")
@@ -114,6 +116,15 @@ def plot_results():
     plt.ylabel("Resolution")
     fig.savefig(f"./lerp-results/correlation/resolution/resolution-correlation.pdf", bbox_inches="tight", dpi=1200)
     plt.close()
+
+def load_distance_distribution() -> np.ndarray:
+    data = np.load(f"./lerp-results/examples/resolution/sanity-check/{args.weights}-resolution-distance_distribution.npz")
+    scores = data["key2"]
+    avg, std = np.mean(scores), np.std(scores)
+    print("--- SCORE STATISTICS ---")
+    print(np.min(scores), np.max(scores), np.mean(scores), np.std(scores))
+    print("---------------------\n")
+    return avg - (3*std), avg + (3*std)
 
 def main():
     if args.figure:
@@ -163,31 +174,33 @@ def main():
     else:   
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         boundary, intercept, norm = load_boundary()
+        distance_min, distance_max = load_distance_distribution()
+        print(f"\nMIN_DISTANCE: {distance_min} MAX_DISTANCE: {distance_max}\n")
         latent_encoder, model_config = get_pretrained_model_v2(
-        name=args.latent_encoder,
-        weights=args.weights,
-        path=None, 
-        mask_ratio=0.0,
-        pretrained=False,
-        in_channels=3 if "imagenet" in args.weights.lower() else 1,
-        as_classifier=True,
-        blocks="all",
-        num_classes=4
+            name=args.latent_encoder,
+            weights=args.weights,
+            path=None, 
+            mask_ratio=0.0,
+            pretrained=True if "imagenet" in args.weights.lower() else False,
+            in_channels=3 if "imagenet" in args.weights.lower() else 1,
+            as_classifier=True,
+            blocks="all",
+            num_classes=4
         )
         denoising_model = UNet(
-        dim=64,
-        channels=1, 
-        dim_mults=(1,2,4),
-        cond_dim=model_config.dim,
-        condition_type="latent",
-        num_classes=4
+            dim=64,
+            channels=1, 
+            dim_mults=(1,2,4),
+            cond_dim=model_config.dim,
+            condition_type="latent",
+            num_classes=4
         )
         diffusion_model = DDPM(
-        denoising_model=denoising_model,
-        timesteps=args.timesteps,
-        beta_schedule="linear",
-        condition_type="latent",
-        latent_encoder=latent_encoder,
+            denoising_model=denoising_model,
+            timesteps=args.timesteps,
+            beta_schedule="linear",
+            condition_type="latent",
+            latent_encoder=latent_encoder,
         )
 
         ckpt = torch.load(f"{args.ckpt_path}/{args.weights}/checkpoint-69.pth") 
@@ -241,7 +254,7 @@ def main():
             samples = [original]
             distances.append(0.0)
 
-            lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, start_distance=0.1, end_distance=2.0, steps=args.n_steps)
+            lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, start_distance=0.0, end_distance=distance_max, steps=args.n_steps)
 
             for c, code in enumerate(lerped_codes):
                 lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
