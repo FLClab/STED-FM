@@ -64,8 +64,6 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
         setattr(cfg, key, value)
     cfg.pretrained = cfg.in_channels == 3
 
-    weights = kwargs.get("weights", None)
-
     if name == "mae-lightning-tiny":
         cfg.dim = 192
         cfg.batch_size = 256
