@@ -26,13 +26,13 @@ args = parser.parse_args()
 def load_dataset() -> torch.utils.data.Dataset: 
     if args.dataset == "quality":
         dataset = OptimQualityDataset(
-        data_folder=f"/home-local/Frederic/evaluation-data/optim_{args.split}",
-        num_samples={"actin": None},
-        apply_filter=True,
-        classes=['actin'],
-        high_score_threshold=0.70,
-        low_score_threshold=0.60,
-        n_channels=3 if "imagenet" in args.weights.lower() else 1
+            data_folder=f"/home-local/Frederic/evaluation-data/optim_{args.split}",
+            num_samples={"actin": None},
+            apply_filter=True,
+            classes=['actin'],
+            high_score_threshold=0.70,
+            low_score_threshold=0.60,
+            n_channels=3 if "imagenet" in args.weights.lower() else 1
         )
     elif args.dataset == "activity":
         dataset = ProteinActivityDataset(

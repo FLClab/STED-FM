@@ -31,10 +31,12 @@ parser.add_argument("--ckpt-path", type=str, default="/home-local/Frederic/basel
 parser.add_argument("--figure", action="store_true")
 parser.add_argument("--sanity-check", action="store_true")
 parser.add_argument("--direction", type=str, default="0Mg")
+parser.add_argument("--n-steps", type=int, default=5)
 args = parser.parse_args()
 
 def linear_interpolate(latent_code,
                        boundary,
+                       intercept,
                        start_distance=-4.0,
                        end_distance=4.0,
                        steps=8):
@@ -44,7 +46,7 @@ def linear_interpolate(latent_code,
 
   linspace = np.linspace(start_distance, end_distance, steps)
   if len(latent_code.shape) == 2:
-    linspace = linspace - latent_code.dot(boundary.T)
+    linspace = linspace - (latent_code.dot(boundary.T) + intercept)
     linspace = linspace.reshape(-1, 1).astype(np.float32)
     return latent_code + linspace * boundary, linspace
   if len(latent_code.shape) == 3:
@@ -187,6 +189,7 @@ def plot_sanity_check(block_features: np.ndarray, mg_features: np.ndarray):
         plt.close(fig)
 
 def plot_feature_path():
+    # TODO: update now that we don't include the sample features 
     mg_path = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to0Mg_RESULTS.npz")
     block_path = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_toBlock_RESULTS.npz")
     mg_proteins = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to0Mg_NUM_PROTEINS.npz")
@@ -243,6 +246,8 @@ def plot_feature_path():
     plt.close(fig)
 
 def plot_distance_distribution(distances_to_boundary: dict):
+    key1, key2 = list(distances_to_boundary.keys())
+    np.savez(f"./lerp-results/examples/activity/sanity-check/{args.weights}-activity-distance_distribution.npz", key1=distances_to_boundary[key1], key2=distances_to_boundary[key2])
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist(distances_to_boundary["Block"], bins=100, alpha=0.5, label="Block")
@@ -253,6 +258,15 @@ def plot_distance_distribution(distances_to_boundary: dict):
     ax.legend()
     fig.savefig(f"./lerp-results/wavelet_features/combined/distance_distribution.pdf", bbox_inches='tight')
     plt.close(fig)
+
+def load_distance_distribution() -> np.ndarray:
+    data = np.load(f"./lerp-results/examples/activity/sanity-check/{args.weights}-activity-distance_distribution.npz")
+    scores = data["key2"]
+    avg, std = np.mean(scores), np.std(scores)
+    print("--- SCORE STATISTICS ---")
+    print(np.min(scores), np.max(scores), np.mean(scores), np.std(scores))
+    print("---------------------\n")
+    return avg - (3*std), avg + (3*std)
 
 def main():
     if args.figure:
@@ -343,7 +357,9 @@ def main():
         }
 
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        boundary, _, _ = load_boundary(args.boundary)
+        boundary, intercept, _ = load_boundary(args.boundary)
+        distance_min, distance_max = load_distance_distribution()
+        print(f"\nMIN_DISTANCE: {distance_min} MAX_DISTANCE: {distance_max}\n")
         latent_encoder, model_config = get_pretrained_model_v2(
             name=args.latent_encoder,
             weights=args.weights,
@@ -388,12 +404,11 @@ def main():
         indices = np.arange(N)
         np.random.shuffle(indices)
         counter = 0
-        n_steps = 4  
 
         for i in tqdm(indices):
             distances = [] 
             features = []
-            all_features = np.zeros((n_steps+2, 7))
+            all_features = np.zeros((args.n_steps+1, 7))
             if counter >= args.num_samples:
                 break 
             img, metadata = dataset[i]
@@ -426,16 +441,16 @@ def main():
             original_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=latent_code, progress=True)
 
             original_sample_numpy = original_sample.squeeze().detach().cpu().numpy() 
-            samples = [original, original_sample_numpy]
-            sample_features, sample_mean_features = extract_features(original_sample_numpy)
-            RESULTS["sample"] = sample_features if counter == 0 else np.r_[RESULTS["sample"], sample_features]
-            NUM_PROTEINS["sample"].append(sample_mean_features[6])
-            all_features[1] = sample_mean_features
-            features.append(sample_features)
+            samples = [original]
+           #  sample_features, sample_mean_features = extract_features(original_sample_numpy)
+            # RESULTS["sample"] = sample_features if counter == 0 else np.r_[RESULTS["sample"], sample_features]
+            # NUM_PROTEINS["sample"].append(sample_mean_features[6])
+            # all_features[1] = sample_mean_features
+            # features.append(sample_features)
 
-            distances.extend([0.0, 0.0]) 
+            distances.append(0.0)
 
-            lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, start_distance=multiplier*1.0, end_distance=multiplier*4.0, steps=n_steps)
+            lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, start_distance=multiplier*0.0, end_distance=multiplier*distance_max, steps=args.n_steps)
 
             for c, code in enumerate(lerped_codes):
                 lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
