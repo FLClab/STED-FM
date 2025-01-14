@@ -189,6 +189,7 @@ def plot_sanity_check(block_features: np.ndarray, mg_features: np.ndarray):
         plt.close(fig)
 
 def plot_feature_path():
+    # TODO: update now that we don't include the sample features 
     mg_path = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to0Mg_RESULTS.npz")
     block_path = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_toBlock_RESULTS.npz")
     mg_proteins = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to0Mg_NUM_PROTEINS.npz")
