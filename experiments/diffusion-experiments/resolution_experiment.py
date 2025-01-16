@@ -26,6 +26,27 @@ parser.add_argument("--sanity-check", action="store_true")
 parser.add_argument("--n-steps", type=int, default=5)
 args = parser.parse_args()
 
+def compute_confidence_intervals(all_scores: np.ndarray, confidence: float = 0.80) -> tuple:
+    """Compute confidence intervals for scores at each step.
+    
+    Args:
+        all_scores: Array of shape (num_samples, num_steps) containing scores
+        confidence: Confidence level (default: 0.95 for 95% CI)
+    
+    Returns:
+        tuple: (lower_bounds, upper_bounds) arrays for the confidence intervals
+    """
+    from scipy import stats
+    
+    # Calculate mean and standard error for each step
+    means = np.mean(all_scores, axis=0)
+    se = stats.sem(all_scores, axis=0)
+    
+    # Calculate confidence intervals
+    ci = stats.t.interval(confidence, len(all_scores)-1, loc=means, scale=se)
+    
+    return ci[0], ci[1] 
+
 def linear_interpolate(latent_code,
                        boundary,
                        intercept,
@@ -128,6 +149,8 @@ def plot_results():
         all_resolutions, all_distances, original_resolutions = data["all_resolutions"], data["all_distances"], data["original_resolutions"]
         x = np.linspace(0.0, distance_max, distances.shape[0])
         axs[0].plot(x, resolutions, c=COLORS[weight], label=weight)
+        lower_bounds, upper_bounds = compute_confidence_intervals(all_resolutions)
+        # axs[0].fill_between(x, lower_bounds, upper_bounds, color=COLORS[weight], alpha=0.2)
         for i in range(all_resolutions.shape[0]):
             axs[1].scatter(all_distances[i], all_resolutions[i], c=[COLORS[weight]]*all_distances[i].shape[0], edgecolors="black")
     axs[0].legend()

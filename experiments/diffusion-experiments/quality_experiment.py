@@ -79,14 +79,35 @@ def linear_interpolate(latent_code,
   raise ValueError(f'Input `latent_code` should be with shape '
                    f'[1, latent_space_dim] but {latent_code.shape} was received.')
 
+def compute_confidence_intervals(all_scores: np.ndarray, confidence: float = 0.80) -> tuple:
+    """Compute confidence intervals for scores at each step.
+    
+    Args:
+        all_scores: Array of shape (num_samples, num_steps) containing scores
+        confidence: Confidence level (default: 0.95 for 95% CI)
+    
+    Returns:
+        tuple: (lower_bounds, upper_bounds) arrays for the confidence intervals
+    """
+    from scipy import stats
+    
+    # Calculate mean and standard error for each step
+    means = np.mean(all_scores, axis=0)
+    se = stats.sem(all_scores, axis=0)
+    
+    # Calculate confidence intervals
+    ci = stats.t.interval(confidence, len(all_scores)-1, loc=means, scale=se)
+    
+    return ci[0], ci[1] 
+
 def load_boundary() -> np.ndarray:
     print(f"--- Loading boundary trained from {args.weights} embeddings ---")
     data = np.load(f"./{args.boundary}-experiment/boundaries/{args.weights}_{args.boundary}_boundary.npz")
     boundary, intercept, norm = data["boundary"], data["intercept"], data["norm"]
     return boundary, intercept, norm
 
-def load_distance_distribution() -> np.ndarray:
-    data = np.load(f"./{args.boundary}-experiment/distributions/{args.weights}-quality-distance_distribution.npz")
+def load_distance_distribution(weight: str = args.weights) -> np.ndarray:
+    data = np.load(f"./{args.boundary}-experiment/distributions/{weight}-quality-distance_distribution.npz")
     scores = data["key2"]
     avg, std = np.mean(scores), np.std(scores)
     max_distance = np.max(scores) 
@@ -151,17 +172,31 @@ def save_examples(samples, distances, scores, raw_scores, index):
     plt.close(fig)
 
 def plot_results():
-    files = glob.glob(f"./{args.boundary}-experiment/correlation/quality/**-quality-correlation.npz")
-    fig = plt.figure()
+    files = glob.glob(f"./{args.boundary}-experiment/correlation/**-quality-correlation.npz")
+    fig, axs = plt.subplots(1, 2, figsize=(10, 5))
     for f in files:
-        weight = f.split("/")[-1].split("-")[0].replace("MAE_SMALL_", "")
+        w = f.split("/")[-1].split("-")[0]
+        weight = w.replace("MAE_SMALL_", "")
+        _, distance_max = load_distance_distribution(weight=w)
         data = np.load(f)
-        scores, distances, err = data["scores"], data["distances"], data["err"]
-        x = np.arange(distances.shape[0])
-        plt.plot(x, scores, c=COLORS[weight], label=weight)
-    plt.legend()
-    plt.xlabel("Distance from original embedding")
-    plt.ylabel("Score gain")
+        scores, distances, original_scores = data["all_scores"], data["all_distances"], data["original_scores"]
+        original_scores = np.array(original_scores)
+        mask = np.where(original_scores >= 0.10)
+        original_scores = original_scores[mask]
+        scores = scores[mask]
+        distances = distances[mask]
+        mean_scores = np.mean(scores, axis=0)
+        lower_bounds, upper_bounds = compute_confidence_intervals(scores)
+        x = np.linspace(0.0, distance_max, distances[0].shape[0])
+        axs[0].plot(x, mean_scores, c=COLORS[weight], label=weight)
+        # axs[0].fill_between(x, lower_bounds, upper_bounds, color=COLORS[weight], alpha=0.2)
+        for i in range(scores.shape[0]):
+            axs[1].scatter(distances[i], scores[i], c=[COLORS[weight]]*distances[i].shape[0], edgecolors="black")
+    axs[0].set_xlabel("Distance from boundary")
+    axs[0].set_ylabel("Score gain")
+    axs[0].legend()
+    axs[1].set_xlabel("Distance from original embedding")
+    axs[1].set_ylabel("Score gain")
     fig.savefig(f"./{args.boundary}-experiment/correlation/quality-correlation.pdf", bbox_inches="tight", dpi=1200)
     plt.close()
 
