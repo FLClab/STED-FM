@@ -173,6 +173,7 @@ class ViTSegmentationClassifier(torch.nn.Module):
         )
 
     def forward_encoder(self, x: torch.Tensor) -> torch.Tensor:
+        print(x.shape)
         features = self.backbone.forward_features(x)
         if self.global_pool == "token":
             features = features[:, 0, :] # class token 

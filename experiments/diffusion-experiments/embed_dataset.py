@@ -110,5 +110,5 @@ if __name__=="__main__":
     all_labels = np.array(all_labels)
     print(all_labels.shape)
 
-    np.savez(f"./lerp-results/embeddings/{args.dataset}/{args.weights}-{args.dataset}-embeddings_{args.split}.npz", embeddings=embeddings, labels=all_labels)
+    np.savez(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-embeddings_{args.split}.npz", embeddings=embeddings, labels=all_labels)
 
