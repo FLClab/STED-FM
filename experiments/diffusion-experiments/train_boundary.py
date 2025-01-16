@@ -11,7 +11,7 @@ parser.add_argument("--dataset", type=str, default="quality")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 args = parser.parse_args()
 
-PATH = f"./lerp-results/embeddings/{args.dataset}"
+PATH = f"./{args.dataset}-experiment/embeddings"
 
 
 def load_embedding(path: str ) -> Tuple[np.ndarray, np.ndarray]:
@@ -38,9 +38,9 @@ def main():
     norm = np.linalg.norm(boundary)
     intercept = clf.intercept_ / norm
     boundary = boundary / norm
-    with open(f"./lerp-results/boundaries/{args.dataset}/{args.weights}_{args.dataset}_svm.pkl", "wb") as f:
+    with open(f"./{args.dataset}-experiment/boundaries/{args.weights}_{args.dataset}_svm.pkl", "wb") as f:
         pickle.dump(clf, f)
-    np.savez(f"./lerp-results/boundaries/{args.dataset}/{args.weights}_{args.dataset}_boundary.npz", boundary=boundary, intercept=intercept, norm=norm)
+    np.savez(f"./{args.dataset}-experiment/boundaries/{args.weights}_{args.dataset}_boundary.npz", boundary=boundary, intercept=intercept, norm=norm)
 
 
 

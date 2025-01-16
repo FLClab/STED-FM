@@ -22,7 +22,8 @@ from collections.abc import Mapping
 from multiprocessing import Manager
 from torch.utils.data import Sampler, SubsetRandomSampler
 from torch.utils.tensorboard import SummaryWriter
-from torchsummary import summary
+# from torchsummary import summary
+from torchinfo import summary
 from lightly.utils.scheduler import CosineWarmupScheduler
 
 from decoders import get_decoder
@@ -241,7 +242,8 @@ if __name__ == "__main__":
     print(cfg)
 
     # Build the UNet model.
-    model = get_decoder(backbone, cfg)
+    model = get_decoder(backbone, cfg).to(DEVICE)
+    
     ckpt = checkpoint.get("model", None)
     if not ckpt is None:
         print("Restoring model...")

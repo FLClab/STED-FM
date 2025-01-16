@@ -39,7 +39,7 @@ class MAEDecoderWrapper(torch.nn.Module):
         idx_keep, idx_mask = lightly.models.utils.random_token_mask(
             size=(batch_size, self.sequence_length),
             mask_ratio=0.0,
-            device=images.device
+            device=x.device
         )
         print(idx_keep.shape, idx_mask.shape)
         x_encoded = self.mae.forward_encoder(x=x, idx_keep=idx_keep)

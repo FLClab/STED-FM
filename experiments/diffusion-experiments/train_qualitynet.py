@@ -3,7 +3,7 @@ import torch
 from torch import nn
 from QualityNet.networks import NetTrueFCN 
 import argparse 
-from attribute_datasets import get_dataset  
+from attribute_datasets import OptimQualityDataset
 from torch.utils.data import DataLoader 
 from utils import AverageMeter, SaveBestModel
 from tqdm import tqdm
@@ -32,14 +32,30 @@ def loss_tracker(train_loss: list, val_loss: list):
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.legend()
-    fig.savefig("./QualityNet/trained_models/loss_tracker.png", bbox_inches="tight")
+    fig.savefig("./QualityNet/trained_models/actin/loss_tracker.png", bbox_inches="tight")
     plt.close(fig)
 
 def main():
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    train_dataset, valid_dataset = get_dataset(name="quality", training=True)
-    train_dataloader = DataLoader(train_dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
-    valid_dataloader = DataLoader(valid_dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
+    # train_dataset, valid_dataset = get_dataset(name="quality", training=True)
+    train_dataset = OptimQualityDataset(
+        data_folder="/home-local/Frederic/evaluation-data/optim_train",
+        high_score_threshold=0.70,
+        low_score_threshold=0.70,
+        classes=["actin"],
+        num_samples={"actin": None},
+        n_channels=1
+    )
+    valid_dataset = OptimQualityDataset(
+        data_folder="/home-local/Frederic/evaluation-data/optim_valid",
+        high_score_threshold=0.70,
+        low_score_threshold=0.70,
+        classes=["actin"],
+        num_samples={"actin": None},
+        n_channels=1
+    )
+    train_dataloader = DataLoader(train_dataset, batch_size=128, shuffle=True, drop_last=False, num_workers=6)
+    valid_dataloader = DataLoader(valid_dataset, batch_size=128, shuffle=True, drop_last=False, num_workers=6)
 
     print(len(train_dataset), len(valid_dataset))
 
@@ -49,7 +65,7 @@ def main():
     criterion = nn.MSELoss()
 
     train_loss, val_loss = [], []
-    save_best_model = SaveBestModel(save_dir="./QualityNet/trained_models", model_name="qualitynet", maximize=False)
+    save_best_model = SaveBestModel(save_dir="./QualityNet/trained_models/actin", model_name="qualitynet", maximize=False)
     for epoch in range(args.epochs):
         model.train()
         loss_meter = AverageMeter()
