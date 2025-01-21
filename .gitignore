@@ -1,4 +1,5 @@
-experiments/segmentation-experiments/alexa-script.sh
+experiments/diffusion-experiments/resolution-experiment/correlation/
+experiments/diffusion-experiments/resolution-experiment/distributions/
 experiments/diffusion-experiments/lerp-results/
 experiments/diffusion-experiments/mae-lightning-small-MAE_SMALL_STED-optimquality-embeddings_train.npz
 experiments/diffusion-experiments/model-checkpoints/
