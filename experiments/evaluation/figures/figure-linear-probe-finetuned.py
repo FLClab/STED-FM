@@ -94,7 +94,7 @@ def main():
         ],
         fontsize=8
     )
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_linear-probe-finetuned"), extension="png", save_white=True)
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_linear-probe-finetuned"), extension="pdf")
 
     # Calculate statistics
     values = []
