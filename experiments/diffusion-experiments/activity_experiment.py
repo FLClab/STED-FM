@@ -26,13 +26,36 @@ parser.add_argument("--latent-encoder", type=str, default="mae-lightning-small")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--timesteps", type=int, default=1000)
 parser.add_argument("--boundary", type=str, default="activity")
-parser.add_argument("--num-samples", type=int, default=5)
+parser.add_argument("--num-samples", type=int, default=20)
 parser.add_argument("--ckpt-path", type=str, default="/home-local/Frederic/baselines/DiffusionModels/latent-guidance")
 parser.add_argument("--figure", action="store_true")
 parser.add_argument("--sanity-check", action="store_true")
 parser.add_argument("--direction", type=str, default="0Mg")
 parser.add_argument("--n-steps", type=int, default=5)
 args = parser.parse_args()
+
+
+def compute_confidence_intervals(all_scores: np.ndarray, confidence: float = 0.80) -> tuple:
+    """Compute confidence intervals for scores at each step.
+    
+    Args:
+        all_scores: Array of shape (num_samples, num_steps) containing scores
+        confidence: Confidence level (default: 0.95 for 95% CI)
+    
+    Returns:
+        tuple: (lower_bounds, upper_bounds) arrays for the confidence intervals
+    """
+    from scipy import stats
+    
+    # Calculate mean and standard error for each step
+    means = np.mean(all_scores, axis=0)
+    se = stats.sem(all_scores, axis=0)
+    
+    # Calculate confidence intervals
+    ci = stats.t.interval(confidence, len(all_scores)-1, loc=means, scale=se)
+    
+    return ci[0], ci[1] 
+
 
 def linear_interpolate(latent_code,
                        boundary,
@@ -56,12 +79,12 @@ def linear_interpolate(latent_code,
                    f'[1, latent_space_dim] but {latent_code.shape} was received.')
 
 def load_svm():
-    with open(f"./lerp-results/boundaries/{args.boundary}/{args.weights}_{args.boundary}_svm.pkl", "rb") as f:
+    with open(f"./{args.boundary}-experiment/boundaries/{args.weights}_{args.boundary}_svm.pkl", "rb") as f:
         return pickle.load(f)
 
 def load_boundary() -> np.ndarray:
     print(f"--- Loading boundary trained from {args.weights} embeddings ---")
-    data = np.load(f"./lerp-results/boundaries/{args.boundary}/{args.weights}_{args.boundary}_boundary.npz")
+    data = np.load(f"./{args.boundary}-experiment/boundaries/{args.weights}_{args.boundary}_boundary.npz")
     boundary, intercept, norm = data["boundary"], data["intercept"], data["norm"]
     return boundary, intercept, norm
 
@@ -111,10 +134,13 @@ def plot_features(features: np.ndarray, distances: np.ndarray, index: int):
 
     fig = plt.figure(figsize=(5,5))
     plt.imshow(features, cmap='viridis')
-    plt.yticks([0, 1, 2, 3, 4, 5], ["0", "0", "1", "2", "3", "4"])
+    plt.yticks([0, 1, 2, 3, 4, 5], ["Block" if args.direction == "0Mg" else "0Mg", "1", "2", "3", "4", "5"])
     plt.xticks([0, 1, 2, 3, 4, 5, 6], ["area", "perimeter","mean intensity", "eccentricity", "solidity", "1nn_dist", "num_proteins"], rotation=-45)
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
-    fig.savefig(f"./lerp-results/wavelet_features/{args.weights}_{args.boundary}_wavelet_{index}_to{args.direction}.png", bbox_inches='tight')
+    plt.colorbar()
+    # fig.savefig(f"./{args.boundary}-experiment/examples/{args.weights}-features_{index}_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
+    fig.savefig("./temp.pdf", dpi=1200)
+    exit()
 
 def save_examples(samples, distances, index):
     N = len(samples)
@@ -126,11 +152,24 @@ def save_examples(samples, distances, index):
         axs[i].set_title("Distance: {:.2f}".format(d))
         axs[i].axis("off")
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
-    fig.savefig(f"./lerp-results/examples/activity/{args.weights}-image_{index}_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
+    fig.savefig(f"./{args.boundary}-experiment/examples/{args.weights}-image_{index}_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
     plt.close(fig)
 
+def plot_distance_distribution(distances_to_boundary: dict):
+    key1, key2 = list(distances_to_boundary.keys())
+    np.savez(f"./{args.boundary}-experiment/distributions/{args.weights}-activity-distance_distribution.npz", key1=distances_to_boundary[key1], key2=distances_to_boundary[key2])
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(distances_to_boundary["Block"], bins=50, alpha=0.5, color='fuchsia', label="Block")
+    ax.hist(distances_to_boundary["0Mg"], bins=50, alpha=0.5, color='dodgerblue', label="0Mg")
+    ax.axvline(0.0, color='black', linestyle='--', label="Decision boundary")
+    ax.set_xlabel("Distance")
+    ax.set_ylabel("Frequency")
+    ax.legend()
+    fig.savefig(f"./{args.boundary}-experiment/distributions/{args.weights}-resolution-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
+    plt.close(fig)
 
-def plot_results():
+def plot_results_old():
     results = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to{args.direction}_RESULTS.npz")
     num_proteins = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to{args.direction}_NUM_PROTEINS.npz")
     features = ["area", "perimeter", "mean_intensity", "eccentricity", "solidity", "1nn_dist"]
@@ -150,7 +189,7 @@ def plot_results():
         ax.set_xlabel("Distance")
         ax.set_xticks([1, 2, 3, 4, 5, 6], ["0", "0", "1", "2", "3", "4"])
         
-        fig.savefig(f"./lerp-results/wavelet_features/combined/{f}_to{args.direction}.pdf", bbox_inches='tight')
+        fig.savefig(f"./{args.boundary}-experiment/features/{args.weights}-{f}_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
         plt.close(fig)
 
         # Image-wise number of proteins violin plot
@@ -166,34 +205,94 @@ def plot_results():
         ax.set_xlabel("Distance")
         ax.set_xticks([1, 2, 3, 4, 5, 6], ["0", "0", "1", "2", "3", "4"])
         
-        fig.savefig(f"./lerp-results/wavelet_features/combined/num_proteins_to{args.direction}.pdf", bbox_inches='tight')
+        fig.savefig(f"./{args.boundary}-experiment/features/num_proteins_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
         plt.close(fig)
+
+def plot_results() -> None:
+    features = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to{args.direction}_RESULTS.npz")
+    num_proteins = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to{args.direction}_NUM_PROTEINS.npz")
+    feature_names = ["area", "perimeter", "mean_intensity", "eccentricity", "solidity", "1nn_dist"]
+    keys = list(features.keys())
+    train_features = np.load(f"./{args.boundary}-experiment/features/train-features.npz")
+    block_features, mg_features = train_features["block_features"], train_features["mg_features"]
+    # block_features, mg_features = np.array(block_features), np.array(mg_features)   
+    for i, f in enumerate(feature_names):
+        data = [features[k][:, i] for k in keys] 
+        block_data = block_features[:, i]
+        mg_data = mg_features[:, i] 
+        data.insert(0, block_data)
+        data.append( mg_data)
+        
+    
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        parts = ax.boxplot(data, medianprops={'color': 'black'}, showfliers=False, patch_artist=True)
+        N = len(data)
+        for i, pc in enumerate(parts['boxes']):
+            color = "grey"
+            if i == 0:
+                color = "fuchsia" 
+            if i == N - 1:
+                color = "dodgerblue"
+            pc.set_facecolor(color)
+            pc.set_alpha(0.7)
+        ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8], ["Block", "0", "1", "2", "3", "4", "5", "0Mg"])
+        fig.savefig(f"./{args.boundary}-experiment/results/{args.weights}-{f}-with-train.pdf", dpi=1200, bbox_inches='tight')
+        plt.close(fig)
+
+    data = [num_proteins[k] for k in keys]
+    block_data = block_features[:, -1]
+    mg_data = mg_features[:, -1]
+    data.insert(0, block_data)
+    data.append(mg_data) 
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    parts = ax.boxplot(data, medianprops={'color': 'black'}, showfliers=False, patch_artist=True)
+    for i, pc in enumerate(parts['boxes']):
+        color = "grey"
+        if i == 0:
+            color = "fuchsia" 
+        if i == N - 1:
+            color = "dodgerblue"
+        pc.set_facecolor(color)
+        pc.set_alpha(0.7)
+    ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8], ["Block", "0", "1", "2", "3", "4", "5", "0Mg"])
+    fig.savefig(f"./{args.boundary}-experiment/results/num_proteins-with-train.pdf", dpi=1200, bbox_inches='tight')
+    plt.close(fig)
 
 def plot_sanity_check(block_features: np.ndarray, mg_features: np.ndarray):
     keys = ["Block", "0Mg"]
-    np.savez(f"./lerp-results/wavelet_features/sanity-check/train-features.npz", block_features=block_features, mg_features=mg_features)
+    np.savez(f"./{args.boundary}-experiment/features/train-features.npz", block_features=block_features, mg_features=mg_features)
     features = ["area", "perimeter", "mean_intensity", "eccentricity", "solidity", "1nn_dist", "num_proteins"]
     for i, f in enumerate(features):
         data = [ary[:, i] for ary in [block_features, mg_features]]
         fig = plt.figure()
         ax = fig.add_subplot(111)
-        parts = ax.boxplot(data, medianprops={'color': 'black'}, patch_artist=True)
-        for pc in parts['boxes']:
-            pc.set_facecolor('grey')
-            pc.set_alpha(0.7)
-    
+        parts = ax.violinplot(data, positions=[1.0, 1.6], showmeans=True)
+        for i, pc in enumerate(parts['bodies']):
+            color = "fuchsia" if i == 0 else "dodgerblue"
+            pc.set_facecolor(color)
+            pc.set_edgecolor('black')
+            pc.set_linewidth(1.5)
+
+        parts['cmeans'].set_color('black')
+        parts['cmeans'].set_
+        parts['cbars'].set_color('black')
+        parts['cmins'].set_color('black')
+        parts['cmaxes'].set_color('black')  
         plt.ylabel(f)
-        plt.xticks([1, 2], ["Block", "0Mg"])
+        plt.xticks([1.0, 1.6], ["Block", "0Mg"])
+        # plt.xlim([0.5, 1.0])
         
-        fig.savefig(f"./lerp-results/wavelet_features/sanity-check/{f}.pdf", bbox_inches='tight')
+        fig.savefig(f"./{args.boundary}-experiment/features/{args.weights}-{f}.pdf", dpi=1200, bbox_inches='tight')
         plt.close(fig)
 
 def plot_feature_path():
     # TODO: update now that we don't include the sample features 
-    mg_path = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to0Mg_RESULTS.npz")
-    block_path = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_toBlock_RESULTS.npz")
-    mg_proteins = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to0Mg_NUM_PROTEINS.npz")
-    block_proteins = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_toBlock_NUM_PROTEINS.npz")
+    mg_path = np.load(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to0Mg_RESULTS.npz")
+    block_path = np.load(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_toBlock_RESULTS.npz")
+    mg_proteins = np.load(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to0Mg_NUM_PROTEINS.npz")
+    block_proteins = np.load(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_toBlock_NUM_PROTEINS.npz")
     keys_to = list(mg_path.keys())
     keys_back = list(block_path.keys())
     keys_to.remove("sample")
@@ -228,7 +327,7 @@ def plot_feature_path():
     ax.set_xlabel("Distance")
     ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], ["Block", "1", "2", "3", "4", "0Mg", "4", "3", "2", "1", "Block"])
     
-    fig.savefig(f"./lerp-results/wavelet_features/combined/area_full_path.pdf", bbox_inches='tight')
+    fig.savefig(f"./{args.boundary}-experiment/features/area_full_path.pdf", dpi=1200, bbox_inches='tight')
     plt.close(fig)
 
     fig = plt.figure()
@@ -242,36 +341,20 @@ def plot_feature_path():
     ax.set_xlabel("Distance")
     ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], ["Block", "1", "2", "3", "4", "0Mg", "4", "3", "2", "1", "Block"])
     
-    fig.savefig(f"./lerp-results/wavelet_features/combined/num_proteins_full_path.pdf", bbox_inches='tight')
-    plt.close(fig)
-
-def plot_distance_distribution(distances_to_boundary: dict):
-    key1, key2 = list(distances_to_boundary.keys())
-    np.savez(f"./lerp-results/examples/activity/sanity-check/{args.weights}-activity-distance_distribution.npz", key1=distances_to_boundary[key1], key2=distances_to_boundary[key2])
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.hist(distances_to_boundary["Block"], bins=100, alpha=0.5, label="Block")
-    ax.hist(distances_to_boundary["0Mg"], bins=100, alpha=0.5, label="0Mg")
-    ax.axvline(0.0, color="black", linestyle="--", label="Decision boundary")
-    ax.set_xlabel("Distance")
-    ax.set_ylabel("Frequency")
-    ax.legend()
-    fig.savefig(f"./lerp-results/wavelet_features/combined/distance_distribution.pdf", bbox_inches='tight')
+    fig.savefig(f"./{args.boundary}-experiment/features/num_proteins_full_path.pdf", dpi=1200, bbox_inches='tight')
     plt.close(fig)
 
 def load_distance_distribution() -> np.ndarray:
-    data = np.load(f"./lerp-results/examples/activity/sanity-check/{args.weights}-activity-distance_distribution.npz")
+    data = np.load(f"./{args.boundary}-experiment/distributions/{args.weights}-activity-distance_distribution.npz")
     scores = data["key2"]
     avg, std = np.mean(scores), np.std(scores)
-    print("--- SCORE STATISTICS ---")
-    print(np.min(scores), np.max(scores), np.mean(scores), np.std(scores))
-    print("---------------------\n")
-    return avg - (3*std), avg + (3*std)
+    distance_max = np.max(scores)
+    return avg - (3*std), distance_max * 8
 
 def main():
     if args.figure:
         plot_results()
-        plot_feature_path()
+        # plot_feature_path()
     elif args.sanity_check:
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         boundary, intercept, norm = load_boundary()
@@ -349,17 +432,17 @@ def main():
         RESULTS = {}
         NUM_PROTEINS = {
             "original": [],
-            "sample": [],
             "lerp_1": [],
             "lerp_2": [],
             "lerp_3": [],
             "lerp_4": [],
+            "lerp_5": [],
         }
 
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        boundary, intercept, _ = load_boundary(args.boundary)
+        boundary, intercept, _ = load_boundary()
         distance_min, distance_max = load_distance_distribution()
-        print(f"\nMIN_DISTANCE: {distance_min} MAX_DISTANCE: {distance_max}\n")
+        print(f"--- Moving from 0.0 to {distance_max} ---")
         latent_encoder, model_config = get_pretrained_model_v2(
             name=args.latent_encoder,
             weights=args.weights,
@@ -438,9 +521,9 @@ def main():
 
             latent_code = diffusion_model.latent_encoder.forward_features(img)
             numpy_code = latent_code.detach().cpu().numpy()
-            original_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=latent_code, progress=True)
+            # original_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=latent_code, progress=True)
 
-            original_sample_numpy = original_sample.squeeze().detach().cpu().numpy() 
+            # original_sample_numpy = original_sample.squeeze().detach().cpu().numpy() 
             samples = [original]
            #  sample_features, sample_mean_features = extract_features(original_sample_numpy)
             # RESULTS["sample"] = sample_features if counter == 0 else np.r_[RESULTS["sample"], sample_features]
@@ -450,7 +533,7 @@ def main():
 
             distances.append(0.0)
 
-            lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, start_distance=multiplier*0.0, end_distance=multiplier*distance_max, steps=args.n_steps)
+            lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept,start_distance=multiplier*0.0, end_distance=multiplier*distance_max, steps=args.n_steps)
 
             for c, code in enumerate(lerped_codes):
                 lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
@@ -460,7 +543,7 @@ def main():
                 RESULTS["lerp_" + str(c+1)] = lerped_sample_features if counter == 0 else np.r_[RESULTS["lerp_" + str(c+1)], lerped_sample_features]
                 samples.append(lerped_sample_numpy)
                 NUM_PROTEINS["lerp_" + str(c+1)].append(lerped_sample_mean_features[6])
-                all_features[c+2] = lerped_sample_mean_features
+                all_features[c+1] = lerped_sample_mean_features
                 features.append(lerped_sample_features)
                 distances.append(abs(d[c][0]))
          
@@ -470,8 +553,8 @@ def main():
 
             plot_features(features=all_features, distances=distances, index=counter)
             save_examples(samples, distances, counter)
-        np.savez(f"./lerp-results/wavelet_features/{args.weights}_{args.boundary}_all_to{args.direction}_RESULTS.npz", **RESULTS)
-        np.savez(f"./lerp-results/wavelet_features/{args.weights}_{args.boundary}_all_to{args.direction}_NUM_PROTEINS.npz", **NUM_PROTEINS)
+        np.savez(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to{args.direction}_RESULTS.npz", **RESULTS)
+        np.savez(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to{args.direction}_NUM_PROTEINS.npz", **NUM_PROTEINS)
 
 
 if __name__ == "__main__":
