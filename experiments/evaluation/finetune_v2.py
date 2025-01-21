@@ -25,7 +25,7 @@ from loaders import get_dataset
 from model_builder import get_pretrained_model_v2 
 from utils import SaveBestModel, AverageMeter, ScoreTracker, compute_Nary_accuracy, track_loss_steps, update_cfg, get_number_of_classes
 
-plt.style.use("dark_background")
+# plt.style.use("dark_background")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)

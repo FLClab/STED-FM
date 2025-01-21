@@ -19,12 +19,33 @@ parser.add_argument("--latent-encoder", type=str, default="mae-lightning-small")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--timesteps", type=int, default=1000)
 parser.add_argument("--boundary", type=str, default="resolution")
-parser.add_argument("--num-samples", type=int, default=10)
+parser.add_argument("--num-samples", type=int, default=12)
 parser.add_argument("--ckpt-path", type=str, default="/home-local/Frederic/baselines/DiffusionModels/latent-guidance")
 parser.add_argument("--figure", action="store_true")
 parser.add_argument("--sanity-check", action="store_true")
 parser.add_argument("--n-steps", type=int, default=5)
 args = parser.parse_args()
+
+def compute_confidence_intervals(all_scores: np.ndarray, confidence: float = 0.80) -> tuple:
+    """Compute confidence intervals for scores at each step.
+    
+    Args:
+        all_scores: Array of shape (num_samples, num_steps) containing scores
+        confidence: Confidence level (default: 0.95 for 95% CI)
+    
+    Returns:
+        tuple: (lower_bounds, upper_bounds) arrays for the confidence intervals
+    """
+    from scipy import stats
+    
+    # Calculate mean and standard error for each step
+    means = np.mean(all_scores, axis=0)
+    se = stats.sem(all_scores, axis=0)
+    
+    # Calculate confidence intervals
+    ci = stats.t.interval(confidence, len(all_scores)-1, loc=means, scale=se)
+    
+    return ci[0], ci[1] 
 
 def linear_interpolate(latent_code,
                        boundary,
@@ -87,6 +108,32 @@ def plot_distance_distribution(distances_to_boundary: dict):
     fig.savefig(f"./{args.boundary}-experiment/distributions/{args.weights}-resolution-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
+def plot_resolution_distributions(resolutions: dict) -> None:
+    key1, key2 = list(resolutions.keys())
+    np.savez(f"./{args.boundary}-experiment/distributions/{args.weights}-resolution-resolution_distribution.npz", key1=resolutions[key1], key2=resolutions[key2])
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    k1_mean, k2_mean = np.mean(resolutions[key1]), np.mean(resolutions[key2])
+    res1 = np.array(resolutions[key1])
+    mask1 = np.where(res1 < 300)
+    res1 = res1[mask1] 
+    res2 = np.array(resolutions[key2])
+    mask2 = np.where(res2 < 300)
+    res2 = res2[mask2]
+    k1_mean, k2_mean = np.mean(res1), np.mean(res2)
+    ax.hist(res1, bins=50, alpha=0.5, color='fuchsia', label="Low")
+    ax.hist(res2, bins=50, alpha=0.5, color='dodgerblue', label="High")
+
+    ax.axvline(k1_mean, color='fuchsia', linestyle='--', label="Low mean")
+    ax.text(k1_mean -5, ax.get_ylim()[1]*0.9, f'{k1_mean:.2f}', color='fuchsia', ha='center')
+    ax.axvline(k2_mean, color='dodgerblue', linestyle='--', label="High mean")
+    ax.text(k2_mean - 5, ax.get_ylim()[1]*0.9, f'{k2_mean:.2f}', color='dodgerblue', ha='center')
+    ax.set_xlabel("Resolution")
+    ax.set_ylabel("Frequency")
+    ax.legend()
+    fig.savefig(f"./{args.boundary}-experiment/distributions/{args.weights}-resolution-resolution_distribution.pdf", dpi=1200, bbox_inches="tight")
+    plt.close(fig)
+
 def plot_correlation(all_resolutions, all_distances, original_resolutions):
     resolutions = np.mean(all_resolutions, axis=0)
     distances = np.mean(all_distances, axis=0)
@@ -118,7 +165,9 @@ def plot_correlation(all_resolutions, all_distances, original_resolutions):
 
 def plot_results():
     files = glob.glob(f"./{args.boundary}-experiment/correlation/**-resolution-correlation.npz")
-    fig, axs = plt.subplots(1,2, figsize=(10,5))
+    # fig, axs = plt.subplots(1,2, figsize=(10,5))
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
     for f in files:
         w = f.split("/")[-1].split("-")[0]
         weight = w.replace("MAE_SMALL_", "")
@@ -127,15 +176,60 @@ def plot_results():
         resolutions, distances, err = data["resolutions"], data["distances"], data["err"]
         all_resolutions, all_distances, original_resolutions = data["all_resolutions"], data["all_distances"], data["original_resolutions"]
         x = np.linspace(0.0, distance_max, distances.shape[0])
-        axs[0].plot(x, resolutions, c=COLORS[weight], label=weight)
-        for i in range(all_resolutions.shape[0]):
-            axs[1].scatter(all_distances[i], all_resolutions[i], c=[COLORS[weight]]*all_distances[i].shape[0], edgecolors="black")
-    axs[0].legend()
-    axs[0].set_xlabel("Distance from boundary")
-    axs[0].set_ylabel("Resolution")
-    axs[1].set_xlabel("Distance from embedding")
-    axs[1].set_ylabel("Resolution")
+        # axs[0].plot(x, resolutions, c=COLORS[weight], label=weight)
+        lower_bounds, upper_bounds = compute_confidence_intervals(all_resolutions)
+        # axs[0].fill_between(x, lower_bounds, upper_bounds, color=COLORS[weight], alpha=0.2)
+        ax.plot(x, resolutions, c=COLORS[weight], label=weight, marker='o')
+        # for i in range(all_resolutions.shape[0]):
+        #     axs[1].scatter(all_distances[i], all_resolutions[i], c=[COLORS[weight]]*all_distances[i].shape[0], edgecolors="black")
+    # axs[0].legend()
+    # axs[0].set_xlabel("Distance from boundary")
+    # axs[0].set_ylabel("Resolution")
+    # axs[1].set_xlabel("Distance from embedding")
+    # axs[1].set_ylabel("Resolution")
+    ax.set_xlabel("Distance from boundary")
+    ax.set_ylabel("Resolution")
+    ax.legend()
     fig.savefig(f"./{args.boundary}-experiment/correlation/resolution-correlation.pdf", bbox_inches="tight", dpi=1200)
+    plt.close()
+
+
+def cumulative_regret() -> None:
+    files = glob.glob(f"./{args.boundary}-experiment/correlation/**-resolution-correlation.npz")
+    fig = plt.figure(figsize=(12, 5))
+    ax1 = fig.add_subplot(121)
+    ax2 = fig.add_subplot(122)
+    for f in files:
+        w = f.split("/")[-1].split("-")[0]
+        weight = w.replace("MAE_SMALL_", "")
+        data = np.load(f)
+        distance_min, distance_max = load_distance_distribution(weight=w)
+        all_resolutions, all_distances, original_resolutions = data["all_resolutions"], data["all_distances"], data["original_resolutions"]
+        resolutions, distances = np.mean(all_resolutions, axis=0), np.mean(all_distances, axis=0)
+
+        regret_per_image = []
+        image_distances = []
+        for i in range(all_resolutions.shape[0]):
+            res = all_resolutions[i]
+            d = all_distances[i][1]
+            image_distances.append(d)
+            image_regret = 0.0
+            for j in range(1, res.shape[0]):
+                diff = res[j] - res[j-1] 
+                if diff >= 0: 
+                    image_regret += diff
+            regret_per_image.append(image_regret)
+            
+        regret_per_image = np.cumsum(regret_per_image)
+        x = np.arange(len(regret_per_image))
+        ax1.plot(x, regret_per_image, c=COLORS[weight], label=weight, marker='o')
+        ax2.scatter(image_distances, regret_per_image, c=COLORS[weight], label=weight)
+    ax1.set_xlabel("Image index")
+    ax1.set_ylabel("Cumulative regret (nm)")
+    ax2.set_xlabel("Distance from boundary")
+    ax2.set_ylabel("Image regret (nm)")
+    ax1.legend()
+    fig.savefig(f"./{args.boundary}-experiment/correlation/{args.weights}-regret.pdf", bbox_inches="tight", dpi=1200)
     plt.close()
 
 
@@ -149,6 +243,7 @@ def load_distance_distribution(weight: str = args.weights) -> np.ndarray:
 def main():
     if args.figure:
         plot_results()
+        cumulative_regret()
     elif args.sanity_check:
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         boundary, intercept, norm = load_boundary()
@@ -179,6 +274,7 @@ def main():
         np.random.shuffle(indices)
 
         distances_to_boundary = {"low": [], "high": []}
+        train_resolutions = {"low": [], "high": []}
         with torch.no_grad():
             for i in tqdm(indices, total=N):
                 img, metadata = dataset[i]
@@ -190,7 +286,11 @@ def main():
                 d = d[0][0]
                 key = "low" if label == 0 else "high"
                 distances_to_boundary[key].append(d)
+                img_numpy = img.squeeze().detach().cpu().numpy()
+                resolution = compute_resolution(img_numpy)
+                train_resolutions[key].append(resolution)
         plot_distance_distribution(distances_to_boundary)
+        plot_resolution_distributions(train_resolutions)
     else:   
         np.random.seed(42)
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")

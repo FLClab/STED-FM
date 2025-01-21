@@ -35,8 +35,8 @@ def get_save_folder(key: str) -> str:
         return "STED"
     elif "jump" in key.lower():
         return "JUMP"
-    elif "ctc" in key.lower():
-        return "CTC"
+    elif "sim" in key.lower():
+        return "SIM"
     elif "hpa" in key.lower():
         return "HPA"
     elif "sim" in key.lower():
@@ -48,13 +48,13 @@ def save_image(image: np.ndarray, generation: np.ndarray, i: int, class_name: st
     fig = plt.figure()
     plt.imshow(image, cmap='hot')
     plt.axis("off")
-    plt.savefig(f"./classification-study/{args.guidance}-guidance/templates/template{i}_{class_name}.png", dpi=1200, bbox_inches="tight")
+    plt.savefig(f"./classification-study/{args.guidance}-guidance/templates/template{i}_{class_name}.pdf", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
     fig = plt.figure()
     plt.imshow(generation, cmap='hot')
     plt.axis("off")
-    plt.savefig(f"./classification-study/{args.guidance}-guidance/candidates/{args.weights}_template{i}_{class_name}.png", dpi=1200, bbox_inches="tight")
+    plt.savefig(f"./classification-study/{args.guidance}-guidance/candidates/{args.weights}_template{i}_{class_name}.pdf", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
 def main():

@@ -79,14 +79,35 @@ def linear_interpolate(latent_code,
   raise ValueError(f'Input `latent_code` should be with shape '
                    f'[1, latent_space_dim] but {latent_code.shape} was received.')
 
+def compute_confidence_intervals(all_scores: np.ndarray, confidence: float = 0.80) -> tuple:
+    """Compute confidence intervals for scores at each step.
+    
+    Args:
+        all_scores: Array of shape (num_samples, num_steps) containing scores
+        confidence: Confidence level (default: 0.95 for 95% CI)
+    
+    Returns:
+        tuple: (lower_bounds, upper_bounds) arrays for the confidence intervals
+    """
+    from scipy import stats
+    
+    # Calculate mean and standard error for each step
+    means = np.mean(all_scores, axis=0)
+    se = stats.sem(all_scores, axis=0)
+    
+    # Calculate confidence intervals
+    ci = stats.t.interval(confidence, len(all_scores)-1, loc=means, scale=se)
+    
+    return ci[0], ci[1] 
+
 def load_boundary() -> np.ndarray:
     print(f"--- Loading boundary trained from {args.weights} embeddings ---")
     data = np.load(f"./{args.boundary}-experiment/boundaries/{args.weights}_{args.boundary}_boundary.npz")
     boundary, intercept, norm = data["boundary"], data["intercept"], data["norm"]
     return boundary, intercept, norm
 
-def load_distance_distribution() -> np.ndarray:
-    data = np.load(f"./{args.boundary}-experiment/distributions/{args.weights}-quality-distance_distribution.npz")
+def load_distance_distribution(weight: str = args.weights) -> np.ndarray:
+    data = np.load(f"./{args.boundary}-experiment/distributions/{weight}-quality-distance_distribution.npz")
     scores = data["key2"]
     avg, std = np.mean(scores), np.std(scores)
     max_distance = np.max(scores) 
@@ -151,17 +172,37 @@ def save_examples(samples, distances, scores, raw_scores, index):
     plt.close(fig)
 
 def plot_results():
-    files = glob.glob(f"./{args.boundary}-experiment/correlation/quality/**-quality-correlation.npz")
+    files = glob.glob(f"./{args.boundary}-experiment/correlation/**-quality-correlation.npz")
+    # fig, axs = plt.subplots(1, 2, figsize=(10, 5))
     fig = plt.figure()
+    ax = fig.add_subplot(111)
     for f in files:
-        weight = f.split("/")[-1].split("-")[0].replace("MAE_SMALL_", "")
+        w = f.split("/")[-1].split("-")[0]
+        weight = w.replace("MAE_SMALL_", "")
+        _, distance_max = load_distance_distribution(weight=w)
         data = np.load(f)
-        scores, distances, err = data["scores"], data["distances"], data["err"]
-        x = np.arange(distances.shape[0])
-        plt.plot(x, scores, c=COLORS[weight], label=weight)
-    plt.legend()
-    plt.xlabel("Distance from original embedding")
-    plt.ylabel("Score gain")
+        scores, distances, original_scores = data["all_scores"], data["all_distances"], data["original_scores"]
+        original_scores = np.array(original_scores)
+        mask = np.where(original_scores >= 0.10)
+        original_scores = original_scores[mask]
+        scores = scores[mask]
+        distances = distances[mask]
+        mean_scores = np.mean(scores, axis=0)
+        #lower_bounds, upper_bounds = compute_confidence_intervals(scores)
+        x = np.linspace(0.0, distance_max, distances[0].shape[0])
+        ax.plot(x, mean_scores, c=COLORS[weight], label=weight, marker='o')
+        #ax.fill_between(x, lower_bounds, upper_bounds, color=COLORS[weight], alpha=0.2)
+        # axs[0].fill_between(x, lower_bounds, upper_bounds, color=COLORS[weight], alpha=0.2)
+        # for i in range(scores.shape[0]):
+        #     axs[1].scatter(distances[i], scores[i], c=[COLORS[weight]]*distances[i].shape[0], edgecolors="black")
+    # axs[0].set_xlabel("Distance from boundary")
+    # axs[0].set_ylabel("Score gain")
+    # axs[0].legend()
+    # axs[1].set_xlabel("Distance from original embedding")
+    # axs[1].set_ylabel("Score gain")
+    ax.set_xlabel("Distance from boundary")
+    ax.set_ylabel("Score gain")
+    ax.legend()
     fig.savefig(f"./{args.boundary}-experiment/correlation/quality-correlation.pdf", bbox_inches="tight", dpi=1200)
     plt.close()
 
@@ -179,9 +220,48 @@ def plot_distance_distribution(distances_to_boundary: dict):
     fig.savefig(f"./{args.boundary}-experiment/distributions/{args.weights}-quality-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
+def cumulative_regret() -> None:
+    files = glob.glob(f"./{args.boundary}-experiment/correlation/**-quality-correlation.npz")
+    fig = plt.figure(figsize=(12, 5))
+    ax1 = fig.add_subplot(121)
+    ax2 = fig.add_subplot(122)
+    for f in files:
+        w = f.split("/")[-1].split("-")[0]
+        weight = w.replace("MAE_SMALL_", "")
+        data = np.load(f)
+        distance_min, distance_max = load_distance_distribution(weight=w)
+        all_scores, all_distances, original_scores = data["all_scores"], data["all_distances"], data["original_scores"]
+
+        regret_per_image = []
+        image_distances = []
+        for i in range(all_scores.shape[0]):
+            res = all_scores[i]
+            d = all_distances[i][1]
+            image_distances.append(d)
+            image_regret = 0.0
+            for j in range(1, res.shape[0]):
+                diff = res[j] - res[j-1] 
+                if diff >= 0: 
+                    image_regret += diff
+            regret_per_image.append(image_regret)
+            
+        regret_per_image = np.cumsum(regret_per_image)
+        x = np.arange(len(regret_per_image))
+        ax1.plot(x, regret_per_image, c=COLORS[weight], label=weight, marker='o')
+        ax2.scatter(image_distances, regret_per_image, c=COLORS[weight], label=weight)
+    ax1.set_xlabel("Image index")
+    ax1.set_ylabel("Cumulative regret (quality score)")
+    ax2.set_xlabel("Distance from boundary")
+    ax2.set_ylabel("Image regret (quality score)")
+    ax1.legend()
+    fig.savefig(f"./{args.boundary}-experiment/correlation/{args.weights}-regret.pdf", bbox_inches="tight", dpi=1200)
+    plt.close()
+
+
 def main():
     if args.figure:
         plot_results() 
+        cumulative_regret()
     elif args.sanity_check:
         np.random.seed(42)
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
