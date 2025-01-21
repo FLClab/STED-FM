@@ -8,7 +8,7 @@ from matplotlib.lines import Line2D
 from matplotlib import pyplot
 
 sys.path.insert(0, "../../")
-from DEFAULTS import BASE_PATH
+from DEFAULTS import BASE_PATH, COLORS
 from utils import savefig
 
 parser = argparse.ArgumentParser()
@@ -23,15 +23,6 @@ parser.add_argument("--metric", default="aupr", type=str,
 args = parser.parse_args()
 
 print(args)
-
-COLORS = {
-    "ImageNet": "#6667ab",
-    "JUMP": "#f18aad",
-    "HPA": "#ea6759",
-    "SIM": "#f88f58",
-    "STED": "#f3c65f",
-    "Hybrid": "#8bc28c",
-}
 
 def load_file(file):
     with open(file, "r") as handle:
@@ -107,7 +98,7 @@ def main():
 
     pyplot.legend(handles=legend_elements)
 
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_scratch-pretrained"), extension="png", save_white=True)
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_scratch-pretrained"), extension="pdf")
 
 if __name__ == "__main__":
     main()

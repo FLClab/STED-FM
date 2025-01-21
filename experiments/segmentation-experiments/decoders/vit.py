@@ -157,7 +157,7 @@ class ViTDecoder(torch.nn.Module):
 class ViTSegmentationClassifier(torch.nn.Module):
     def __init__(self, backbone: torch.nn.Module, cfg: dataclass, global_pool: str = "patch") -> None:
         super().__init__()
-        self.backbone = backbone.vit 
+        self.backbone = backbone # should be a vit
         embed_dim = self.backbone.embed_dim 
         self.cfg = cfg 
         self.global_pool = global_pool
@@ -264,7 +264,7 @@ def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn
     :returns : A `ViTDecoder` instance
     """
     if cfg.backbone in ["mae-lightning-tiny", "mae-lightning-small", "mae-lightning-base", "mae-lightning-large", "vit-tiny", "vit-small"]:
-        return ViTSegmentationClassifier(backbone=backbone.backbone, cfg=cfg)
+        return ViTSegmentationClassifier(backbone=backbone, cfg=cfg)
         # extract_layers = [3, 6, 9 ,12]
         # return ViTDecoder(backbone.backbone, cfg, extract_layers=extract_layers, **kwargs)
     else:
