@@ -263,11 +263,12 @@ def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn
 
     :returns : A `ViTDecoder` instance
     """
+    print("\n===== Loading ViTSegmentationClassifier =====\n")
     if cfg.backbone in ["mae-lightning-tiny", "mae-lightning-small", "mae-lightning-base", "mae-lightning-large", "vit-tiny", "vit-small"]:
         if "MAE_SMALL_IMAGENET1K_V1" not in cfg.backbone_weights:
             backbone = backbone.backbone.vit 
         return ViTSegmentationClassifier(backbone=backbone, cfg=cfg)
         # extract_layers = [3, 6, 9 ,12]
-        # return ViTDecoder(backbone.backbone, cfg, extract_layers=extract_layers, **kwargs)
+    #     return ViTDecoder(backbone.backbone, cfg, extract_layers=extract_layers, **kwargs)
     else:
         raise ValueError(f"Backbone {cfg.backbone} for decoder is not supported")

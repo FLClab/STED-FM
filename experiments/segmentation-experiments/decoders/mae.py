@@ -22,14 +22,16 @@ class MAEDecoderWrapper(torch.nn.Module):
                 p.requires_grad = False
 
         if freeze_decoder:
-            for p, name in self.mae.decoder.named_parameters():
+            for name, p in self.mae.decoder.named_parameters():
                 # if name in ["decoder_norm", "decoder_pred"]:
                 #     continue
                 # else:
                 p.requires_grad = False
 
+        print(self.cfg)
+        exit()
         self.decoder_pred = torch.nn.Linear(
-            in_features=self.mae.decoder_embed_dim, 
+            in_features=512, 
             out_features=self.mae.patch_size ** 2 * self.mae.decoder.in_chans,
             bias=True 
         )
@@ -57,7 +59,9 @@ def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn
 
     :returns : A `MAEDecoderWrapper` instance
     """
-    if "mae" in cfg.backbone:
+    print("\n===== Loading MAE Decoder Wrapper =====\n")
+    print(backbone)
+    if "mae" in cfg.backbone or "vit" in cfg.backbone:
         return MAEDecoderWrapper(
             mae=backbone,
             cfg=cfg, 
