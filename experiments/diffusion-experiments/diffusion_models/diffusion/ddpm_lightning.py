@@ -247,7 +247,7 @@ class DDPM(LightningModule):
         Get the distribution q(x_t, x_0)
         """
         mean = _extract_into_tensor(self.sqrt_alphas_cumprod, t, x_0.shape) * x_0
-        variance = _extractor_into_tensor(1.0 - self.alphas_cumprod, t, x_0.shape)
+        variance = _extract_into_tensor(1.0 - self.alphas_cumprod, t, x_0.shape)
         log_variance = _extract_into_tensor(self.log_one_minus_alphas_cumprod, t, x_0.shape)
         return mean, variance, log_variance 
 

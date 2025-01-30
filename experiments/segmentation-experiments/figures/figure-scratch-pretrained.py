@@ -35,6 +35,7 @@ def get_data(mode="from-scratch", pretraining="STED"):
         files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{mode}*", f"segmentation-scores.json"), recursive=True)
     else:
         files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{mode}*_{pretraining.upper()}*", f"segmentation-scores.json"), recursive=True)
+        print((len(files)))
 
     if mode == "pretrained":
         # remove files that contains samples
