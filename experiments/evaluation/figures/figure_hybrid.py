@@ -42,25 +42,35 @@ def get_data(pretraining="STED"):
 def plot_data(sted_data: Dict[str, list], hybrid_data: Dict[str, list]) -> None:
     all_data = []
     for dataset in ["optim", "neural-activity-states", "peroxisome", "polymer-rings", "dl-sim"]:
-        sted_data = sted_data[dataset]
-        hybrid_data = hybrid_data[dataset]
-        diff_data = [hybrid_data[i] - sted_data[i] for i in range(len(sted_data))]
+        s_dict = sted_data[dataset]
+        h_dict = hybrid_data[dataset]
+
+        s_data = [item[args.metric] for item in s_dict]
+        h_data = [item[args.metric] for item in h_dict]
+        print(h_data)
+        diff_data = [h_data[i] - s_data[i] for i in range(len(s_data))]
         all_data.append(diff_data)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.boxplot(all_data)
-    ax.set_xticklabels(["optim", "neural-activity-states", "peroxisome", "polymer-rings", "dl-sim"])
-    ax.set_ylabel("(Hybrid - STED) $\delta$ accuracy")
-    fig.savefig("./hybrid.png")
+    parts = ax.boxplot(all_data, patch_artist=True)
+
+    for median in parts["medians"]:
+        median.set_color("black")
+
+    for box in parts["boxes"]:
+        box.set_facecolor("grey")
+
+    ax.axhline(0, color="black", linestyle="--")
+    ax.set_xticklabels(["optim", "neural-activity-states", "peroxisome", "polymer-rings", "dl-sim"], rotation=-45)
+    ax.set_ylabel("(Hybrid - STED) $\Delta$accuracy")
+    fig.savefig("./results/hybrid.pdf", bbox_inches="tight", dpi=1200)
     plt.close(fig)
 
     
 def main():
     mode = "linear-probe"
     sted_data = get_data(pretraining="STED")
-    hybrid_data = get_data(pretraining="Hybrid")
-    print(sted_data)
-    
+    hybrid_data = get_data(pretraining="Hybrid")    
 
     plot_data(sted_data=sted_data, hybrid_data=hybrid_data)
 

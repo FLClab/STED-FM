@@ -319,6 +319,9 @@ def main():
     # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=0)
 
     step = 0
+    if num_epochs > 10000:
+        num_epochs = 10000
+
     for epoch in trange(num_epochs, desc="Epochs..."):
         model.train()
         loss_meter = AverageMeter()
