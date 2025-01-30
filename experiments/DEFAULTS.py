@@ -11,6 +11,8 @@ elif USER == "anthony":
     BASE_PATH = "/home-local2/projects/SSL"
 elif USER == "frederic":
     BASE_PATH = "/home-local/Frederic/"
+elif USER == "frbea320@ulaval.ca":
+    BASE_PATH = "/home/ulaval.ca/frbea320/scratch"
 else:
     raise ValueError("Please set the correct path for the user. Path can be modified in `flc-dataset/experiments/DEFAULTS.py`")
 

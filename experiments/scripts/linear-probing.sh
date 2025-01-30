@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
 #SBATCH --time=8:00:00
-#SBATCH --account=def-flavielc
-#SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
-#SBATCH --gpus-per-node=1
+#SBATCH --gres=shard:2
+#SBATCH --cpus-per-task=6
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
+#SBATCH --partition=gpu_inter 
 #SBATCH --array=0-24
 
 
@@ -65,13 +65,13 @@ seed="${opt[1]}"
 
 
 
-cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
+cd evaluation
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset $dataset --model mae-lightning-small --weights "MAE_SMALL_JUMP" --blocks "all" --seed ${seed} --overwrite
+python finetune_v2.py --dataset $dataset --model mae-lightning-small --weights "MAE_SMALL_STED" --blocks "all" --seed ${seed} --overwrite
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
