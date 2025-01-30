@@ -41,8 +41,8 @@ def get_save_folder() -> str:
         return "STED"
     elif "jump" in args.weights.lower():
         return "JUMP"
-    elif "ctc" in args.weights.lower():
-        return "CTC"
+    elif "sim" in args.weights.lower():
+        return "SIM"
     elif "hpa" in args.weights.lower():
         return "HPA"
     elif "sim" in args.weights.lower():
@@ -67,13 +67,13 @@ def save_image(image, a_map, i):
     fig = plt.figure()
     plt.imshow(image_rgb)
     plt.axis("off")
-    plt.savefig(f"./attention-map-examples/templates/template{i}.pdf", dpi=1200, bbox_inches="tight")
+    plt.savefig(f"./attention-map-examples/templates/template{i}.png", dpi=1200, bbox_inches="tight")
     plt.close(fig)
     
     fig = plt.figure()
     plt.imshow(image_amap_rgb)
     plt.axis("off")
-    plt.savefig(f"./attention-map-examples/candidates/{args.weights}_template{i}.pdf", dpi=1200, bbox_inches="tight")
+    plt.savefig(f"./attention-map-examples/candidates/{args.weights}_template{i}.png", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
 def show_image(image, a_map, i):

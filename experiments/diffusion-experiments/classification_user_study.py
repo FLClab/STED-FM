@@ -22,7 +22,7 @@ parser.add_argument("--dataset-path", type=str, default="/home/frbea320/projects
 parser.add_argument("--latent-encoder", type=str, default="mae-lightning-small")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--ckpt-path", type=str, default="/home/frbea320/scratch/model_checkpoints/DiffusionModels/latent-guidance")
-parser.add_argument("--num-samples", type=int, default=40)
+parser.add_argument("--num-samples", type=int, default=60)
 parser.add_argument("--guidance", type=str, default="latent")
 args = parser.parse_args()
 
@@ -46,15 +46,15 @@ def get_save_folder(key: str) -> str:
 
 def save_image(image: np.ndarray, generation: np.ndarray, i: int, class_name: str) -> None:
     fig = plt.figure()
-    plt.imshow(image, cmap='hot')
+    plt.imshow(image, cmap='hot', vmin=0, vmax=1)
     plt.axis("off")
-    plt.savefig(f"./classification-study/{args.guidance}-guidance/templates/template{i}_{class_name}.pdf", dpi=1200, bbox_inches="tight")
+    plt.savefig(f"./classification-study/{args.guidance}-guidance/templates/template{i}_{class_name}.png", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
     fig = plt.figure()
-    plt.imshow(generation, cmap='hot')
+    plt.imshow(generation, cmap='hot', vmin=0, vmax=1)
     plt.axis("off")
-    plt.savefig(f"./classification-study/{args.guidance}-guidance/candidates/{args.weights}_template{i}_{class_name}.pdf", dpi=1200, bbox_inches="tight")
+    plt.savefig(f"./classification-study/{args.guidance}-guidance/candidates/{args.weights}_template{i}_{class_name}.png", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
 def main():
@@ -94,7 +94,7 @@ def main():
         latent_encoder=latent_encoder if args.guidance == "latent" else None,
     )
 
-    path = f"{args.ckpt_path}/{args.weights}/checkpoint-69.pth" if args.guidance == "latent" else f"{args.ckpt_path}/checkpoint-59.pth"
+    path = f"{args.ckpt_path}/{args.weights}/checkpoint-69.pth" if args.guidance == "latent" else f"{args.ckpt_path}/checkpoint-69.pth"
     print(path)
     ckpt = torch.load(path)
     model.load_state_dict(ckpt["state_dict"])
@@ -113,10 +113,11 @@ def main():
     counters = {
         "f-actin": 0,
         "psd95": 0,
-        "tom20": 0,
-        "tubulin": 0
+        "beta-camkii": 0,
+        "tubulin": 0,
+        "FUS": 0,
+        "vglut2": 0,
     }
-    # counters = {"beta-camkii": 0}
     indices = np.arange(len(dataset))
     np.random.shuffle(indices)
     
