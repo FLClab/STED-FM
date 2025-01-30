@@ -71,7 +71,7 @@ def main():
 
     fig, ax = pyplot.subplots(figsize=(4,3))
     modes = ["linear-probe", "finetuned"]
-    pretrainings = ["Hybrid","STED", "SIM", "HPA", "JUMP", "ImageNet"]
+    pretrainings = ["STED", "SIM", "HPA", "JUMP", "ImageNet"]
 
     width = 1/(len(pretrainings) + 1)
     samples = {}
