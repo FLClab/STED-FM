@@ -237,7 +237,8 @@ def main():
         in_channels=n_channels,
         as_classifier=True,
         blocks=args.blocks,
-        num_classes=num_classes
+        num_classes=num_classes,
+        from_scratch=args.from_scratch
     )
     model = model.to(device)
 
