@@ -25,7 +25,7 @@ from loaders import get_dataset
 from model_builder import get_pretrained_model_v2 
 from utils import SaveBestModel, AverageMeter, ScoreTracker, EarlyStopper, compute_Nary_accuracy, track_loss_steps, update_cfg, get_number_of_classes
 
-plt.style.use("dark_background")
+# plt.style.use("dark_background")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)
@@ -56,8 +56,23 @@ def set_seeds():
 
 def get_save_folder() -> str: 
     if args.weights is None:
-        modelname = args.model.replace("-lightning", "")
-        return f"{modelname}_from-scratch"
+        return "from-scratch"
+    elif "imagenet" in args.weights.lower():
+        return "ImageNet"
+    elif "sted" in args.weights.lower():
+        return "STED"
+    elif "sim" in args.weights.lower():
+        return "SIM"        
+    elif "jump" in args.weights.lower():
+        return "JUMP"
+    elif "ctc" in args.weights.lower():
+        return "CTC"
+    elif "hpa" in args.weights.lower():
+        return "HPA"
+    elif "sim" in args.weights.lower():
+        return "SIM"
+    elif "hybrid" in args.weights.lower():
+        return "Hybrid"
     else:
         return args.weights
     # elif "imagenet" in args.weights.lower():
@@ -236,7 +251,8 @@ def main():
         in_channels=n_channels,
         as_classifier=True,
         blocks=args.blocks,
-        num_classes=num_classes
+        num_classes=num_classes,
+        from_scratch=args.from_scratch
     )
     model = model.to(device)
 
@@ -319,6 +335,9 @@ def main():
     # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=0)
 
     step = 0
+    if num_epochs > 10000:
+        num_epochs = 10000
+
     for epoch in trange(num_epochs, desc="Epochs..."):
         model.train()
         loss_meter = AverageMeter()

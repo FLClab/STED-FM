@@ -233,6 +233,8 @@ def get_optim_dataset(path: str, training: bool = False, batch_size=256, num_sam
     }
 
     # if training: # Disregards the provided path
+    print(os.path.join(BASE_PATH, "evaluation-data", "optim_train"))
+    
     train_dataset = datasets.OptimDataset(
         data_folder=os.path.join(BASE_PATH, "evaluation-data", "optim_train"),
         num_samples=samples_dict,

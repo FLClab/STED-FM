@@ -10,7 +10,7 @@ import time
 import json
 import argparse
 import uuid
-
+import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from lightly import loss
 from lightly import transforms
@@ -22,12 +22,12 @@ from collections.abc import Mapping
 from multiprocessing import Manager
 from torch.utils.data import Sampler, SubsetRandomSampler
 from torch.utils.tensorboard import SummaryWriter
-from torchsummary import summary
+# from torchsummary import summary
+from torchinfo import summary
 from lightly.utils.scheduler import CosineWarmupScheduler
 
 from decoders import get_decoder
 from datasets import get_dataset
-
 from eval import evaluate_segmentation
 
 import sys 
@@ -242,7 +242,8 @@ if __name__ == "__main__":
     print(cfg)
 
     # Build the UNet model.
-    model = get_decoder(backbone, cfg)
+    model = get_decoder(backbone, cfg).to(DEVICE)
+    
     ckpt = checkpoint.get("model", None)
     if not ckpt is None:
         print("Restoring model...")

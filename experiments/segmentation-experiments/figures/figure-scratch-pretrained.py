@@ -8,7 +8,7 @@ from matplotlib.lines import Line2D
 from matplotlib import pyplot
 
 sys.path.insert(0, "../../")
-from DEFAULTS import BASE_PATH
+from DEFAULTS import BASE_PATH, COLORS
 from utils import savefig
 
 parser = argparse.ArgumentParser()
@@ -24,14 +24,6 @@ args = parser.parse_args()
 
 print(args)
 
-COLORS = {
-    "STED" : "tab:blue",
-    "HPA" : "tab:orange",
-    "ImageNet" : "tab:red",
-    "JUMP" : "tab:green",
-    "from-scratch" : "silver"
-}
-
 def load_file(file):
     with open(file, "r") as handle:
         data = json.load(handle)
@@ -43,6 +35,7 @@ def get_data(mode="from-scratch", pretraining="STED"):
         files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{mode}*", f"segmentation-scores.json"), recursive=True)
     else:
         files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{mode}*_{pretraining.upper()}*", f"segmentation-scores.json"), recursive=True)
+        print((len(files)))
 
     if mode == "pretrained":
         # remove files that contains samples
@@ -88,7 +81,7 @@ def plot_data(pretraining, data, figax=None, position=0, **kwargs):
 def main():
     fig, ax = pyplot.subplots()
     modes = ["from-scratch", "pretrained-frozen", "pretrained"]
-    pretrainings = ["STED", "HPA", "JUMP", "ImageNet"]
+    pretrainings = ["STED", "Hybrid", "SIM", "HPA", "JUMP","ImageNet"]
 
     width = 1/(len(pretrainings) + 1)
     for j, mode in enumerate(modes):
@@ -108,16 +101,11 @@ def main():
         xticks=numpy.arange(len(modes)) + width * len(pretrainings) / 2 - 0.5 * width,
     )
     ax.set_xticklabels(modes, rotation=30)
-    legend_elements = [ 
-        Line2D([0], [0], marker='o', color='tab:red', label='ImageNet', markerfacecolor='tab:red'),
-        Line2D([0], [0], marker='o', color='tab:green', label='JUMP', markerfacecolor='tab:green'),
-        Line2D([0], [0], marker='o', color='tab:orange', label='HPA', markerfacecolor='tab:orange'),
-        Line2D([0], [0], marker='o', color='tab:blue', label='STED', markerfacecolor='tab:blue'),
+    legend_elements = [Line2D([0], [0], color=COLORS[pretraining], label=pretraining, markerfacecolor=COLORS[pretraining]) for pretraining in pretrainings]
 
-    ]
     pyplot.legend(handles=legend_elements)
 
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_scratch-pretrained"), extension="png", save_white=True)
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_scratch-pretrained"), extension="pdf")
 
 if __name__ == "__main__":
     main()

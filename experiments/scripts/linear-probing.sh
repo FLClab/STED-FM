@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
 #SBATCH --time=8:00:00
-#SBATCH --account=def-flavielc
-#SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
-#SBATCH --gpus-per-node=1
+#SBATCH --gres=shard:2
+#SBATCH --cpus-per-task=6
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-19
+#SBATCH --partition=gpu_inter 
+#SBATCH --array=0-24
 
 
 #### PARAMETERS
@@ -20,21 +20,21 @@ source ~/phd/bin/activate
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-WEIGHTS=(
-    "MAE_SMALL_IMAGENET1K_V1"
-    "MAE_SMALL_HPA"
-    "MAE_SMALL_JUMP"
-    "MAE_SMALL_SIM"
-    "MAE_SMALL_STED"
-)
-
-# DATASETS=(
-#     "optim"
-#     "neural-activity-states"
-#     "peroxisome"
-#     "polymer-rings"
-#     "dl-sim"
+# WEIGHTS=(
+#     "MAE_TINY_IMAGENET1K_V1"
+#     "MAE_TINY_HPA"
+#     "MAE_TINY_JUMP"
+#     "MAE_TINY_SIM"
+#     "MAE_TINY_STED"
 # )
+
+DATASETS=(
+    "optim"
+    "neural-activity-states"
+    "peroxisome"
+    "polymer-rings"
+    "dl-sim"
+)
 
 SEEDS=(
     42
@@ -45,31 +45,33 @@ SEEDS=(
 )
 
 opts=()
-for weight in "${WEIGHTS[@]}"
+for dataset in "${DATASETS[@]}"
 do
     for seed in "${SEEDS[@]}"
     do
-        opts+=("$weight;$seed")
+        opts+=("$dataset;$seed")
     done
 done
 
-# # Reads a specific item in the array and asign the values
-# # to the opt variable
+# # # Reads a specific item in the array and asign the values
+# # # to the opt variable
 IFS=';' read -r -a opt <<< "${opts[${SLURM_ARRAY_TASK_ID}]}"
-weight="${opt[0]}"
+dataset="${opt[0]}"
 seed="${opt[1]}"
 
 # weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
 # dataset=${DATASETS[${SLURM_ARRAY_TASK_ID}]}
+# seed=${SEEDS[${SLURM_ARRAY_TASK_ID}]}
 
 
-cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
+
+cd evaluation
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset "dl-sim" --model mae-lightning-small --weights $weight --blocks "all" --seed $seed
+python finetune_v2.py --dataset $dataset --model mae-lightning-small --weights "MAE_SMALL_STED" --blocks "all" --seed ${seed} --overwrite
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

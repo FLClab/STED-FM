@@ -5,7 +5,7 @@ import pickle
 import os
 import json
 import h5py 
-
+from typing import List, Tuple
 from dataclasses import dataclass
 from torch import nn
 
@@ -147,7 +147,7 @@ class UNet(torch.nn.Module):
         self.resizer.train(mode)
         self.out_conv.train(mode)
 
-    def get_layer_sizes(self) -> list[tuple[int, int, int]]:
+    def get_layer_sizes(self) -> List[Tuple[int, int, int]]:
         """
         Computes the sizes of the layers in the decoder
 
@@ -164,7 +164,7 @@ class UNet(torch.nn.Module):
             sizes.append(o.shape[1:])
         return sizes
 
-    def forward_encoder(self, x : torch.Tensor) -> tuple[torch.Tensor, list[torch.Tensor]]:
+    def forward_encoder(self, x : torch.Tensor) -> Tuple[torch.Tensor, List[torch.Tensor]]:
         """
         Forward pass for the encoder of the `UNet` model. This method is used
         to extract the features from the input data. Specific forward passes
@@ -178,7 +178,7 @@ class UNet(torch.nn.Module):
         func = getattr(self, "_forward_" + self.cfg.backbone)
         return func(x)
     
-    def _forward_micranet(self, x : torch.Tensor) -> tuple[torch.Tensor, list[torch.Tensor]]:
+    def _forward_micranet(self, x : torch.Tensor) -> Tuple[torch.Tensor, List[torch.Tensor]]:
         """
         Forward pass for the `MICRANet` backbone
 
@@ -225,7 +225,7 @@ class UNet(torch.nn.Module):
 
         return x, out 
     
-    def _forward_resnet(self, x : torch.Tensor) -> tuple[torch.Tensor, list[torch.Tensor]]:
+    def _forward_resnet(self, x : torch.Tensor) -> Tuple[torch.Tensor, List[torch.Tensor]]:
         """
         Forward pass for the `ResNet` backbone
 
@@ -255,7 +255,7 @@ class UNet(torch.nn.Module):
 
         return x, out
 
-    def _forward_convnext(self, x : torch.Tensor) -> tuple[torch.Tensor, list[torch.Tensor]]:
+    def _forward_convnext(self, x : torch.Tensor) -> Tuple[torch.Tensor, List[torch.Tensor]]:
         """
         Forward pass for the `ConvNext` backbone
 

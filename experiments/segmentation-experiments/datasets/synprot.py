@@ -6,10 +6,10 @@ import numpy
 import json
 import random
 import ast
-
+import io
 from tqdm.auto import tqdm
 from torch.utils.data import Dataset
-from typing import Tuple
+from typing import Tuple, Optional, Callable
 from torchvision import transforms
 from dataclasses import dataclass
 from matplotlib import pyplot
@@ -17,6 +17,7 @@ from scipy.ndimage import gaussian_filter
 from skimage.feature import peak_local_max
 from skimage.registration import phase_cross_correlation
 from sklearn.cluster import DBSCAN
+import tarfile
 from sklearn.neighbors import KernelDensity
 
 import sys
@@ -34,37 +35,74 @@ class SynProtConfiguration(Configuration):
 class ProteinSegmentationDataset(Dataset):
     def __init__(
         self,
-        h5file: str,
-        transform=None,
-        n_channels=1,
+        archive_path: str,
+        transform: Optional[Callable] = None,
+        n_channels: int = 1,
     ) -> None:
-        self.h5file = h5file
+        self.archive_path = archive_path
+        self.transform = transform
+        self.n_channels = n_channels
+        with tarfile.open(self.archive_path, "r") as archive_obj:
+            self.members = list(sorted(archive_obj.getmembers(), key=lambda m: m.name))
 
-        if transform is None:
-            self.transform = transforms.ToTensor()
-        else:
-            self.transform = transform
-
-        self.n_channels = n_channels 
-        self.classes = ['synaptic-proteins']
-        with h5py.File(h5file, "r") as hf:
-            self.dataset_size = hf["images"][()].shape[0] 
-
-    def __len__(self):
-        return self.dataset_size 
-
+    def __len__(self) -> int:
+        return len(self.members)
+    
     def __getitem__(self, idx: int) -> Tuple[torch.tensor, torch.Tensor]:
-        with h5py.File(self.h5file, "r") as hf:
-            img = hf["images"][idx]
-            mask = hf["masks"][idx]
-        
+        member = self.members[idx]
+        with tarfile.open(self.archive_path, "r") as archive_obj:
+            buffer = io.BytesIO()
+            buffer.write(archive_obj.extractfile(member).read())
+            buffer.seek(0)
+            data = np.load(buffer, allow_pickle=True)
+            data = {key : values for key, values in data.items()}
+            img, mask = data["img"], data["segmentation"]
         if self.n_channels == 3:
             img = np.tile(img[np.newaxis], (3, 1, 1))
-            img = np.moveaxis(img, 0, -1)
-        
-        img = self.transform(img)
-        mask = transforms.ToTensor()(mask)
+            img = torch.tensor(img, dtype=torch.float32)
+        else:
+            img = torch.tensor(img[np.newaxis, ...], dtype=torch.float32)
+        mask = torch.tensor(mask[np.newaxis, ...], dtype=torch.float32)
+        if self.transform is not None:
+            img = self.transform(img)
         return img, mask
+
+    
+
+# class ProteinSegmentationDataset(Dataset):
+#     def __init__(
+#         self,
+#         h5file: str,
+#         transform=None,
+#         n_channels=1,
+#     ) -> None:
+#         self.h5file = h5file
+
+#         if transform is None:
+#             self.transform = transforms.ToTensor()
+#         else:
+#             self.transform = transform
+
+#         self.n_channels = n_channels 
+#         self.classes = ['synaptic-proteins']
+#         with h5py.File(h5file, "r") as hf:
+#             self.dataset_size = hf["images"][()].shape[0] 
+
+#     def __len__(self):
+#         return self.dataset_size 
+
+#     def __getitem__(self, idx: int) -> Tuple[torch.tensor, torch.Tensor]:
+#         with h5py.File(self.h5file, "r") as hf:
+#             img = hf["images"][idx]
+#             mask = hf["masks"][idx]
+        
+#         if self.n_channels == 3:
+#             img = np.tile(img[np.newaxis], (3, 1, 1))
+#             img = np.moveaxis(img, 0, -1)
+        
+#         img = self.transform(img)
+#         mask = transforms.ToTensor()(mask)
+#         return img, mask
 
 class SemanticProteinSegmentationDataset(Dataset):
 
@@ -568,20 +606,21 @@ def get_dataset(name, cfg, **kwargs):
     else:
         transform = transforms.ToTensor()
 
-    if name == "synaptic-segmentation":
+    if name == "synaptic-protein-segmentation":
+        datapath = os.path.join(BASE_PATH, "Datasets/Neural-Activity-States/PSD95-Basson")
         train_dataset = ProteinSegmentationDataset(
-            h5file=f"{DATAPATH}/train_segmentation.hdf5",
-            transform=transform, 
+            archive_path=f"{datapath}/synaptic-protein-segmentation_train.tar",
+            transform=None, 
             n_channels=cfg.in_channels
         )
         valid_dataset = ProteinSegmentationDataset(
-            h5file=f"{DATAPATH}/valid_segmentation.hdf5",
-            transform=transform, 
+            archive_path=f"{datapath}/synaptic-protein-segmentation_valid.tar",
+            transform=None, 
             n_channels=cfg.in_channels
         )
         test_dataset = ProteinSegmentationDataset(
-            h5file=f"{DATAPATH}/test_segmentation.hdf5",
-            transform=transform, 
+            archive_path=f"{datapath}/synaptic-protein-segmentation_test.tar",
+            transform=None, 
             n_channels=cfg.in_channels
         )
         print(f"Train dataset size: {len(train_dataset)}")

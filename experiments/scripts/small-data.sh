@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=36:00:00
-#SBATCH --account=def-flavielc
+#SBATCH --time=8:00:00
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
-#SBATCH --gpus-per-node=1
+#SBATCH --gres=shard:2
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-119
+#SBATCH --array=0-99
+#SBATCH --partition=gpu_inter
 
 #### PARAMETERS
 # Use this directory venv, reusable across RUNs
@@ -20,10 +20,11 @@ source ~/phd/bin/activate
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 WEIGHTS=(
-    "MAE_LARGE_IMAGENET1K_V1"
-    "MAE_LARGE_HPA"
-    "MAE_LARGE_JUMP"
-    "MAE_LARGE_STED"
+    "MAE_SMALL_IMAGENET1K_V1"
+    "MAE_SMALL_JUMP"
+    "MAE_SMALL_HPA"
+    "MAE_SMALL_SIM"
+    "MAE_SMALL_STED"
 )
 
 NUMCLASSES=(
@@ -31,8 +32,6 @@ NUMCLASSES=(
     25
     50
     100
-    250
-    500
 )
 
 SEEDS=(
@@ -44,38 +43,37 @@ SEEDS=(
 )
 
 params=()
-for weight in "${WEIGHTS[@]}"
+# for weight in "${WEIGHTS[@]}"
+# do
+for numclass in "${NUMCLASSES[@]}"
 do
-    for numclass in "${NUMCLASSES[@]}"
+    for seed in "${SEEDS[@]}"
     do
-        for seed in "${SEEDS[@]}"
+        for weight in "${WEIGHTS[@]}"
         do
-            params+=("$weight;$numclass;$seed")
+            params+=("$numclass;$seed;$weight")
         done
     done
 done
+# done
 
 # Reads a specific item in the array and asign the values
 # to the opt variable
 IFS=';' read -r -a param <<< "${params[${SLURM_ARRAY_TASK_ID}]}"
-weight="${param[0]}"
-numclass="${param[1]}"
-seed="${param[2]}"
+numclass="${param[0]}"
+seed="${param[1]}"
+weight="${param[2]}"
 
-# opts="batch_size 32"
-
-
-
-cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
+cd evaluation
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started fine tuning in low data regime ($numclass samples per class)"
-echo $weight
 echo $numclass 
 echo $seed
+echo $weight
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset polymer-rings --model mae-lightning-large --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
+python finetune_v2.py --dataset neural-activity-states --model mae-lightning-small --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

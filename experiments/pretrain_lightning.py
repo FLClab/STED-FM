@@ -34,6 +34,11 @@ parser.add_argument("--restore-from", type=str, default=None)
 parser.add_argument("--model", type=str, default='mae-small')
 parser.add_argument("--save-folder", type=str, default=f"{BASE_PATH}/baselines")
 parser.add_argument("--dataset-path", type=str, default="./Datasets/FLCDataset/dataset.tar")
+### Used only with Hybrid dataset
+parser.add_argument("--hpa-path", type=str, default=None)
+parser.add_argument("--sim-path", type=str, default=None)
+parser.add_argument("--sted-path", type=str, default=None)
+### 
 parser.add_argument("--use-tensorboard", action='store_true')
 parser.add_argument("--opts", nargs="+", default=[], 
                     help="Additional configuration options")    
@@ -68,8 +73,11 @@ if __name__=="__main__":
         print("--- Restoring model ---")
         in_channels = cfg.in_channels
         model = MAE.load_from_checkpoint(args.restore_from, vit=model.backbone.vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+        print(f"--- Restored model {args.model}  from {args.restore_from} successfully ---")
     else:
         OUTPUT_FOLDER = args.save_folder
+        # print(f"--- Exiting while debugging the restore-from argument ---") # TODO: Remove this once the restore-from argument is working
+        # exit()
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
     print(f"--- Loaded model {args.model} successfully ---")
 

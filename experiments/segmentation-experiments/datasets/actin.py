@@ -4,7 +4,7 @@ import os
 import torch
 import random
 import h5py
-
+from typing import Tuple
 from dataclasses import dataclass
 from skimage import io
 from torch.utils.data import Dataset
@@ -145,7 +145,7 @@ class HDF5Dataset(Dataset):
     def __len__(self):
         return len(self.samples)
     
-def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> tuple[Dataset, Dataset, Dataset]:
+def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> Tuple[Dataset, Dataset, Dataset]:
 
     # Updates the configuration inplace
     cfg.dataset_cfg = FActinConfiguration()

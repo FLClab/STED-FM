@@ -7,38 +7,35 @@ from tqdm import tqdm, trange
 import argparse 
 from loaders import get_dataset
 import os
+from model_builder import get_pretrained_model_v2
+import tarfile
+import io
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default="peroxisome")
-parser.add_argument("--num", type=int, default=20)
+parser.add_argument("--num", type=int, default=9)
 args = parser.parse_args()
 
 
 def main():
-    if not os.path.exists(f"./dummy/{args.dataset}"):
-        os.mkdir(f"./dummy/{args.dataset}")
-
-    dataloader, _, _ = get_dataset(args.dataset)
-    dataset = dataloader.dataset 
-    print(dataset.classes)
-    N = len(dataset)
-    indices = np.random.choice(np.arange(N), size=args.num)
-
-    for counter, idx in enumerate(indices):
-        img, data_dict = dataset[idx]
-        img = img.squeeze(0).detach().cpu().numpy()
-        label = data_dict["label"]
-        fig = plt.figure()
-        plt.imshow(img, cmap='hot')
-        plt.axis("off")
-        plt.title(label)
-        fig.savefig(f"./dummy/{args.dataset}/sample_{counter}.png", bbox_inches='tight', dpi=1200)
-        plt.close(fig)
-        if counter >= 20:
-            exit()
-
-        
-        
+    with tarfile.open("/home/frbea320/scratch/Datasets/JUMP_CP/jump.tar", "r") as tar:
+        members = tar.getmembers()
+        N = len(members)
+        print(N)
+        indices = random.sample(range(N), args.num)
+        for i in indices:
+            buffer = io.BytesIO()
+            buffer.write(tar.extractfile(members[i]).read())
+            buffer.seek(0)
+            data = np.load(buffer, allow_pickle=True)
+            img = data["image"]
+            print(img.shape)
+            fig = plt.figure(figsize=(10, 10))
+            plt.imshow(img)
+            plt.axis("off")
+            plt.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
+            fig.savefig(f"jump_img_{i}.png", dpi=1200)
+            plt.close(fig)
 
 
 if __name__=="__main__":

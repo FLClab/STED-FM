@@ -6,6 +6,7 @@ import lightly.models.utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 from lightning.pytorch.core import LightningModule
 import torchvision
+from pprint import pprint
 
 from dataclasses import dataclass
 
@@ -28,7 +29,7 @@ class MAEWeights:
     MAE_LARGE_STED = os.path.join(BASE_PATH, "baselines", "mae-large_STED", "pl_checkpoint-999.pth")
 
     MAE_TINY_JUMP = os.path.join(BASE_PATH, "baselines", "mae-tiny_JUMP", "pl_checkpoint-999.pth")
-    MAE_SMALL_JUMP = os.path.join(BASE_PATH, "baselines", "mae-small_JUMP", "pl_checkpoint-999.pth")
+    MAE_SMALL_JUMP = os.path.join(BASE_PATH, "baselines", "mae-small_JUMP", "checkpoint-999.pth")
     MAE_BASE_JUMP = os.path.join(BASE_PATH, "baselines", "mae-base_JUMP", "pl_checkpoint-999.pth")
     MAE_LARGE_JUMP = os.path.join(BASE_PATH, "baselines", "mae-large_JUMP", "pl_checkpoint-999.pth")
 
@@ -37,7 +38,9 @@ class MAEWeights:
     MAE_BASE_HPA = os.path.join(BASE_PATH, "baselines", "mae-base_HPA", "pl_checkpoint-999.pth")
     MAE_LARGE_HPA = os.path.join(BASE_PATH, "baselines", "mae-large_HPA", "pl_checkpoint-999.pth")
 
-    MAE_SMALL_SIM = os.path.join(BASE_PATH, "baselines", "mae-small_SIM", "checkpoint-240000.pth")
+    MAE_SMALL_SIM = os.path.join(BASE_PATH, "baselines", "mae-small_SIM", "checkpoint-999.pth")
+
+    MAE_SMALL_HYBRID = os.path.join(BASE_PATH, "baselines", "mae-small_Hybrid", "checkpoint-999.pth")
 
 class MAEConfiguration(Configuration):
 
@@ -66,28 +69,40 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
         cfg.batch_size = 256
         cfg.backbone = "vit-tiny"
         vit = vit_tiny_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
-        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+        if cfg.pretrained:
+            backbone = vit
+        else:
+            backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
     elif name == "mae-lightning-small":
         cfg.dim = 384
         cfg.batch_size = 256
         cfg.backbone = "vit-small"
         vit = vit_small_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
-        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+        if cfg.pretrained:
+            backbone = vit
+        else:
+            backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
     elif name == "mae-lightning-base":
         cfg.dim = 768
         cfg.batch_size = 128
         cfg.backbone = "vit-base"
         vit = vit_base_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
-        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+        if cfg.pretrained:
+            backbone = vit
+        else:
+            backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
     elif name == 'mae-lightning-large':
         cfg.dim = 1024
         cfg.batch_size = 64
         cfg.backbone = "vit-large"
         vit = vit_large_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
-        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+        if cfg.pretrained:
+            backbone = vit
+        else:
+            backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
     else:
         raise NotImplementedError(f"`{name}` not implemented")

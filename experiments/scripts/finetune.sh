@@ -8,7 +8,7 @@
 #SBATCH --output=logs/%x-%A_%a.out
 #SBATCH --mail-user=frbea320@ulaval.ca
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-3
+#SBATCH --array=0-124
 
 #### PARAMETERS
 # Use this directory venv, reusable across RUNs
@@ -20,13 +20,45 @@ source ~/phd/bin/activate
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 WEIGHTS=(
-    "MAE_BASE_IMAGENET1K_V1"
-    "MAE_BASE_HPA"
-    "MAE_BASE_JUMP"
-    "MAE_BASE_STED"
+    "MAE_SMALL_IMAGENET1K_V1"
+    "MAE_SMALL_JUMP"
+    "MAE_SMALL_HPA"
+    "MAE_SMALL_SIM"
+    "MAE_SMALL_STED"
 )
 
-weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
+DATASETS=(
+    "optim"
+    "neural-activity-states"
+    "peroxisome"
+    "polymer-rings"
+    "dl-sim"
+)
+
+SEEDS=(
+    42
+    43
+    44
+    45
+    46
+)
+
+opts=()
+for dataset in "${DATASETS[@]}"
+do
+    for seed in "${SEEDS[@]}"
+    do
+        for weight in "${WEIGHTS[@]}"
+        do
+            opts+=("$dataset;$seed;$weight")
+        done
+    done
+done
+
+IFS=';' read -r -a opt <<< "${opts[${SLURM_ARRAY_TASK_ID}]}"
+dataset="${opt[0]}"
+seed="${opt[1]}"
+weight="${opt[2]}"
 
 
 cd ${HOME}/projects/def-flavielc/frbea320/flc-dataset/experiments/evaluation
@@ -35,7 +67,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started fine tuning"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset polymer-rings --model mae-lightning-base --weights $weight --blocks "0" 
+python finetune_v2.py --dataset $dataset --model mae-lightning-small --weights $weight --blocks "0" --seed ${seed} --overwrite
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

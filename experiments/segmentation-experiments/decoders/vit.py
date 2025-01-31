@@ -3,7 +3,6 @@ import torch
 from dataclasses import dataclass
 from typing import List
 
-
 class SingleDeconv(torch.nn.Module):
     def __init__(self, in_channels: int, out_channels: int) -> None:
         super().__init__()
@@ -155,6 +154,106 @@ class ViTDecoder(torch.nn.Module):
         pred = torch.sigmoid(pred)
         return pred
 
+class ViTSegmentationClassifier(torch.nn.Module):
+    def __init__(self, backbone: torch.nn.Module, cfg: dataclass, global_pool: str = "patch") -> None:
+        super().__init__()
+        self.backbone = backbone
+        embed_dim = self.backbone.embed_dim 
+        self.cfg = cfg 
+        self.global_pool = global_pool
+        if self.cfg.freeze_backbone:
+            print(f"--- Freezing backbone ---")
+            for p in self.backbone.parameters():
+                p.requires_grad = False
+
+        self.patch_size = self.backbone.patch_embed.patch_size[0]
+        self.classification_head = torch.nn.Linear(
+            in_features=self.backbone.embed_dim,
+            out_features=self.patch_size ** 2 * self.cfg.dataset_cfg.num_classes,
+        )
+
+    def forward_encoder(self, x: torch.Tensor) -> torch.Tensor:
+        features = self.backbone.forward_features(x)
+        if self.global_pool == "token":
+            features = features[:, 0, :] # class token 
+        elif self.global_pool == "avg":
+            features = torch.mean(features[:, 1:, :], dim=1) # Average patch tokens
+        elif self.global_pool == "patch":
+            features = features[:, 1:, :]
+        else:
+            raise NotImplementedError(f"Invalid `{self.global_pool}` pooling function.")
+        return features
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        features = self.forward_encoder(x) 
+        out = self.classification_head(features)
+        out = unpatchify(out, self.patch_size, self.cfg.dataset_cfg.num_classes)
+        return out
+
+
+
+
+def patchify(images: torch.Tensor, patch_size: int) -> torch.Tensor:
+    """Converts a batch of input images into patches.
+
+    Args:
+        images:
+            Images tensor with shape (batch_size, channels, height, width)
+        patch_size:
+            Patch size in pixels. Image width and height must be multiples of
+            the patch size.
+
+    Returns:
+        Patches tensor with shape (batch_size, num_patches, channels * patch_size ** 2)
+        where num_patches = image_width / patch_size * image_height / patch_size.
+
+    """
+    # N, C, H, W = (batch_size, channels, height, width)
+    N, C, H, W = images.shape
+    assert H == W and H % patch_size == 0
+
+    patch_h = patch_w = H // patch_size
+    num_patches = patch_h * patch_w
+
+    # Reshape images to form patches
+    patches = images.reshape(shape=(N, C, patch_h, patch_size, patch_w, patch_size))
+
+    # Reorder dimensions for patches
+    patches = torch.einsum("nchpwq->nhwpqc", patches)
+
+    # Flatten patches
+    patches = patches.reshape(shape=(N, num_patches, patch_size**2 * C))
+
+    return patches
+
+
+def unpatchify(
+    patches: torch.Tensor, patch_size: int, channels: int = 3
+    ) -> torch.Tensor:
+    """
+    Reconstructs images from their patches.
+
+     Args:
+         patches:
+             Patches tensor with shape (batch_size, num_patches, channels * patch_size ** 2).
+         patch_size:
+             The patch size in pixels used to create the patches.
+         channels:
+             The number of channels the image must have
+
+     Returns:
+         Reconstructed images tensor with shape (batch_size, channels, height, width).
+    """
+    N, C = patches.shape[0], channels
+    patch_h = patch_w = int(patches.shape[1] ** 0.5)
+    assert patch_h * patch_w == patches.shape[1]
+
+    images = patches.reshape(shape=(N, patch_h, patch_w, patch_size, patch_size, C))
+    images = torch.einsum("nhwpqc->nchpwq", images)
+    images = images.reshape(shape=(N, C, patch_h * patch_size, patch_h * patch_size))
+    return images
+
+
 def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn.Module:
     """
     Creates a `ViTDecoder` instance
@@ -164,8 +263,12 @@ def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn
 
     :returns : A `ViTDecoder` instance
     """
+    print("\n===== Loading ViTSegmentationClassifier =====\n")
     if cfg.backbone in ["mae-lightning-tiny", "mae-lightning-small", "mae-lightning-base", "mae-lightning-large", "vit-tiny", "vit-small"]:
-        extract_layers = [3, 6, 9 ,12]
-        return ViTDecoder(backbone.backbone, cfg, extract_layers=extract_layers, **kwargs)
+        if "MAE_SMALL_IMAGENET1K_V1" not in cfg.backbone_weights:
+            backbone = backbone.backbone.vit 
+        return ViTSegmentationClassifier(backbone=backbone, cfg=cfg)
+        # extract_layers = [3, 6, 9 ,12]
+    #     return ViTDecoder(backbone.backbone, cfg, extract_layers=extract_layers, **kwargs)
     else:
         raise ValueError(f"Backbone {cfg.backbone} for decoder is not supported")

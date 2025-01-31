@@ -8,7 +8,7 @@ import sys
 from matplotlib import pyplot
 
 sys.path.insert(0, "../../")
-from DEFAULTS import BASE_PATH
+from DEFAULTS import BASE_PATH, COLORS
 from utils import savefig
 
 parser = argparse.ArgumentParser()
@@ -25,13 +25,6 @@ parser.add_argument("--samples", nargs="+", type=str, default=None,
 args = parser.parse_args()
 
 print(args)
-
-COLORS = {
-    "STED" : "tab:blue",
-    "HPA" : "tab:orange",
-    "ImageNet" : "tab:red",
-    "JUMP" : "tab:green"
-}
 
 def load_file(file):
     with open(file, "r") as handle:
@@ -66,7 +59,8 @@ def plot_data(pretraining, data, figax=None):
 
         mean, std = numpy.mean(values), numpy.std(values)
         averaged.append(mean)
-        ax.errorbar(float(key), mean, std, color=COLORS[pretraining])
+        # ax.errorbar(float(key), mean, std, color=COLORS[pretraining])
+        ax.plot(float(key), mean, color=COLORS[pretraining], marker='.')
 
     ax.plot([float(key) for key in data.keys()], averaged, color=COLORS[pretraining], label=pretraining)
     ax.set(
@@ -80,11 +74,11 @@ def plot_data(pretraining, data, figax=None):
 def main():
 
     fig, ax = pyplot.subplots(figsize=(4,3))
-    for pretraining in ["STED", "HPA", "JUMP", "ImageNet"]:
+    for pretraining in ["STED", "SIM", "HPA", "JUMP", "ImageNet"]:
         data = get_data(pretraining=pretraining)
         fig, ax = plot_data(pretraining, data, figax=(fig, ax))
     ax.legend()
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_small-dataset-samples"), extension="png", save_white=True)
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_small-dataset-samples"), extension="pdf")
 
 if __name__ == "__main__":
     main()
