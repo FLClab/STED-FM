@@ -67,18 +67,20 @@ class DatasetConfiguration(Configuration):
 class SegmentationConfiguration(Configuration):
     
     freeze_backbone: bool = True
-    num_epochs: int = 10
+    num_epochs: int = 2
     learning_rate: float = 1e-3
 
 class PiCIEConfiguration(Configuration):    
 
-    K_train: int = 8
-    max_iter: int = 100
+    K_train: int = 16
+    max_iter: int = 30
     distance_metric: str = 'cosine'
-    num_init_batches: int = 30
-    num_batches: int = 30
+    num_init_batches: int = 16
+    num_batches: int = 16
     no_balance: bool = False
     mse: bool = False
+    prop: bool = False
+    lambda_prop: float = 10.0
 
 # Define the configuration for the PiCIE model.
 class PiCIETransformConfig(Configuration):
@@ -114,11 +116,14 @@ def train(cfg, writer, logger, dataloader, model, classifier1, classifier2, crit
     losses_cet = AverageMeter()
     losses_cet_across = AverageMeter()
     losses_cet_within = AverageMeter()
+    losses_prop = AverageMeter()
 
     # switch to train mode
     model.train()
     if cfg.PiCIE.mse:
         criterion_mse = torch.nn.MSELoss().to(device)
+
+    kl_loss = torch.nn.KLDivLoss(reduction='batchmean').to(device)
 
     metric_function1 = get_metric_as_conv(centroids1)
     metric_function2 = get_metric_as_conv(centroids2)
@@ -242,7 +247,19 @@ def train(cfg, writer, logger, dataloader, model, classifier1, classifier2, crit
             losses_mse.update(loss_mse.item(), B)
 
             loss = (loss + loss_mse) / 2. 
-        
+
+        if cfg.PiCIE.prop:
+            label1 = torch.nn.functional.log_softmax(feature_flatten(predict_label_with_gradient(featmap1, centroids1, metric_function1).to(device)), dim=1)
+            label2 = torch.nn.functional.log_softmax(feature_flatten(predict_label_with_gradient(featmap2, centroids2, metric_function2).to(device)), dim=1)
+
+            # loss on the number of pixels from each class
+            target = 1 / cfg.PiCIE.K_train * torch.ones(len(label1), cfg.PiCIE.K_train).to(device)
+            loss_prop = (kl_loss(label1[masks1], target[masks1]) + kl_loss(label2[masks2], target[masks2])) / 2
+            losses_prop.update(loss_prop.item(), B)
+
+            # loss_prop = (torch.nn.functional.mse_loss(bincount1, target) + torch.nn.functional.mse_loss(bincount2, target)) / 2
+            loss = loss + cfg.PiCIE.lambda_prop * loss_prop
+
         # record loss
         losses.update(loss.item(), B)
 
@@ -254,7 +271,7 @@ def train(cfg, writer, logger, dataloader, model, classifier1, classifier2, crit
         if (i_batch % 200) == 0:
             logger.info('{0} / {1}\t'.format(i_batch, len(dataloader)))
 
-    return losses.avg, losses_cet.avg, losses_cet_within.avg, losses_cet_across.avg, losses_mse.avg
+    return losses.avg, losses_cet.avg, losses_cet_within.avg, losses_cet_across.avg, losses_mse.avg, losses_prop.avg
 
 def main(args):
 
@@ -312,7 +329,7 @@ def main(args):
         drop_last=False
     )
 
-    optimizer = torch.optim.AdamW(model.parameters(), lr = cfg.learning_rate, weight_decay=1e-2)
+    optimizer = torch.optim.Adam(model.parameters(), lr = cfg.learning_rate, weight_decay=1e-2)
     logger.info(args)
 
     # Use random seed.
@@ -336,6 +353,7 @@ def main(args):
         t2 = time.time()
         weight1 = compute_labels(cfg, logger, trainloader, model, centroids1, view=1, device=DEVICE)
         weight2 = compute_labels(cfg, logger, trainloader, model, centroids2, view=2, device=DEVICE)
+        logger.info('-Weights: [{}] | [{}]'.format(weight1, weight2))
         logger.info('-Cluster labels ready. [{}]\n'.format(get_datetime(int(time.time())-int(t2)))) 
         
         # Criterion.
@@ -359,7 +377,7 @@ def main(args):
         # del centroids2
 
         logger.info('Start training ...')
-        train_loss, train_cet, cet_within, cet_across, train_mse = train(cfg, writer, logger, trainloader, model, classifier1, classifier2, criterion1, criterion2, centroids1, centroids2, optimizer, epoch, device=DEVICE) 
+        train_loss, train_cet, cet_within, cet_across, train_mse, train_prop = train(cfg, writer, logger, trainloader, model, classifier1, classifier2, criterion1, criterion2, centroids1, centroids2, optimizer, epoch, device=DEVICE) 
         acc1, res1 = 0, {"mean_iou": 0}
         acc2, res2 = 0, {"mean_iou": 0}
         # acc1, res1 = evaluate(args, logger, testloader, classifier1, model)
@@ -371,6 +389,7 @@ def main(args):
         logger.info('  Training Total Loss  : {:.5f}'.format(train_loss))
         logger.info('  Training CE Loss (Total | Within | Across) : {:.5f} | {:.5f} | {:.5f}'.format(train_cet, cet_within, cet_across))
         logger.info('  Training MSE Loss (Total) : {:.5f}'.format(train_mse))
+        logger.info('  Training Proportion Loss (Total) : {:.5f}'.format(train_prop))
         logger.info('  [View 1] ACC: {:.4f} | mIoU: {:.4f}'.format(acc1, res1['mean_iou']))
         logger.info('  [View 2] ACC: {:.4f} | mIoU: {:.4f}'.format(acc2, res2['mean_iou']))
         logger.info('========================================\n')
@@ -380,6 +399,7 @@ def main(args):
         stats["cet_within"].append(cet_within)
         stats["cet_across"].append(cet_across)
         stats["train_mse"].append(train_mse)
+        stats["train_prop"].append(train_prop)
         stats["acc1"].append(acc1)
         stats["res1"].append(res1)
         stats["acc2"].append(acc2)
@@ -391,6 +411,7 @@ def main(args):
             writer.add_scalar("train/cet_within", cet_within, epoch)
             writer.add_scalar("train/cet_across", cet_across, epoch)
             writer.add_scalar("train/mse", train_mse, epoch)
+            writer.add_scalar("train/prop", train_prop, epoch)
             writer.add_scalar("train/acc1", acc1, epoch)
             writer.add_scalar("train/acc2", acc2, epoch)
             writer.add_scalar("train/mIoU1", res1['mean_iou'], epoch)

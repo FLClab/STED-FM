@@ -3,11 +3,11 @@ import numpy as np
 import torch 
 import torch.nn as nn 
 
-from kmeans_gpu import KMeans
 # from sklearn.utils.linear_assignment_ import linear_assignment
 from scipy.optimize import linear_sum_assignment as linear_assignment
 # from modules import fpn 
 from .utils import *
+from .kmeans_gpu import KMeans
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -106,13 +106,13 @@ def run_mini_batch_kmeans(cfg, logger, dataloader, model, view, device=torch.dev
                         # Compute initial centroids. 
                         # By doing so, we avoid empty cluster problem from mini-batch K-Means. 
                         featslist = torch.stack(featslist).to(device)
-                        centroids = kmeans(featslist)
+                        _, centroids = kmeans(featslist)
 
                         kmeans_loss.update(0)
                         first_batch = False
                     else:
                         b_feat = torch.stack(featslist).to(device)
-                        centroids = kmeans(b_feat, centroids=centroids)
+                        _, centroids = kmeans(b_feat, centroids=centroids)
                     
                     # Empty. 
                     featslist   = []
@@ -122,7 +122,6 @@ def run_mini_batch_kmeans(cfg, logger, dataloader, model, view, device=torch.dev
                 logger.info('[Saving features]: {} / {} | [K-Means Loss]: {:.4f}'.format(i_batch, len(dataloader), kmeans_loss.avg))
 
     centroids = torch.tensor(centroids, requires_grad=False).to(device)
-    centroids = torch.mean(centroids, dim=0)
 
     return centroids, kmeans_loss.avg
 

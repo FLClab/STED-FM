@@ -226,6 +226,19 @@ def worker_init_fn(seed):
 #                               Training Pipelines                             #
 ################################################################################
 
+def predict_label_with_gradient(featmap, centroids, metric_function):
+    scores = compute_negative_euclidean(featmap, centroids, metric_function)
+    return scores
+    # print(scores.requires_grad, scores.shape)
+
+    # print(scores.topk(1, dim=1)[1], scores.topk(1, dim=1)[1].requires_grad)
+
+    # labels = []
+    # for idx in range(scores.size(0)):
+    #     labels.append(scores[idx].topk(1, dim=0)[1].flatten())
+    # print("labels[0]", labels[0].requires_grad)
+    # return torch.stack(labels)
+
 def predict_label(featmap, centroids, metric_function):
     scores = compute_negative_euclidean(featmap, centroids, metric_function)
     labels = []
