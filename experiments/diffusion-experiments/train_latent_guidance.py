@@ -152,6 +152,7 @@ if __name__=="__main__":
     callbacks = [last_model_callback, checkpoint_callback, ReconstructionCallback()]
     cfg = DatasetConfig()
     datamodule = MultiprocessingDataModule(args, cfg, transform=None, in_channels=channels)
+
     trainer = Trainer(
         max_epochs=1000,
         devices='auto',
@@ -163,4 +164,5 @@ if __name__=="__main__":
         logger=logger,
         callbacks=callbacks
     )
+    
     trainer.fit(model, train_dataloaders=datamodule, ckpt_path=args.restore_from)
