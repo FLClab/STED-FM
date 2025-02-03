@@ -222,9 +222,8 @@ def plot_distance_distribution(distances_to_boundary: dict):
 
 def cumulative_regret() -> None:
     files = glob.glob(f"./{args.boundary}-experiment/correlation/**-quality-correlation.npz")
-    fig = plt.figure(figsize=(12, 5))
-    ax1 = fig.add_subplot(121)
-    ax2 = fig.add_subplot(122)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
     for f in files:
         w = f.split("/")[-1].split("-")[0]
         weight = w.replace("MAE_SMALL_", "")
@@ -247,13 +246,10 @@ def cumulative_regret() -> None:
             
         regret_per_image = np.cumsum(regret_per_image)
         x = np.arange(len(regret_per_image))
-        ax1.plot(x, regret_per_image, c=COLORS[weight], label=weight, marker='o')
-        ax2.scatter(image_distances, regret_per_image, c=COLORS[weight], label=weight)
-    ax1.set_xlabel("Image index")
-    ax1.set_ylabel("Cumulative regret (quality score)")
-    ax2.set_xlabel("Distance from boundary")
-    ax2.set_ylabel("Image regret (quality score)")
-    ax1.legend()
+        ax.plot(x, regret_per_image, c=COLORS[weight], label=weight, marker='o')
+    ax.set_xlabel("Image index")
+    ax.set_ylabel("Cumulative regret (quality score)")
+    ax.legend()
     fig.savefig(f"./{args.boundary}-experiment/correlation/{args.weights}-regret.pdf", bbox_inches="tight", dpi=1200)
     plt.close()
 

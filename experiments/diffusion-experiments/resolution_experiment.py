@@ -196,9 +196,8 @@ def plot_results():
 
 def cumulative_regret() -> None:
     files = glob.glob(f"./{args.boundary}-experiment/correlation/**-resolution-correlation.npz")
-    fig = plt.figure(figsize=(12, 5))
-    ax1 = fig.add_subplot(121)
-    ax2 = fig.add_subplot(122)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
     for f in files:
         w = f.split("/")[-1].split("-")[0]
         weight = w.replace("MAE_SMALL_", "")
@@ -222,13 +221,12 @@ def cumulative_regret() -> None:
             
         regret_per_image = np.cumsum(regret_per_image)
         x = np.arange(len(regret_per_image))
-        ax1.plot(x, regret_per_image, c=COLORS[weight], label=weight, marker='o')
-        ax2.scatter(image_distances, regret_per_image, c=COLORS[weight], label=weight)
-    ax1.set_xlabel("Image index")
-    ax1.set_ylabel("Cumulative regret (nm)")
-    ax2.set_xlabel("Distance from boundary")
-    ax2.set_ylabel("Image regret (nm)")
-    ax1.legend()
+        ax.plot(x, regret_per_image, c=COLORS[weight], label=weight, marker='o')
+
+    ax.set_yscale('log')
+    ax.set_xlabel("Image index")
+    ax.set_ylabel("Cumulative regret (nm)")
+    ax.legend()
     fig.savefig(f"./{args.boundary}-experiment/correlation/{args.weights}-regret.pdf", bbox_inches="tight", dpi=1200)
     plt.close()
 
@@ -279,7 +277,10 @@ def main():
             for i in tqdm(indices, total=N):
                 img, metadata = dataset[i]
                 label = metadata["label"]
-                torch_img = img.clone().detach().unsqueeze(0).to(DEVICE)
+                if "imagenet" in args.weights.lower():
+                    torch_img = img.clone().detach().repeat(3, 1, 1).unsqueeze(0).to(DEVICE)
+                else:
+                    torch_img = img.clone().detach().unsqueeze(0).to(DEVICE)
                 latent_code = latent_encoder.forward_features(torch_img)
                 numpy_code = latent_code.detach().cpu().numpy()
                 d = numpy_code.dot(boundary.T) + intercept
@@ -325,7 +326,7 @@ def main():
         )
 
         ckpt = torch.load(f"{args.ckpt_path}/{args.weights}/checkpoint-69.pth") 
-        diffusion_model.load_state_dict(ckpt["state_dict"])
+        diffusion_model.load_state_dict(ckpt["state_dict"], strict=True)
         diffusion_model.to(DEVICE)
         diffusion_model.eval()
 

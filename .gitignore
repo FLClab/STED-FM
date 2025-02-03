@@ -1,4 +1,5 @@
 experiments/diffusion-experiments/resolution-experiment/correlation/
+experiments/diffusion-experiments/resolution-experiment/
 experiments/interpretability-experiments/attention_script.sh
 experiments/diffusion-experiments/classification-study/
 experiments/diffusion-experiments/resolution-experiment/distributions/
@@ -17,7 +18,7 @@ experiments/detection-experiments/**/*.pkl
 experiments/detection-experiments/application/users.json
 experiments/autonomous-experiments/**/*.pkl
 experiments/user-study/**/*.pkl
-
+experiments/diffusion-experiments/quality-experiment/
 # data symlink
 experiments/simclr-experiments/data
 experiments/simclr-experiments/panels
