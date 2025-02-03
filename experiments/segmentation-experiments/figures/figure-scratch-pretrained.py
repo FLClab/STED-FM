@@ -80,8 +80,8 @@ def plot_data(pretraining, data, figax=None, position=0, **kwargs):
 
 def main():
     fig, ax = pyplot.subplots()
-    modes = ["from-scratch", "pretrained-frozen", "pretrained"]
-    pretrainings = ["STED", "Hybrid", "SIM", "HPA", "JUMP","ImageNet"]
+    modes = ["pretrained-frozen", "pretrained"]
+    pretrainings = ["STED", "SIM", "HPA", "JUMP","ImageNet"]
 
     width = 1/(len(pretrainings) + 1)
     for j, mode in enumerate(modes):
