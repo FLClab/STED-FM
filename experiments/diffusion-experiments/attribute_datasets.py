@@ -47,8 +47,9 @@ class LowHighResolutionDataset(Dataset):
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         img, label = self.images[idx], self.labels[idx]
         if self.n_channels == 3:
-            img = np.tile(img[np.newaxis, :], (3, 1, 1))
             img = torch.tensor(img, dtype=torch.float32)
+            img = img.repeat(3, 1, 1)
+            img = transforms.Normalize(mean=[0.010903545655310154, 0.010903545655310154, 0.010903545655310154], std=[0.03640301525592804, 0.03640301525592804, 0.03640301525592804])(img)
         else:
             img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
         img = self.transform(img) if self.transform is not None else img
