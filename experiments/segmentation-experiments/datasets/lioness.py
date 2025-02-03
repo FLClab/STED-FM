@@ -282,7 +282,7 @@ def get_dataset(cfg : dataclass, test_only : bool = False, **kwargs) -> Tuple[Da
         transform = transforms.Compose([
             transforms.ToTensor(),
             # transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            transforms.Normalize(mean=[0.6304965615272522, 0.6304965615272522, 0.6304965615272522], std=[0.2132348269224167, 0.2132348269224167, 0.2132348269224167])
         ])
     else:
         transform = transforms.ToTensor()    

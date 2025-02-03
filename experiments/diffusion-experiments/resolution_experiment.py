@@ -87,7 +87,7 @@ def save_examples(samples, distances, resolutions, index):
    for i, (s, d, r) in enumerate(zip(samples, distances, resolutions)):
        if s.shape[0] == 3:
            s = s[0]
-       axs[i].imshow(s, cmap="hot", vmin=0.0, vmax=1.0)
+       axs[i].imshow(s, cmap="hot")# , vmin=0.0, vmax=1.0)
        axs[i].set_title(f"Distance: {d:.2f}\nRes: {r:.2f}")
        axs[i].axis("off")
    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
@@ -236,7 +236,8 @@ def load_distance_distribution(weight: str = args.weights) -> np.ndarray:
     scores = data["key2"]
     avg, std = np.mean(scores), np.std(scores)
     max_distance = np.max(scores)
-    return avg - (5*std), max_distance * 2
+    max_distance = max_distance * 2 if "imagenet" not in args.weights.lower() else max_distance / 2
+    return avg - (5*std), max_distance
 
 def main():
     if args.figure:
@@ -244,6 +245,7 @@ def main():
         cumulative_regret()
     elif args.sanity_check:
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        channels = 3 if "imagenet" in args.weights.lower() else 1
         boundary, intercept, norm = load_boundary()
         latent_encoder, model_config = get_pretrained_model_v2(
             name=args.latent_encoder,
@@ -251,7 +253,7 @@ def main():
             path=None,
             mask_ratio=0.0, 
             pretrained=True if "imagenet" in args.weights.lower() else False,
-            in_channels=3 if "imagenet" in args.weights.lower() else 1,
+            in_channels=channels,
             as_classifier=True,
             blocks="all",
             num_classes=4
@@ -263,7 +265,7 @@ def main():
             h5path=f"/home-local/Frederic/evaluation-data/low-high-quality/training.hdf5",
             num_samples=None,
             transform=None,
-            n_channels=1,
+            n_channels=channels,
             num_classes=2,
             classes=["low", "high"] 
         )
@@ -277,10 +279,8 @@ def main():
             for i in tqdm(indices, total=N):
                 img, metadata = dataset[i]
                 label = metadata["label"]
-                if "imagenet" in args.weights.lower():
-                    torch_img = img.clone().detach().repeat(3, 1, 1).unsqueeze(0).to(DEVICE)
-                else:
-                    torch_img = img.clone().detach().unsqueeze(0).to(DEVICE)
+                
+                torch_img = img.clone().unsqueeze(0).to(DEVICE)
                 latent_code = latent_encoder.forward_features(torch_img)
                 numpy_code = latent_code.detach().cpu().numpy()
                 d = numpy_code.dot(boundary.T) + intercept
@@ -296,6 +296,7 @@ def main():
         np.random.seed(42)
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         boundary, intercept, norm = load_boundary()
+        channels = 3 if "imagenet" in args.weights.lower() else 1
         distance_min, distance_max = load_distance_distribution()
         print(f"--- Moving from 0.0 to {distance_max} ---")
         latent_encoder, model_config = get_pretrained_model_v2(
@@ -304,7 +305,7 @@ def main():
             path=None, 
             mask_ratio=0.0,
             pretrained=True if "imagenet" in args.weights.lower() else False,
-            in_channels=3 if "imagenet" in args.weights.lower() else 1,
+            in_channels=channels,
             as_classifier=True,
             blocks="all",
             num_classes=4
@@ -334,7 +335,7 @@ def main():
             h5path=f"/home-local/Frederic/evaluation-data/low-high-quality/testing.hdf5",
             num_samples=None,
             transform=None,
-            n_channels=1,
+            n_channels=channels,
             num_classes=2,
             classes=["low", "high"] 
         )
@@ -358,15 +359,18 @@ def main():
                 if args.boundary == "resolution" and label != 0: # We will only sample low poor image and move in the good res direction
                     continue 
 
+                
+                img = img.clone().unsqueeze(0).to(DEVICE)
+                latent_code = diffusion_model.latent_encoder.forward_features(img) 
+                
                 if "imagenet" in args.weights.lower():
-                    img = torch.tensor(img, dtype=torch.float32).repeat(3, 1, 1).unsqueeze(0).to(DEVICE)
-                else:
-                    img = torch.tensor(img, dtype=torch.float32).unsqueeze(0).to(DEVICE)
+                    img = img[:, [0], :, :]
 
                 original = img.squeeze().detach().cpu().numpy()
                 original_resolution = compute_resolution(img=original)
                 original_resolutions.append(original_resolution)
-                latent_code = diffusion_model.latent_encoder.forward_features(img) 
+
+    
                 numpy_code = latent_code.detach().cpu().numpy() 
                 # original_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=latent_code, progress=True) 
 
