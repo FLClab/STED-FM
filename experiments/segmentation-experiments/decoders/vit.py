@@ -165,6 +165,8 @@ class ViTSegmentationClassifier(torch.nn.Module):
             print(f"--- Freezing backbone ---")
             for p in self.backbone.parameters():
                 p.requires_grad = False
+        else:
+            print(f"--- End-to-end fine-tuning ---")
 
         self.patch_size = self.backbone.patch_embed.patch_size[0]
         self.classification_head = torch.nn.Linear(

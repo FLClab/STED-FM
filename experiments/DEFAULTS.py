@@ -56,3 +56,21 @@ class DefaultColorMapper(ColorMapper):
     hybrid: str = "#94346E"
     
 COLORS = DefaultColorMapper()
+COLORS = {
+    "IMAGENET1K_V1": "#5F4690",
+    "ImageNet": "#5F4690",
+    "JUMP": "#1D6996",
+    "HPA": "#0F8554",
+    "SIM": "#EDAD08",
+    "STED": "#CC503E",
+    "Hybrid": "#94346E",
+}
+
+MARKERS = {
+    "IMAGENET1K_V1": "o",
+    "ImageNet": "*",
+    "JUMP": "P",
+    "HPA": "s",
+    "SIM": "^",
+    "STED": "o",
+}

@@ -11,13 +11,14 @@ import os
 import random
 from class_dict import class_dict
 import random
+from attribute_datasets import OptimQualityDataset
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH 
 from datasets import get_dataset 
 from model_builder import get_pretrained_model_v2
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--seed", type=int, default=42)
+parser.add_argument("--seed", type=int, default=32)
 parser.add_argument("--dataset-path", type=str, default="/home/frbea320/projects/def-flavielc/datasets/FLCDataset/dataset-250k.tar")
 parser.add_argument("--latent-encoder", type=str, default="mae-lightning-small")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
@@ -51,10 +52,12 @@ def save_image(image: np.ndarray, generation: np.ndarray, i: int, class_name: st
     plt.savefig(f"./classification-study/{args.guidance}-guidance/templates/template{i}_{class_name}.png", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
+
+    weights = "classifier-guidance" if args.guidance == "class" else args.weights
     fig = plt.figure()
     plt.imshow(generation, cmap='hot', vmin=0, vmax=1)
     plt.axis("off")
-    plt.savefig(f"./classification-study/{args.guidance}-guidance/candidates/{args.weights}_template{i}_{class_name}.png", dpi=1200, bbox_inches="tight")
+    plt.savefig(f"./classification-study/{args.guidance}-guidance/candidates/{weights}_template{i}_{class_name}.png", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
 def main():
@@ -100,12 +103,19 @@ def main():
     model.load_state_dict(ckpt["state_dict"])
     model = model.to(DEVICE)
 
-    dataset = get_dataset(
-        name="STED",
-        path=args.dataset_path,
-        use_cache=False,
-        return_metadata=True
-    )
+    # dataset = get_dataset(
+    #     name="STED",
+    #     path=args.dataset_path,
+    #     use_cache=False,
+    #     return_metadata=True
+    # )
+    dataset = OptimQualityDataset(
+            data_folder="/home-local/Frederic/evaluation-data/optim-data",
+            num_samples={"actin": None, "tubulin": None, "CaMKII_Neuron": None, "PSD95_Neuron": None},
+            high_score_threshold=0.70,
+            low_score_threshold=0.0,
+            n_channels=1
+        )
 
     os.makedirs(f"./classification-study/{args.guidance}-guidance/templates", exist_ok=True)
     os.makedirs(f"./classification-study/{args.guidance}-guidance/candidates", exist_ok=True)
@@ -115,8 +125,6 @@ def main():
         "psd95": 0,
         "beta-camkii": 0,
         "tubulin": 0,
-        "FUS": 0,
-        "vglut2": 0,
     }
     indices = np.arange(len(dataset))
     np.random.shuffle(indices)
@@ -125,8 +133,17 @@ def main():
     with torch.no_grad():
         for idx in tqdm(indices, total=len(indices), desc="Processing samples"):
             original_img, metadata = dataset[idx]
-            class_name = metadata["protein-id"]
-            
+            # class_name = metadata["protein-id"]
+            protein = metadata["protein"]
+        
+            if protein == "actin":
+                class_name = "f-actin"
+            elif protein == "tubulin":
+                class_name = "tubulin"
+            elif protein == "CaMKII_Neuron":
+                class_name = "beta-camkii"
+            elif protein == "PSD95_Neuron":
+                class_name = "psd95"
             if sum(list(counters.values())) >= args.num_samples:
                 print(f"Finished; sampled {counters}")
                 break

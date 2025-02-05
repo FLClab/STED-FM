@@ -47,8 +47,9 @@ class LowHighResolutionDataset(Dataset):
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         img, label = self.images[idx], self.labels[idx]
         if self.n_channels == 3:
-            img = np.tile(img[np.newaxis, :], (3, 1, 1))
             img = torch.tensor(img, dtype=torch.float32)
+            img = img.repeat(3, 1, 1)
+            img = transforms.Normalize(mean=[0.010903545655310154, 0.010903545655310154, 0.010903545655310154], std=[0.03640301525592804, 0.03640301525592804, 0.03640301525592804])(img)
         else:
             img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
         img = self.transform(img) if self.transform is not None else img
@@ -157,7 +158,7 @@ class OptimQualityDataset(Dataset):
             data_folder: str,
             num_samples = None,
             transform = None,
-            classes: List = ['actin', 'tubulin', 'CaMKII', 'PSD95'],
+            classes: List = ['actin', 'tubulin', 'CaMKII_Neuron', 'PSD95_Neuron'],
             n_channels: int = 1,
             high_score_threshold: float = 0.70,
             low_score_threshold: float = 0.60,
@@ -179,6 +180,7 @@ class OptimQualityDataset(Dataset):
         for i, class_name in enumerate(classes):
             class_folder = os.path.join(data_folder, class_name)
             self.samples[class_name], self.labels[class_name] = self._filter_files(class_folder)
+            print(f"Samples in {class_name}: {len(self.samples[class_name])}")
 
     def _filter_files(self, class_folder):
         files = glob.glob(os.path.join(class_folder, "**/*.npz"), recursive=True)
@@ -220,6 +222,7 @@ class OptimQualityDataset(Dataset):
                 index = idx
                 break
             else:
+                class_folder = class_name
                 idx -= len(self.samples[class_name])
 
         path = file_name
@@ -246,7 +249,7 @@ class OptimQualityDataset(Dataset):
         img = self.transform(img) if self.transform is not None else img
         
         # label = np.float64(label)
-        return img, {"label" : label, "dataset-idx" : dataset_idx, "score" : quality_score}
+        return img, {"label" : label, "dataset-idx" : dataset_idx, "score" : quality_score, "protein": class_folder}
 
     def __repr__(self):
         out = "\n"
