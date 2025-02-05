@@ -91,9 +91,7 @@ if __name__ == "__main__":
 
     # Loads backbone model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    n_channels = 1
-    if args.weights is not None:
-        n_channels = 3 if "imagenet" in args.weights.lower() else n_channels
+    n_channels = 3 if "imagenet" in args.weights.lower() else 1
 
     model, cfg = get_pretrained_model_v2(
         name=args.model,
@@ -113,25 +111,9 @@ if __name__ == "__main__":
     update_cfg(cfg, args.opts)
 
     train_loader, valid_loader, test_loader = get_dataset(
-        "optim", training=True, n_channels=cfg.in_channels, 
+        "resolution", training=True, n_channels=cfg.in_channels, 
         batch_size=cfg.batch_size, seed=args.seed, transforms=None,
-        min_quality_score=0.,
     )
-
-    random.seed(42)
-    choices = random.sample(range(len(test_loader.dataset)), 50)
-    cmap = pyplot.get_cmap("gray")
-    for choice in choices:
-        img, metadata = test_loader.dataset[choice]
-        print(metadata)
-        img = img.numpy()[0]
-
-        img = cmap(img)[:, :, :-3] * 255.
-        import tifffile 
-        os.makedirs("tmp/optim", exist_ok=True)
-        tifffile.imwrite(f"tmp/optim/{metadata['label']}-{metadata['dataset-idx']}.tif", img.astype(numpy.uint8))
-
-    exit()
 
     X_train, y_train, _ = get_features(model, train_loader)
     X_valid, y_valid, _ = get_features(model, valid_loader)
@@ -160,20 +142,20 @@ if __name__ == "__main__":
 
     y_pred = clf.predict(X_test)
 
-    os.makedirs(os.path.join("figures", "quality"), exist_ok=True)
+    os.makedirs(os.path.join("figures", "resolution"), exist_ok=True)
 
     fig, ax = pyplot.subplots(figsize=(3, 3))
+    ax.plot([40, 250], [40, 250], color="black", linestyle="--")
     ax.scatter(y_test, y_pred, alpha=0.5, color=COLORS[args.weights])
-    ax.plot([0, 1], [0, 1], color="black", linestyle="--")
     pearson, stats = pearsonr(y_test, y_pred)
     ax.annotate(f"Pearson: {pearson:.2f}", (0.05, 0.95), xycoords="axes fraction", ha="left", va="top")
     ax.set(
-        xlabel="True quality score",
-        ylabel="Predicted quality score",
-        ylim=(0, 1),
-        xlim=(0, 1),
+        xlabel="True resolution (nm)",
+        ylabel="Predicted resolution (nm)",
+        ylim=(40, 250),
+        xlim=(40, 250),
     )
-    savefig(fig, os.path.join("figures", "quality", f"{args.model}_{args.weights}_scatter"), save_white=True)
+    savefig(fig, os.path.join("figures", "resolution", f"{args.model}_{args.weights}_scatter"), save_white=True)
 
     # argsort = numpy.argsort(y_pred_std)
     # fig, axes = pyplot.subplots(2, 7, figsize=(10, 5), tight_layout=True)

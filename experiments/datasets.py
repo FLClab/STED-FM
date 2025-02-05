@@ -463,6 +463,41 @@ class CreateFActinBlockGluGlyDataset(Dataset):
             out += f"{key} - {len(values)}\n"
         return "Dataset(F-actin) -- length: {}".format(len(self)) + out
 
+class ResolutionDataset(Dataset):
+    """
+    Dataset class for loading and processing image data from images of different resolutions.
+
+    """
+
+    def __init__(
+        self,
+        path: str,
+        transform: Any = None,
+        n_channels: int = 1,
+        *args, **kwargs
+    ) -> None:
+        self.path = path
+        self.transform = transform
+        self.n_channels = n_channels
+
+        with h5py.File(path, "r") as f:
+            self.data = f["data"][()]
+            self.labels = f["labels"][()]
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        image = self.data[idx]
+        label = self.labels[idx]
+
+        image = np.tile(image[np.newaxis], (self.n_channels, 1, 1))
+        image = torch.tensor(image, dtype=torch.float32)
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, {"label" : label, "score" : label, "dataset-idx" : idx}
 
 class OptimDataset(Dataset):
     """
@@ -584,7 +619,8 @@ class PeroxisomeDataset(Dataset):
     def __init__(
         self, source:str, 
         transform: Any, 
-        classes: List = ["6hGluc", "4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"], 
+        # classes: List = ["6hGluc", "4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"], 
+        classes: List = ["6hGluc", "6hMeOH"], 
         n_channels: int = 1,
         resize_mode : str = "pad",
         superclasses: bool = False,

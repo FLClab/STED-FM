@@ -8,9 +8,15 @@ from collections import defaultdict
 
 import sys
 sys.path.insert(0, "../../")
+from DEFAULTS import COLORS
 from utils import savefig
 
 MODELS = ["ImageNet", "JUMP", "HPA", "SIM", "STED", "classifier", "real"]
+
+# Manually adding the colors for the models
+COLORS["classifier"] = "silver"
+COLORS["real"] = "silver"
+
 CLASSES = [
     "PSD95", "Tubulin", "F-Actin", "Other", "Unclassifiable"
 ]
@@ -21,15 +27,6 @@ CONVERT = {
     "beta-camkii": "Other",
     "vglut2" : "Other",
     "tom20" : "Other",
-}
-COLORS = {
-    "ImageNet" : "tab:red",
-    "JUMP" : "tab:green",
-    "HPA" : "tab:orange",
-    "STED" : "tab:blue",
-    "SIM" : "tab:purple",
-    "classifier" : "blue",
-    "real" : "violet",
 }
 
 def get_user(filename):
@@ -81,6 +78,7 @@ def main():
     user_choices = get_user_choices()
     
     accuracies = defaultdict(list)
+    unclassiables = defaultdict(list)
 
     for user, choices in user_choices.items():
         for model, data in choices.items():
@@ -92,8 +90,8 @@ def main():
                 except ValueError:
                     pass
 
-            cm = confusion_matrix[:-1, :-1] / confusion_matrix[:-1, :-1].sum(axis=1, keepdims=True)
-            confusion_matrix[:-1, :-1] = cm
+            cm = confusion_matrix[:-1] / confusion_matrix[:-1].sum(axis=1, keepdims=True)
+            confusion_matrix[:-1] = cm
 
             fig, ax = pyplot.subplots(figsize=(3,3))
             ax.imshow(confusion_matrix, cmap="Purples", vmin=0, vmax=1)
@@ -110,7 +108,8 @@ def main():
             pyplot.close("all")
 
             accuracies[model].append(numpy.diag(cm).mean())
-    
+            unclassiables[model].append(confusion_matrix[:-1, -1])
+
     fig, ax = pyplot.subplots(figsize=(3,3))
     to_plot = []
     for model, values in accuracies.items():
@@ -123,7 +122,6 @@ def main():
     to_plot = numpy.array(to_plot).swapaxes(2, 0)
     for userdata in to_plot:
         ax.plot(userdata[0], userdata[1], color="silver")
-
     ax.set(
         xticks=numpy.arange(len(MODELS)),
         xticklabels=MODELS,
@@ -131,6 +129,22 @@ def main():
     )
     pyplot.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
     savefig(fig, f"./results/accuracies", save_white=True)
+
+    # fig, ax = pyplot.subplots(figsize=(3,3))
+    # to_plot = []
+    # for model, values in unclassiables.items():
+    #     to_plot.append(values)
+    # to_plot = numpy.array(to_plot)
+    # print(to_plot.shape)
+    # # for userdata in to_plot:
+    # #     ax.plot(userdata[0], userdata[1], color="silver")
+    # # ax.set(
+    # #     xticks=numpy.arange(len(MODELS)),
+    # #     xticklabels=MODELS,
+    # #     ylabel="Unclassifiable"
+    # # )
+    # pyplot.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+    # savefig(fig, f"./results/unclassifiables", save_white=True)
 
 if __name__ == "__main__":
     main()
