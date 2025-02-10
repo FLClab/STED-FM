@@ -23,6 +23,7 @@ from collections import defaultdict
 from collections.abc import Mapping
 from multiprocessing import Manager
 from torch.utils.tensorboard import SummaryWriter
+from skimage import measure
 # from torchsummary import summary
 from sklearn.metrics import average_precision_score, auc, precision_recall_curve, roc_auc_score
 from matplotlib import pyplot
@@ -98,6 +99,37 @@ def compute_aupr(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.nd
         aupr_per_class.append(auc(recall, precision))
     return aupr_per_class
 
+def compute_weak_aupr(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> list:
+    aupr_per_class = []
+    for t, p in zip(truth, prediction):
+        t = t > 0.5 # binarize with majority of votes
+        t_label = measure.label(t)
+        t_rprops = measure.regionprops(t_label)
+        regions_aupr = []
+        for region in t_rprops:
+            ymin, xmin, ymax, xmax = region.bbox
+            ymin = max(0, ymin - 10)
+            ymax = min(t.shape[0], ymax + 10)
+            xmin = max(0, xmin - 10)
+            xmax = min(t.shape[1], xmax + 10)
+            t_crop = t[ymin:ymax, xmin:xmax].ravel()
+            p_crop = p[ymin:ymax, xmin:xmax].ravel()
+
+            if numpy.unique(t_crop).size == 1:
+                regions_aupr.append(-1)
+                continue
+
+            if numpy.unique(p_crop).size == 1 and numpy.unique(t_crop).size > 1:
+                regions_aupr.append(0.0)
+                continue
+
+            precision, recall, _ = precision_recall_curve(t_crop, p_crop)
+            r_aupr = auc(recall, precision)
+            regions_aupr.append(r_aupr)
+        aupr_per_class.append(numpy.mean(regions_aupr))
+
+    return aupr_per_class
+
 def compute_auroc(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> list:
     """
     Compute the area under the receiver operating characteristic curve between the truth and the prediction
@@ -151,7 +183,7 @@ def compute_auap(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.nd
         auap_per_class.append(auc(recall, precision_star))
     return auap_per_class
 
-def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
+def compute_scores(truth: torch.Tensor, prediction: torch.Tensor, dataset_name: str) -> dict:
     """
     Compute the prediction between the truth and the prediction
 
@@ -174,13 +206,16 @@ def compute_scores(truth: torch.Tensor, prediction: torch.Tensor) -> dict:
         # Convert to binary mask
         mask = mask > 0
 
-        scores["iou"].append(compute_iou(truth_, prediction_, mask))
-        scores["aupr"].append(compute_aupr(truth_, prediction_, mask))
-        scores["auroc"].append(compute_auroc(truth_, prediction_, mask))
-        scores["auap"].append(compute_auroc(truth_, prediction_, mask))
+        if dataset_name == "synaptic-semantic-segmentation":
+            scores["aupr"].append(compute_weak_aupr(truth_, prediction_, mask))
+        else:
+            scores["iou"].append(compute_iou(truth_, prediction_, mask))
+            scores["aupr"].append(compute_aupr(truth_, prediction_, mask) )
+            scores["auroc"].append(compute_auroc(truth_, prediction_, mask))
+            scores["auap"].append(compute_auap(truth_, prediction_, mask))
     return scores
 
-def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataLoader, savefolder: str = None, device="cpu") -> dict:
+def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataLoader, savefolder: str = None, device="cpu", dataset_name: str = None) -> dict:
     """
     Evaluates the segmentation model on the given loader
 
@@ -216,8 +251,8 @@ def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataL
             tifffile.imwrite(os.path.join(savefolder, "label.tif"), y_.astype(numpy.uint8), imagej=True, metadata={"mode" : "composite"})
             pred_ = numpy.clip(pred_ * 255, 0, 255)
             tifffile.imwrite(os.path.join(savefolder, "prediction.tif"), pred_.astype(numpy.uint8), imagej=True, metadata={"mode" : "composite"})
-        
-        scores = compute_scores(y, pred)
+
+        scores = compute_scores(y, pred, dataset_name=dataset_name)
         for key, values in scores.items():
             all_scores[key].extend(values)
 
