@@ -35,11 +35,11 @@ def get_data(mode="from-scratch", pretraining="STED"):
         files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{mode}*", f"segmentation-scores.json"), recursive=True)
     else:
         files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{mode}*_{pretraining.upper()}*", f"segmentation-scores.json"), recursive=True)
-        print((len(files)))
+        files = [f for f in files if "labels" not in f]
 
     if mode == "pretrained":
         # remove files that contains samples
-        files = list(filter(lambda x: "frozen" not in x, files))    
+        files = list(filter(lambda x: "frozen" not in x, files))   
         
     # remove files that contains samples
     files = list(filter(lambda x: "samples" not in x, files))
@@ -99,7 +99,7 @@ def main():
 
     pyplot.legend(handles=legend_elements)
 
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_scratch-pretrained"), extension="pdf")
+    savefig(fig, os.path.join(".", "results", f"test_{args.model}_{args.dataset}_scratch-pretrained"), extension="pdf")
 
 if __name__ == "__main__":
     main()

@@ -40,7 +40,7 @@ def get_data(pretraining="STED"):
             print(f"Could not find files for sample: `{sample}` and pretraining: `{pretraining}`")
             continue
         if len(files) != 5:
-            print(f"Could not find all files for sample: `{sample}` and pretraining: `{pretraining}`")
+            print(f"Could not find all files for sample: `{sample}` and pretraining: `{pretraining} ({len(files)}/5)")
         scores = []
         for file in files:
             scores.append(load_file(file))
@@ -54,7 +54,7 @@ def get_full_data(mode=args.mode, pretraining="STED"):
         print(f"Could not find files for mode: `{mode}` and pretraining: `{pretraining}`")
         return data
     if len(files) != 5:
-        print(f"Could not find all files for mode: `{mode}` and pretraining: `{pretraining}`")
+        print(f"Could not find all files for mode: `{mode}` and pretraining: `{pretraining}` ({len(files)}/5)")
     scores = []
     for file in files:
         scores.append(load_file(file))
@@ -62,10 +62,10 @@ def get_full_data(mode=args.mode, pretraining="STED"):
     return data
 
 def plot_data(pretraining, data, figax=None):
-    full_dataset_results = get_full_data(pretraining=pretraining)
-    full_dataset_results = [item[args.metric] for item in full_dataset_results["finetuned"]]
-    full_mean = numpy.mean(full_dataset_results)
-    full_sem = stats.sem(full_dataset_results)
+    # full_dataset_results = get_full_data(pretraining=pretraining)
+    # full_dataset_results = [item[args.metric] for item in full_dataset_results[args.mode]]
+    # full_mean = numpy.mean(full_dataset_results)
+    # full_sem = stats.sem(full_dataset_results)
 
     if figax is None:
         fig, ax = pyplot.subplots()
@@ -83,18 +83,18 @@ def plot_data(pretraining, data, figax=None):
         # ax.errorbar(float(key), mean, std, color=COLORS[pretraining])
         # ax.plot(float(key), mean, color=COLORS[pretraining], marker=MARKERS[pretraining])
 
-    averaged.append(full_mean)
-    errs.append(full_sem)
+    # averaged.append(full_mean)
+    # errs.append(full_sem)
     averaged = numpy.array(averaged)
     errs = numpy.array(errs)
    
-    ax.plot([float(key) for key in data.keys()] + [200], averaged, color=COLORS[pretraining], marker=MARKERS[pretraining], label=pretraining)
-    ax.fill_between([float(key) for key in data.keys()] + [200], averaged - errs, averaged + errs, color=COLORS[pretraining], alpha=0.2)
+    ax.plot([float(key) for key in data.keys()], averaged, color=COLORS[pretraining], marker=MARKERS[pretraining], label=pretraining)
+    ax.fill_between([float(key) for key in data.keys()], averaged - errs, averaged + errs, color=COLORS[pretraining], alpha=0.2)
     ax.set(
         xlabel="Num. samples per class", ylabel=args.metric,
         # ylim=(0, 1),
-        xticks=[int(s) for s in data.keys()] + [200],
-        xticklabels=list(data.keys()) + ["Full"]
+        xticks=[int(s) for s in data.keys()], # + [200],
+        xticklabels=list(data.keys()), # + ["Full"]
     )
 
     return (fig, ax)

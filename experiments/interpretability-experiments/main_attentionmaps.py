@@ -29,6 +29,8 @@ parser.add_argument("--seed", type=int, default=4242)
 parser.add_argument("--dataset", type=str, default="optim")
 parser.add_argument("--model", type=str, default="mae-lightning-small")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
+parser.add_argument("--ckpt-path", type=str, default=None)
+parser.add_argument("--save-folder", type=str, default="candidates")
 parser.add_argument("--opts", nargs="+", default=[])
 args = parser.parse_args()
 
@@ -62,21 +64,22 @@ def save_image(image, a_map, i):
 
     m, M = np.min(image), np.max(image)
     image_rgb = make_composite(np.array([image]), luts=["gray"], ranges=[(m, M)])
-    image_amap_rgb = make_composite(np.stack([image, a_map]), luts=["gray", "Orange Hot"], ranges=[(m, M), (a_map.min() + 0.25 *(a_map.max() - a_map.min()), a_map.max())])
+    image_amap_rgb = make_composite(np.stack([image, a_map]), luts=["gray", "Orange Hot"], ranges=[(m, M), (a_map.min() + 0.50 *(a_map.max() - a_map.min()), a_map.max())])
 
     fig = plt.figure()
     plt.imshow(image_rgb)
     plt.axis("off")
     plt.savefig(f"./attention-map-examples/templates/template{i}.png", dpi=1200, bbox_inches="tight")
     plt.close(fig)
-    
+    savefolder = "candidates" if args.ckpt_path is None else "candidates_finetuned"
     fig = plt.figure()
     plt.imshow(image_amap_rgb)
     plt.axis("off")
-    plt.savefig(f"./attention-map-examples/candidates/{args.weights}_template{i}.png", dpi=1200, bbox_inches="tight")
+    plt.savefig(f"./attention-map-examples/{savefolder}/{args.weights}_template{i}.png", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
 def show_image(image, a_map, i):
+    savefolder = "results" if args.ckpt_path is None else "results-finetuned"
     image = image.squeeze().cpu().data.numpy()
     a_map = a_map.squeeze().cpu().data.numpy()
     print(image.shape, a_map.shape)
@@ -88,7 +91,7 @@ def show_image(image, a_map, i):
 
     m, M = np.min(image), np.max(image)
     image_rgb = make_composite(np.array([image]), luts=["gray"], ranges=[(m, M)])
-    image_amap_rgb = make_composite(np.stack([image, a_map]), luts=["gray", "Orange Hot"], ranges=[(m, M), (a_map.min() + 0.25 *(a_map.max() - a_map.min()), a_map.max())])
+    image_amap_rgb = make_composite(np.stack([image, a_map]), luts=["gray", "Orange Hot"], ranges=[(m, M), (a_map.min() + 0.50 *(a_map.max() - a_map.min()), a_map.max())])
 
     fig, axes = plt.subplots(1, 3, figsize=(10, 3))
     axes[0].imshow(image_rgb)
@@ -99,7 +102,7 @@ def show_image(image, a_map, i):
     axes[2].set_title("Overlay")
     for ax in axes:
         ax.axis("off")
-    fig.savefig(f"./attention-map-examples/results/{args.weights}_amap_{i}.pdf", bbox_inches="tight", dpi=1200, facecolor=None)
+    fig.savefig(f"./attention-map-examples/{args.weights}_amap_{i}.pdf", bbox_inches="tight", dpi=1200, facecolor=None)
     plt.close()
 
 def set_seeds():
@@ -110,6 +113,7 @@ def set_seeds():
 def main():
     np.random.seed(args.seed)
     SAVENAME = get_save_folder()
+    os.makedirs(f"./attention-map-examples/{args.save_folder}", exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
     n_channels =  3 if SAVENAME == "ImageNet" else 1
@@ -136,8 +140,13 @@ def main():
         num_classes=4
     )
 
-    print(model)
+    if args.ckpt_path is not None:
+        checkpoint = torch.load(args.ckpt_path)
+        model.load_state_dict(checkpoint["model_state_dict"], strict=True)
+        model.to(device)
 
+    print(model)
+    model.eval()
     nodes, _ = get_graph_node_names(model.backbone, tracer_kwargs={'leaf_modules': [PatchEmbed]})
     # pprint(nodes)   
     num_blocks = 12
@@ -145,7 +154,7 @@ def main():
         img, _ = test_dataset[i]
         attention_maps = []
     
-        img = img.clone().detach().unsqueeze(0) # B = 1
+        img = img.clone().detach().unsqueeze(0).to(device) # B = 1
         with torch.no_grad():
             for n in range(num_blocks):
                 feature_extractor = create_feature_extractor(
