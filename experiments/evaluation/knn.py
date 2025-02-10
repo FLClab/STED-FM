@@ -17,7 +17,7 @@ from loaders import get_dataset
 from model_builder import get_pretrained_model_v2 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dataset", type=str, default="synaptic-proteins")
+parser.add_argument("--dataset", type=str, default="optim")
 parser.add_argument("--model", type=str, default="mae-lightning-small")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--global-pool", type=str, default="avg")
@@ -38,11 +38,11 @@ def extract_features(model: torch.nn.Module, loader: DataLoader, device: torch.d
 
             x, labels = x.to(device), labels.to(device)
             if "mae" in args.model.lower():
-                features = model.forward_encoder(x)
-                if args.global_pool == "token":
-                    features = features[:, 0, :] # class token 
-                else:
-                    features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens 
+                features = model.forward_features(x)
+                # if args.global_pool == "token":
+                #     features = features[:, 0, :] # class token 
+                # else:
+                #     features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens 
             elif "convnext" in args.model.lower():
                 features = model(x).flatten(start_dim=1)
             else:
@@ -101,23 +101,6 @@ def knn_predict(model: torch.nn.Module, valid_loader: DataLoader, test_loader: D
 
     print(f"\tOverall accuracy: {accuracy * 100:0.2f}\n")
         
-    
-
-    ### NOTE: Below is old way of building confusion matrix which only considered correct classification as those with votes >=3 
-    #           This was problematic because in the 4 class setting w/ 5 neighbors, we could have votes for classes as, for example: [2, 1, 1, 1];
-    #           In which case the majority vote is class 0 but the below code does not add anything to the confusion matrix
-    # confusion_matrix = np.zeros((len(uniques), len(uniques)))
-    # for unique in tqdm(uniques, desc="Confusion matrix computation..."):
-    #     mask = ground_truth == unique
-    #     for predicted_unique in uniques:
-    #         votes = np.sum((associated_labels[mask] == predicted_unique).astype(int), axis=-1)
-    #         print(votes.shape)
-    #         confusion_matrix[unique, predicted_unique] += np.sum(votes >= 3)
-    #         total = np.sum(votes >= 3) 
-    #         print(total.shape)
-
-
-
     acc = accuracy * 100
     fig, ax = plt.subplots()
     cm = confusion_matrix / np.sum(confusion_matrix, axis=-1)[np.newaxis]
@@ -146,8 +129,8 @@ def get_save_folder() -> str:
         return "STED"
     elif "jump" in args.weights.lower():
         return "JUMP"
-    elif "ctc" in args.weights.lower():
-        return "CTC"
+    elif "sim" in args.weights.lower():
+        return "SIM"
     elif "hpa" in args.weights.lower():
         return "HPA"
     else:
@@ -169,10 +152,6 @@ def main():
         num_samples=None, # Not used when only getting test dataset
     )
 
-    # confusion_matrices = {}
-    # for ckpt in ["100000", "200000", "300000", "400000", "500000", "600000", "700000", "800000", "900000", "1000000"]:
-        # weights = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet50_STED", f"checkpoint-{ckpt}.pt")
-
     model, cfg = get_pretrained_model_v2(
         name=args.model,
         weights=args.weights,
@@ -180,13 +159,15 @@ def main():
         mask_ratio=0.0,
         pretrained=True if SAVE_NAME == "ImageNet" else False,
         in_channels=n_channels,
-        as_classifier=False,
-        blocks='0', # Not used with as_classifier = False
+        as_classifier=True,
+        blocks='all',
+        num_classes=4, # Ignored, we are not using the classification head
     ) 
 
     model = model.to(device)
     model.eval()
-    confusion_matrix = knn_predict(model=model, valid_loader=valid_loader, test_loader=test_loader, device=device, savename=SAVE_NAME)
+    with torch.no_grad():
+        onfusion_matrix = knn_predict(model=model, valid_loader=valid_loader, test_loader=test_loader, device=device, savename=SAVE_NAME)
     # confusion_matrices[ckpt] = confusion_matrix.tolist()
     # import json
     # with open(os.path.join("results", "scores.json"), "w") as handle:

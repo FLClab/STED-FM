@@ -28,10 +28,10 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
         if weights is None:
             print("--- Loaded model from scratch ---")
         elif state_dict is not None:
-            print(f"--- Loading from ImageNet state dict ---")
             backbone.load_state_dict(state_dict, strict=True)
             print(f"--- Loaded model {name} with weights {weights} ---")
         elif "imagenet" in weights.lower():
+            # No state dict to load b/c ImageNet weights were loaded inside the get_weights function
             print(f"--- Loaded model {name} with ImageNet weights ---")
      
         if as_classifier:
