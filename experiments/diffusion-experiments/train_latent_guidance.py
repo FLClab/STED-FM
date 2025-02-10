@@ -75,7 +75,7 @@ class ReconstructionCallback(Callback):
                 if SAVEFOLDER == "ImageNet":
                     img = img[0]
                 fig, axs = plt.subplots(1, 2)
-                axs[0].imshow(img, cmap='hot', vmin=0.0, vmax=1.0)
+                axs[0].imshow(img, cmap='hot', vmin=0.0, vmax=1.0) # TODO: unset the vmin vmax, and de-standardize the image in the ImageNet case
                 axs[1].imshow(sample, cmap='hot', vmin=0.0, vmax=1.0)
                 axs[0].set_title("Original")
                 axs[1].set_title("Reconstruction")
@@ -152,6 +152,7 @@ if __name__=="__main__":
     callbacks = [last_model_callback, checkpoint_callback, ReconstructionCallback()]
     cfg = DatasetConfig()
     datamodule = MultiprocessingDataModule(args, cfg, transform=None, in_channels=channels)
+
     trainer = Trainer(
         max_epochs=1000,
         devices='auto',
@@ -163,4 +164,5 @@ if __name__=="__main__":
         logger=logger,
         callbacks=callbacks
     )
+    
     trainer.fit(model, train_dataloaders=datamodule, ckpt_path=args.restore_from)

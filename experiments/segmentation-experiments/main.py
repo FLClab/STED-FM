@@ -327,6 +327,9 @@ if __name__ == "__main__":
 
     step = start_epoch * len(train_loader)
     print(start_epoch, step, cfg.num_epochs)
+
+    if cfg.num_epochs > 1000:
+        cfg.num_epochs = 1000
     for epoch in range(start_epoch, cfg.num_epochs):
 
         start = time.time()
@@ -418,17 +421,17 @@ if __name__ == "__main__":
             
             del savedata
 
-        # Save every 10 epochs
-        if (epoch + 1) % 100 == 0:
-            savedata = {
-                "model" : model.state_dict(),
-                "optimizer" : optimizer.state_dict(),
-                "stats" : stats,
-            }
-            torch.save(
-                savedata, 
-                os.path.join(OUTPUT_FOLDER, f"checkpoint-{epoch + 1}.pt"))
-            del savedata
+        # # Save every 10 epochs
+        # if (epoch + 1) % 100 == 0:
+        #     savedata = {
+        #         "model" : model.state_dict(),
+        #         "optimizer" : optimizer.state_dict(),
+        #         "stats" : stats,
+        #     }
+        #     torch.save(
+        #         savedata, 
+        #         os.path.join(OUTPUT_FOLDER, f"checkpoint-{epoch + 1}.pt"))
+        #     del savedata
 
     print("----------------------------------------")
     print("Training is over")
@@ -454,7 +457,9 @@ if __name__ == "__main__":
         num_workers=0
     )
 
-    scores = evaluate_segmentation(model, test_loader, savefolder=None, device=DEVICE)
+
+
+    scores = evaluate_segmentation(model, test_loader, savefolder=None, device=DEVICE, dataset_name=args.dataset)
     with open(os.path.join(OUTPUT_FOLDER, "segmentation-scores.json"), "w") as file: 
         json.dump(scores, file, indent=4)
 

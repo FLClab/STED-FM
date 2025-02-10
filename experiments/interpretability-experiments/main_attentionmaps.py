@@ -31,6 +31,8 @@ parser.add_argument("--dataset", type=str, default="optim")
 parser.add_argument("--model", type=str, default="mae-lightning-small")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--ckpt-path", type=str, default=None)
+parser.add_argument("--save-folder", type=str, default="candidates")
+
 parser.add_argument("--opts", nargs="+", default=[])
 args = parser.parse_args()
 
@@ -74,17 +76,19 @@ def save_image(image, a_map, i, folder):
 
     m, M = np.min(image), np.max(image)
     image_rgb = make_composite(np.array([image]), luts=["gray"], ranges=[(m, M)])
-    image_amap_rgb = make_composite(np.stack([image, a_map]), luts=["gray", "Orange Hot"], ranges=[(m, M), (a_map.min() + 0.25 *(a_map.max() - a_map.min()), a_map.max())])
+    image_amap_rgb = make_composite(np.stack([image, a_map]), luts=["gray", "Orange Hot"], ranges=[(m, M), (a_map.min() + 0.50 *(a_map.max() - a_map.min()), a_map.max())])
 
     fig = plt.figure()
     plt.imshow(image_rgb)
     plt.axis("off")
     plt.savefig(f"./attention-map-examples/templates/template{i}.png", dpi=1200, bbox_inches="tight")
     plt.close(fig)
+
     fig = plt.figure()
     plt.imshow(image_amap_rgb)
     plt.axis("off")
     plt.savefig(f"./attention-map-examples/{folder}/{args.weights}_template{i}.png", dpi=1200, bbox_inches="tight")
+
     plt.close(fig)
 
 def show_image(image, a_map, i):
@@ -100,7 +104,7 @@ def show_image(image, a_map, i):
 
     m, M = np.min(image), np.max(image)
     image_rgb = make_composite(np.array([image]), luts=["gray"], ranges=[(m, M)])
-    image_amap_rgb = make_composite(np.stack([image, a_map]), luts=["gray", "Orange Hot"], ranges=[(m, M), (a_map.min() + 0.25 *(a_map.max() - a_map.min()), a_map.max())])
+    image_amap_rgb = make_composite(np.stack([image, a_map]), luts=["gray", "Orange Hot"], ranges=[(m, M), (a_map.min() + 0.50 *(a_map.max() - a_map.min()), a_map.max())])
 
     fig, axes = plt.subplots(1, 3, figsize=(10, 3))
     axes[0].imshow(image_rgb)
@@ -124,6 +128,7 @@ def main():
     SAVENAME = get_save_folder()
     CANDIDATES_FOLDER = get_candidates_folder()
     os.makedirs(f"./attention-map-examples/{CANDIDATES_FOLDER}", exist_ok=True)
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
     n_channels =  3 if SAVENAME == "ImageNet" else 1
@@ -152,6 +157,7 @@ def main():
 
     if args.ckpt_path is not None:
         print(f"=== Loading checkpoint from {args.ckpt_path} ===")
+
         checkpoint = torch.load(args.ckpt_path)
         model.load_state_dict(checkpoint["model_state_dict"], strict=True)
         model.to(device)

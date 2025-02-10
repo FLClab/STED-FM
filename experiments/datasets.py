@@ -584,7 +584,7 @@ class PeroxisomeDataset(Dataset):
     def __init__(
         self, source:str, 
         transform: Any, 
-        classes: List = ["6hGluc", "4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"], 
+        classes: List = ["6hGluc", "6hMeOH"], #, "4hMeOH", "8hMeOH", "16hMeOH"], 
         n_channels: int = 1,
         resize_mode : str = "pad",
         superclasses: bool = False,
@@ -598,6 +598,7 @@ class PeroxisomeDataset(Dataset):
         self.n_channels = n_channels
         self.resize_mode = resize_mode
         self.num_classes = len(self.classes)
+        self.num_samples = num_samples
 
         self.samples = {}
         original_size = 0
@@ -635,6 +636,13 @@ class PeroxisomeDataset(Dataset):
             else:
                 continue
         self.samples = merged_samples
+        np.random.seed(42)
+        random.seed(42)
+
+        if self.num_samples is not None:
+            for key in self.samples.keys():
+                if len(self.samples[key]) > self.num_samples:
+                    self.samples[key] = random.sample(self.samples[key], self.num_samples)
 
         self.classes = ["gluc", "meoh"]
         self.num_classes = len(self.classes)
@@ -1720,6 +1728,7 @@ class TarFLCDataset(ArchiveDataset):
             img = torch.tensor(img, dtype=torch.float32)
             if self.in_channels == 3:
                 img = img.repeat(3, 1, 1)
+                img = transforms.Normalize(mean=[0.06957887037697921, 0.06957887037697921, 0.06957887037697921], std=[0.1254630260057964, 0.1254630260057964, 0.1254630260057964])(img)
 
         if self.return_metadata:
             # Ensures all keys are not None

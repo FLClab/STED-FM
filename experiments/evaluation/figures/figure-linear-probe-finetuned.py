@@ -94,7 +94,7 @@ def main():
         ],
         fontsize=8
     )
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_linear-probe-finetuned"), extension="pdf")
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_{args.mode}-finetuned"), extension="pdf")
 
     # Calculate statistics
     values = []
@@ -106,7 +106,7 @@ def main():
     print(p_values)
     if F_p_values < 0.05:
         fig, ax = plot_p_values(p_values)
-        savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_linear-probe-finetuned_stats"), extension="png")
+        savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_{args.mode}-finetuned_stats"), extension="png")
 
 
 if __name__ == "__main__":

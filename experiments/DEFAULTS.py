@@ -25,3 +25,12 @@ COLORS = {
     "STED": "#CC503E",
     "Hybrid": "#94346E",
 }
+
+MARKERS = {
+    "IMAGENET1K_V1": "o",
+    "ImageNet": "*",
+    "JUMP": "P",
+    "HPA": "s",
+    "SIM": "^",
+    "STED": "o",
+}
