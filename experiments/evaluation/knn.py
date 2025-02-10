@@ -8,8 +8,11 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm 
 from torchvision import transforms
 import numpy as np
+from sklearn.decomposition import PCA
 import seaborn 
+import json
 from scipy.spatial.distance import pdist, cdist
+from typing import List, Optional
 import pandas 
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH
@@ -24,8 +27,25 @@ parser.add_argument("--global-pool", type=str, default="avg")
 parser.add_argument("--pca", action="store_true")
 args = parser.parse_args()
 
-def plot_PCA(samples: np.ndarray, labels: np.ndarray, savename: str) -> None:
-    pass
+def plot_PCA(samples: np.ndarray, labels: np.ndarray, classes: Optional[List[str]] = None) -> None:
+    pca = PCA(n_components=2, random_state=42)
+    pca_features = pca.fit_transform(samples)
+
+    fig, ax = plt.subplots(figsize=(4, 4))
+
+    uniques = np.unique(labels) 
+    cmap = plt.get_cmap("tab10", len(uniques))
+    for i, unique in enumerate(uniques):
+        mask = labels == unique
+        ax.scatter(pca_features[mask, 0], pca_features[mask, 1], color=cmap(i), label=labels[i] if classes is None else classes[i])
+      
+    ax.set(
+        ylabel="PCA-2", xlabel="PCA-1",
+        xticks=[], yticks=[]
+    )
+    ax.legend()
+    fig.savefig(f"./results/knn-pca/pca_{args.dataset}_{args.weights}.pdf", bbox_inches="tight")
+    plt.close()
 
 def extract_features(model: torch.nn.Module, loader: DataLoader, device: torch.device):
     samples, ground_truth = [], []
@@ -64,7 +84,7 @@ def knn_predict(model: torch.nn.Module, valid_loader: DataLoader, test_loader: D
     test_samples, test_ground_truth = extract_features(model=model, loader=test_loader, device=device)
 
     if args.pca:
-        plot_PCA(samples=test_samples, labels=test_ground_truth, savename=savename)
+        plot_PCA(samples=test_samples, labels=test_ground_truth, classes=test_loader.dataset.classes)
 
     pdistances = cdist(valid_samples, test_samples, metric="cosine").T
     neighbor_indices = np.argsort(pdistances, axis=1)
@@ -92,15 +112,20 @@ def knn_predict(model: torch.nn.Module, valid_loader: DataLoader, test_loader: D
     print("\n")
     accuracy = np.diag(confusion_matrix).sum() / test_ground_truth.shape[0]
 
+    accuracies = []
+    accuracies.append(accuracy)
     print(f"--- {args.dataset} ; {args.model} ; {savename} ---\n")
     for i in range(len(uniques)):
         N = np.sum(confusion_matrix[i, :])
         correct = confusion_matrix[i, i] 
         class_acc = correct / N
+        accuracies.append(class_acc)
         print(f"\tClass {i} accuracy: {class_acc * 100:0.2f}")
 
     print(f"\tOverall accuracy: {accuracy * 100:0.2f}\n")
-        
+    accuracies = np.array(accuracies)
+    np.savez(f"./results/{args.model}/{args.dataset}_{args.weights}_KNN_accuracies.npz", accuracies=accuracies)
+
     acc = accuracy * 100
     fig, ax = plt.subplots()
     cm = confusion_matrix / np.sum(confusion_matrix, axis=-1)[np.newaxis]
@@ -168,10 +193,7 @@ def main():
     model.eval()
     with torch.no_grad():
         onfusion_matrix = knn_predict(model=model, valid_loader=valid_loader, test_loader=test_loader, device=device, savename=SAVE_NAME)
-    # confusion_matrices[ckpt] = confusion_matrix.tolist()
-    # import json
-    # with open(os.path.join("results", "scores.json"), "w") as handle:
-    #     json.dump(confusion_matrices, handle, indent=4)
+    
     
 
 if __name__=="__main__":

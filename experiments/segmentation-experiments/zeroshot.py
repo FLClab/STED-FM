@@ -38,7 +38,7 @@ class ProteinSegmentationDataset(Dataset):
     def __len__(self) -> int:
         return len(self.members)
     
-    def __getitem__(self, idx: int) -> Tuple[torch.tensor, torch.Tensor]:
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         member = self.members[idx]
         buffer = io.BytesIO()
         buffer.write(self.archive_obj.extractfile(member).read())
