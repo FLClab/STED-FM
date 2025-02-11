@@ -8,6 +8,7 @@ import glob
 import sys 
 from scipy.stats import gaussian_kde
 import random
+import torch.nn.functional as F
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH, COLORS
 from loaders import get_dataset 
@@ -22,10 +23,12 @@ parser.add_argument("--blocks", type=str, default="all")
 parser.add_argument("--global-pool", type=str, default="avg")
 parser.add_argument("--ckpt-path", type=str, default="")
 parser.add_argument("--opts", nargs="+", default=[])
-parser.add_argument("--samples-per-class", type=int, default=20)
 parser.add_argument("--figure", action="store_true")
+parser.add_argument("--mode", type=str, default="dissimilar")
 args = parser.parse_args()
 
+def denormalize(img: torch.Tensor, mu: float = 0.0695771782959453, sigma: float = 0.12546228631005282) -> torch.Tensor:
+    return img * sigma + mu
 def set_seeds():
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -112,6 +115,47 @@ def plot_ridgelines(data, labels: list) -> None:
     fig.savefig(f"./patch-similarity/similarity-scores/similarity-ridgeline.png", bbox_inches='tight')
     return max_density
 
+def display_examples(
+        similarities: np.ndarray, 
+        before_model: torch.nn.Module, 
+        after_model: torch.nn.Module,
+        dataset: torch.utils.data.Dataset,
+        device: torch.device,
+        n_samples: int = 10,
+        mode: str = "dissimilar"
+        ) -> None:
+    os.makedirs(f"./patch-similarity/{mode}-examples", exist_ok=True)
+    examples = np.argsort(similarities)
+    examples = examples[:n_samples] if mode == "dissimilar" else examples[-n_samples:]
+    for i in tqdm(examples, total=n_samples, desc=f"Displaying {mode} examples..."):
+        img, label = dataset[i]
+        img = img.unsqueeze(0).to(device)
+        source_patches = before_model.backbone.forward_features(img)
+        source_patches = source_patches[:, 1:, :]
+        target_patches = after_model.backbone.forward_features(img)
+        target_patches = target_patches[:, 1:, :]
+        num_patches = target_patches.shape[1]
+        heatmap = torch.zeros(num_patches)
+        for j in range(num_patches):
+            t_patch = target_patches[[0], j, :] 
+            s_patch = source_patches[[0], j, :] 
+            patch_similarity = torch.cosine_similarity(t_patch, s_patch, dim=1)
+            patch_abnormality = 1 - patch_similarity 
+            heatmap[j] = patch_abnormality
+        final_heatmap = heatmap.view(14, 14).detach() 
+        final_heatmap = F.interpolate(final_heatmap.view(1, 1, 14, 14), (224, 224), mode='bilinear').view(224, 224, 1)
+        final_heatmap = final_heatmap.squeeze().detach().cpu().numpy()
+        img = img.squeeze().detach().cpu().numpy()
+        fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+        if "imagenet" in args.weights.lower():
+            img = denormalize(img[0])
+        axs[0].imshow(img, cmap='hot', vmin=0, vmax=1)
+        axs[1].imshow(final_heatmap, cmap='viridis', vmin=0, vmax=1)
+        axs[0].set_title(similarities[i])
+        for ax in axs:
+            ax.axis('off')
+        plt.savefig(f"./patch-similarity/{mode}-examples/{args.weights}-example-{i}.png", dpi=1200, bbox_inches='tight')
+        plt.close(fig)
 
     
 def main():
@@ -162,6 +206,7 @@ def main():
         N = len(test_dataset)
 
         with torch.no_grad():
+            image_similarities = []
             all_similarities = []
             for i in trange(N):
                 img, label = test_dataset[i]
@@ -169,10 +214,15 @@ def main():
                 source_patches = before_model.backbone.forward_features(img)
                 target_patches = after_model.backbone.forward_features(img)
                 sim = compute_patch_similarity(source_patches, target_patches)
+                image_sim = np.min(sim) if args.mode == "dissimilar" else np.max(sim)
+                image_similarities.append(image_sim)
                 all_similarities.extend(sim)
 
 
         all_similarities = np.array(all_similarities)
+        image_similarities = np.array(image_similarities)
+        display_examples(image_similarities, before_model, after_model, test_dataset, DEVICE, mode=args.mode)
+        exit()
         np.savez(f"./patch-similarity/similarity-scores/{args.weights}-similarity-hist.npz", similarities=all_similarities)
         plt.hist(all_similarities, bins=100, color=COLORS[get_save_folder()])
         plt.xlabel("Cosine similarity")

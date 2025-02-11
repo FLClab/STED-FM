@@ -12,7 +12,7 @@ import sys
 from banditopt.objectives import Resolution 
 import glob
 sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH, COLORS
+from DEFAULTS import BASE_PATH, COLORS, MARKERS
 from model_builder import get_pretrained_model_v2
 
 parser = argparse.ArgumentParser()
@@ -188,7 +188,7 @@ def plot_results():
         # axs[0].plot(x, resolutions, c=COLORS[weight], label=weight)
         lower_bounds, upper_bounds = compute_confidence_intervals(all_resolutions)
         # axs[0].fill_between(x, lower_bounds, upper_bounds, color=COLORS[weight], alpha=0.2)
-        ax.plot(x, resolutions, c=COLORS[weight], label=weight, marker='o')
+        ax.plot(x, resolutions, c=COLORS[weight], label=weight, marker=MARKERS[weight])
         # for i in range(all_resolutions.shape[0]):
         #     axs[1].scatter(all_distances[i], all_resolutions[i], c=[COLORS[weight]]*all_distances[i].shape[0], edgecolors="black")
     # axs[0].legend()
@@ -230,7 +230,7 @@ def cumulative_regret() -> None:
             
         regret_per_image = np.cumsum(regret_per_image)
         x = np.arange(len(regret_per_image))
-        ax.plot(x, regret_per_image, c=COLORS[weight], label=weight, marker='o')
+        ax.plot(x, regret_per_image, c=COLORS[weight], label=weight, marker=MARKERS[weight])
 
     # ax.set_yscale('log')
     ax.set_xlabel("Image index")
