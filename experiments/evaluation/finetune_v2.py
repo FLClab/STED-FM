@@ -10,8 +10,10 @@ import sys
 import os
 from sklearn.neighbors import NearestNeighbors
 from sklearn.decomposition import PCA
+from typing import Tuple
 from scipy.spatial.distance import cdist
 from torchvision import transforms
+from fvcore.nn import FlopCountAnalysis
 
 from lightly.utils.scheduler import CosineWarmupScheduler
 
@@ -42,12 +44,25 @@ parser.add_argument("--overwrite", action="store_true", help="Overwrite the trai
 parser.add_argument("--opts", nargs="+", default=[], 
                     help="Additional configuration options")    
 parser.add_argument("--dry-run", action="store_true")
+parser.add_argument("--flops", action="store_true")
 args = parser.parse_args()
 
 # Assert args.opts is a multiple of 2
 if len(args.opts) == 1:
     args.opts = args.opts[0].split(" ")
 assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
+
+def measure_flops(model: torch.nn.Module, sample_input: torch.Tensor) -> Tuple[float, float]:
+    flops = FlopCountAnalysis(model, sample_input)
+    total_flops = flops.total()
+    
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    total_params = sum(p.numel() for p in model.parameters())
+    trainable_ratio = trainable_params / total_params if total_params > 0 else 0
+    
+    trainable_flops = total_flops * trainable_ratio
+    
+    return total_flops, trainable_flops
 
 def set_seeds():
     random.seed(args.seed)
@@ -299,6 +314,26 @@ def main():
     #model_path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{SAVENAME}/{args.dataset}"
     os.makedirs(model_path, exist_ok=True)
 
+    if args.flops:
+        sample_batch, _ = next(iter(train_loader))
+        sample_input = sample_batch[:1].to(device)  # Take just one sample to measure FLOPs
+        model.eval()  # Set to eval mode for FLOPs calculation
+        total_flops_per_image, trainable_flops_per_image = measure_flops(model, sample_input) 
+        
+        total_flops_per_batch = total_flops_per_image * train_loader.batch_size
+        total_flops_per_epoch = total_flops_per_batch * len(train_loader)
+        trainable_flops_per_batch = trainable_flops_per_image * train_loader.batch_size
+        trainable_flops_per_epoch = trainable_flops_per_batch * len(train_loader)
+        
+        print(f"Estimated total FLOPs per image: {total_flops_per_image:,}")
+        print(f"Estimated trainable FLOPs per image: {trainable_flops_per_image:,}")
+        print(f"Estimated total FLOPs per batch: {total_flops_per_batch:,}")
+        print(f"Estimated trainable FLOPs per batch: {trainable_flops_per_batch:,}")
+        print(f"Estimated total FLOPs per epoch: {total_flops_per_epoch:,}")
+        print(f"Estimated trainable FLOPs per epoch: {trainable_flops_per_epoch:,}")
+        exit()
+    
+    model.train() 
     # Training loop
     train_loss, val_loss, val_acc, lrates = ScoreTracker(), ScoreTracker(), ScoreTracker(), ScoreTracker()
     save_best_model = SaveBestModel(
