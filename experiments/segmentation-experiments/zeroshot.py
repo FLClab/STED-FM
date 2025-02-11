@@ -71,7 +71,7 @@ if __name__ == "__main__":
     model.eval()
     
     nodes, _ = get_graph_node_names(model.backbone, tracer_kwargs={'leaf_modules': [PatchEmbed]})
-    block_num = 11  
+    num_blocks = 12
     ratios = []
     save_indices = np.random.choice(range(len(dataset)), size=10, replace=False)
     for i in trange(len(dataset)):
@@ -86,38 +86,46 @@ if __name__ == "__main__":
             mask = temp_img > threshold_otsu(temp_img)
         
         img = img.to(DEVICE).unsqueeze(0)
+        attention_maps = []
         with torch.no_grad():
-            feature_extractor = create_feature_extractor( 
-                model, return_nodes=[f'backbone.blocks.{block_num}.attn.q_norm', f'backbone.blocks.{block_num}.attn.k_norm'],
-                tracer_kwargs={'leaf_modules': [PatchEmbed]})
-            out = feature_extractor(img)
-            q, k = out[f'backbone.blocks.{block_num}.attn.q_norm'], out[f'backbone.blocks.{block_num}.attn.k_norm']
-            factor = (384 / 6) ** -0.5 # (head_dim / num_heads ) ** -0.5
-            q = q * factor 
-            attn = q @ k.transpose(-2, -1) # (1, 6, 197, 197)
-            attn = attn.softmax(dim=-1) # (1, 6, 197, 197)
-
-            head_ratios = []
-            for head in range(6):
-                cls_attn_map = attn[:, [head], 0, 1:].squeeze(0)
-                cls_attn_map = cls_attn_map.view(14, 14).detach() 
-                cls_resized = F.interpolate(cls_attn_map.view(1, 1, 14, 14), (224, 224), mode='bilinear').view(224, 224, 1)
+            for n in range(num_blocks):
+                feature_extractor = create_feature_extractor( 
+                    model, return_nodes=[f'backbone.blocks.{n}.attn.q_norm', f'backbone.blocks.{n}.attn.k_norm'],
+                    tracer_kwargs={'leaf_modules': [PatchEmbed]})
+                out = feature_extractor(img)
+                q, k = out[f'backbone.blocks.{n}.attn.q_norm'], out[f'backbone.blocks.{n}.attn.k_norm']
+                factor = (384 / 6) ** -0.5 # (head_dim / num_heads ) ** -0.5
+                q = q * factor 
+                attn = q @ k.transpose(-2, -1) # (1, 6, 197, 197)
+                attn = attn.softmax(dim=-1) # (1, 6, 197, 197)
+                attn_map = attn.mean(dim=1).squeeze(0)  # (197, 197)
+                cls_attn_map = attn[:, :, 0, 1:]  # (1, 6, 196)
+                cls_attn_map = cls_attn_map.mean(dim=1).view(14, 14).detach() # (14, 14)
+                cls_resized = F.interpolate(cls_attn_map.view(1, 1, 14, 14), (224, 224), mode='bilinear').view(224, 224, 1) # (224, 224, C)
                 m, M = cls_resized.min(), cls_resized.max()
                 cls_resized = (cls_resized - m) / (M - m)
-                cls_resized = cls_resized.squeeze().cpu().detach().numpy() 
-                sorted_attn = np.sort(cls_resized.flatten())[::-1]
-                cumsum_attn = np.cumsum(sorted_attn)
-                cumsum_attn /= cumsum_attn[-1]
-                threshold_idx = np.searchsorted(cumsum_attn, 0.6)
-                threshold_value = sorted_attn[threshold_idx]
-                cls_resized = cls_resized > threshold_value
+                attention_maps.append(cls_resized)
+            
+            attention_maps = torch.stack(attention_maps)
+            amap = torch.sum(attention_maps, dim=0)
+            amap = amap.squeeze().cpu().detach().numpy() 
+            sorted_attn = np.sort(amap.flatten())[::-1]
+            cumsum_attn = np.cumsum(sorted_attn)
+            cumsum_attn /= cumsum_attn[-1]
+            threshold_idx = np.searchsorted(cumsum_attn, 0.6)
+            threshold_value = sorted_attn[threshold_idx]
+            amap = amap > threshold_value
 
-                cls_resized = cls_resized.astype(np.uint8)
-                intersection = np.sum(cls_resized & mask)
-                union = np.sum(cls_resized) + np.sum(mask) - intersection
-                jaccard_index = intersection / union if union > 0 else 0
-                head_ratios.append(jaccard_index)
-            ratios.append(np.max(head_ratios))
+            amap = amap.astype(np.uint8)
+            amap_mask = (amap > 0).astype(np.uint8)
+            map_hit = (amap[amap_mask] * mask[amap_mask]).sum()
+            map_total = amap[amap_mask].sum()
+            jaccard_index = map_hit / (map_total)
+
+            # intersection = np.sum(amap & mask)
+            # union = np.sum(amap) + np.sum(mask) - intersection
+            # jaccard_index = intersection / union if union > 0 else 0
+            ratios.append(jaccard_index)
             
     print(f"{args.weights}: {np.mean(ratios)}")
 

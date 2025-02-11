@@ -6,6 +6,7 @@ from torch import nn
 from diffusion_models.diffusion.ddpm_lightning import DDPM 
 from diffusion_models.diffusion.denoising.unet import UNet 
 from tqdm import tqdm 
+from typing import Union
 from attribute_datasets import LowHighResolutionDataset
 import sys
 from banditopt.objectives import Resolution 
@@ -25,6 +26,14 @@ parser.add_argument("--figure", action="store_true")
 parser.add_argument("--sanity-check", action="store_true")
 parser.add_argument("--n-steps", type=int, default=5)
 args = parser.parse_args()
+
+
+def denormalize(img: Union[np.ndarray, torch.Tensor], mu: float = 0.010903545655310154, std: float = 0.03640301525592804) -> Union[np.ndarray, torch.Tensor]:
+    """
+    Denormalizes an image. Note that the parameters mu and sigma seem hard-coded but they have been computed from the training sets and can be found
+    in the attribute_datasets.py file.
+    """
+    return img * std + mu
 
 def compute_confidence_intervals(all_scores: np.ndarray, confidence: float = 0.80) -> tuple:
     """Compute confidence intervals for scores at each step.
@@ -223,11 +232,11 @@ def cumulative_regret() -> None:
         x = np.arange(len(regret_per_image))
         ax.plot(x, regret_per_image, c=COLORS[weight], label=weight, marker='o')
 
-    ax.set_yscale('log')
+    # ax.set_yscale('log')
     ax.set_xlabel("Image index")
     ax.set_ylabel("Cumulative regret (nm)")
     ax.legend()
-    fig.savefig(f"./{args.boundary}-experiment/correlation/{args.weights}-regret.pdf", bbox_inches="tight", dpi=1200)
+    fig.savefig(f"./{args.boundary}-experiment/correlation/resolution-regret.pdf", bbox_inches="tight", dpi=1200)
     plt.close()
 
 
@@ -236,8 +245,8 @@ def load_distance_distribution(weight: str = args.weights) -> np.ndarray:
     scores = data["key2"]
     avg, std = np.mean(scores), np.std(scores)
     max_distance = np.max(scores)
-    max_distance = max_distance * 2 if "imagenet" not in args.weights.lower() else max_distance / 2
-    return avg - (5*std), max_distance
+    # max_distance = max_distance * 2 if "imagenet" not in args.weights.lower() else max_distance
+    return avg - (5*std), max_distance * 2
 
 def main():
     if args.figure:
@@ -388,6 +397,9 @@ def main():
                 for c, code in enumerate(lerped_codes):
                     lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
                     lerped_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=lerped_code, progress=True)
+                    print(lerped_sample.min(), lerped_sample.max())
+                    lerped_sample = denormalize(lerped_sample)
+                    print(lerped_sample.min(), lerped_sample.max())
                     lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
                     samples.append(lerped_sample_numpy)
                     lerped_resolution = compute_resolution(img=lerped_sample_numpy)
