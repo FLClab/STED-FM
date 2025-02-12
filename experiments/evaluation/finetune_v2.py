@@ -324,7 +324,7 @@ def main():
         total_flops_per_epoch = total_flops_per_batch * len(train_loader)
         trainable_flops_per_batch = trainable_flops_per_image * train_loader.batch_size
         trainable_flops_per_epoch = trainable_flops_per_batch * len(train_loader)
-        
+        print(f"Length train loader: {len(train_loader)}")
         print(f"Estimated total FLOPs per image: {total_flops_per_image:,}")
         print(f"Estimated trainable FLOPs per image: {trainable_flops_per_image:,}")
         print(f"Estimated total FLOPs per batch: {total_flops_per_batch:,}")
