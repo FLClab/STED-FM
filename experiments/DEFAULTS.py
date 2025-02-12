@@ -27,7 +27,7 @@ COLORS = {
 }
 
 MARKERS = {
-    "IMAGENET1K_V1": "o",
+    "IMAGENET1K_V1": "*",
     "ImageNet": "*",
     "JUMP": "P",
     "HPA": "s",

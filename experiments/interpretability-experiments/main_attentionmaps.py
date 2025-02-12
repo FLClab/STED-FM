@@ -76,7 +76,7 @@ def save_image(image, a_map, i, folder):
 
     m, M = np.min(image), np.max(image)
     image_rgb = make_composite(np.array([image]), luts=["gray"], ranges=[(m, M)])
-    image_amap_rgb = make_composite(np.stack([image, a_map]), luts=["gray", "Orange Hot"], ranges=[(m, M), (a_map.min() + 0.50 *(a_map.max() - a_map.min()), a_map.max())])
+    image_amap_rgb = make_composite(np.stack([image, a_map]), luts=["gray", "Orange Hot"], ranges=[(m, M), (a_map.min() + 0.25 *(a_map.max() - a_map.min()), a_map.max())])
 
     fig = plt.figure()
     plt.imshow(image_rgb)
@@ -87,7 +87,7 @@ def save_image(image, a_map, i, folder):
     fig = plt.figure()
     plt.imshow(image_amap_rgb)
     plt.axis("off")
-    plt.savefig(f"./attention-map-examples/{folder}/{args.weights}_template{i}.png", dpi=1200, bbox_inches="tight")
+    plt.savefig(f"./attention-map-examples/{folder}/test_{args.weights}_template{i}.png", dpi=1200, bbox_inches="tight")
 
     plt.close(fig)
 
@@ -104,7 +104,7 @@ def show_image(image, a_map, i):
 
     m, M = np.min(image), np.max(image)
     image_rgb = make_composite(np.array([image]), luts=["gray"], ranges=[(m, M)])
-    image_amap_rgb = make_composite(np.stack([image, a_map]), luts=["gray", "Orange Hot"], ranges=[(m, M), (a_map.min() + 0.50 *(a_map.max() - a_map.min()), a_map.max())])
+    image_amap_rgb = make_composite(np.stack([image, a_map]), luts=["gray", "Orange Hot"], ranges=[(m, M), (a_map.min() + 0.25 *(a_map.max() - a_map.min()), a_map.max())])
 
     fig, axes = plt.subplots(1, 3, figsize=(10, 3))
     axes[0].imshow(image_rgb)
@@ -160,7 +160,7 @@ def main():
 
         checkpoint = torch.load(args.ckpt_path)
         model.load_state_dict(checkpoint["model_state_dict"], strict=True)
-        model.to(device)
+    model.to(device)
 
     print(model)
     model.eval()
