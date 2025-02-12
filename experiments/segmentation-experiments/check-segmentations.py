@@ -34,19 +34,18 @@ def set_seeds(seed: int):
 
 def save_example(img: np.ndarray, pred: np.ndarray, mask: np.ndarray, img_index: int) -> None:
     os.makedirs(f"./results/{args.backbone}/{args.dataset}", exist_ok=True)
-    # Check if we have channels first
-    # If so, move to last dimension for later display
-    if img.shape[0] != min(img.shape):
-        img = np.moveaxis(img, 0, -1)
-    if pred.shape[0] != min(pred.shape):
-        pred = np.moveaxis(pred, 0, -1)
-    if mask.shape[0] != min(mask.shape):
-        mask = np.moveaxis(mask, 0, -1) 
 
-    n_classes = pred.shape[-1]
+    img = img[0]
+    n_classes = pred.shape[0]
+    vmax = 0
+    for i in range(n_classes):
+        class_max = pred[i].max()
+        if class_max > vmax:
+            vmax = class_max
+
 
     # Create a figure with subplots
-    fig, axs = plt.subplots(2, n_classes+1, figsize=(20,5))
+    fig, axs = plt.subplots(2, n_classes+1, figsize=(20, 5))
     for i in range(axs.shape[0]):
         for cls_idx in range(n_classes + 1):
             ax = axs[i, cls_idx]
@@ -54,14 +53,16 @@ def save_example(img: np.ndarray, pred: np.ndarray, mask: np.ndarray, img_index:
                 ax.imshow(img, cmap='hot', vmin=0, vmax=1)
             else:
                 if i == 0:
-                    ax.imshow(mask[:, :, cls_idx-1], cmap='gray')
+                    temp = mask[cls_idx-1]
+                    ax.imshow(temp, cmap='gray')
                 else:
-                    ax.imshow(pred[:, :, cls_idx-1], cmap='gray')
+                    temp = pred[cls_idx-1]
+                    ax.imshow(temp, cmap='gray', vmin=0, vmax=vmax)
             ax.axis('off') 
     for ax, title in zip(axs[0, :], ["Original", "Round", "Elongated", "Perforated", "Multidomain"]):
         ax.set_title(title)
-    plt.tight_layout()
-    plt.savefig(f"./results/{args.backbone}/{args.dataset}/{args.backbone_weights}example_{img_index}.png")
+    plt.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.05)
+    plt.savefig(f"./results/{args.backbone}/{args.dataset}/{args.backbone_weights}-example_{img_index}.png", dpi=1200)
     plt.close()
 
 class SegmentationConfiguration(Configuration):
@@ -104,17 +105,15 @@ def main():
     N = len(testing_dataset)
     indices = np.random.choice(N, size=args.n_examples, replace=False)
 
-    for i in indices:
-        img, mask = testing_dataset[i] 
+    for i, idx in enumerate(indices):
+        img, mask = testing_dataset[idx] 
         img = img.unsqueeze(0).to(DEVICE) 
         pred = model(img)
-        img = img.detach().cpu().numpy()
-        pred = pred.detach().cpu().numpy()
-        mask = mask.detach().cpu().numpy()
-        save_example(img=img, pred=pred, mask=mask, img_index=i)
-        exit()
-
-        
+        img = img.squeeze(0).detach().cpu().numpy()
+        pred = pred.squeeze(0).detach().cpu().numpy()
+        mask = mask.squeeze(0).detach().cpu().numpy()
+        save_example(img=img, pred=pred, mask=mask, img_index=idx)    
+        print(f"--- Saved image {i+1} of {args.n_examples} ---")
         
 
 if __name__ == "__main__":
