@@ -138,9 +138,8 @@ def plot_features(features: np.ndarray, distances: np.ndarray, index: int):
     plt.xticks([0, 1, 2, 3, 4, 5, 6], ["area", "perimeter","mean intensity", "eccentricity", "solidity", "1nn_dist", "num_proteins"], rotation=-45)
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
     plt.colorbar()
-    # fig.savefig(f"./{args.boundary}-experiment/examples/{args.weights}-features_{index}_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
-    fig.savefig("./temp.pdf", dpi=1200)
-    exit()
+    fig.savefig(f"./{args.boundary}-experiment/examples/{args.weights}-features_{index}_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
+    # fig.savefig("./temp.pdf", dpi=1200)
 
 def save_examples(samples, distances, index):
     N = len(samples)
@@ -276,7 +275,7 @@ def plot_sanity_check(block_features: np.ndarray, mg_features: np.ndarray):
             pc.set_linewidth(1.5)
 
         parts['cmeans'].set_color('black')
-        parts['cmeans'].set_
+        parts['cmeans'].set_color('black')
         parts['cbars'].set_color('black')
         parts['cmins'].set_color('black')
         parts['cmaxes'].set_color('black')  
@@ -499,6 +498,7 @@ def main():
             target_label = 0 if args.direction == "0Mg" else 1
             multiplier = 1 if args.direction == "0Mg" else -1
             if args.boundary == "activity" and label != target_label:
+                print(f"Skipping {i} because label is {label} and target is {target_label}")
                 continue 
 
             if "imagenet" in args.weights.lower():

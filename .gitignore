@@ -6,6 +6,8 @@ experiments/diffusion-experiments/resolution-experiment/distributions/
 experiments/diffusion-experiments/lerp-results/
 experiments/diffusion-experiments/mae-lightning-small-MAE_SMALL_STED-optimquality-embeddings_train.npz
 experiments/diffusion-experiments/model-checkpoints/
+experiments/diffusion-experiments/activity-experiment/
+experiments/diffusion-experiments/resolution-experiment/distributions/
 experiments/figures/
 experiments/interpretability-experiments/TiffWrapper/
 experiments/misc-experiments/results/
