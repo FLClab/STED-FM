@@ -655,7 +655,7 @@ class PeroxisomeDataset(Dataset):
             for value in values:
                 info.append({
                     "img" : value,
-                    "label" : key
+                    "label" : key,
                 })
         return info
     
@@ -1027,7 +1027,7 @@ class NeuralActivityStates(Dataset):
         
         img = self.transform(img) if self.transform is not None else img 
         
-        return img, {"label": label, "protein": protein}
+        return img, {"label": label, "protein": protein, "dataset-idx": idx}
 
 class ProteinDataset(Dataset):
     def __init__(
@@ -1619,6 +1619,7 @@ class TarJUMPDataset(ArchiveDataset):
 
         return img
             
+
 
 class TarFLCDataset(ArchiveDataset):
     """
