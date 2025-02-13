@@ -33,7 +33,7 @@ from datasets import get_dataset
 
 import sys 
 sys.path.insert(0, "..")
-
+from DEFAULTS import BASE_PATH
 from model_builder import get_pretrained_model_v2
 from utils import update_cfg, save_cfg
 from configuration import Configuration
@@ -106,27 +106,33 @@ def compute_weak_aupr(truth: numpy.ndarray, prediction: numpy.ndarray, mask: num
         t_label = measure.label(t)
         t_rprops = measure.regionprops(t_label)
         regions_aupr = []
-        for region in t_rprops:
-            ymin, xmin, ymax, xmax = region.bbox
-            ymin = max(0, ymin - 10)
-            ymax = min(t.shape[0], ymax + 10)
-            xmin = max(0, xmin - 10)
-            xmax = min(t.shape[1], xmax + 10)
-            t_crop = t[ymin:ymax, xmin:xmax].ravel()
-            p_crop = p[ymin:ymax, xmin:xmax].ravel()
+        
+        if len(t_rprops) == 0:
+            aupr_per_class.append(-1)  
+        else:
+            for region in t_rprops:
+                ymin, xmin, ymax, xmax = region.bbox
+                ymin = max(0, ymin - 10)
+                ymax = min(t.shape[0], ymax + 10)
+                xmin = max(0, xmin - 10)
+                xmax = min(t.shape[1], xmax + 10)
+                t_crop = t[ymin:ymax, xmin:xmax].ravel()
+                p_crop = p[ymin:ymax, xmin:xmax].ravel()
 
-            if numpy.unique(t_crop).size == 1:
-                regions_aupr.append(-1)
-                continue
+                if numpy.unique(t_crop).size == 1:
+                    regions_aupr.append(-1)
+                    continue
 
-            if numpy.unique(p_crop).size == 1 and numpy.unique(t_crop).size > 1:
-                regions_aupr.append(0.0)
-                continue
+                if numpy.unique(p_crop).size == 1 and numpy.unique(t_crop).size > 1:
+                    regions_aupr.append(0.0)
+                    continue
 
-            precision, recall, _ = precision_recall_curve(t_crop, p_crop)
-            r_aupr = auc(recall, precision)
-            regions_aupr.append(r_aupr)
-        aupr_per_class.append(numpy.mean(regions_aupr))
+                precision, recall, _ = precision_recall_curve(t_crop, p_crop)
+                r_aupr = auc(recall, precision)
+                regions_aupr.append(r_aupr)
+
+            mean_aupr = numpy.mean(regions_aupr)
+            aupr_per_class.append(mean_aupr)
 
     return aupr_per_class
 
@@ -276,6 +282,7 @@ if __name__ == "__main__":
                         help="Backbone model to load")    
     parser.add_argument("--opts", nargs="+", default=[], 
                         help="Additional configuration options")
+    parser.add_argument("--save-folder", type=str, default=f"{BASE_PATH}/segmentation-baselines")
     args = parser.parse_args()
 
     # Assert args.opts is a multiple of 2
@@ -312,11 +319,12 @@ if __name__ == "__main__":
         name=args.dataset, 
         cfg=cfg
     )
-
     # Loads checkpoint
-    checkpoint = torch.load(args.restore_from)
-    OUTPUT_FOLDER = os.path.dirname(args.restore_from)
+    checkpoint = torch.load(os.path.join(args.restore_from, "result.pt"))
+    # OUTPUT_FOLDER = os.path.dirname(args.restore_from)
 
+
+    cfg.backbone_weights = 'vit-small'
     # Build the UNet model.
     model = get_decoder(backbone, cfg)
     ckpt = checkpoint.get("model", None)
@@ -341,7 +349,9 @@ if __name__ == "__main__":
     savedir = f"./results/{args.backbone}_{args.backbone_weights}/{args.dataset}/{os.path.basename(OUTPUT_FOLDER)}"
     os.makedirs(savedir, exist_ok=True)
 
-    scores = evaluate_segmentation(model, test_loader, savefolder=savedir, device=DEVICE)
+    with torch.no_grad():
+        scores = evaluate_segmentation(model, test_loader, savefolder=None, device=DEVICE, dataset_name=args.dataset)
+        exit()
     with open(os.path.join(OUTPUT_FOLDER, "segmentation-scores.json"), "w") as file: 
         json.dump(scores, file, indent=4)
 
