@@ -63,7 +63,7 @@ def main():
             data = data[args.mode]
             values = np.array([value[args.metric] for value in data])
         
-            values_masked = np.ma.masked_invalid(values)
+            values_masked = np.ma.masked_equal(values, - 1)
             mean, std = np.ma.mean(values_masked, axis=1), np.ma.std(values_masked, axis=1)
             mean = mean[:, c]
             print(f"Pretraining: {pretraining}, Class: {classes[c]}, Mean: {np.mean(mean)}")

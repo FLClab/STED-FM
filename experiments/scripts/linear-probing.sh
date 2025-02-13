@@ -20,13 +20,13 @@ source ~/phd/bin/activate
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-# WEIGHTS=(
-#     "MAE_TINY_IMAGENET1K_V1"
-#     "MAE_TINY_HPA"
-#     "MAE_TINY_JUMP"
-#     "MAE_TINY_SIM"
-#     "MAE_TINY_STED"
-# )
+WEIGHTS=(
+    "MAE_TINY_IMAGENET1K_V1"
+    "MAE_TINY_HPA"
+    "MAE_TINY_JUMP"
+    "MAE_TINY_SIM"
+    "MAE_TINY_STED"
+)
 
 DATASETS=(
     "optim"
@@ -45,25 +45,23 @@ SEEDS=(
 )
 
 opts=()
-for dataset in "${DATASETS[@]}"
+for weight in "${WEIGHTS[@]}"
 do
-    for seed in "${SEEDS[@]}"
+    for dataset in "${DATASETS[@]}"
     do
-        opts+=("$dataset;$seed")
+        for seed in "${SEEDS[@]}"
+        do
+            opts+=("$weight;$dataset;$seed")
+        done
     done
 done
 
 # # # Reads a specific item in the array and asign the values
 # # # to the opt variable
 IFS=';' read -r -a opt <<< "${opts[${SLURM_ARRAY_TASK_ID}]}"
-dataset="${opt[0]}"
-seed="${opt[1]}"
-
-# weight=${WEIGHTS[${SLURM_ARRAY_TASK_ID}]}
-# dataset=${DATASETS[${SLURM_ARRAY_TASK_ID}]}
-# seed=${SEEDS[${SLURM_ARRAY_TASK_ID}]}
-
-
+weight="${opt[0]}"
+dataset="${opt[1]}"
+seed="${opt[2]}"
 
 cd evaluation
 
@@ -71,7 +69,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Started linear probing"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-python finetune_v2.py --dataset $dataset --model mae-lightning-small --weights "MAE_SMALL_STED" --blocks "all" --seed ${seed} --overwrite
+python finetune_v2.py --dataset $dataset --model mae-lightning-small --weights $weight --blocks "all" --seed ${seed} 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
