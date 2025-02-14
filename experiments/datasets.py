@@ -995,6 +995,7 @@ class NeuralActivityStates(Dataset):
         self.labels = new_labels        
 
     def __balance_classes(self) -> None:
+        np.random.seed(42)
         uniques, counts = np.unique(self.labels, return_counts=True) 
         minority_count, minority_class = np.min(counts), np.argmin(counts)
         indices = []
