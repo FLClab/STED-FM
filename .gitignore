@@ -16,6 +16,7 @@ logs/
 *.png
 *.tif
 *.tex
+*.npz
 experiments/detection-experiments/**/*.pkl
 experiments/detection-experiments/application/users.json
 experiments/autonomous-experiments/**/*.pkl

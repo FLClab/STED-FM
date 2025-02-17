@@ -3,6 +3,7 @@ import pickle
 import os
 import glob
 import numpy 
+import argparse
 
 from matplotlib import pyplot
 
@@ -10,6 +11,10 @@ import sys
 sys.path.insert(0, "../../")
 from DEFAULTS import COLORS
 from utils import savefig
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--dataset", type=str, default="attention-maps")
+args = parser.parse_args()
 
 CLASSES = [
     "MAE_SMALL_IMAGENET1K_V1",
@@ -40,7 +45,7 @@ def get_class(filename):
     return None
 
 def get_user_choices():
-    files = glob.glob("data/attention-maps/*.pkl")
+    files = glob.glob(f"data/{args.dataset}/*.pkl")
     per_user_scores = {}
     for file in files:
         scores = {c : 0 for c in CLASSES}
@@ -67,7 +72,7 @@ def merge_dicts(dicts):
     return merged
 
 def get_selections():
-    files = glob.glob("data/attention-maps/*.pkl")
+    files = glob.glob(f"data/{args.dataset}/*.pkl")
     per_user_data = []
     for file in files:
         with open(file, "rb") as f:
@@ -108,7 +113,7 @@ def get_selections():
     ax.set(
         ylabel="Disagreement (-)"
     )
-    savefig(fig, "./results/attention-maps/disagreement", save_white=True)
+    savefig(fig, f"./results/{args.dataset}/disagreement", save_white=True)
         
 def main():
 
@@ -138,7 +143,7 @@ def main():
     ax.set(
         ylabel="Proportion (-)", ylim=(0, 1)
     )
-    savefig(fig, "./results/attention-maps/choices", save_white=True)
+    savefig(fig, f"./results/{args.dataset}/choices", save_white=True)
 
 if __name__ == "__main__":
     main()

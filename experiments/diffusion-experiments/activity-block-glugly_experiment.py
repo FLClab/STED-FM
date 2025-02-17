@@ -29,12 +29,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--latent-encoder", type=str, default="mae-lightning-small")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--timesteps", type=int, default=1000)
-parser.add_argument("--boundary", type=str, default="activity")
+parser.add_argument("--boundary", type=str, default="activity-block-glugly")
 parser.add_argument("--num-samples", type=int, default=20)
 parser.add_argument("--ckpt-path", type=str, default=f"{BASE_PATH}/baselines/DiffusionModels/latent-guidance")
 parser.add_argument("--figure", action="store_true")
 parser.add_argument("--sanity-check", action="store_true")
-parser.add_argument("--direction", type=str, default="0Mg")
+parser.add_argument("--direction", type=str, default="GluGly")
 parser.add_argument("--n-steps", type=int, default=5)
 parser.add_argument("--seed", type=int, default=42)
 args = parser.parse_args()
@@ -141,7 +141,7 @@ def plot_features(features: np.ndarray, distances: np.ndarray, index: int):
 
     fig = plt.figure(figsize=(5,5))
     plt.imshow(features, cmap='viridis')
-    plt.yticks([0, 1, 2, 3, 4, 5], ["Block" if args.direction == "0Mg" else "0Mg", "1", "2", "3", "4", "5"])
+    plt.yticks([0, 1, 2, 3, 4, 5], ["Block" if args.direction == "GluGly" else "GluGly", "1", "2", "3", "4", "5"])
     plt.xticks([0, 1, 2, 3, 4, 5, 6], ["area", "perimeter","mean intensity", "eccentricity", "solidity", "1nn_dist", "num_proteins"], rotation=-45)
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
     plt.colorbar()
@@ -192,7 +192,7 @@ def plot_distance_distribution(distances_to_boundary: dict):
     M = max(max(distances_to_boundary[key1]), max(distances_to_boundary[key2]))
 
     ax.hist(distances_to_boundary["Block"], bins=np.linspace(m, M, 50), alpha=0.5, color='fuchsia', label="Block")
-    ax.hist(distances_to_boundary["0Mg"], bins=np.linspace(m, M, 50), alpha=0.5, color='dodgerblue', label="0Mg")
+    ax.hist(distances_to_boundary["GluGly"], bins=np.linspace(m, M, 50), alpha=0.5, color='dodgerblue', label="GluGly")
     ax.axvline(0.0, color='black', linestyle='--', label="Decision boundary")
     ax.set_xlabel("Distance")
     ax.set_ylabel("Frequency")
@@ -267,7 +267,7 @@ def plot_results() -> None:
                 color = "dodgerblue"
             pc.set_facecolor(color)
             pc.set_alpha(0.7)
-        ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8], ["Block", "0", "1", "2", "3", "4", "5", "0Mg"])
+        ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8], ["Block", "0", "1", "2", "3", "4", "5", "GluGly"])
         fig.savefig(f"./{args.boundary}-experiment/results/{args.weights}-{f}-with-train.pdf", dpi=1200, bbox_inches='tight')
         plt.close(fig)
 
@@ -287,12 +287,12 @@ def plot_results() -> None:
             color = "dodgerblue"
         pc.set_facecolor(color)
         pc.set_alpha(0.7)
-    ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8], ["Block", "0", "1", "2", "3", "4", "5", "0Mg"])
+    ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8], ["Block", "0", "1", "2", "3", "4", "5", "GluGly"])
     fig.savefig(f"./{args.boundary}-experiment/results/num_proteins-with-train.pdf", dpi=1200, bbox_inches='tight')
     plt.close(fig)
 
 def plot_sanity_check(block_features: np.ndarray, mg_features: np.ndarray):
-    keys = ["Block", "0Mg"]
+    keys = ["Block", "GluGly"]
     np.savez(f"./{args.boundary}-experiment/features/train-features.npz", block_features=block_features, mg_features=mg_features)
     features = ["area", "perimeter", "mean_intensity", "eccentricity", "solidity", "1nn_dist", "num_proteins"]
     for i, f in enumerate(features):
@@ -312,7 +312,7 @@ def plot_sanity_check(block_features: np.ndarray, mg_features: np.ndarray):
         parts['cmins'].set_color('black')
         parts['cmaxes'].set_color('black')  
         plt.ylabel(f)
-        plt.xticks([1.0, 1.6], ["Block", "0Mg"])
+        plt.xticks([1.0, 1.6], ["Block", "GluGly"])
         # plt.xlim([0.5, 1.0])
         
         fig.savefig(f"./{args.boundary}-experiment/features/{args.weights}-{f}.pdf", dpi=1200, bbox_inches='tight')
@@ -320,9 +320,9 @@ def plot_sanity_check(block_features: np.ndarray, mg_features: np.ndarray):
 
 def plot_feature_path():
     # TODO: update now that we don't include the sample features 
-    mg_path = np.load(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to0Mg_RESULTS.npz")
+    mg_path = np.load(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_toGluGly_RESULTS.npz")
     block_path = np.load(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_toBlock_RESULTS.npz")
-    mg_proteins = np.load(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to0Mg_NUM_PROTEINS.npz")
+    mg_proteins = np.load(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_toGluGly_NUM_PROTEINS.npz")
     block_proteins = np.load(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_toBlock_NUM_PROTEINS.npz")
     keys_to = list(mg_path.keys())
     keys_back = list(block_path.keys())
@@ -356,7 +356,7 @@ def plot_feature_path():
         
     ax.set_ylabel("Area")
     ax.set_xlabel("Distance")
-    ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], ["Block", "1", "2", "3", "4", "0Mg", "4", "3", "2", "1", "Block"])
+    ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], ["Block", "1", "2", "3", "4", "GluGly", "4", "3", "2", "1", "Block"])
     
     fig.savefig(f"./{args.boundary}-experiment/features/area_full_path.pdf", dpi=1200, bbox_inches='tight')
     plt.close(fig)
@@ -370,13 +370,13 @@ def plot_feature_path():
         
     ax.set_ylabel("# Proteins")
     ax.set_xlabel("Distance")
-    ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], ["Block", "1", "2", "3", "4", "0Mg", "4", "3", "2", "1", "Block"])
+    ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], ["Block", "1", "2", "3", "4", "GluGly", "4", "3", "2", "1", "Block"])
     
     fig.savefig(f"./{args.boundary}-experiment/features/num_proteins_full_path.pdf", dpi=1200, bbox_inches='tight')
     plt.close(fig)
 
 def load_distance_distribution() -> np.ndarray:
-    data = np.load(f"./{args.boundary}-experiment/distributions/{args.weights}-activity-distance_distribution.npz")
+    data = np.load(f"./{args.boundary}-experiment/distributions/{args.weights}-{args.boundary}-distance_distribution.npz")
     scores = data["key2"]
     avg, std = np.mean(scores), np.std(scores)
     distance_max = np.max(scores)
@@ -413,14 +413,14 @@ def main():
             num_classes=2,
             protein_id=3,
             balance=True,
-            keepclasses=[0, 1]
+            keepclasses=[0, 2]
         )
         N = len(dataset)
         indices = np.arange(N)
         np.random.shuffle(indices)
 
-        counters = {0: 0, 1: 0}
-        distances_to_boundary = {"Block": [], "0Mg": []}
+        counters = {0: 0, 2: 0}
+        distances_to_boundary = {"Block": [], "GluGly": []}
         with torch.no_grad():
             for i, idx in tqdm(enumerate(indices), total=N):
                 
@@ -451,14 +451,14 @@ def main():
                         block_features = np.r_[block_features, mean_features]
                     distances_to_boundary["Block"].append(d)
                 else:
-                    distances_to_boundary["0Mg"].append(d)
-                    if counters[1] == 0:
+                    distances_to_boundary["GluGly"].append(d)
+                    if counters[2] == 0:
                         mg_features = mean_features
                     else:
                         mg_features = np.r_[mg_features, mean_features]
                 counters[label] += 1
             
-        print(f"Block: {block_features.shape}, 0Mg: {mg_features.shape}")
+        print(f"Block: {block_features.shape}, GluGly: {mg_features.shape}")
         plot_sanity_check(block_features=block_features, mg_features=mg_features)
         plot_distance_distribution(distances_to_boundary)
 
@@ -515,7 +515,7 @@ def main():
             num_classes=2,
             protein_id=3,
             balance=True,
-            keepclasses=[0, 1]
+            keepclasses=[0, 2]
         )
         N = len(dataset) 
         indices = np.arange(N)
@@ -531,9 +531,9 @@ def main():
                 break 
             img, metadata = dataset[i]
             label = metadata["label"]
-            target_label = 0 if args.direction == "0Mg" else 1
-            multiplier = 1 if args.direction == "0Mg" else -1
-            if args.boundary == "activity" and label != target_label:
+            target_label = 0 if args.direction != "GluGly" else 2.0
+            multiplier = -1 if args.direction != "GluGly" else 1
+            if args.boundary == "activity-block-glugly" and label != target_label:
                 continue 
 
             if "imagenet" in args.weights.lower():

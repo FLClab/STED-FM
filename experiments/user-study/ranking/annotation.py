@@ -451,17 +451,17 @@ def build_tree(items, tree=None, callback=None, queue=None):
 
 if __name__ == "__main__":
 
-    import random
+    # import random
 
-    numpy.random.seed(42)
-    random.seed(42)
+    # numpy.random.seed(42)
+    # random.seed(42)
 
-    items = [numpy.random.rand(128, 128) for _ in range(5)]
-    # items = [2,1,5,3,9,8]
-    items = [{"item": item, "id": i} for i, item in enumerate(items)]
+    # items = [numpy.random.rand(128, 128) for _ in range(5)]
+    # # items = [2,1,5,3,9,8]
+    # items = [{"item": item, "id": i} for i, item in enumerate(items)]
 
-    tree = build_tree(items)
-    print(len(tree.get_ranking()))
+    # tree = build_tree(items)
+    # print(len(tree.get_ranking()))
 
 
 
@@ -472,9 +472,33 @@ if __name__ == "__main__":
 
     # del tree
 
-    # tree = Tree()
-    # tree.load("application/anthony-perforated-tree.pkl")
-    # print(tree.get_ranking())
+    tree = Tree()
+    tree.load("data/multidomain/Anthony-tree.pkl")
+    print(len(tree))
+    import os
+    from matplotlib import pyplot
+
+    image_steps = []
+    for node in tree.get_ranking():
+        # print(node, node.attrs)
+        step = node.get_item()
+        step = os.path.basename(step).split(".")[0].split("_")[-1]
+        image_steps.append(int(step))
+
+    fig, ax = pyplot.subplots(figsize=(4, 3))
+    image_steps = numpy.array(image_steps)
+    cmap = pyplot.get_cmap("RdPu", 1 + len(numpy.unique(image_steps)))
+    for idx in numpy.unique(image_steps):
+        mask = image_steps == idx
+        ax.plot(numpy.cumsum(mask) / mask.sum(), label=f"Step {idx}", color=cmap(idx + 1))
+    ax.set(
+        xlabel="Ranking",
+        ylabel="Fraction of images"
+    )
+    ax.legend()
+    fig.savefig("ranking.pdf", dpi=300, bbox_inches="tight")
+
+    print(image_steps)
 
     # items = [2,5, 1, 3,9,8, 6, 4, 7]
     # items = [{"item": i, "id": i} for i in items]

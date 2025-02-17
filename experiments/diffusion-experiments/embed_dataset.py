@@ -10,11 +10,14 @@ import os
 from torch.utils.data import DataLoader
 import sys 
 sys.path.insert(0, "../")
+from utils import set_seeds
+from DEFAULTS import BASE_PATH
 from model_builder import get_pretrained_model_v2
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mae-lightning-small")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
+parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--blocks", type=str, default="all")
 parser.add_argument("--global-pool", type=str, default="avg")
 parser.add_argument("--num-per-class", type=int, default=None)
@@ -26,7 +29,7 @@ args = parser.parse_args()
 def load_dataset() -> torch.utils.data.Dataset: 
     if args.dataset == "quality":
         dataset = OptimQualityDataset(
-            data_folder=f"/home-local/Frederic/evaluation-data/optim_{args.split}",
+            data_folder=os.path.join(BASE_PATH, f"evaluation-data/optim_{args.split}"),
             num_samples={"actin": None},
             apply_filter=True,
             classes=['actin'],
@@ -36,7 +39,7 @@ def load_dataset() -> torch.utils.data.Dataset:
         )
     elif args.dataset == "activity":
         dataset = ProteinActivityDataset(
-            h5file=f"/home-local/Frederic/evaluation-data/NeuralActivityStates/NAS_{args.split}.hdf5",
+            h5file=os.path.join(BASE_PATH, f"evaluation-data/NeuralActivityStates/NAS_{args.split}.hdf5"),
             num_samples=None,
             transform=None,
             n_channels=3 if "imagenet" in args.weights.lower() else 1,
@@ -45,8 +48,19 @@ def load_dataset() -> torch.utils.data.Dataset:
             balance=True,
             keepclasses=[0, 1]
         )
+    elif args.dataset == "activity-block-glugly":
+        dataset = ProteinActivityDataset(
+            h5file=os.path.join(BASE_PATH, f"evaluation-data/NeuralActivityStates/NAS_{args.split}.hdf5"),
+            num_samples=None,
+            transform=None,
+            n_channels=3 if "imagenet" in args.weights.lower() else 1,
+            num_classes=2,
+            protein_id=3,
+            balance=True,
+            keepclasses=[0, 2]
+        )        
     elif args.dataset == "resolution":
-        path = "/home-local/Frederic/evaluation-data/low-high-quality"
+        path = os.path.join(BASE_PATH, "evaluation-data/low-high-quality")
         dataset = LowHighResolutionDataset(
             h5path=f"{path}/{args.split}.hdf5",
             num_samples=None,
@@ -56,7 +70,7 @@ def load_dataset() -> torch.utils.data.Dataset:
             classes=["low", "high"] 
         )
     elif args.dataset == "tubulin-actin":
-        path = f"/home-local/Frederic/evaluation-data/optim_{args.split}"
+        path = os.path.join(BASE_PATH, f"evaluation-data/optim_{args.split}")
         dataset = TubulinActinDataset(
             data_folder=path,
             classes=["tubulin", "actin"],
@@ -69,6 +83,9 @@ def load_dataset() -> torch.utils.data.Dataset:
 
 
 if __name__=="__main__":
+
+    set_seeds(args.seed)
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Running on {device}")
 
@@ -90,8 +107,7 @@ if __name__=="__main__":
     print(f"Dataset size: {len(dataset)}")
     print(np.unique(dataset.labels, return_counts=True))
     
-
-    dataloader = DataLoader(dataset, batch_size=cfg.batch_size, shuffle=True, drop_last=False, num_workers=1)
+    dataloader = DataLoader(dataset, batch_size=cfg.batch_size, shuffle=True, drop_last=False)
 
     embeddings = []
     all_labels = []
@@ -110,5 +126,14 @@ if __name__=="__main__":
     all_labels = np.array(all_labels)
     print(all_labels.shape)
 
+    # Make sure labels are unique and in increasing order
+    unique_labels = np.unique(all_labels)
+    tmp = np.zeros_like(all_labels)
+    for i, label in enumerate(unique_labels):
+        idx = np.where(all_labels == label)[0]
+        tmp[idx] = i
+    all_labels = tmp
+
+    os.makedirs(f"./{args.dataset}-experiment/embeddings", exist_ok=True)
     np.savez(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-embeddings_{args.split}.npz", embeddings=embeddings, labels=all_labels)
 

@@ -1,3 +1,4 @@
+import random
 import io
 import os
 import matplotlib 
@@ -12,6 +13,16 @@ from sklearn.metrics import average_precision_score
 from typing import List
 
 from dataclasses import dataclass
+
+def set_seeds(seed: int):
+    """
+    Sets the seeds for reproducibility
+
+    :param seed: An `int` of the seed value
+    """
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
 
 def get_number_of_classes(dataset: str):
     if dataset == "neural-activity-states":

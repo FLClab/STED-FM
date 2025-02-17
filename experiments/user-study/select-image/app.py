@@ -31,10 +31,10 @@ class User:
     def __init__(self, name):
         self.name = name
 
-DATASET = "attention-maps"
+DATASET = "attention-maps-finetuned"
 os.makedirs(os.path.join("data", DATASET), exist_ok=True)
 
-if DATASET == "attention-maps":
+if DATASET in ["attention-maps", "attention-maps-finetuned-25samples", "attention-maps-finetuned"]:
 
     IMAGE_IDS = [
         "MAE_SMALL_IMAGENET1K_V1",
@@ -90,6 +90,7 @@ elif DATASET == "preference-study":
         # ])
 
 # Shuffle the candidate images
+print("Number of images: ", len(candidate_images))
 for i in range(len(candidate_images)):
     random.shuffle(candidate_images[i])
 
@@ -138,7 +139,7 @@ def save_globals(response):
             "current_idx": current_idx,
             "user_choices": user_choices
         }
-        logger.log(logging.INFO, f"[{user.name}] Saving data: {data}")
+        logger.log(logging.INFO, f"[{user.name}] Saving data.")
         with open(os.path.join("data", DATASET, f"{user.name}.pkl"), "wb") as f:
             pickle.dump(data, f)
 

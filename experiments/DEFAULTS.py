@@ -26,7 +26,7 @@ else:
 #     "Hybrid": "#94346E",
 # }
 
-class ColorMapper:
+class NameMapper:
     def __init__(self):
         if hasattr(self, "__annotations__"):
             for key, value in self.__annotations__.items():
@@ -34,7 +34,6 @@ class ColorMapper:
         
     def __getitem__(self, key):
         if not hasattr(self, key):
-            # Maybe this is of the form "MAE_SMALL_IMAGENET1K_V1"
             for k in self.__dict__.keys():
                 if k.lower() in key.lower():
                     return getattr(self, k)
@@ -44,7 +43,7 @@ class ColorMapper:
     def __setitem__(self, key, value):
         setattr(self, key, value)
 
-class DefaultColorMapper(ColorMapper):
+class DefaultColorMapper(NameMapper):
 
     default: str = "tab:blue"
     imagenet1k_v1: str = "#5F4690"
@@ -54,23 +53,48 @@ class DefaultColorMapper(ColorMapper):
     sim: str = "#EDAD08"
     sted: str = "#CC503E"
     hybrid: str = "#94346E"
-    
-COLORS = DefaultColorMapper()
-COLORS = {
-    "IMAGENET1K_V1": "#5F4690",
-    "ImageNet": "#5F4690",
-    "JUMP": "#1D6996",
-    "HPA": "#0F8554",
-    "SIM": "#EDAD08",
-    "STED": "#CC503E",
-    "Hybrid": "#94346E",
-}
 
-MARKERS = {
-    "IMAGENET1K_V1": "o",
-    "ImageNet": "*",
-    "JUMP": "P",
-    "HPA": "s",
-    "SIM": "^",
-    "STED": "o",
-}
+class DefaultMarkerMapper(NameMapper):
+
+    default: str = "o"
+    imagenet1k_v1: str = "*"
+    imagenet: str = "*"
+    jump: str = "P"
+    hpa: str = "s"
+    sim: str = "^"
+    sted: str = "o"
+    hybrid: str = "o"
+
+class DefaultDatasetMapper(NameMapper):
+
+    default: str = "unknown"
+    imagenet1k_v1: str = "ImageNet"
+    imagenet: str = "ImageNet"
+    jump: str = "JUMP"
+    hpa: str = "HPA"
+    sim: str = "SIM"
+    sted: str = "STED"
+    hybrid: str = "Hybrid"
+
+COLORS = DefaultColorMapper()
+MARKERS = DefaultMarkerMapper()
+DATASETS = DefaultDatasetMapper()
+
+# COLORS = {
+#     "IMAGENET1K_V1": "#5F4690",
+#     "ImageNet": "#5F4690",
+#     "JUMP": "#1D6996",
+#     "HPA": "#0F8554",
+#     "SIM": "#EDAD08",
+#     "STED": "#CC503E",
+#     "Hybrid": "#94346E",
+# }
+
+# MARKERS = {
+#     "IMAGENET1K_V1": "o",
+#     "ImageNet": "*",
+#     "JUMP": "P",
+#     "HPA": "s",
+#     "SIM": "^",
+#     "STED": "o",
+# }
