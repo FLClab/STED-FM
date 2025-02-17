@@ -36,10 +36,11 @@ class HDF5Dataset(Dataset):
     :param out_channels: (optional) The number of output channels to return
     :param return_foregound: (optional) Wheter to return the foreground mask
     """
-    def __init__(self, file_path, transform=None, data_aug=0, validation=False, size=256, step=0.75, cache_system=None, n_channels=1, return_foregound=False, **kwargs):
+    def __init__(self, file_path, transform=None, data_aug=0, validation=False, size=256, step=0.75, cache_system=None, n_channels=1, return_foregound=False, return_index=False,**kwargs):
         super(HDF5Dataset, self).__init__()
 
         self.file_path = file_path
+        self.return_index = return_index
         if transform is None:
             self.transform = transforms.ToTensor()
         else:
@@ -140,7 +141,10 @@ class HDF5Dataset(Dataset):
             image_crop = numpy.moveaxis(image_crop, 0, -1)
         img = self.transform(image_crop)
         mask = torch.tensor(label_crop > 0, dtype=torch.float32)
-        return img, mask
+        if self.return_index:
+            return img, mask, {"dataset-idx": index}
+        else:
+            return img, mask
 
     def __len__(self):
         return len(self.samples)
@@ -194,6 +198,7 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> Tuple[Dataset,
         size=224,
         step=0.75,
         n_channels=cfg.in_channels,
-        return_foregound=True
+        return_foregound=True,
+        return_index=kwargs.get("return_index", False)
     )
     return training_dataset, validation_dataset, testing_dataset
