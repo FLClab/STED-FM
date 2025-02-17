@@ -7,8 +7,8 @@ The application should run using the default flask implementation. This will cre
 python app.py
 ```
 
-For multiple instances of the application, the application should run using the gunicorn implementation.
+For multiple instances of the application, the application should run using the gunicorn implementation. Requires to install gevent (`pip install gevent`).
 
 ```bash
-gunicorn app:app -t 4 -b 0.0.0.0:5000
+gunicorn app:app -t 4 -b 0.0.0.0:5000 --timeout 5 -k gevent
 ```

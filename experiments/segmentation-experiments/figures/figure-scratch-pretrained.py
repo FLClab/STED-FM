@@ -87,7 +87,13 @@ def main():
     for j, mode in enumerate(modes):
         for i, pretraining in enumerate(pretrainings):
             data = get_data(mode=mode, pretraining=pretraining)
-            fig, ax = plot_data(pretraining, data, figax=(fig, ax), position=j + i / (len(pretrainings) + 1), widths=width)
+            
+            position = j + i / (len(pretrainings) + 1)
+            if mode == "from-scratch":
+                position = j + (len(pretrainings) - 1) * width / 2
+                fig, ax = plot_data("from-scratch", data, figax=(fig, ax), position=position, widths=0.9*width)
+                break
+            fig, ax = plot_data(pretraining, data, figax=(fig, ax), position=position, widths=0.9*width)
 
     ax.set(
         ylabel=args.metric,

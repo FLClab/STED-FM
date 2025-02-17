@@ -1,5 +1,6 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
+from matplotlib.colors import Normalize
 from wavelet import detect_spots 
 import argparse 
 import torch 
@@ -17,9 +18,12 @@ import sys
 from scipy.spatial.distance import cdist
 import glob 
 import pickle
+from PIL import Image
+import tifffile
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH, COLORS 
 from model_builder import get_pretrained_model_v2 
+from utils import set_seeds
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--latent-encoder", type=str, default="mae-lightning-small")
@@ -27,11 +31,12 @@ parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--timesteps", type=int, default=1000)
 parser.add_argument("--boundary", type=str, default="activity")
 parser.add_argument("--num-samples", type=int, default=20)
-parser.add_argument("--ckpt-path", type=str, default="/home-local/Frederic/baselines/DiffusionModels/latent-guidance")
+parser.add_argument("--ckpt-path", type=str, default=f"{BASE_PATH}/baselines/DiffusionModels/latent-guidance")
 parser.add_argument("--figure", action="store_true")
 parser.add_argument("--sanity-check", action="store_true")
 parser.add_argument("--direction", type=str, default="0Mg")
 parser.add_argument("--n-steps", type=int, default=5)
+parser.add_argument("--seed", type=int, default=42)
 args = parser.parse_args()
 
 
@@ -97,7 +102,7 @@ def extract_features(img: Union[np.ndarray, torch.Tensor], check_foreground: boo
         pixels = img.shape[0] * img.shape[1]
         ratio = foreground / pixels 
         if ratio < 0.05:
-            return None, None
+            return None, None, None
     mask_label, num_proteins = measure.label(mask, return_num=True)
     props = measure.regionprops(mask_label, intensity_image=img)
     coordinates = np.array([p.weighted_centroid for p in props])
@@ -112,7 +117,7 @@ def extract_features(img: Union[np.ndarray, torch.Tensor], check_foreground: boo
         distances = cdist(coords.reshape(1, -1), coordinates)
         distances = np.sort(distances)
         nn_dist = distances[:, 1] # omitting itself
-        features[i, 5] = nn_dist
+        features[i, 5] = nn_dist.item()
     
     mean_features = np.mean(features, axis=0)
     if np.any(np.isnan(mean_features)):
@@ -123,10 +128,12 @@ def extract_features(img: Union[np.ndarray, torch.Tensor], check_foreground: boo
         print(mean_features)
         exit()
     mean_features = np.r_[mean_features, num_proteins]
-    return features, mean_features
+    return props, features, mean_features
 
 
 def plot_features(features: np.ndarray, distances: np.ndarray, index: int):
+    os.makedirs(f"./{args.boundary}-experiment/examples", exist_ok=True)
+    
     features_min = features.min(axis=0)
     features_max = features.max(axis=0)
     for i in range(features.shape[1]):
@@ -141,7 +148,28 @@ def plot_features(features: np.ndarray, distances: np.ndarray, index: int):
     fig.savefig(f"./{args.boundary}-experiment/examples/{args.weights}-features_{index}_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
     # fig.savefig("./temp.pdf", dpi=1200)
 
+def save_raw_images(samples, distances, index):
+    os.makedirs(f"./{args.boundary}-experiment/examples/raw", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/examples/raw-tif", exist_ok=True)
+    
+    cmap = plt.get_cmap('hot')
+    norm = Normalize(vmin=0.0, vmax=1.0, clip=True)
+
+    for i, (s, d) in enumerate(zip(samples, distances)):
+        if s.shape[0] == 3:
+            s = s[0, :, :]
+
+        tifffile.imwrite(
+            f"./{args.boundary}-experiment/examples/raw-tif/{args.weights}-image_{index}_to{args.direction}_{i}.tif",
+            s.astype(np.float32)
+        )
+
+        img = Image.fromarray((cmap(norm(s)) * 255).astype(np.uint8))
+        img.save(f"./{args.boundary}-experiment/examples/raw/{args.weights}-image_{index}_to{args.direction}_{i}.png")
+
 def save_examples(samples, distances, index):
+    os.makedirs(f"./{args.boundary}-experiment/examples", exist_ok=True)
+
     N = len(samples)
     fig, axs = plt.subplots(1, N, figsize=(10, 5))
     for i, (s, d) in enumerate(zip(samples, distances)):
@@ -156,16 +184,20 @@ def save_examples(samples, distances, index):
 
 def plot_distance_distribution(distances_to_boundary: dict):
     key1, key2 = list(distances_to_boundary.keys())
-    np.savez(f"./{args.boundary}-experiment/distributions/{args.weights}-activity-distance_distribution.npz", key1=distances_to_boundary[key1], key2=distances_to_boundary[key2])
+    np.savez(f"./{args.boundary}-experiment/distributions/{args.weights}-{args.boundary}-distance_distribution.npz", key1=distances_to_boundary[key1], key2=distances_to_boundary[key2])
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.hist(distances_to_boundary["Block"], bins=50, alpha=0.5, color='fuchsia', label="Block")
-    ax.hist(distances_to_boundary["0Mg"], bins=50, alpha=0.5, color='dodgerblue', label="0Mg")
+
+    m = min(min(distances_to_boundary[key1]), min(distances_to_boundary[key2]))
+    M = max(max(distances_to_boundary[key1]), max(distances_to_boundary[key2]))
+
+    ax.hist(distances_to_boundary["Block"], bins=np.linspace(m, M, 50), alpha=0.5, color='fuchsia', label="Block")
+    ax.hist(distances_to_boundary["0Mg"], bins=np.linspace(m, M, 50), alpha=0.5, color='dodgerblue', label="0Mg")
     ax.axvline(0.0, color='black', linestyle='--', label="Decision boundary")
     ax.set_xlabel("Distance")
     ax.set_ylabel("Frequency")
     ax.legend()
-    fig.savefig(f"./{args.boundary}-experiment/distributions/{args.weights}-resolution-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
+    fig.savefig(f"./{args.boundary}-experiment/distributions/{args.weights}-{args.boundary}-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
 def plot_results_old():
@@ -351,6 +383,9 @@ def load_distance_distribution() -> np.ndarray:
     return avg - (3*std), distance_max * 8
 
 def main():
+
+    set_seeds(args.seed)
+
     if args.figure:
         plot_results()
         # plot_feature_path()
@@ -371,7 +406,7 @@ def main():
         latent_encoder.to(DEVICE)
         latent_encoder.eval()
         dataset = ProteinActivityDataset(
-            h5file="/home-local/Frederic/evaluation-data/NeuralActivityStates/NAS_train.hdf5",
+            h5file=os.path.join(BASE_PATH, "evaluation-data/NeuralActivityStates/NAS_train.hdf5"),
             num_samples=None,
             transform=None,
             n_channels=1,
@@ -395,7 +430,7 @@ def main():
             
 
                 original = img.squeeze().detach().cpu().numpy() 
-                _, mean_features = extract_features(original, check_foreground=True)
+                rprops, _, mean_features = extract_features(original, check_foreground=True)
 
                 if mean_features is None:
                     # print("Not enough foreground, skipping...")
@@ -473,7 +508,7 @@ def main():
         diffusion_model.load_state_dict(ckpt["state_dict"])
         diffusion_model.to(DEVICE)
         dataset = ProteinActivityDataset(
-            h5file=f"/home-local/Frederic/evaluation-data/NeuralActivityStates/NAS_test.hdf5",
+            h5file=os.path.join(BASE_PATH, f"evaluation-data/NeuralActivityStates/NAS_test.hdf5"),
             num_samples=None,
             transform=None,
             n_channels=1,
@@ -488,6 +523,7 @@ def main():
         counter = 0
 
         for i in tqdm(indices):
+            rprops = []
             distances = [] 
             features = []
             all_features = np.zeros((args.n_steps+1, 7))
@@ -507,7 +543,7 @@ def main():
                 img = torch.tensor(img, dtype=torch.float32).unsqueeze(0).to(DEVICE)
 
             original = img.squeeze().detach().cpu().numpy()
-            original_features, original_mean_features = extract_features(original, check_foreground=True)
+            original_rprops, original_features, original_mean_features = extract_features(original, check_foreground=True)
             
             if original_features is None:
                 print("Not enough foreground, skipping...")
@@ -532,6 +568,7 @@ def main():
             # features.append(sample_features)
 
             distances.append(0.0)
+            rprops.append(original_rprops)
 
             lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept,start_distance=multiplier*0.0, end_distance=multiplier*distance_max, steps=args.n_steps)
 
@@ -539,13 +576,14 @@ def main():
                 lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
                 lerped_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=lerped_code, progress=True)
                 lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
-                lerped_sample_features, lerped_sample_mean_features = extract_features(lerped_sample_numpy)
+                lerped_rprops, lerped_sample_features, lerped_sample_mean_features = extract_features(lerped_sample_numpy)
                 RESULTS["lerp_" + str(c+1)] = lerped_sample_features if counter == 0 else np.r_[RESULTS["lerp_" + str(c+1)], lerped_sample_features]
                 samples.append(lerped_sample_numpy)
                 NUM_PROTEINS["lerp_" + str(c+1)].append(lerped_sample_mean_features[6])
                 all_features[c+1] = lerped_sample_mean_features
                 features.append(lerped_sample_features)
                 distances.append(abs(d[c][0]))
+                rprops.append(lerped_rprops)
          
 
             distances = np.array(distances)
@@ -553,6 +591,8 @@ def main():
 
             plot_features(features=all_features, distances=distances, index=counter)
             save_examples(samples, distances, counter)
+            save_raw_images(samples, distances, counter)
+
         np.savez(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to{args.direction}_RESULTS.npz", **RESULTS)
         np.savez(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to{args.direction}_NUM_PROTEINS.npz", **NUM_PROTEINS)
 

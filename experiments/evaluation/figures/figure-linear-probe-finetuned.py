@@ -33,7 +33,10 @@ def load_file(file):
 
 def get_data(mode="linear-probe", pretraining="STED"):
     data = {}
-    files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"accuracy_{mode}_None_*.json"), recursive=True)
+    if mode == "from-scratch":
+        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_from-scratch", args.dataset, f"accuracy_{mode}_None_*.json"), recursive=True)
+    else:
+        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{pretraining}", args.dataset, f"accuracy_{mode}_None_*.json"), recursive=True)
     if len(files) < 1: 
         print(f"Could not find files for mode: `{mode}` and pretraining: `{pretraining}`")
         return data
@@ -70,15 +73,28 @@ def plot_data(pretraining, data, figax=None, position=0, **kwargs):
 def main():
 
     fig, ax = pyplot.subplots(figsize=(4,3))
-    modes = ["linear-probe", "finetuned"]
+    modes = ["from-scratch", "linear-probe", "finetuned"]
     pretrainings = ["STED", "SIM", "HPA", "JUMP", "ImageNet"]
+    WEIGHTS = {
+        "STED" : f"{args.model.upper()}_SIMCLR_STED",
+        "SIM" : f"{args.model.upper()}_SIMCLR_SIM",
+        "HPA" : f"{args.model.upper()}_SIMCLR_HPA",
+        "JUMP" : f"{args.model.upper()}_SIMCLR_JUMP",
+        "ImageNet" : f"{args.model.upper()}_IMAGENET1K_V1",
+    }
 
     width = 1/(len(pretrainings) + 1)
     samples = {}
     for j, mode in enumerate(modes):
         for i, pretraining in enumerate(pretrainings):
-            data = get_data(mode=mode, pretraining=pretraining)
-            (fig, ax), samps = plot_data(pretraining, data, figax=(fig, ax), position=j + i / (len(pretrainings) + 1), widths=width)
+            data = get_data(mode=mode, pretraining=WEIGHTS[pretraining])
+            position = j + i / (len(pretrainings) + 1)
+            if mode == "from-scratch":
+                position = j + (len(pretrainings) - 1) * width / 2
+                (fig, ax), samps = plot_data("from-scratch", data, figax=(fig, ax), position=position, widths=0.9*width)
+                samples[f"{mode}"] = samps
+                break
+            (fig, ax), samps = plot_data(pretraining, data, figax=(fig, ax), position=position, widths=0.9*width)
 
             samples[f"{mode}-{pretraining}"] = samps
     

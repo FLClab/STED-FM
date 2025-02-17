@@ -8,6 +8,7 @@ DATASET=(
     "neural-activity-states"
     "peroxisome"
     "polymer-rings"
+    "dl-sim"
 )
 for dataset in ${DATASET[@]};
 do
@@ -18,6 +19,6 @@ do
     for dataset in ${DATASET[@]};
     do
         python figure-linear-probe-finetuned.py --model $model --dataset $dataset
-        python figure-small-dataset.py --model $model --dataset $dataset --samples 10 25 50 100 250 500
+        # python figure-small-dataset.py --model $model --dataset $dataset --samples 10 25 50 100 250 500
     done
 done
