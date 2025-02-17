@@ -534,6 +534,7 @@ def main():
             target_label = 0 if args.direction == "0Mg" else 1
             multiplier = 1 if args.direction == "0Mg" else -1
             if args.boundary == "activity" and label != target_label:
+                print(f"Skipping {i} because label is {label} and target is {target_label}")
                 continue 
 
             if "imagenet" in args.weights.lower():

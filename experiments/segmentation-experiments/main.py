@@ -457,7 +457,9 @@ if __name__ == "__main__":
         num_workers=0
     )
 
-    scores = evaluate_segmentation(model, test_loader, savefolder=None, device=DEVICE)
+
+
+    scores = evaluate_segmentation(model, test_loader, savefolder=None, device=DEVICE, dataset_name=args.dataset)
     with open(os.path.join(OUTPUT_FOLDER, "segmentation-scores.json"), "w") as file: 
         json.dump(scores, file, indent=4)
 

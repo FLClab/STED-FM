@@ -8,8 +8,11 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm 
 from torchvision import transforms
 import numpy as np
+from sklearn.decomposition import PCA
 import seaborn 
+import json
 from scipy.spatial.distance import pdist, cdist
+from typing import List, Optional
 import pandas 
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH
@@ -17,15 +20,32 @@ from loaders import get_dataset
 from model_builder import get_pretrained_model_v2 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dataset", type=str, default="synaptic-proteins")
+parser.add_argument("--dataset", type=str, default="optim")
 parser.add_argument("--model", type=str, default="mae-lightning-small")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--global-pool", type=str, default="avg")
 parser.add_argument("--pca", action="store_true")
 args = parser.parse_args()
 
-def plot_PCA(samples: np.ndarray, labels: np.ndarray, savename: str) -> None:
-    pass
+def plot_PCA(samples: np.ndarray, labels: np.ndarray, classes: Optional[List[str]] = None) -> None:
+    pca = PCA(n_components=2, random_state=42)
+    pca_features = pca.fit_transform(samples)
+
+    fig, ax = plt.subplots(figsize=(4, 4))
+
+    uniques = np.unique(labels) 
+    cmap = plt.get_cmap("tab10", len(uniques))
+    for i, unique in enumerate(uniques):
+        mask = labels == unique
+        ax.scatter(pca_features[mask, 0], pca_features[mask, 1], color=cmap(i), label=labels[i] if classes is None else classes[i])
+      
+    ax.set(
+        ylabel="PCA-2", xlabel="PCA-1",
+        xticks=[], yticks=[]
+    )
+    ax.legend()
+    fig.savefig(f"./results/knn-pca/pca_{args.dataset}_{args.weights}.pdf", bbox_inches="tight")
+    plt.close()
 
 def extract_features(model: torch.nn.Module, loader: DataLoader, device: torch.device):
     samples, ground_truth = [], []
@@ -38,11 +58,11 @@ def extract_features(model: torch.nn.Module, loader: DataLoader, device: torch.d
 
             x, labels = x.to(device), labels.to(device)
             if "mae" in args.model.lower():
-                features = model.forward_encoder(x)
-                if args.global_pool == "token":
-                    features = features[:, 0, :] # class token 
-                else:
-                    features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens 
+                features = model.forward_features(x)
+                # if args.global_pool == "token":
+                #     features = features[:, 0, :] # class token 
+                # else:
+                #     features = torch.mean(features[:, 1:, :], dim=1) # average patch tokens 
             elif "convnext" in args.model.lower():
                 features = model(x).flatten(start_dim=1)
             else:
@@ -64,7 +84,7 @@ def knn_predict(model: torch.nn.Module, valid_loader: DataLoader, test_loader: D
     test_samples, test_ground_truth = extract_features(model=model, loader=test_loader, device=device)
 
     if args.pca:
-        plot_PCA(samples=test_samples, labels=test_ground_truth, savename=savename)
+        plot_PCA(samples=test_samples, labels=test_ground_truth, classes=test_loader.dataset.classes)
 
     pdistances = cdist(valid_samples, test_samples, metric="cosine").T
     neighbor_indices = np.argsort(pdistances, axis=1)
@@ -92,31 +112,19 @@ def knn_predict(model: torch.nn.Module, valid_loader: DataLoader, test_loader: D
     print("\n")
     accuracy = np.diag(confusion_matrix).sum() / test_ground_truth.shape[0]
 
+    accuracies = []
+    accuracies.append(accuracy)
     print(f"--- {args.dataset} ; {args.model} ; {savename} ---\n")
     for i in range(len(uniques)):
         N = np.sum(confusion_matrix[i, :])
         correct = confusion_matrix[i, i] 
         class_acc = correct / N
+        accuracies.append(class_acc)
         print(f"\tClass {i} accuracy: {class_acc * 100:0.2f}")
 
     print(f"\tOverall accuracy: {accuracy * 100:0.2f}\n")
-        
-    
-
-    ### NOTE: Below is old way of building confusion matrix which only considered correct classification as those with votes >=3 
-    #           This was problematic because in the 4 class setting w/ 5 neighbors, we could have votes for classes as, for example: [2, 1, 1, 1];
-    #           In which case the majority vote is class 0 but the below code does not add anything to the confusion matrix
-    # confusion_matrix = np.zeros((len(uniques), len(uniques)))
-    # for unique in tqdm(uniques, desc="Confusion matrix computation..."):
-    #     mask = ground_truth == unique
-    #     for predicted_unique in uniques:
-    #         votes = np.sum((associated_labels[mask] == predicted_unique).astype(int), axis=-1)
-    #         print(votes.shape)
-    #         confusion_matrix[unique, predicted_unique] += np.sum(votes >= 3)
-    #         total = np.sum(votes >= 3) 
-    #         print(total.shape)
-
-
+    accuracies = np.array(accuracies)
+    np.savez(f"./results/{args.model}/{args.dataset}_{args.weights}_KNN_accuracies.npz", accuracies=accuracies)
 
     acc = accuracy * 100
     fig, ax = plt.subplots()
@@ -146,8 +154,8 @@ def get_save_folder() -> str:
         return "STED"
     elif "jump" in args.weights.lower():
         return "JUMP"
-    elif "ctc" in args.weights.lower():
-        return "CTC"
+    elif "sim" in args.weights.lower():
+        return "SIM"
     elif "hpa" in args.weights.lower():
         return "HPA"
     else:
@@ -169,10 +177,6 @@ def main():
         num_samples=None, # Not used when only getting test dataset
     )
 
-    # confusion_matrices = {}
-    # for ckpt in ["100000", "200000", "300000", "400000", "500000", "600000", "700000", "800000", "900000", "1000000"]:
-        # weights = os.path.join(BASE_PATH, "baselines", "dataset-fullimages-1Msteps-multigpu", "resnet50_STED", f"checkpoint-{ckpt}.pt")
-
     model, cfg = get_pretrained_model_v2(
         name=args.model,
         weights=args.weights,
@@ -180,17 +184,16 @@ def main():
         mask_ratio=0.0,
         pretrained=True if SAVE_NAME == "ImageNet" else False,
         in_channels=n_channels,
-        as_classifier=False,
-        blocks='0', # Not used with as_classifier = False
+        as_classifier=True,
+        blocks='all',
+        num_classes=4, # Ignored, we are not using the classification head
     ) 
 
     model = model.to(device)
     model.eval()
-    confusion_matrix = knn_predict(model=model, valid_loader=valid_loader, test_loader=test_loader, device=device, savename=SAVE_NAME)
-    # confusion_matrices[ckpt] = confusion_matrix.tolist()
-    # import json
-    # with open(os.path.join("results", "scores.json"), "w") as handle:
-    #     json.dump(confusion_matrices, handle, indent=4)
+    with torch.no_grad():
+        onfusion_matrix = knn_predict(model=model, valid_loader=valid_loader, test_loader=test_loader, device=device, savename=SAVE_NAME)
+    
     
 
 if __name__=="__main__":

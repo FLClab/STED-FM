@@ -6,12 +6,13 @@ from torch import nn
 from diffusion_models.diffusion.ddpm_lightning import DDPM 
 from diffusion_models.diffusion.denoising.unet import UNet 
 from tqdm import tqdm 
+from typing import Union
 from attribute_datasets import LowHighResolutionDataset
 import sys
 from banditopt.objectives import Resolution 
 import glob
 sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH, COLORS
+from DEFAULTS import BASE_PATH, COLORS, MARKERS
 from model_builder import get_pretrained_model_v2
 
 parser = argparse.ArgumentParser()
@@ -25,6 +26,14 @@ parser.add_argument("--figure", action="store_true")
 parser.add_argument("--sanity-check", action="store_true")
 parser.add_argument("--n-steps", type=int, default=5)
 args = parser.parse_args()
+
+
+def denormalize(img: Union[np.ndarray, torch.Tensor], mu: float = 0.010903545655310154, std: float = 0.03640301525592804) -> Union[np.ndarray, torch.Tensor]:
+    """
+    Denormalizes an image. Note that the parameters mu and sigma seem hard-coded but they have been computed from the training sets and can be found
+    in the attribute_datasets.py file.
+    """
+    return img * std + mu
 
 def compute_confidence_intervals(all_scores: np.ndarray, confidence: float = 0.80) -> tuple:
     """Compute confidence intervals for scores at each step.
@@ -179,7 +188,7 @@ def plot_results():
         # axs[0].plot(x, resolutions, c=COLORS[weight], label=weight)
         lower_bounds, upper_bounds = compute_confidence_intervals(all_resolutions)
         # axs[0].fill_between(x, lower_bounds, upper_bounds, color=COLORS[weight], alpha=0.2)
-        ax.plot(x, resolutions, c=COLORS[weight], label=weight, marker='o')
+        ax.plot(x, resolutions, c=COLORS[weight], label=weight, marker=MARKERS[weight])
         # for i in range(all_resolutions.shape[0]):
         #     axs[1].scatter(all_distances[i], all_resolutions[i], c=[COLORS[weight]]*all_distances[i].shape[0], edgecolors="black")
     # axs[0].legend()
@@ -221,13 +230,13 @@ def cumulative_regret() -> None:
             
         regret_per_image = np.cumsum(regret_per_image)
         x = np.arange(len(regret_per_image))
-        ax.plot(x, regret_per_image, c=COLORS[weight], label=weight, marker='o')
+        ax.plot(x, regret_per_image, c=COLORS[weight], label=weight, marker=MARKERS[weight])
 
-    ax.set_yscale('log')
+    # ax.set_yscale('log')
     ax.set_xlabel("Image index")
     ax.set_ylabel("Cumulative regret (nm)")
     ax.legend()
-    fig.savefig(f"./{args.boundary}-experiment/correlation/{args.weights}-regret.pdf", bbox_inches="tight", dpi=1200)
+    fig.savefig(f"./{args.boundary}-experiment/correlation/resolution-regret.pdf", bbox_inches="tight", dpi=1200)
     plt.close()
 
 
@@ -236,8 +245,8 @@ def load_distance_distribution(weight: str = args.weights) -> np.ndarray:
     scores = data["key2"]
     avg, std = np.mean(scores), np.std(scores)
     max_distance = np.max(scores)
-    max_distance = max_distance * 2 if "imagenet" not in args.weights.lower() else max_distance / 2
-    return avg - (5*std), max_distance
+    # max_distance = max_distance * 2 if "imagenet" not in args.weights.lower() else max_distance
+    return avg - (5*std), max_distance * 2
 
 def main():
     if args.figure:
@@ -388,6 +397,9 @@ def main():
                 for c, code in enumerate(lerped_codes):
                     lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
                     lerped_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=lerped_code, progress=True)
+                    print(lerped_sample.min(), lerped_sample.max())
+                    lerped_sample = denormalize(lerped_sample)
+                    print(lerped_sample.min(), lerped_sample.max())
                     lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
                     samples.append(lerped_sample_numpy)
                     lerped_resolution = compute_resolution(img=lerped_sample_numpy)

@@ -601,7 +601,7 @@ def get_dataset(name, cfg, **kwargs):
         transform = transforms.Compose([
             transforms.ToTensor(),
             # transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            transforms.Normalize(mean=[0.031437575817108154, 0.031437575817108154, 0.031437575817108154], std=[0.07657848298549652, 0.07657848298549652, 0.07657848298549652])
         ])
     else:
         transform = transforms.ToTensor()

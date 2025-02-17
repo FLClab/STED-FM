@@ -8,6 +8,7 @@ from diffusion_models.diffusion.ddpm_lightning import DDPM
 from diffusion_models.diffusion.denoising.unet import UNet 
 from tqdm import trange, tqdm 
 import copy 
+from typing import Union
 import random 
 import os
 from attribute_datasets import get_dataset, OptimQualityDataset
@@ -28,6 +29,10 @@ parser.add_argument("--figure", action="store_true")
 parser.add_argument("--sanity-check", action="store_true")
 parser.add_argument("--n-steps", type=int, default=5)
 args = parser.parse_args()
+
+def denormalize(img: Union[np.ndarray, torch.Tensor], mu: float = 0.0695771782959453, std: float = 0.12546228631005282) -> np.ndarray:
+    return img * std + mu
+
 
 def linear_interpolate(latent_code,
                        boundary,
@@ -250,7 +255,7 @@ def cumulative_regret() -> None:
     ax.set_xlabel("Image index")
     ax.set_ylabel("Cumulative regret (quality score)")
     ax.legend()
-    fig.savefig(f"./{args.boundary}-experiment/correlation/{args.weights}-regret.pdf", bbox_inches="tight", dpi=1200)
+    fig.savefig(f"./{args.boundary}-experiment/correlation/quality-regret.pdf", bbox_inches="tight", dpi=1200)
     plt.close()
 
 
@@ -409,7 +414,9 @@ def main():
                 for c, code in enumerate(lerped_codes):
                     lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
                     lerped_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=lerped_code, progress=True)
+                    lerped_sample = denormalize(lerped_sample)
                     lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
+                    
                     samples.append(lerped_sample_numpy)
                     curr_score = infer_quality(lerped_sample, quality_net)
                     scores.append(curr_score - original_score)
