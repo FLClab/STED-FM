@@ -21,7 +21,7 @@ from PIL import Image
 from zipfile import ZipFile
 
 from DEFAULTS import BASE_PATH
-from dataset_builder import condition_dict
+# from dataset_builder import condition_dict
 
 LOCAL_CACHE = {}
 
@@ -584,11 +584,12 @@ class PeroxisomeDataset(Dataset):
     def __init__(
         self, source:str, 
         transform: Any, 
-        classes: List = ["6hGluc", "6hMeOH"], #, "4hMeOH", "8hMeOH", "16hMeOH"], 
+        classes: List = ["4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"], 
         n_channels: int = 1,
         resize_mode : str = "pad",
         superclasses: bool = False,
         num_samples: int = None,
+        balance: bool = True,
         **kwargs
     ): 
         super().__init__()
@@ -612,13 +613,26 @@ class PeroxisomeDataset(Dataset):
 
         self.original_size = original_size
         if superclasses:
+            print("=== Merging MeOH and Gluc classes ===")
             self.__merge_superclasses()
-        self.info = self.__get_info()
+
+        if balance:
+            print("=== Balancing dataset ===")
+            self.__balance_classes()
 
         print("----------")
         for k in self.samples.keys():
             print(f"Class {k} samples: {len(self.samples[k])}")
         print("----------")
+        self.info = self.__get_info()
+
+    def __balance_classes(self) -> None:
+        np.random.seed(42)
+        random.seed(42)
+        min_samples = min([len(lst) for lst in list(self.samples.values())])
+        for key in self.samples.keys():
+            self.samples[key] = random.sample(self.samples[key], min_samples)
+        self.original_size = sum([len(lst) for lst in list(self.samples.values())])
 
     def _get_sampled_files(self, files_list, num_sample):
         if num_sample is not None:
@@ -704,7 +718,7 @@ class PolymerRingsDataset(Dataset):
         classes: List = ["CdvB1", "CdvB2"], 
         n_channels: int = 1,
         resize_mode : str = "pad",
-        superclasses: bool = True,
+        superclasses: bool = False,
         num_samples: int = None,
         **kwargs
     ): 
@@ -729,6 +743,7 @@ class PolymerRingsDataset(Dataset):
         self.original_size = original_size
         
         if not superclasses:
+            print("--- Unmerging CdvB and no CdvB classes ---")
             tmp = {}
             for name in ["with_CdvB", "no_CdvB"]:
                 for key, values in self.samples.items():
@@ -930,105 +945,189 @@ class DLSIMDataset(Dataset):
         return img, {"label" : label, "dataset-idx" : idx}
 
     def __len__(self):
-        return len(self.info)        
+        return len(self.info)   
+
 
 class NeuralActivityStates(Dataset):
     def __init__(
             self,
-            h5file: str,
+            tarpath: str, 
             transform: Callable = None,
             n_channels: int = 1,
             num_samples: int = None,
             num_classes: int = 4,
-            protein_id: int = 3,
-            balance: bool = True,
+            classes: List[str] = ["Block", "0MgGlyBic", "GluGly", "48hTTX"],
+            balance: bool = True
     ) -> None:
-        self.h5file = h5file 
-        self.transform = transform 
+        self.tarpath = tarpath
+        self.transform = transform
         self.n_channels = n_channels
-        self.num_samples = num_samples 
-        self.num_classes = num_classes 
-
-        with h5py.File(h5file, "r") as handle:
-            images = handle["images"][()]
-            conditions = handle["conditions"][()]
-            proteins = handle["proteins"][()]
-
-        protein_mask = np.where(proteins == protein_id)
-        self.images = images[protein_mask]
-        self.labels = conditions[protein_mask]
-        self.proteins = proteins[protein_mask]
-        self.original_size = self.labels.shape[0]
-
-        # print(f"{numpy.mean(numpy.mean(self.images, axis=(1, 2)))=}")
-        # print(f"{numpy.mean(numpy.std(self.images, axis=(1, 2)))=}")
-
-        KEEPCLASSES = [0, 1, 2, 3]
-
-        self.num_classes = len(KEEPCLASSES)
-        mask = np.isin(self.labels, KEEPCLASSES)
-        self.images = self.images[mask]
-        self.labels = self.labels[mask]
-        self.proteins = self.proteins[mask]
-        self.classes = []
-        for i in KEEPCLASSES:
-            for key, value in condition_dict.items():
-                if i == value:
-                    self.classes.append(key)
-                    break
-
-        self.__reset_labels() #  Only required if we're not using KEEPCLASSES = [0, 1, 2]
+        self.num_samples = num_samples
+        self.num_classes = num_classes
+        self.classes = classes
 
 
-        assert self.images.shape[0] == self.labels.shape[0] == self.proteins.shape[0]
-        
+        imgs = []
+        masks = []
+        conditions = []
+        with tarfile.open(tarpath, "r") as handle:
+            names = handle.getnames()
+            for name in tqdm(names, desc="Processing dataset.."):
+                if name.split("-")[0] not in self.classes:
+                    continue
+                buffer = io.BytesIO()
+                buffer.write(handle.extractfile(name).read())
+                buffer.seek(0)
+                data = np.load(buffer, allow_pickle=True)
+                data = {key : values for key, values in data.items()}
+                imgs.append(data["image"])
+                masks.append(data["mask"])
+                metadata = data["metadata"].item()
+                conditions.append(metadata["condition"])
+
         if balance:
-            self.__balance_classes()
-        self.dataset_size = self.images.shape[0]
+            indices = self.__balance_classes(conditions)
+            self.imgs = [imgs[i] for i in indices]
+            self.masks = [masks[i] for i in indices]
+            self.conditions = [conditions[i] for i in indices]
+            self.labels = [self.classes.index(condition) for condition in self.conditions]
+            assert len(self.imgs) == len(self.masks) == len(self.labels) == len(self.conditions)
 
-    def __reset_labels(self) -> None:
-        unique = np.unique(self.labels)
-        new_labels = np.zeros_like(self.labels)
-        for i, u in enumerate(unique):
-            mask = self.labels == u 
-            new_labels[mask] = i
-        self.labels = new_labels        
 
-    def __balance_classes(self) -> None:
+    def __balance_classes(self, conditions: List[str]) -> None:
         np.random.seed(42)
-        uniques, counts = np.unique(self.labels, return_counts=True) 
+        conditions = np.array(conditions)
+        uniques, counts = np.unique(conditions, return_counts=True)
         minority_count, minority_class = np.min(counts), np.argmin(counts)
-        indices = []
+        print(uniques, counts)
         if self.num_samples is not None:
             minority_count = self.num_samples
-
+        indices = []
         for unique in uniques:
-            ids = np.where(self.labels == unique)[0]
+            ids = np.where(conditions == unique)[0]
             ids = np.random.choice(ids, size=minority_count)
-            indices.extend(ids)        
+            indices.extend(ids)
         indices = np.sort(indices)
-        self.images = self.images[indices]
-        self.labels = self.labels[indices]
-        self.proteins = self.proteins[indices]
+        return indices
 
     def __len__(self) -> int:
-        return self.dataset_size 
+        return len(self.labels)
     
-
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, dict]:
-        img, protein, label = self.images[idx], self.proteins[idx], self.labels[idx]
+        img, mask, label, condition = self.imgs[idx], self.masks[idx], self.labels[idx], self.conditions[idx]
+
         if self.n_channels == 3:
             img = np.tile(img[np.newaxis, :], (3, 1, 1))
             img = torch.tensor(img, dtype=torch.float32)
             # img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
             img = transforms.Normalize(mean=[0.014, 0.014, 0.014], std=[0.03, 0.03, 0.03])(img)
-
         else:
             img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
+
+        img = self.transform(img) if self.transform is not None else img
+
+        return img, {"mask": mask, "label": label, "condition": condition, "dataset-idx": idx}
+
         
-        img = self.transform(img) if self.transform is not None else img 
+
+# class OldNeuralActivityStates(Dataset):
+#     def __init__(
+#             self,
+#             h5file: str,
+#             transform: Callable = None,
+#             n_channels: int = 1,
+#             num_samples: int = None,
+#             num_classes: int = 4,
+#             protein_id: int = 3,
+#             balance: bool = True,
+#     ) -> None:
+#         self.h5file = h5file 
+#         self.transform = transform 
+#         self.n_channels = n_channels
+#         self.num_samples = num_samples 
+#         self.num_classes = num_classes 
+
+#         with h5py.File(h5file, "r") as handle:
+#             images = handle["images"][()]
+#             conditions = handle["conditions"][()]
+#             proteins = handle["proteins"][()]
+#             print(np.unique(conditions))
+
+#         protein_mask = np.where(proteins == protein_id)
+#         self.images = images[protein_mask]
+#         self.labels = conditions[protein_mask]
+#         self.proteins = proteins[protein_mask]
+#         self.original_size = self.labels.shape[0]
+
+#         # print(f"{numpy.mean(numpy.mean(self.images, axis=(1, 2)))=}")
+#         # print(f"{numpy.mean(numpy.std(self.images, axis=(1, 2)))=}")
+
+#         KEEPCLASSES = [0, 1, 2, 3]
+
+#         self.num_classes = len(KEEPCLASSES)
+#         mask = np.isin(self.labels, KEEPCLASSES)
+#         self.images = self.images[mask]
+#         self.labels = self.labels[mask]
+#         self.proteins = self.proteins[mask]
+#         self.classes = []
+#         for i in KEEPCLASSES:
+#             for key, value in condition_dict.items():
+#                 if i == value:
+#                     self.classes.append(key)
+#                     break
+
+#         self.__reset_labels() #  Only required if we're not using KEEPCLASSES = [0, 1, 2]
+
+
+#         assert self.images.shape[0] == self.labels.shape[0] == self.proteins.shape[0]
         
-        return img, {"label": label, "protein": protein, "dataset-idx": idx}
+#         if balance:
+#             self.__balance_classes()
+#         self.dataset_size = self.images.shape[0]
+
+#     def __reset_labels(self) -> None:
+#         unique = np.unique(self.labels)
+#         new_labels = np.zeros_like(self.labels)
+#         for i, u in enumerate(unique):
+#             mask = self.labels == u 
+#             new_labels[mask] = i
+#         self.labels = new_labels        
+
+#     def __balance_classes(self) -> None:
+#         np.random.seed(42)
+#         uniques, counts = np.unique(self.labels, return_counts=True) 
+#         minority_count, minority_class = np.min(counts), np.argmin(counts)
+#         indices = []
+#         if self.num_samples is not None:
+#             minority_count = self.num_samples
+
+#         for unique in uniques:
+#             ids = np.where(self.labels == unique)[0]
+#             ids = np.random.choice(ids, size=minority_count)
+#             indices.extend(ids)        
+#         indices = np.sort(indices)
+#         self.images = self.images[indices]
+#         self.labels = self.labels[indices]
+#         self.proteins = self.proteins[indices]
+
+    # def __len__(self) -> int:
+    #     return self.dataset_size 
+    
+
+    # def __getitem__(self, idx: int) -> Tuple[torch.Tensor, dict]:
+    #     img, protein, label = self.images[idx], self.proteins[idx], self.labels[idx]
+    #     if self.n_channels == 3:
+    #         img = np.tile(img[np.newaxis, :], (3, 1, 1))
+    #         img = torch.tensor(img, dtype=torch.float32)
+    #         # img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+    #         img = transforms.Normalize(mean=[0.014, 0.014, 0.014], std=[0.03, 0.03, 0.03])(img)
+
+    #     else:
+    #         img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
+        
+    #     img = self.transform(img) if self.transform is not None else img 
+        
+    #     return img, {"label": label, "protein": protein, "dataset-idx": idx}
 
 class ProteinDataset(Dataset):
     def __init__(
