@@ -8,6 +8,7 @@ experiments/diffusion-experiments/mae-lightning-small-MAE_SMALL_STED-optimqualit
 experiments/diffusion-experiments/model-checkpoints/
 experiments/diffusion-experiments/**/*.npz
 experiments/diffusion-experiments/**/*.pkl
+experiments/diffusion-experiments/**/*.json
 experiments/diffusion-experiments/activity-experiment/
 experiments/diffusion-experiments/resolution-experiment/distributions/
 experiments/figures/

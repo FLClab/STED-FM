@@ -1040,7 +1040,7 @@ class NeuralActivityStates(Dataset):
         indices = []
         for unique in uniques:
             ids = np.where(conditions == unique)[0]
-            ids = np.random.choice(ids, size=minority_count)
+            ids = np.random.choice(ids, size=minority_count, replace=False)
             indices.extend(ids)
         indices = np.sort(indices)
         return indices
@@ -1192,7 +1192,7 @@ class ProteinDataset(Dataset):
                 labels = hf[self.class_type][()]
                 for i in range(num_classes):
                     inds = np.argwhere(np.array(labels) == i)
-                    inds = np.random.choice(inds.ravel(), size=num_samples, replace=True)
+                    inds = np.random.choice(inds.ravel(), size=num_samples, replace=num_samples > len(inds))
                     indices.append(inds)
                     label_ids = np.sort(np.concatenate([ids.ravel() for ids in indices]).astype('int'))
                     self.labels = hf["proteins"][label_ids]
