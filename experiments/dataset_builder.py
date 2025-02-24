@@ -59,11 +59,11 @@ def main():
     total_valid_crops = 0
     total_test_crops = 0
     counter = 0
-    with tarfile.open(f"{args.outpath}/NAS_train_v2.tar", "a") as handle:
+    with tarfile.open(f"{args.outpath}/NAS_PSD95_train_v2.tar", "a") as handle:
         all_names = []
         for i, f in enumerate(tqdm(train_files, desc="...Train files...")):
             data = np.load(f)
-            img, mask = data["img"][0], data["mask"][0] # Indexing 0 because we will always be taking the PSD95 image
+            img, mask = data["img"][1], data["mask"][1] # Indexing 1 because we will always be taking the PSD95 image
             m, M = np.quantile(img, 0.0001), np.quantile(img, 0.9999)
             img = (img - m) / (M - m)
             img = np.clip(img, 0, 1)
@@ -97,12 +97,12 @@ def main():
                         total_train_crops += 1
     print(len(all_names))
 
-    with tarfile.open(f"{args.outpath}/NAS_valid_v2.tar", "a") as handle:
+    with tarfile.open(f"{args.outpath}/NAS_PSD95_valid_v2.tar", "a") as handle:
         counter = 0
         all_names = []
         for i, f in enumerate(tqdm(valid_files, desc="...Valid files...")):
             data = np.load(f)
-            img, mask = data["img"][0], data["mask"][0] # Indexing 0 because we will always be taking the PSD95 image
+            img, mask = data["img"][1], data["mask"][1] # Indexing 1 because we will always be taking the PSD95 image
             m, M = np.quantile(img, 0.0001), np.quantile(img, 0.9999)
             img = (img - m) / (M - m)
             img = np.clip(img, 0, 1)
@@ -136,12 +136,12 @@ def main():
     print(len(all_names))
 
 
-    with tarfile.open(f"{args.outpath}/NAS_test_v2.tar", "a") as handle:
+    with tarfile.open(f"{args.outpath}/NAS_PSD95_test_v2.tar", "a") as handle:
         counter = 0
         all_names = []
         for i, f in enumerate(tqdm(test_files, desc="...Test files...")):
             data = np.load(f)
-            img, mask = data["img"][0], data["mask"][0] # Indexing 0 because we will always be taking the PSD95 image
+            img, mask = data["img"][1], data["mask"][1] # Indexing 1 because we will always be taking the PSD95 image
             m, M = np.quantile(img, 0.0001), np.quantile(img, 0.9999)
             img = (img - m) / (M - m)
             img = np.clip(img, 0, 1)

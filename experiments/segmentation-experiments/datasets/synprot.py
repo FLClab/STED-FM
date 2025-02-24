@@ -638,12 +638,14 @@ def get_dataset(name, cfg, **kwargs):
         valid_dataset = SemanticProteinSegmentationDataset(
             h5file=os.path.join(BASE_PATH, "segmentation-data", "synprot", "valid_2024-05-16.hdf5"),
             transform=transform, 
-            n_channels=cfg.in_channels
+            n_channels=cfg.in_channels,
+            validation=True
         )
         test_dataset = SemanticProteinSegmentationDataset(
             h5file=os.path.join(BASE_PATH, "segmentation-data", "synprot", "test_2024-05-16.hdf5"),
             transform=transform, 
-            n_channels=cfg.in_channels
+            n_channels=cfg.in_channels,
+            validation=True
         )
 
         # Updates num classes

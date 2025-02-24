@@ -83,21 +83,21 @@ def get_neural_activity_states(
         T.RandomVerticalFlip(p=0.5),
     ])
     train_dataset = datasets.NeuralActivityStates(
-        tarpath=f"{path}/NAS_train_v2.tar",
+        tarpath=f"{path}/NAS_PSD95_train_v2.tar",
         transform=transform,
         n_channels=n_channels,
         num_samples=num_samples,
         num_classes=4,
     )
     validation_dataset = datasets.NeuralActivityStates(
-        tarpath=f"{path}/NAS_valid_v2.tar",
+        tarpath=f"{path}/NAS_PSD95_valid_v2.tar",
         transform=transform,
         n_channels=n_channels,
         num_samples=None,
         num_classes=4,
     )
     test_dataset = datasets.NeuralActivityStates(
-        tarpath=f"{path}/NAS_test_v2.tar",
+        tarpath=f"{path}/NAS_PSD95_test_v2.tar",
         transform=transform,
         n_channels=n_channels,
         num_samples=None,
