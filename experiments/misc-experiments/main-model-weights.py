@@ -123,7 +123,7 @@ def plot_graphs():
                 
             values = values[values < 1]
             auc = numpy.trapz(numpy.arange(len(values)) / len(values), numpy.sort(values))
-            G.add_edge(model_a, model_b, weight=1 - auc)
+            G.add_edge(model_a, model_b, weight=auc)
     
         fig, ax = pyplot.subplots()
         networkx.draw_kamada_kawai(
@@ -159,10 +159,34 @@ def plot_cumulative_layer():
         ax.legend()
 
         basename = os.path.basename(file)
-        basename = basename.replace(".npz", "_per-layer.pdf")
+        basename = basename.replace(".npz", "_per-layer_normalized.pdf")
         savedir = "figures/model-weights"
         os.makedirs(savedir, exist_ok=True)
         fig.savefig(f"{savedir}/{basename}")
+
+    for file in files:
+        data = numpy.load(file)
+        fig, ax = pyplot.subplots()
+        for key, values in data.items():
+            model_a, model_b = key.split(";")
+            if args.finetuned and ("finetuned" not in model_a or "finetuned" not in model_b):
+                continue
+            elif not args.finetuned and ("finetuned" in model_a or "finetuned" in model_b):
+                continue
+                
+            ax.plot(numpy.cumsum(values), label=f"{DATASETS[model_a]} vs {DATASETS[model_b]}")
+            # ax.plot(numpy.cumsum(values), label=f"{DATASETS[model_a]} vs {DATASETS[model_b]}")
+        ax.set(
+            xlabel="Layers",
+            ylabel="Cumulative distance"
+        )
+        ax.legend()
+
+        basename = os.path.basename(file)
+        basename = basename.replace(".npz", "_per-layer.pdf")
+        savedir = "figures/model-weights"
+        os.makedirs(savedir, exist_ok=True)
+        fig.savefig(f"{savedir}/{basename}")        
 
 def main():
 

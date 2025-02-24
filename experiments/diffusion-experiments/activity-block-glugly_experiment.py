@@ -1,3 +1,4 @@
+import json
 import numpy as np 
 import matplotlib.pyplot as plt 
 from matplotlib.colors import Normalize
@@ -184,7 +185,8 @@ def save_examples(samples, distances, index):
 
 def plot_distance_distribution(distances_to_boundary: dict):
     key1, key2 = list(distances_to_boundary.keys())
-    np.savez(f"./{args.boundary}-experiment/distributions/{args.weights}-{args.boundary}-distance_distribution.npz", key1=distances_to_boundary[key1], key2=distances_to_boundary[key2])
+    os.makedirs(f"./{args.boundary}-experiment/distributions", exist_ok=True)
+    np.savez(f"./{args.boundary}-experiment/distributions/{args.weights}-{args.boundary}-distance_distribution.npz", **distances_to_boundary)
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
@@ -220,6 +222,7 @@ def plot_results_old():
         ax.set_xlabel("Distance")
         ax.set_xticks([1, 2, 3, 4, 5, 6], ["0", "0", "1", "2", "3", "4"])
         
+        os.makedirs(f"./{args.boundary}-experiment/features", exist_ok=True)
         fig.savefig(f"./{args.boundary}-experiment/features/{args.weights}-{f}_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
         plt.close(fig)
 
@@ -293,6 +296,7 @@ def plot_results() -> None:
 
 def plot_sanity_check(block_features: np.ndarray, mg_features: np.ndarray):
     keys = ["Block", "GluGly"]
+    os.makedirs(f"./{args.boundary}-experiment/features", exist_ok=True)
     np.savez(f"./{args.boundary}-experiment/features/train-features.npz", block_features=block_features, mg_features=mg_features)
     features = ["area", "perimeter", "mean_intensity", "eccentricity", "solidity", "1nn_dist", "num_proteins"]
     for i, f in enumerate(features):
@@ -377,7 +381,9 @@ def plot_feature_path():
 
 def load_distance_distribution() -> np.ndarray:
     data = np.load(f"./{args.boundary}-experiment/distributions/{args.weights}-{args.boundary}-distance_distribution.npz")
-    scores = data["key2"]
+
+    scores = np.abs(data[args.direction])
+
     avg, std = np.mean(scores), np.std(scores)
     distance_max = np.max(scores)
     return avg - (3*std), distance_max * 8
@@ -406,27 +412,28 @@ def main():
         latent_encoder.to(DEVICE)
         latent_encoder.eval()
         dataset = ProteinActivityDataset(
-            h5file=os.path.join(BASE_PATH, "evaluation-data/NeuralActivityStates/NAS_train.hdf5"),
+            tarpath=os.path.join(BASE_PATH, f"evaluation-data/NeuralActivityStates/NAS_PSD95_train_v2.tar"),
             num_samples=None,
             transform=None,
-            n_channels=1,
+            n_channels=3 if "imagenet" in args.weights.lower() else 1,
             num_classes=2,
-            protein_id=3,
+            # protein_id=3,
             balance=True,
-            keepclasses=[0, 2]
+            classes=["Block", "GluGly"]
         )
         N = len(dataset)
         indices = np.arange(N)
         np.random.shuffle(indices)
 
-        counters = {0: 0, 2: 0}
+        counters = {"Block" : 0, "GluGly": 0}
         distances_to_boundary = {"Block": [], "GluGly": []}
+        features = {"Block" : None, "GluGly": None}
         with torch.no_grad():
             for i, idx in tqdm(enumerate(indices), total=N):
                 
                 img, metadata = dataset[idx]
                 img = img.to(DEVICE)
-                label = metadata["label"]
+                label = metadata["condition"]
             
 
                 original = img.squeeze().detach().cpu().numpy() 
@@ -444,22 +451,16 @@ def main():
                 d = d[0][0]
             
                 mean_features = mean_features.reshape(1, -1)
-                if label == 0:
-                    if counters[0] == 0:
-                        block_features = mean_features
-                    else:
-                        block_features = np.r_[block_features, mean_features]
-                    distances_to_boundary["Block"].append(d)
+                if counters[label] == 0:
+                    features[label] = mean_features
                 else:
-                    distances_to_boundary["GluGly"].append(d)
-                    if counters[2] == 0:
-                        mg_features = mean_features
-                    else:
-                        mg_features = np.r_[mg_features, mean_features]
+                    features[label] = np.r_[features[label], mean_features]
+                distances_to_boundary[label].append(d)
                 counters[label] += 1
             
-        print(f"Block: {block_features.shape}, GluGly: {mg_features.shape}")
-        plot_sanity_check(block_features=block_features, mg_features=mg_features)
+        for key, values in features.items():
+            print(f"Key: {key}, Features: {values.shape}")
+        plot_sanity_check(block_features=features["Block"], mg_features=features["GluGly"])
         plot_distance_distribution(distances_to_boundary)
 
     else:
@@ -508,19 +509,24 @@ def main():
         diffusion_model.load_state_dict(ckpt["state_dict"])
         diffusion_model.to(DEVICE)
         dataset = ProteinActivityDataset(
-            h5file=os.path.join(BASE_PATH, f"evaluation-data/NeuralActivityStates/NAS_test.hdf5"),
+            tarpath=os.path.join(BASE_PATH, f"evaluation-data/NeuralActivityStates/NAS_PSD95_test_v2.tar"),
             num_samples=None,
             transform=None,
-            n_channels=1,
+            n_channels=3 if "imagenet" in args.weights.lower() else 1,
             num_classes=2,
-            protein_id=3,
+            # protein_id=3,
             balance=True,
-            keepclasses=[0, 2]
+            classes=["Block", "GluGly"]
         )
         N = len(dataset) 
         indices = np.arange(N)
         np.random.shuffle(indices)
         counter = 0
+
+        with open(f"./{args.boundary}-experiment/embeddings/{args.weights}-{args.boundary}-labels_train.json", "r") as f:
+            target_labels = json.load(f)
+
+        print(target_labels)
 
         for i in tqdm(indices):
             rprops = []
@@ -531,9 +537,12 @@ def main():
                 break 
             img, metadata = dataset[i]
             label = metadata["label"]
-            target_label = 0 if args.direction != "GluGly" else 2.0
-            multiplier = -1 if args.direction != "GluGly" else 1
-            if args.boundary == "activity-block-glugly" and label != target_label:
+            condition = metadata["condition"]
+            target_label = target_labels[condition]
+
+            multiplier = 1 if target_label == 0 else -1
+            if args.boundary == "activity-block-glugly" and args.direction == condition:
+                print(f"Skipping {i} because condition is {condition} and target is {args.direction}")
                 continue 
 
             if "imagenet" in args.weights.lower():
@@ -570,6 +579,7 @@ def main():
             rprops.append(original_rprops)
 
             lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept,start_distance=multiplier*0.0, end_distance=multiplier*distance_max, steps=args.n_steps)
+            print(d)
 
             for c, code in enumerate(lerped_codes):
                 lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
@@ -592,6 +602,7 @@ def main():
             save_examples(samples, distances, counter)
             save_raw_images(samples, distances, counter)
 
+        os.makedirs(f"./{args.boundary}-experiment/results", exist_ok=True)
         np.savez(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to{args.direction}_RESULTS.npz", **RESULTS)
         np.savez(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to{args.direction}_NUM_PROTEINS.npz", **NUM_PROTEINS)
 
