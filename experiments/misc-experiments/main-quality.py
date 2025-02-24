@@ -27,10 +27,12 @@ from matplotlib import pyplot
 from sklearn.gaussian_process import GaussianProcessRegressor, kernels
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import GridSearchCV
+from scipy.stats import pearsonr
 
 import sys 
 sys.path.insert(0, "..")
 
+from DEFAULTS import COLORS
 from loaders import get_dataset
 from model_builder import get_base_model, get_pretrained_model_v2
 from utils import update_cfg, save_cfg, savefig
@@ -89,7 +91,9 @@ if __name__ == "__main__":
 
     # Loads backbone model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    n_channels = 3 if "imagenet" in args.weights.lower() else 1
+    n_channels = 1
+    if args.weights is not None:
+        n_channels = 3 if "imagenet" in args.weights.lower() else n_channels
 
     model, cfg = get_pretrained_model_v2(
         name=args.model,
@@ -114,11 +118,28 @@ if __name__ == "__main__":
         min_quality_score=0.,
     )
 
+    random.seed(42)
+    choices = random.sample(range(len(test_loader.dataset)), 50)
+    cmap = pyplot.get_cmap("gray")
+    for choice in choices:
+        img, metadata = test_loader.dataset[choice]
+        print(metadata)
+        img = img.numpy()[0]
+
+        img = cmap(img)[:, :, :-3] * 255.
+        import tifffile 
+        os.makedirs("tmp/optim", exist_ok=True)
+        tifffile.imwrite(f"tmp/optim/{metadata['label']}-{metadata['dataset-idx']}.tif", img.astype(numpy.uint8))
+
+    exit()
+
     X_train, y_train, _ = get_features(model, train_loader)
     X_valid, y_valid, _ = get_features(model, valid_loader)
     X_test, y_test, _ = get_features(model, test_loader)
 
-    numpy.savez(f"features-{args.weights}.npz", X_train=X_train, y_train=y_train, X_valid=X_valid, y_valid=y_valid, X_test=X_test, y_test=y_test)
+    savedir = os.path.join(".", "features", "resolution")
+    os.makedirs(savedir, exist_ok=True)
+    numpy.savez(os.path.join(savedir, f"features-{args.weights}.npz"), X_train=X_train, y_train=y_train, X_valid=X_valid, y_valid=y_valid, X_test=X_test, y_test=y_test)
 
     noise_level = numpy.mean(numpy.std(X_train, axis=0)) * 0.1
 
@@ -142,7 +163,10 @@ if __name__ == "__main__":
     os.makedirs(os.path.join("figures", "quality"), exist_ok=True)
 
     fig, ax = pyplot.subplots(figsize=(3, 3))
-    ax.scatter(y_test, y_pred, alpha=0.5)
+    ax.scatter(y_test, y_pred, alpha=0.5, color=COLORS[args.weights])
+    ax.plot([0, 1], [0, 1], color="black", linestyle="--")
+    pearson, stats = pearsonr(y_test, y_pred)
+    ax.annotate(f"Pearson: {pearson:.2f}", (0.05, 0.95), xycoords="axes fraction", ha="left", va="top")
     ax.set(
         xlabel="True quality score",
         ylabel="Predicted quality score",

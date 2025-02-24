@@ -1,3 +1,4 @@
+import random
 import io
 import os
 import matplotlib 
@@ -12,6 +13,16 @@ from sklearn.metrics import average_precision_score
 from typing import List
 
 from dataclasses import dataclass
+
+def set_seeds(seed: int):
+    """
+    Sets the seeds for reproducibility
+
+    :param seed: An `int` of the seed value
+    """
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
 
 def get_number_of_classes(dataset: str):
     if dataset == "neural-activity-states":
@@ -263,6 +274,28 @@ class ScoreTracker:
     def update(self, step, score):
         self.steps.append(step)
         self.scores.append(score)
+
+class EarlyStopper:
+    def __init__(self, patience: int, minimize: bool = False):
+        self.patience = patience
+        self.minimize = minimize
+        self.best_score = float('inf') if minimize else float('-inf')
+        self.best_step = 0
+        self.stop = False
+    
+    def __call__(self, score_tracker: ScoreTracker):
+        if self.minimize:
+            new_best = score_tracker.scores[-1] < self.best_score
+        else:
+            new_best = score_tracker.scores[-1] > self.best_score
+
+        if new_best:
+            self.best_score = score_tracker.scores[-1]
+            self.best_step = score_tracker.steps[-1]
+        else:
+            if score_tracker.steps[-1] - self.best_step > self.patience:
+                self.stop = True
+        return self.stop
 
 def track_loss_steps(train_loss: ScoreTracker, val_loss: ScoreTracker, val_acc: ScoreTracker, lrates: ScoreTracker, save_dir: str) -> None:
     fig, axs = plt.subplots(2, 1, sharex=True)

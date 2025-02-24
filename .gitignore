@@ -7,6 +7,9 @@ experiments/diffusion-experiments/resolution-experiment/distributions/
 experiments/diffusion-experiments/lerp-results/
 experiments/diffusion-experiments/mae-lightning-small-MAE_SMALL_STED-optimquality-embeddings_train.npz
 experiments/diffusion-experiments/model-checkpoints/
+experiments/diffusion-experiments/**/*.npz
+experiments/diffusion-experiments/**/*.pkl
+experiments/diffusion-experiments/**/*.json
 experiments/diffusion-experiments/activity-experiment/
 experiments/diffusion-experiments/resolution-experiment/distributions/
 experiments/figures/
@@ -17,6 +20,7 @@ logs/
 *.png
 *.tif
 *.tex
+*.npz
 experiments/detection-experiments/**/*.pkl
 experiments/detection-experiments/application/users.json
 experiments/autonomous-experiments/**/*.pkl

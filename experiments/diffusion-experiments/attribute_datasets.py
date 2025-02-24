@@ -10,6 +10,9 @@ from torch.utils.data import Dataset
 from typing import List, Optional, Callable, Tuple
 from torchvision import transforms
 import h5py
+import tarfile
+import io
+from tqdm import tqdm
 
 class LowHighResolutionDataset(Dataset):
     def __init__(
@@ -56,90 +59,88 @@ class LowHighResolutionDataset(Dataset):
         return img, {"label": label}
 
 class ProteinActivityDataset(Dataset):
-    """
-    "Block": 0,
-    "0MgGlyBic": 1,
-    "GluGly": 2,
-    "48hTTX": 3,
-    """
     def __init__(
-        self,
-        h5file: str,    
-        transform: Optional[Callable] = None,
-        n_channels: int = 1,
-        num_samples: int = None,
-        num_classes: int = 2,
-        protein_id: int = 3,
-        balance: bool = True,
-        keepclasses: List = [0, 1]
+            self,
+            tarpath: str, 
+            transform: Callable = None,
+            n_channels: int = 1,
+            num_samples: int = None,
+            num_classes: int = 4,
+            classes: List[str] = ["Block", "0MgGlyBic", "GluGly", "48hTTX"],
+            balance: bool = True
     ) -> None:
-        self.h5file = h5file 
+        self.tarpath = tarpath
         self.transform = transform
         self.n_channels = n_channels
         self.num_samples = num_samples
         self.num_classes = num_classes
-        self.protein_id = protein_id
-        self.balance = balance
-        self.keepclasses = keepclasses
+        self.classes = classes
 
-        with h5py.File(h5file, "r") as handle:
-            images = handle["images"][()] 
-            conditions = handle["conditions"][()] 
-            proteins = handle["proteins"][()] 
 
-        protein_mask = np.where(proteins == protein_id)
-        images = images[protein_mask]
-        conditions = conditions[protein_mask]
-        proteins = proteins[protein_mask]
-        class_mask = np.isin(conditions, self.keepclasses)
-        images = images[class_mask]
-        conditions = conditions[class_mask]
-        proteins = proteins[class_mask]
+        imgs = []
+        masks = []
+        conditions = []
+        with tarfile.open(tarpath, "r") as handle:
+            names = handle.getnames()
+            for name in tqdm(names, desc="Processing dataset.."):
+                if name.split("-")[0] not in self.classes:
+                    continue
+                buffer = io.BytesIO()
+                buffer.write(handle.extractfile(name).read())
+                buffer.seek(0)
+                data = np.load(buffer, allow_pickle=True)
+                data = {key : values for key, values in data.items()}
+                imgs.append(data["image"])
+                masks.append(data["mask"])
+                metadata = data["metadata"].item()
+                conditions.append(metadata["condition"])
 
-        self.classes = {
-            0: "Block",
-            1: "0MgGlyBic",
-            2: "GluGly",
-            3: "48hTTX",
-        }
-        self.images = images
+        self.imgs = imgs
+        self.masks = masks
         self.conditions = conditions
-        self.labels = self.conditions
-        self.proteins = proteins
-
+        self.labels = [self.classes.index(condition) for condition in self.conditions]
         if balance:
-            self.__balance_classes()
-        self.dataset_size = self.images.shape[0]
+            indices = self.__balance_classes(conditions)
+            self.imgs = [imgs[i] for i in indices]
+            self.masks = [masks[i] for i in indices]
+            self.conditions = [conditions[i] for i in indices]
+            self.labels = [self.classes.index(condition) for condition in self.conditions]
+            
+        assert len(self.imgs) == len(self.masks) == len(self.labels) == len(self.conditions)
 
-
-    def __balance_classes(self) -> None:
-        uniques, counts = np.unique(self.conditions, return_counts=True)
+    def __balance_classes(self, conditions: List[str]) -> None:
+        np.random.seed(42)
+        conditions = np.array(conditions)
+        uniques, counts = np.unique(conditions, return_counts=True)
         minority_count, minority_class = np.min(counts), np.argmin(counts)
-        indices = []
+        print(uniques, counts)
         if self.num_samples is not None:
             minority_count = self.num_samples
+        indices = []
         for unique in uniques:
-            ids = np.where(self.conditions == unique)[0]
-            ids = np.random.choice(ids, size=minority_count)
+            ids = np.where(conditions == unique)[0]
+            ids = np.random.choice(ids, size=minority_count, replace=False)
             indices.extend(ids)
         indices = np.sort(indices)
-        self.images = self.images[indices]
-        self.conditions = self.conditions[indices]
-        self.proteins = self.proteins[indices]
+        return indices
 
     def __len__(self) -> int:
-        return self.dataset_size 
+        return len(self.labels)
+    
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, dict]:
+        img, mask, label, condition = self.imgs[idx], self.masks[idx], self.labels[idx], self.conditions[idx]
 
-    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
-        img, protein, label = self.images[idx], self.proteins[idx], self.conditions[idx] 
         if self.n_channels == 3:
             img = np.tile(img[np.newaxis, :], (3, 1, 1))
             img = torch.tensor(img, dtype=torch.float32)
+            # img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
             img = transforms.Normalize(mean=[0.014, 0.014, 0.014], std=[0.03, 0.03, 0.03])(img)
         else:
             img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
-        img = self.transform(img) if self.transform is not None else img 
-        return img, {"label": label, "protein": protein}
+
+        img = self.transform(img) if self.transform is not None else img
+
+        return img, {"mask": mask, "label": label, "condition": condition, "dataset-idx": idx}
 
 class OptimQualityDataset(Dataset):
     """

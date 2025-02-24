@@ -31,16 +31,19 @@ class User:
     def __init__(self, name):
         self.name = name
 
-CLASS_ID = "classification-study"
 
 # Dummy data for images
-template_images = glob.glob(os.path.join("static", CLASS_ID, "candidates", "*.png"))
+CLASS_ID = "class-guidance"
+template_images = glob.glob(os.path.join("static", CLASS_ID, "templates", "*.png"))
+template_images += glob.glob(os.path.join("static", CLASS_ID, "candidates", "*.png"))
+CLASS_ID = "latent-guidance"
+template_images += glob.glob(os.path.join("static", CLASS_ID, "candidates", "*.png"))
 template_images = [os.path.relpath(path, "static") for path in template_images]
 random.seed(42)
 random.shuffle(template_images)
 
 candidate_classes = [
-    "PSD95", "Tubulin", "F-Actin", "Other"
+    "PSD95", "Tubulin", "F-Actin", "Other", "Unclassifiable"
 ]
 
 @app.before_request

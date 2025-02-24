@@ -1,5 +1,6 @@
 
 import random
+import numpy
 
 from datasets import get_dataset
 from matplotlib import pyplot
@@ -14,32 +15,42 @@ random.seed(42)
 
 backbone, cfg = get_base_model("resnet18")
 
-for dataset in ["factin", "footprocess", "lioness"]:
+# for dataset in ["factin", "footprocess", "lioness", "synaptic-semantic-segmentation"]:
+for dataset in ["synaptic-semantic-segmentation"]:    
 
-    _, _, testing_dataset = get_dataset(dataset, cfg, test_only=True)
+    train_dataset, _, testing_dataset = get_dataset(dataset, cfg, test_only=True)
 
-    length = len(testing_dataset)
-    choices = random.sample(range(length), 10)
-    fig, axes = pyplot.subplots(2, 10, figsize=(20, 4))
-    for ax in axes.flatten():
-        ax.axis("off")
-    for i, choice in enumerate(choices):
-        image, mask = testing_dataset[choice]
+    means, stds = [], []
+    for img, _ in train_dataset:
+        means.append(img.mean())
+        stds.append(img.std())
 
-        image = image.numpy()
-        mask = mask.numpy()
+    print(f"Dataset: {dataset}")
+    print(f"Train mean: {numpy.mean(means)}")
+    print(f"Train std: {numpy.mean(stds)}")
 
-        image = image.squeeze()
-        if dataset == "factin":
-            mask = mask.squeeze()[:-1]
-        else:
-            mask = mask.squeeze()
+    # length = len(testing_dataset)
+    # choices = random.sample(range(length), 10)
+    # fig, axes = pyplot.subplots(2, 10, figsize=(20, 4))
+    # for ax in axes.flatten():
+    #     ax.axis("off")
+    # for i, choice in enumerate(choices):
+    #     image, mask = testing_dataset[choice]
 
-        composite = make_composite(mask, ["green", "magenta", "yellow"][:len(mask)])
+    #     image = image.numpy()
+    #     mask = mask.numpy()
+
+    #     image = image.squeeze()
+    #     if dataset == "factin":
+    #         mask = mask.squeeze()[:-1]
+    #     else:
+    #         mask = mask.squeeze()
+
+    #     composite = make_composite(mask, ["green", "magenta", "yellow", "cyan"][:len(mask)])
         
-        axes[0, i].imshow(image, cmap="gray")
-        axes[1, i].imshow(composite, cmap="hot")
-    fig.savefig(f"example-{dataset}.png", bbox_inches="tight", transparent=True, dpi=300)
-    pyplot.show()
+    #     axes[0, i].imshow(image, cmap="gray")
+    #     axes[1, i].imshow(composite, cmap="hot")
+    # fig.savefig(f"example-{dataset}.png", bbox_inches="tight", transparent=True, dpi=300)
+    # pyplot.show()
         
 

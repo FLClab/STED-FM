@@ -27,14 +27,16 @@ The third and final step is to characterize the spatial relations between the cl
 The Ripley's K Function will be of great help.
 """
 
-def detect_spots(image, save=False):
+def detect_spots(image, save=False, **kwargs):
         """
         Detects spots inside the ROI from multi-channel image using wavelet transform multiscale product as described
         in Olivo-Marin, 2002.
         :param save: If True, saves .tif images of spots and mask in the OUTPUT_DIRECTORY.
         :return: 3D np array of spots masks. Z dimension is for different channels.
         """
-        spots_image = DetectionWavelets(image, [3,4], 2.0).computeDetection()
+        J_list = kwargs.get('J_list', [3, 4])
+        scale_threshold = kwargs.get('scale_threshold', 2.0)
+        spots_image = DetectionWavelets(image, J_list=J_list, scale_threshold=scale_threshold).computeDetection()
 
         spots_image_filtered = filter_spots(spots_image)
         out_image = spots_image_filtered

@@ -29,20 +29,33 @@ class User:
     def __init__(self, name):
         self.name = name
 
-CLASS_ID = "perforated"
-CALLED = 0
+DATASET = "multidomain"
+os.makedirs(os.path.join("data", DATASET), exist_ok=True)
 
-# Dummy data for images
-template_image = f"{CLASS_ID}/template.png"
-candidate_images = glob.glob(os.path.join("static", CLASS_ID, "candidates", "*.png"))
-candidate_images = [os.path.relpath(path, "static") for path in candidate_images]
-random.seed(42)
-random.shuffle(candidate_images)
+if DATASET == "perforated":
+    # Dummy data for images
+    template_image = f"{DATASET}/template.png"
+    candidate_images = glob.glob(os.path.join("static", DATASET, "candidates", "*.png"))
+    candidate_images = [os.path.relpath(path, "static") for path in candidate_images]
+    random.seed(42)
+    random.shuffle(candidate_images)
 
-candidate_images = [
-    {"item" : path, "id" : path}
-    for path in candidate_images
-]
+    candidate_images = [
+        {"item" : path, "id" : path}
+        for path in candidate_images
+    ]
+elif DATASET == "multidomain":
+    # Dummy data for images
+    template_image = ""
+    candidate_images = glob.glob(os.path.join("static", DATASET, "candidates", "*.png"))
+    candidate_images = [os.path.relpath(path, "static") for path in candidate_images]
+    random.seed(42)
+    random.shuffle(candidate_images)
+
+    candidate_images = [
+        {"item" : path, "id" : path}
+        for path in candidate_images
+    ]     
 
 @app.before_request
 def get_globals():
@@ -57,14 +70,28 @@ def get_globals():
         tree = build_tree(candidate_images[:2], queue=queue)
         current_idx = len(tree)
     else:
-        if os.path.isfile(f"{username}.pkl"):
-            with open(f"{username}.pkl", "rb") as f:
-                data = pickle.load(f)
-                user = data["user"]
-                items = data["items"]
-                queue = data["queue"]
-                tree = data["tree"]
-                current_idx = data["current_idx"]
+        if os.path.isfile(os.path.join("data", DATASET, f"{username}.pkl")):
+            flag = False
+            while not flag:
+                try:
+                    with open(os.path.join("data", DATASET, f"{username}.pkl"), "rb") as f:
+                        data = pickle.load(f)
+                        user = data["user"]
+                        items = data["items"]
+                        queue = data["queue"]
+                        tree = data["tree"]
+                        current_idx = data["current_idx"]
+                    flag = True
+                except:
+                    time.sleep(0.1)
+
+            # with open(os.path.join("data", DATASET, f"{username}.pkl"), "rb") as f:
+            #     data = pickle.load(f)
+            #     user = data["user"]
+            #     items = data["items"]
+            #     queue = data["queue"]
+            #     tree = data["tree"]
+            #     current_idx = data["current_idx"]
         else:
             user = User(username)
             items = None
@@ -79,8 +106,7 @@ def get_globals():
 
 @app.after_request
 def save_globals(response):
-
-    global user, items, queue, tree, current_idx, CALLED
+    global user, items, queue, tree, current_idx
     gunicorn_logger.log(logging.INFO, f"After request")
     gunicorn_logger.log(logging.INFO, f"After request: {user}")
 
@@ -92,7 +118,7 @@ def save_globals(response):
             "tree": tree,
             "current_idx": current_idx
         }
-        with open(f"{user.name}.pkl", "wb") as f:
+        with open(os.path.join("data", DATASET, f"{user.name}.pkl"), "wb") as f:
             pickle.dump(data, f)
 
     return response
@@ -107,11 +133,11 @@ def login():
 
     user = User(request.form.get('username'))
 
-    if not os.path.isfile("users.json"):
-        with open("users.json", "w") as f:
+    if not os.path.isfile(os.path.join("data", "users.json")):
+        with open(os.path.join("data", "users.json"), "w") as f:
             json.dump({}, f)
     
-    with open("users.json", "r") as f:
+    with open(os.path.join("data", "users.json"), "r") as f:
         users = json.load(f)
         # User exists and is connected
         if user.name in users and users[user.name] == 1:
@@ -122,20 +148,21 @@ def login():
         # User does not exist
         else:
             users[user.name] = 1
-    with open("users.json", "w") as f:
+    with open(os.path.join("data", "users.json"), "w") as f:
         json.dump(users, f)
 
-    if os.path.exists(f"{user.name}-{CLASS_ID}-tree.pkl"):
+    if os.path.exists(os.path.join("data", DATASET, f"{user.name}-tree.pkl")):
         # Clears the previous queue
         queue.clear()
 
         # Loads the tree from the previous session
         tree = Tree(queue=queue)
-        tree.load(f"{user.name}-{CLASS_ID}-tree.pkl")
+        tree.load(os.path.join("data", DATASET, f"{user.name}-tree.pkl"))
 
         current_idx = len(tree)
         if current_idx < len(candidate_images):
             tree = build_tree([candidate_images[current_idx]], tree)
+        print(tree)
         current_idx += 1
 
     gunicorn_logger.log(logging.INFO, user)
@@ -196,7 +223,7 @@ def choose():
         current_idx += 1
 
         # Save the tree to a file
-        tree.save(os.path.join("data", f"{user.name}-{CLASS_ID}-tree.pkl"))
+        tree.save(os.path.join("data", DATASET, f"{user.name}-tree.pkl"))
 
         if current_idx > len(candidate_images):
             return redirect(url_for('index'))
@@ -228,4 +255,4 @@ def logout():
 
 if __name__ == '__main__':
     
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5085)

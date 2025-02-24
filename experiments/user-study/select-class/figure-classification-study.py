@@ -8,24 +8,25 @@ from collections import defaultdict
 
 import sys
 sys.path.insert(0, "../../")
+from DEFAULTS import COLORS
 from utils import savefig
 
-MODELS = ["ImageNet", "JUMP", "HPA", "STED"]
+MODELS = ["ImageNet", "JUMP", "HPA", "SIM", "STED", "classifier", "real"]
+
+# Manually adding the colors for the models
+COLORS["classifier"] = "silver"
+COLORS["real"] = "silver"
+
 CLASSES = [
-    "PSD95", "Tubulin", "F-Actin", "Other"
+    "PSD95", "Tubulin", "F-Actin", "Other", "Unclassifiable"
 ]
 CONVERT = {
     "f-actin": "F-Actin",
     "psd95": "PSD95",
     "tubulin": "Tubulin",
     "beta-camkii": "Other",
+    "vglut2" : "Other",
     "tom20" : "Other",
-}
-COLORS = {
-    "ImageNet" : "tab:red",
-    "JUMP" : "tab:green",
-    "HPA" : "tab:orange",
-    "STED" : "tab:blue"
 }
 
 def get_user(filename):
@@ -43,9 +44,13 @@ def get_class(filename):
 def get_model(filename):
     basename = os.path.basename(filename)
     basename = os.path.splitext(basename)[0]
+    if len(basename.split("template")[0]) == 0:
+        return "real"
     for model in MODELS:
-        if model in basename.split("template")[0]:
+        if model.lower() in basename.split("template")[0].lower():
             return model
+    
+    print(f"Model not found for {basename}")
 
 def get_user_choices():
     files = glob.glob("data/*.pkl")
@@ -73,21 +78,26 @@ def main():
     user_choices = get_user_choices()
     
     accuracies = defaultdict(list)
+    unclassiables = defaultdict(list)
 
     for user, choices in user_choices.items():
         for model, data in choices.items():
 
             confusion_matrix = numpy.zeros((len(CLASSES), len(CLASSES)))
             for d in data:
-                confusion_matrix[CLASSES.index(d["truth"])][CLASSES.index(d["choice"])] += 1
+                try:
+                    confusion_matrix[CLASSES.index(d["truth"])][CLASSES.index(d["choice"])] += 1
+                except ValueError:
+                    pass
 
-            cm = confusion_matrix / confusion_matrix.sum(axis=1, keepdims=True)
+            cm = confusion_matrix[:-1] / confusion_matrix[:-1].sum(axis=1, keepdims=True)
+            confusion_matrix[:-1] = cm
 
             fig, ax = pyplot.subplots(figsize=(3,3))
-            ax.imshow(cm, cmap="Purples")
+            ax.imshow(confusion_matrix, cmap="Purples", vmin=0, vmax=1)
             for j in range(len(CLASSES)):
                 for i in range(len(CLASSES)):
-                    ax.text(i, j, f"{cm[j, i]:.2f}", ha="center", va="center", color="black" if cm[j, i] < 0.5 else "white")
+                    ax.text(i, j, f"{confusion_matrix[j, i]:.2f}", ha="center", va="center", color="black" if confusion_matrix[j, i] < 0.5 else "white")
             ax.set_xticks(numpy.arange(len(CLASSES)))
             ax.set_yticks(numpy.arange(len(CLASSES)))
             ax.set_xticklabels(CLASSES)
@@ -95,16 +105,23 @@ def main():
             pyplot.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
 
             savefig(fig, f"./results/confusion_matrix-{user}-{model}", save_white=True)
+            pyplot.close("all")
 
             accuracies[model].append(numpy.diag(cm).mean())
-    
+            unclassiables[model].append(confusion_matrix[:-1, -1])
+
     fig, ax = pyplot.subplots(figsize=(3,3))
+    to_plot = []
     for model, values in accuracies.items():
         bplot = ax.boxplot(values, positions=[MODELS.index(model)], showfliers=True, widths=0.8)
         ax.scatter([MODELS.index(model)] * len(values), values, color="black")
+        to_plot.append([[MODELS.index(model)] * len(values), values])
         for name, parts in bplot.items():
             for part in parts:
                 part.set_color(COLORS[model])
+    to_plot = numpy.array(to_plot).swapaxes(2, 0)
+    for userdata in to_plot:
+        ax.plot(userdata[0], userdata[1], color="silver")
     ax.set(
         xticks=numpy.arange(len(MODELS)),
         xticklabels=MODELS,
@@ -112,6 +129,22 @@ def main():
     )
     pyplot.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
     savefig(fig, f"./results/accuracies", save_white=True)
+
+    # fig, ax = pyplot.subplots(figsize=(3,3))
+    # to_plot = []
+    # for model, values in unclassiables.items():
+    #     to_plot.append(values)
+    # to_plot = numpy.array(to_plot)
+    # print(to_plot.shape)
+    # # for userdata in to_plot:
+    # #     ax.plot(userdata[0], userdata[1], color="silver")
+    # # ax.set(
+    # #     xticks=numpy.arange(len(MODELS)),
+    # #     xticklabels=MODELS,
+    # #     ylabel="Unclassifiable"
+    # # )
+    # pyplot.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+    # savefig(fig, f"./results/unclassifiables", save_white=True)
 
 if __name__ == "__main__":
     main()

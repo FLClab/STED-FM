@@ -17,18 +17,11 @@
             <h2>Classes</h2>
             <form action="{{ url_for('choose') }}" method="POST">
                 <div class="candidates-row">
+                    {% for candidate_class in candidate_classes %}
                     <div class="candidate">
-                        <button type="submit" name="selected_image" value="{{ candidate_classes[0] }}">{{ candidate_classes[0] }}</button>
+                        <button type="submit" name="selected_image" value="{{ candidate_class }}">{{ candidate_class }}</button>
                     </div>
-                    <div class="candidate">
-                        <button type="submit" name="selected_image" value="{{ candidate_classes[1] }}">{{ candidate_classes[1] }}</button>
-                    </div>
-                    <div class="candidate">
-                        <button type="submit" name="selected_image" value="{{ candidate_classes[2] }}">{{ candidate_classes[2] }}</button>
-                    </div>
-                    <div class="candidate">
-                        <button type="submit" name="selected_image" value="{{ candidate_classes[3] }}">{{ candidate_classes[3] }}</button>
-                    </div>
+                    {% endfor %}
                 </div>
             </form>
         </div>

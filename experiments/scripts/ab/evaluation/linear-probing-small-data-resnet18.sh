@@ -25,6 +25,7 @@ WEIGHTS=(
     "RESNET18_IMAGENET1K_V1"
     "RESNET18_SSL_HPA"
     "RESNET18_SSL_JUMP"
+    "RESNET18_SSL_SIM"
     "RESNET18_SSL_STED"
 )
 
@@ -75,6 +76,7 @@ python finetune_v2.py --dataset optim --model resnet18 --weights $weight --block
 python finetune_v2.py --dataset neural-activity-states --model resnet18 --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
 python finetune_v2.py --dataset polymer-rings --model resnet18 --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
 python finetune_v2.py --dataset peroxisome --model resnet18 --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
+python finetune_v2.py --dataset dl-sim --model resnet18 --weights $weight --blocks "all" --num-per-class $numclass --seed $seed
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"

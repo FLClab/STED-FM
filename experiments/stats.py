@@ -46,7 +46,7 @@ def permute(samples, group_indexes):
     :returns : A `numpy.ndarray` of the permuted samples
     """
     numpy.random.shuffle(samples)
-    return numpy.array([samples[index] for index in group_indexes])
+    return [samples[index] for index in group_indexes]
 
 def resampling_F(samples, raveled_samples, group_indexes, permutations=10000):
     """
@@ -79,7 +79,9 @@ def resampling_stats(samples, labels, raveled_samples=None, group_indexes=None, 
 
     :returns : A `list` of p-values for each comparisons
     """
-    
+    # Make sure that the samples are numpy arrays
+    samples = [numpy.array(sample) for sample in samples]
+
     if isinstance(raveled_samples, type(None)):
         raveled_samples, group_indexes = [], []
         current_count = 0
@@ -87,7 +89,8 @@ def resampling_stats(samples, labels, raveled_samples=None, group_indexes=None, 
             raveled_samples.extend(samp)
             group_indexes.append(current_count + numpy.arange(len(samp)))
             current_count += len(samp)
-    samples, raveled_samples, group_indexes = map(numpy.array, (samples, raveled_samples, group_indexes))
+
+    raveled_samples = numpy.array(raveled_samples)
         
     p_values = pandas.DataFrame(data=-1 * numpy.ones((len(labels), len(labels))), index=labels, columns=labels)
 

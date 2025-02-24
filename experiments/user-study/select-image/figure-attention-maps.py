@@ -3,27 +3,39 @@ import pickle
 import os
 import glob
 import numpy 
+import argparse
 
 from matplotlib import pyplot
+
+import sys
+sys.path.insert(0, "../../")
+from DEFAULTS import COLORS
+from utils import savefig
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--dataset", type=str, default="attention-maps")
+args = parser.parse_args()
 
 CLASSES = [
     "MAE_SMALL_IMAGENET1K_V1",
     "MAE_SMALL_JUMP",
     "MAE_SMALL_HPA",
+    "MAE_SMALL_SIM",
     "MAE_SMALL_STED"
 ]
 NAMES = {
     "MAE_SMALL_IMAGENET1K_V1" : "ImageNet",
     "MAE_SMALL_JUMP" : "JUMP",
     "MAE_SMALL_HPA" : "HPA",
+    "MAE_SMALL_SIM" : "SIM",
     "MAE_SMALL_STED" : "STED"
 }
-COLORS = {
-    "MAE_SMALL_IMAGENET1K_V1" : "tab:red",
-    "MAE_SMALL_JUMP" : "tab:green",
-    "MAE_SMALL_HPA" : "tab:orange",
-    "MAE_SMALL_STED" : "tab:blue"
-}
+
+def get_color(model):
+    for key, value in COLORS.items():
+        if key.lower() in model.lower():
+            return value
+    return COLORS[model]
 
 def get_class(filename):
     basename = os.path.basename(filename)
@@ -33,7 +45,7 @@ def get_class(filename):
     return None
 
 def get_user_choices():
-    files = glob.glob("data/*.pkl")
+    files = glob.glob(f"data/{args.dataset}/*.pkl")
     per_user_scores = {}
     for file in files:
         scores = {c : 0 for c in CLASSES}
@@ -60,7 +72,7 @@ def merge_dicts(dicts):
     return merged
 
 def get_selections():
-    files = glob.glob("data/*.pkl")
+    files = glob.glob(f"data/{args.dataset}/*.pkl")
     per_user_data = []
     for file in files:
         with open(file, "rb") as f:
@@ -101,7 +113,7 @@ def get_selections():
     ax.set(
         ylabel="Disagreement (-)"
     )
-    pyplot.savefig("disagreement.png", bbox_inches="tight")
+    savefig(fig, f"./results/{args.dataset}/disagreement", save_white=True)
         
 def main():
 
@@ -131,7 +143,7 @@ def main():
     ax.set(
         ylabel="Proportion (-)", ylim=(0, 1)
     )
-    pyplot.savefig("figure.png", bbox_inches="tight")
+    savefig(fig, f"./results/{args.dataset}/choices", save_white=True)
 
 if __name__ == "__main__":
     main()

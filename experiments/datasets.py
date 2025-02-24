@@ -463,6 +463,41 @@ class CreateFActinBlockGluGlyDataset(Dataset):
             out += f"{key} - {len(values)}\n"
         return "Dataset(F-actin) -- length: {}".format(len(self)) + out
 
+class ResolutionDataset(Dataset):
+    """
+    Dataset class for loading and processing image data from images of different resolutions.
+
+    """
+
+    def __init__(
+        self,
+        path: str,
+        transform: Any = None,
+        n_channels: int = 1,
+        *args, **kwargs
+    ) -> None:
+        self.path = path
+        self.transform = transform
+        self.n_channels = n_channels
+
+        with h5py.File(path, "r") as f:
+            self.data = f["data"][()]
+            self.labels = f["labels"][()]
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        image = self.data[idx]
+        label = self.labels[idx]
+
+        image = np.tile(image[np.newaxis], (self.n_channels, 1, 1))
+        image = torch.tensor(image, dtype=torch.float32)
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, {"label" : label, "score" : label, "dataset-idx" : idx}
 
 class OptimDataset(Dataset):
     """
@@ -880,15 +915,15 @@ class DLSIMDataset(Dataset):
             print(f"Class {k} samples: {len(self.samples[k])}")
         print("----------")
 
-        statistics = defaultdict(list)
-        for i in range(len(self.info)):
-            item = self.info[i]
-            img = tifffile.imread(item["path"])
-            m, M = img.min(), img.max()
-            img = (img - m) / (M - m)
-            statistics["mean"].append(numpy.mean(img))
-            statistics["std"].append(numpy.std(img))
-        print(f"Mean: {numpy.mean(statistics['mean'])}, Std: {numpy.mean(statistics['std'])}")
+        # statistics = defaultdict(list)
+        # for i in range(len(self.info)):
+        #     item = self.info[i]
+        #     img = tifffile.imread(item["path"])
+        #     m, M = img.min(), img.max()
+        #     img = (img - m) / (M - m)
+        #     statistics["mean"].append(numpy.mean(img))
+        #     statistics["std"].append(numpy.std(img))
+        # print(f"Mean: {numpy.mean(statistics['mean'])}, Std: {numpy.mean(statistics['std'])}")
 
     def _get_sampled_files(self, files_list, num_sample):
         if num_sample is not None:
@@ -1005,7 +1040,7 @@ class NeuralActivityStates(Dataset):
         indices = []
         for unique in uniques:
             ids = np.where(conditions == unique)[0]
-            ids = np.random.choice(ids, size=minority_count)
+            ids = np.random.choice(ids, size=minority_count, replace=False)
             indices.extend(ids)
         indices = np.sort(indices)
         return indices
@@ -1157,7 +1192,7 @@ class ProteinDataset(Dataset):
                 labels = hf[self.class_type][()]
                 for i in range(num_classes):
                     inds = np.argwhere(np.array(labels) == i)
-                    inds = np.random.choice(inds.ravel(), size=num_samples, replace=True)
+                    inds = np.random.choice(inds.ravel(), size=num_samples, replace=num_samples > len(inds))
                     indices.append(inds)
                     label_ids = np.sort(np.concatenate([ids.ravel() for ids in indices]).astype('int'))
                     self.labels = hf["proteins"][label_ids]
@@ -1819,10 +1854,7 @@ class TarFLCDataset(ArchiveDataset):
         if self.transform is not None:
             # This assumes that there is a conversion to torch Tensor in the given transform
             img = self.transform(img)
-            if isinstance(img, list):
-                img = [x.float() for x in img]
-            else:
-                img = img.float()
+            img = to_float(img)
         else:
             if img.ndim == 2:
                 img = img[np.newaxis]
@@ -1837,6 +1869,13 @@ class TarFLCDataset(ArchiveDataset):
             return img, metadata
         return img # and whatever other metadata we like
     
+def to_float(data):
+    if isinstance(data, list):
+        return [to_float(d) for d in data]
+    elif isinstance(data, torch.Tensor):
+        return data.float()
+    return data
+
 def ensure_values(obj):
     """
     Ensures that the values from a dict match the requirements
@@ -1910,7 +1949,8 @@ class HPADataset(ArchiveDataset):
         data = self.get_reader().read(member)
         img = Image.open(io.BytesIO(data))
         img = numpy.array(img)
-        return img
+
+        return {"image" : img}
 
     def __getitem__(self, idx: int) -> torch.Tensor:
         """
@@ -1920,7 +1960,8 @@ class HPADataset(ArchiveDataset):
 
         :returns: The item at the given idex.
         """
-        img = self.get_data(idx)
+        data = self.get_data(idx)
+        img = data["image"]
 
         # image = transforms.ToTensor()(img)
         m, M = img.min(), img.max()

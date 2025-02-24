@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --time=16:00:00
+#SBATCH --time=24:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=16G
@@ -22,9 +22,13 @@ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 cd ${HOME}/Documents/flc-dataset/experiments/evaluation
 
 MODELS=(
+    "resnet18"
     "resnet50"
+    "resnet101"
 )
 OPTIONS=(
+    "batch_size 64"
+    "batch_size 64"
     "batch_size 64"
 )
 SEEDS=(
@@ -62,25 +66,31 @@ echo -e "==============================================="
 echo -e "==================== OPTIM ===================="
 echo -e "==============================================="
 
-python finetune_v2.py --seed $seed --dataset optim --model $model --from-scratch --opts $option
+python finetune_v2.py --seed $seed --dataset optim --model $model --from-scratch
 
 echo -e "================================================================"
 echo -e "==================== Neural Activity States ===================="
 echo -e "================================================================"
 
-python finetune_v2.py --seed $seed --dataset neural-activity-states --model $model --from-scratch --opts $option
+python finetune_v2.py --seed $seed --dataset neural-activity-states --model $model --from-scratch
 
 echo -e "===================================================="
 echo -e "==================== Peroxisome ===================="
 echo -e "===================================================="
 
-python finetune_v2.py --seed $seed --dataset peroxisome --model $model --from-scratch --opts $option
+python finetune_v2.py --seed $seed --dataset peroxisome --model $model --from-scratch
 
 echo -e "======================================================="
 echo -e "==================== Polymer Rings ===================="
 echo -e "======================================================="
 
-python finetune_v2.py --seed $seed --dataset polymer-rings --model $model --from-scratch --opts $option
+python finetune_v2.py --seed $seed --dataset polymer-rings --model $model --from-scratch
+
+echo -e "======================================================="
+echo -e "======================= DL-SIM ========================"
+echo -e "======================================================="
+
+python finetune_v2.py --seed $seed --dataset dl-sim --model $model --from-scratch
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
