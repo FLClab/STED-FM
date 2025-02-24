@@ -452,16 +452,53 @@ def build_tree(items, tree=None, callback=None, queue=None):
 if __name__ == "__main__":
 
     import random
+    import argparse
+    import sys 
+    sys.path.insert(0, "../../")
+    from DEFAULTS import COLORS
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--user", type=str, default="Anthony")
+    args = parser.parse_args()
 
     numpy.random.seed(42)
     random.seed(42)
 
-    items = [numpy.random.rand(128, 128) for _ in range(5)]
-    # items = [2,1,5,3,9,8]
-    items = [{"item": item, "id": i} for i, item in enumerate(items)]
+    tree = Tree()
+    tree.load(f"data/patch-retrieval-experiment/{args.user}-tree.pkl")
+    print(len(tree))
 
-    tree = build_tree(items)
-    print(len(tree.get_ranking()))
+    import os
+    from matplotlib import pyplot
+
+    image_steps = []
+    for node in tree.get_ranking():
+        # print(node, node.attrs)
+        step = node.get_item()
+        step = os.path.basename(step).split(".")[0].split("-")[-1]
+        image_steps.append(step)
+
+    image_steps = numpy.array(image_steps)
+
+    fig, ax = pyplot.subplots(figsize=(4, 3))
+
+    uniques = numpy.unique(image_steps)
+    for unique in uniques:
+        mask = image_steps == unique
+        ax.plot(numpy.cumsum(mask) / mask.sum(), label=f"{unique}", color=COLORS[unique])
+    ax.set(
+        xlabel="Ranking",
+        ylabel="Fraction of images"
+    )
+    ax.legend()
+    fig.savefig(f"./ranking-{args.user}-patch-retrieval-experiment.pdf", dpi=300, bbox_inches="tight")
+
+    # items = [numpy.random.rand(128, 128) for _ in range(5)]
+    # # items = [2,1,5,3,9,8]
+    # items = [{"item": item, "id": i} for i, item in enumerate(items)]
+
+    # tree = build_tree(items)
+    # print(len(tree.get_ranking()))
 
 
 
