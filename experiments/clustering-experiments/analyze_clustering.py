@@ -13,7 +13,8 @@ from networkx.drawing.nx_agraph import graphviz_layout
 parser = argparse.ArgumentParser()
 parser.add_argument("--data-path", type=str, default="./recursive-clustering-experiment/MAE_SMALL_STED_neural-activity-states_recursive_clusters_tree.pkl")
 parser.add_argument("--condition", type=str, default=None)
-parser.add_argument("--depth", type=int, default=8)
+parser.add_argument("--dataset", type=str, default="neural-activity-states")
+parser.add_argument("--depth", type=int, default=9)
 args = parser.parse_args()
 
 class Node:
@@ -107,7 +108,7 @@ def extract_mean_feature_vector(node):
 
 def plot_frequencies(node_list, display: bool = False):
     num_clusters = len(node_list)
-    states = ["Block", "48hTTX", "0MgGlyBic", "GluGly"]
+    states = ["Block", "48hTTX", "0MgGlyBic", "GluGly"] if args.dataset == "neural-activity-states" else ["4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"]
     cluster_counts = {condition: {key: 0 for key in range(num_clusters)} for condition in states}
     condition_counts = {key: {condition: 0 for condition in states} for key in range(num_clusters)}
 
@@ -115,7 +116,11 @@ def plot_frequencies(node_list, display: bool = False):
         leaf_nodes = find_leaf_nodes(node)
         for leaf in leaf_nodes:
             all_metadata = leaf.data["metadata"]
-            labels = [item["condition"] for item in all_metadata]
+            if args.dataset == "neural-activity-states":
+                labels = [item["condition"] for item in all_metadata]
+            else:
+                labels = [item["label"] for item in all_metadata]
+                labels = [states[item.item()] for item in labels]
             uniques, counts = np.unique(labels, return_counts=True)
             for u, c in zip(uniques, counts):
                 cluster_counts[u][node_idx] += c
@@ -152,12 +157,18 @@ def get_color(counts: dict, root: bool = False):
     if args.condition is None and root:
         return "black", True
     elif args.condition is None and not root:
-        color_dict = {"Block": 0, "48hTTX": 1, "0MgGlyBic": 2, "GluGly": 3}
+        if args.dataset == "neural-activity-states":
+            color_dict = {"Block": 0, "48hTTX": 1, "0MgGlyBic": 2, "GluGly": 3}
+        else:
+            color_dict = {"4hMeOH": 0, "6hMeOH": 1, "8hMeOH": 2, "16hMeOH": 3}
         keys = list(counts.keys())
         values = list(counts.values())
         max_key = keys[np.argmax(values)]
-        colors = {"Block": "tab:blue", "48hTTX": "tab:red", "0MgGlyBic": "tab:green", "GluGly": "tab:brown"}
-        return colors[max_key], True
+        if args.dataset == "neural-activity-states":
+            colors = {0: "grey", 1: "hotpink", 2: "dodgerblue", 3: "goldenrod"}
+        else:
+            colors = {0: "grey", 1: "hotpink", 2: "dodgerblue", 3: "goldenrod"}
+        return colors[color_dict[max_key]], True
     else:
         class_count = counts[args.condition]
         total_count = sum(counts.values())
@@ -172,7 +183,7 @@ def get_color(counts: dict, root: bool = False):
 def display_graph(graph, node_size_scale_factor=10, edge_weight_factor=5.0, min_edge_width=1.0):
     # Get node colors
     cmap = colormaps.get_cmap("RdPu")
-    colors_per_condition = cmap(np.linspace(0.0, 1.0, 4)) if args.condition is not None else ["tab:blue", "tab:red", "tab:green", "tab:brown"]
+    colors_per_condition = cmap(np.linspace(0.0, 1.0, 4)) if args.condition is not None else ["grey", "hotpink", "dodgerblue", "goldenrod"]
     colors = [node[1]["color"] for node in graph.nodes(data=True)]
     
     edge_weights = np.array([graph[u][v]['weight'] for u, v in graph.edges()])
@@ -206,7 +217,10 @@ def display_graph(graph, node_size_scale_factor=10, edge_weight_factor=5.0, min_
     
     # Remove axis
     if args.condition is None:
-        conditions = ["Block", "48hTTX", "0MgGlyBic", "GluGly"]
+        if args.dataset == "neural-activity-states":
+            conditions = ["Block", "48hTTX", "0MgGlyBic", "GluGly"]
+        else:
+            conditions = ["4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"]
         legend_elements = [
             Patch(facecolor=colors_per_condition[i], label=conditions[i]) for i in range(4)
         ]
@@ -214,7 +228,7 @@ def display_graph(graph, node_size_scale_factor=10, edge_weight_factor=5.0, min_
     # ax.axis("off")
     plt.tight_layout()
     plt.show()
-    fig.savefig(f"./graphs/{args.condition}_graph.pdf", dpi=1200, bbox_inches="tight")
+    fig.savefig(f"./graphs/{args.condition}_{args.dataset}_graph.pdf", dpi=1200, bbox_inches="tight")
     
 
 if __name__ == "__main__":

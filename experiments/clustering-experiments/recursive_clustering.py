@@ -209,12 +209,13 @@ def embed_dataset(model: torch.nn.Module, dataloader: DataLoader, device: torch.
             img = img.to(device)
             label = metadata["label"] 
             data_index = metadata["dataset-idx"]
-            condition = metadata["condition"]
+            if args.dataset == "neural-activity-states":
+                condition = metadata["condition"]
+                conditions.extend(condition)
             output = model.forward_features(img)
             embeddings.extend(output.data.cpu().numpy())
             labels.extend(label)
             dataset_indices.extend(data_index)
-            conditions.extend(condition)
     embeddings = np.array(embeddings)
     return embeddings, labels, dataset_indices, conditions
 
@@ -244,7 +245,8 @@ def main():
         training=True,
         path=None, 
         batch_size=cfg.batch_size,
-        n_channels=n_channels
+        n_channels=n_channels,
+        balance=False
     )
 
     if args.embed: 
@@ -257,7 +259,10 @@ def main():
     else:
         raise NotImplementedError("Pre-computed embeddings not implemented")
     
-    metadata = [{"condition": c, "label": l, "dataset-idx": i} for c, l, i in zip(conditions, labels, dataset_indices)]
+    if args.dataset == "neural-activity-states":
+        metadata = [{"condition": c, "label": l, "dataset-idx": i} for c, l, i in zip(conditions, labels, dataset_indices)]
+    else:
+        metadata = [{"label": l, "dataset-idx": i} for l, i in zip(labels, dataset_indices)]
     clusters = recursive_cluster(embeddings, metadata=metadata)
     os.makedirs("./recursive-clustering-experiment", exist_ok=True)
     with open(f"./recursive-clustering-experiment/{args.weights}_{args.dataset}_recursive_clusters_tree.pkl", "wb") as handle:
