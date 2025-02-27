@@ -77,6 +77,7 @@ def get_neural_activity_states(
         n_channels: int = 1,
         num_samples: int = None,
         protein_id: int = 3,
+        **kwargs
 ):
     train_transform = T.Compose([
         T.RandomHorizontalFlip(p=0.5),
@@ -88,6 +89,7 @@ def get_neural_activity_states(
         n_channels=n_channels,
         num_samples=num_samples,
         num_classes=4,
+        balance=kwargs.get("balance", True)
     )
     validation_dataset = datasets.NeuralActivityStates(
         tarpath=f"{path}/NAS_PSD95_valid_v2.tar",
@@ -95,6 +97,7 @@ def get_neural_activity_states(
         n_channels=n_channels,
         num_samples=None,
         num_classes=4,
+        balance=kwargs.get("balance", True)
     )
     test_dataset = datasets.NeuralActivityStates(
         tarpath=f"{path}/NAS_PSD95_test_v2.tar",
@@ -102,6 +105,7 @@ def get_neural_activity_states(
         n_channels=n_channels,
         num_samples=None,
         num_classes=4,
+        balance=kwargs.get("balance", True)
     )
     print("\n=== NAS dataset ===")
     print(np.unique(train_dataset.labels, return_counts=True))
@@ -385,6 +389,7 @@ def get_dataset(name, path=None, **kwargs):
             transform=kwargs.get("transform", None),
             batch_size=kwargs.get("batch_size", 1),
             num_samples=kwargs.get("num_samples", None),
+            balance=kwargs.get("balance", True),
             protein_id=3
         )
     elif name == "factin-rings-fibers":
@@ -399,6 +404,7 @@ def get_dataset(name, path=None, **kwargs):
             transform=kwargs.get("transform", None),
             batch_size=kwargs.get("batch_size", 64),
             num_samples=kwargs.get("num_samples", None),
+            balance=kwargs.get("balance", True),
         )
     elif name == "polymer-rings":
         return get_polymer_rings_dataset(

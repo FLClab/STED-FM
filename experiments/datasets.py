@@ -1019,6 +1019,11 @@ class NeuralActivityStates(Dataset):
                 masks.append(data["mask"])
                 metadata = data["metadata"].item()
                 conditions.append(metadata["condition"])
+        
+        self.imgs = imgs 
+        self.masks = masks 
+        self.conditions = conditions 
+        self.labels = [self.classes.index(condition) for condition in self.conditions]
 
         if balance:
             indices = self.__balance_classes(conditions)
@@ -1026,7 +1031,7 @@ class NeuralActivityStates(Dataset):
             self.masks = [masks[i] for i in indices]
             self.conditions = [conditions[i] for i in indices]
             self.labels = [self.classes.index(condition) for condition in self.conditions]
-            assert len(self.imgs) == len(self.masks) == len(self.labels) == len(self.conditions)
+        assert len(self.imgs) == len(self.masks) == len(self.labels) == len(self.conditions)
 
 
     def __balance_classes(self, conditions: List[str]) -> None:
