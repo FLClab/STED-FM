@@ -1,4 +1,3 @@
-
 import numpy
 import numpy as np 
 from typing import List, Dict
@@ -455,10 +454,132 @@ def build_tree(items, tree=None, callback=None, queue=None):
 
 if __name__ == "__main__":
 
-    # import random
+    import random
+    import argparse
+    import sys 
+    import os
+    import glob
+    from matplotlib import pyplot
+    from collections import defaultdict
+    from itertools import combinations
+    from scipy.stats import kendalltau
+    sys.path.insert(0, "../../")
+    from DEFAULTS import COLORS
+
+
+    ranking_dict = glob.glob("/home/frederic/flc-dataset/experiments/segmentation-experiments/patch-retrieval-experiment/candidates/*", recursive=True)
+    ranking_dict = [f.split("/")[-1].split(".")[0] for f in ranking_dict]
+    ranking_dict = {f: i for i, f in enumerate(ranking_dict)}
 
     # numpy.random.seed(42)
     # random.seed(42)
+    pretraining_datasets = ["STED", "SIM", "HPA","JUMP", "ImageNet"][::-1]
+
+    scores = defaultdict(list)
+
+    files = glob.glob("./data/patch-retrieval-experiment/*-tree.pkl")
+    files = [f for f in files if "Anthony" not in f]
+    files = [f for f in files if "Fred" not in f]
+    USERS = []
+    correlation_array = numpy.zeros((len(files), 10))
+    for idx, f in enumerate(files):
+        user = f.split("/")[-1].split(".")[0].split("-")[0]
+        tree = Tree()
+        tree.load(f)
+
+        image_steps = []
+        rankings = [item.get_item() for item in tree.get_ranking()]
+        correlation = [item.split("/")[-1].split(".")[0] for item in rankings]
+        correlation = [ranking_dict[item] for item in correlation]
+        correlation_array[idx] = correlation[:10]
+        print(f"=== {user} ===")
+        USERS.append(user)
+        for r in rankings[:10]:
+            print(f"\t{r}")
+        print("\n\n")
+        rankings = [item.split("/")[-1].split(".")[0] for item in rankings]
+        for pretraining in pretraining_datasets:
+            curr_rankings = np.array([(pretraining.lower() in item.lower())*1 for item in rankings])[:10]
+            target_label = 1
+            average_precision = np.sum(curr_rankings == target_label) / len(curr_rankings)
+            scores[pretraining].append(average_precision)
+            
+        for node in tree.get_ranking():
+            # print(node, node.attrs)
+            step = node.get_item()
+            step = os.path.basename(step).split(".")[0].split("-")[-1]
+            image_steps.append(step)
+
+        image_steps = numpy.array(image_steps)
+
+        fig, ax = pyplot.subplots(figsize=(4, 3))
+
+        uniques = numpy.unique(image_steps)
+        for unique in uniques:
+            mask = image_steps == unique
+            ax.plot(numpy.cumsum(mask) / mask.sum(), label=f"{unique}", color=COLORS[unique])
+        ax.set(
+            xlabel="Ranking",
+            ylabel="Fraction of images"
+        )
+        ax.legend()
+        fig.savefig(f"./ranking-{user}-patch-retrieval-experiment.pdf", dpi=300, bbox_inches="tight")
+
+    fig = pyplot.figure()
+    ax = fig.add_subplot(111)
+    data = list(scores.values())
+    keys = list(scores.keys())
+    boxes = ax.boxplot(data, labels=keys, patch_artist=True)
+    
+    # Style each box
+    for key, box in zip(keys, boxes['boxes']):
+        box.set_facecolor(COLORS[key])  
+        box.set_color(COLORS[key])     
+        box.set_alpha(0.6) 
+        box.set_edgecolor("black")           
+    
+    # Style other elements
+    pyplot.setp(boxes['medians'], color='black')
+    pyplot.setp(boxes['whiskers'], color='black') 
+    pyplot.setp(boxes['caps'], color='black')   
+    pyplot.setp(boxes['fliers'], markerfacecolor='black', marker='o') 
+    ax.set_ylabel("% in top 10")
+    fig.savefig("./patch-retrieval-boxplot.pdf", dpi=1200, bbox_inches="tight")
+    pyplot.close(fig)
+
+    ## Correlation code 
+    # correlation_array = numpy.array(correlation_array)
+    # print(correlation_array.shape)
+    # user_pairs = list(combinations(range(correlation_array.shape[0]), 2))
+    # correlation_matrix = numpy.ones((len(USERS), len(USERS)))
+    # for (u1, u2) in user_pairs:
+    #     arr1 = correlation_array[u1]
+    #     arr2 = correlation_array[u2]
+    #     print(arr1.shape, arr2.shape)
+    #     res = kendalltau(arr1, arr2) 
+    #     tau = res.statistic
+    #     print(f"{USERS[u1]} and {USERS[u2]} have a Kendall Tau of {tau}")
+    #     correlation_matrix[u1, u2] = tau
+    #     correlation_matrix[u2, u1] = tau
+
+    # fig = pyplot.figure()
+    # ax = fig.add_subplot(111)
+    # im = ax.imshow(correlation_matrix, cmap="RdPu")
+    
+    # # Add correlation values to each cell
+    # for i in range(len(USERS)):
+    #     for j in range(len(USERS)):
+    #         color = "white" if correlation_matrix[i, j] > 0.5 else "black"
+    #         text = ax.text(j, i, f'{correlation_matrix[i, j]:.2f}',
+    #                      ha="center", va="center", color="black")
+    
+    # ax.set_xticks(range(len(USERS)))
+    # ax.set_yticks(range(len(USERS)))
+    # ax.set_xticklabels(USERS, rotation=90)
+    # ax.set_yticklabels(USERS)
+    # fig.savefig("correlation_matrix.pdf", dpi=1200, bbox_inches="tight")
+    # pyplot.close(fig)
+    
 
     # items = [numpy.random.rand(128, 128) for _ in range(5)]
     # # items = [2,1,5,3,9,8]

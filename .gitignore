@@ -1,3 +1,5 @@
+experiments/clustering-experiments/recursive-clustering-experiment/
+experiments/clustering-experiments/results/
 experiments/diffusion-experiments/resolution-experiment/correlation/
 experiments/diffusion-experiments/resolution-experiment/
 experiments/interpretability-experiments/attention_script.sh
