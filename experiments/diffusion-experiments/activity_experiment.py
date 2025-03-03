@@ -564,6 +564,10 @@ def main():
             all_features[0] = original_mean_features
             features.append(original_features)
 
+            # Ensures reproducibility
+            seed_offset = hash(args.direction) % (2**32-1)
+            set_seeds(args.seed + i + seed_offset)                        
+
             latent_code = diffusion_model.latent_encoder.forward_features(img)
             numpy_code = latent_code.detach().cpu().numpy()
             # original_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=latent_code, progress=True)

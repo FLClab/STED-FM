@@ -2,12 +2,14 @@
 import numpy
 import torch
 import random
+import tifffile
 
 from matplotlib import pyplot
 from skimage import measure, feature
 from skimage.transform import rescale
 from torch.utils.data import Sampler, Dataset, DataLoader
 from scipy.spatial import distance
+from tqdm import tqdm
 
 CHANID = 0
 
@@ -202,7 +204,7 @@ class Template:
 
             labels = values["label"]
 
-            for image, label in zip(images[[CHANID]], labels[[CHANID]]):
+            for image, label in zip(images, labels):
                 label = measure.label((label[self.class_id] > 0).astype(int))
                 rprops = measure.regionprops(label)
                 for rprop in rprops:
@@ -330,18 +332,29 @@ class Query:
         template = torch.tensor(template)
 
         for key, values in self.images.items():
-            images = values["image"]
+            
+            if isinstance(values, dict):
+                images = values["image"]
+                labels = values["label"]
+            else:
+                images = values
+                labels = values
 
-            if cfg.in_channels != 3:
-                m, M = numpy.min(images, axis=(-2, -1), keepdims=True), numpy.max(images, axis=(-2, -1), keepdims=True)
-                images = (images - m) / (M - m + 1e-6)
-                images = numpy.clip(images, 0, 1)
+            for image, label in zip(tqdm(images, desc=f"Images ({key})", leave=False), labels):
+                
+                image_name = None
+                if isinstance(image, str):
+                    image_name = image
+                    image = tifffile.imread(image)[0]
+                    # This assumes that there is no label
+                    label = image.copy()[numpy.newaxis]
 
-            labels = values["label"]
+                if cfg.in_channels != 3:
+                    m, M = numpy.min(image, axis=(-2, -1), keepdims=True), numpy.max(image, axis=(-2, -1), keepdims=True)
+                    image = (image - m) / (M - m + 1e-6)
+                    image = numpy.clip(image, 0, 1)
 
-            for image, label in zip(images[[CHANID]], labels[[CHANID]]):
-
-                dataset = ImageDataset(image, label, in_channels=cfg.in_channels, size=self.size, step=int(self.size * 0.1))
+                dataset = ImageDataset(image, label, in_channels=cfg.in_channels, size=self.size, step=int(self.size * 0.25))
                 sampler = OnTheFlySampler(dataset)
                 loader = DataLoader(dataset, batch_size=cfg.batch_size, sampler=sampler)
                 builder = PredictionBuilder(image.shape, self.size, num_classes=1)
@@ -351,7 +364,7 @@ class Query:
                         X = X.unsqueeze(1)
                     X = X.to(next(model.parameters()).device)
                     features = model.forward_features(X)
-                    features = features.cpu().squeeze()
+                    features = features.cpu().squeeze(1)
                     distances = torch.nn.functional.cosine_similarity(features, template.unsqueeze(0), dim=2)
                     distances = distances.cpu().numpy()
                     distances = distances.reshape(-1, 14, 14)
@@ -361,8 +374,11 @@ class Query:
                         builder.add_predictions_ji(pred, j, i)
                 prediction = builder.return_prediction()
                 
-                yield image, label, prediction[0]
-
+                yield {"image" : image,
+                        "label" : label,
+                        "prediction" : prediction[0],
+                        "image-name" : image_name,
+                        "condition" : key}
 
     def _query_image_convnet(self, template, model, cfg):
         raise NotImplementedError("Not yet implemented")

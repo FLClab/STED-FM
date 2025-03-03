@@ -29,7 +29,7 @@ class User:
     def __init__(self, name):
         self.name = name
 
-DATASET = "multidomain"
+DATASET = "patch-retrieval-experiment"
 os.makedirs(os.path.join("data", DATASET), exist_ok=True)
 
 if DATASET == "perforated":
@@ -56,6 +56,18 @@ elif DATASET == "multidomain":
         {"item" : path, "id" : path}
         for path in candidate_images
     ]     
+
+elif DATASET == "patch-retrieval-experiment":
+    template_image = f"{DATASET}/templates/template.png"
+    candidate_images = glob.glob(os.path.join("static", DATASET, "candidates", "*.png"))
+    candidate_images = [os.path.relpath(path, "static") for path in candidate_images]
+    random.seed(42)
+    random.shuffle(candidate_images)
+
+    candidate_images = [
+        {"item" : path, "id" : path}
+        for path in candidate_images
+    ]
 
 @app.before_request
 def get_globals():

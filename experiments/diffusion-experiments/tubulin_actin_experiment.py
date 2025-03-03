@@ -12,6 +12,7 @@ import glob
 sys.path.insert(0, "../")
 from model_builder import get_pretrained_model_v2 
 from DEFAULTS import BASE_PATH, COLORS 
+from utils import set_seeds
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--latent-encoder", type=str, default="mae-lightning-small")
@@ -244,6 +245,10 @@ def main():
             original = img.squeeze().detach().cpu().numpy()
             # original_freq, original_power_spectrum = compute_power_spectrum(original)
             
+            # Ensures reproducibility
+            seed_offset = hash(args.direction) % (2**32-1)
+            set_seeds(args.seed + i + seed_offset)            
+
             latent_code = diffusion_model.latent_encoder.forward_features(img)
             numpy_code = latent_code.detach().cpu().numpy()
             original_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=latent_code, progress=True)

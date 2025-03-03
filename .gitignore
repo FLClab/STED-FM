@@ -25,6 +25,10 @@ experiments/detection-experiments/application/users.json
 experiments/autonomous-experiments/**/*.pkl
 experiments/user-study/**/*.pkl
 experiments/diffusion-experiments/quality-experiment/
+
+# DS_Store files
+*.DS_Store
+
 # data symlink
 experiments/simclr-experiments/data
 experiments/simclr-experiments/panels
