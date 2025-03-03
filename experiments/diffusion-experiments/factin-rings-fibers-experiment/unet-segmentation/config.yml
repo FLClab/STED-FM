@@ -1,0 +1,18 @@
+image-filters-exclude:
+- Non Analysable
+- Annotations
+- alignement
+measurement-names:
+- STED_635P
+- Conf_460L
+- STED_594
+model-config:
+  batch_size: 128
+  model: UNet
+  model-path: /home-local/Actin/pretrained-unet
+  normalize: default
+  size: 224
+  step: 1.0
+raw-data-dst: /home/anthony/Documents/flc-dataset/experiments/diffusion-experiments/factin-rings-fibers-experiment/examples/raw-tif
+raw-data-ext: '*.tif'
+savedir: /home/anthony/Documents/flc-dataset/experiments/diffusion-experiments/factin-rings-fibers-experiment/unet-segmentation

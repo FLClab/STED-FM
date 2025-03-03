@@ -6,6 +6,10 @@ import pickle
 import tifffile
 from collections.abc import Hashable
 
+import sys
+sys.path.insert(0, "../../")
+from DEFAULTS import COLORS
+
 def ask_user(current, other):
     import matplotlib.pyplot as plt
 
@@ -593,6 +597,8 @@ if __name__ == "__main__":
 
     # del tree
 
+    # Multidomain ranking
+
     # tree = Tree()
     # tree.load("data/multidomain/Anthony-tree.pkl")
     # print(len(tree))
@@ -620,6 +626,36 @@ if __name__ == "__main__":
     # fig.savefig("ranking.pdf", dpi=300, bbox_inches="tight")
 
     # print(image_steps)
+
+    # Patch retrieval ranking
+    tree = Tree()
+    tree.load("data/patch-retrieval-experiment/jujubee-tree.pkl")
+    print(len(tree))
+
+    import os
+    from matplotlib import pyplot
+
+    image_steps = []
+    for node in tree.get_ranking():
+        # print(node, node.attrs)
+        step = node.get_item()
+        step = os.path.basename(step).split(".")[0].split("-")[-1]
+        image_steps.append(step)
+
+    image_steps = numpy.array(image_steps)
+
+    fig, ax = pyplot.subplots(figsize=(4, 3))
+
+    uniques = numpy.unique(image_steps)
+    for unique in uniques:
+        mask = image_steps == unique
+        ax.plot(numpy.cumsum(mask) / mask.sum(), label=f"{unique}", color=COLORS[unique])
+    ax.set(
+        xlabel="Ranking",
+        ylabel="Fraction of images"
+    )
+    ax.legend()
+    fig.savefig("ranking-patch-retrieval-experiment.pdf", dpi=300, bbox_inches="tight")
 
     # items = [2,5, 1, 3,9,8, 6, 4, 7]
     # items = [{"item": i, "id": i} for i in items]

@@ -7,6 +7,8 @@ import argparse
 import pickle
 import os
 
+from sklearn.metrics import confusion_matrix
+
 import sys
 sys.path.insert(0, "../")
 from utils import set_seeds
@@ -35,13 +37,15 @@ def main():
     valid_embeddings, valid_labels = load_embedding(f"{PATH}/{args.weights}-{args.dataset}-embeddings_valid.npz")
     num_valid_samples, _ = valid_embeddings.shape
 
-    clf = svm.SVC(kernel="linear")
+    C = 1.0
+    clf = svm.SVC(kernel="linear", C=C, class_weight="balanced")
     clf.fit(train_embeddings, train_labels) 
 
     val_prediction = clf.predict(valid_embeddings)
     print(np.unique(val_prediction, return_counts=True))
     accuracy = np.sum(val_prediction == valid_labels) / num_valid_samples
     print(f"Validation accuracy: {accuracy}")
+    print(f"Confusion matrix: \n{confusion_matrix(valid_labels, val_prediction)}")
 
     boundary = clf.coef_.reshape(1, latent_dim).astype(np.float32)
     norm = np.linalg.norm(boundary)
