@@ -62,10 +62,10 @@ def get_full_data(mode=args.mode, pretraining="STED"):
     return data
 
 def plot_data(pretraining, data, figax=None):
-    # full_dataset_results = get_full_data(pretraining=pretraining)
-    # full_dataset_results = [item[args.metric] for item in full_dataset_results[args.mode]]
-    # full_mean = numpy.mean(full_dataset_results)
-    # full_sem = stats.sem(full_dataset_results)
+    full_dataset_results = get_full_data(pretraining=pretraining)
+    full_dataset_results = [item[args.metric] for item in full_dataset_results[args.mode]]
+    full_mean = numpy.mean(full_dataset_results)
+    full_sem = stats.sem(full_dataset_results)
 
     if figax is None:
         fig, ax = pyplot.subplots()
@@ -83,18 +83,18 @@ def plot_data(pretraining, data, figax=None):
         # ax.errorbar(float(key), mean, std, color=COLORS[pretraining])
         # ax.plot(float(key), mean, color=COLORS[pretraining], marker=MARKERS[pretraining])
 
-    # averaged.append(full_mean)
-    # errs.append(full_sem)
+    averaged.append(full_mean)
+    errs.append(full_sem)
     averaged = numpy.array(averaged)
     errs = numpy.array(errs)
    
-    ax.plot([float(key) for key in data.keys()], averaged, color=COLORS[pretraining], marker=MARKERS[pretraining], label=pretraining)
-    ax.fill_between([float(key) for key in data.keys()], averaged - errs, averaged + errs, color=COLORS[pretraining], alpha=0.2)
+    ax.plot([float(key) for key in data.keys()] + [200], averaged, color=COLORS[pretraining], marker=MARKERS[pretraining], label=pretraining)
+    ax.fill_between([float(key) for key in data.keys()] + [200], averaged - errs, averaged + errs, color=COLORS[pretraining], alpha=0.2)
     ax.set(
         xlabel="Num. samples per class", ylabel=args.metric,
         # ylim=(0, 1),
-        xticks=[int(s) for s in data.keys()], # + [200],
-        xticklabels=list(data.keys()), # + ["Full"]
+        xticks=[int(s) for s in data.keys()] + [200],
+        xticklabels=list(data.keys()) + ["Full"]
     )
 
     return (fig, ax)
@@ -106,7 +106,7 @@ def main():
         data = get_data(pretraining=pretraining)
         fig, ax = plot_data(pretraining, data, figax=(fig, ax))
     ax.legend()
-    savefig(fig, os.path.join(".", "results", f"test_{args.model}_{args.dataset}_{args.mode}-small-dataset-samples"), extension="pdf")
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_{args.mode}-small-dataset-samples"), extension="pdf")
 
 if __name__ == "__main__":
     main()

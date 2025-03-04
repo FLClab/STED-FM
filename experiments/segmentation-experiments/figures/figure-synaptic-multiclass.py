@@ -26,9 +26,9 @@ def load_file(file: str):
 def get_data(mode="from-scratch", pretraining="STED"):
     data = {}
     if mode == "from-scratch":
-        files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"pretrained*", f"segmentation-scores.json"), recursive=True)
+        files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{args.mode}*", f"segmentation-scores.json"), recursive=True)
     else:
-        files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"pretrained*_{pretraining.upper()}*", f"segmentation-scores.json"), recursive=True)
+        files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{args.mode}*_{pretraining.upper()}*", f"segmentation-scores.json"), recursive=True)
         files = [f for f in files if "labels" not in f]
 
     if mode == "pretrained":
@@ -53,6 +53,9 @@ def main():
     pretrainings = ["STED", "SIM", "HPA", "JUMP", "ImageNet"] 
     width = 1/(len(pretrainings) + 1)
     positions = np.arange(len(classes))
+    overall_scores = {
+        key: [] for key in pretrainings
+    }
     for c in range(len(classes)):
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -67,6 +70,7 @@ def main():
             mean, std = np.ma.mean(values_masked, axis=1), np.ma.std(values_masked, axis=1)
             mean = mean[:, c]
             print(f"Pretraining: {pretraining}, Class: {classes[c]}, Mean: {np.mean(mean)}")
+            overall_scores[pretraining].append(np.mean(mean))
             ax.scatter([positions[c] + width * i] * len(mean), mean, color=COLORS[pretraining])
             bplot = ax.boxplot(mean, positions=[positions[c] + width * i], showfliers=True)
             for name, parts in bplot.items():
@@ -80,7 +84,11 @@ def main():
         legend_elements = [Line2D([0], [0], color=COLORS[pretraining], label=pretraining, markerfacecolor=COLORS[pretraining]) for pretraining in pretrainings]
 
         plt.legend(handles=legend_elements)
-        savefig(fig, os.path.join(".", "results", f"{args.model}_{classes[c]}_synaptic-semantic-segmentation"), extension="pdf")
+        savefig(fig, os.path.join(".", "results", f"{args.model}_{classes[c]}_synaptic-semantic-segmentation-{args.mode}"), extension="pdf")
+
+    print("\n=== Overall scores ===")
+    for pretraining in pretrainings:
+        print(f"{pretraining}: {np.mean(overall_scores[pretraining])}")
             
 
         # fig, ax = plot_data(pretraining, data, figax=(fig, ax), position=i, widths=width)
