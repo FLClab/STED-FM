@@ -23,7 +23,8 @@ parser.add_argument("--metric", default="aupr", type=str,
 parser.add_argument("--samples", nargs="+", type=str, default=None,
                     help="Number of samples to plot")         
 parser.add_argument("--mode", type=str, default="pretrained-frozen", choices=["from-scratch", "pretrained-frozen", "pretrained"],
-                    help="Number of samples to plot")                    
+                    help="Number of samples to plot")      
+parser.add_argument("--sampling-mode", type=str, default="labels")              
 args = parser.parse_args()
 
 print(args)
@@ -40,19 +41,22 @@ def get_data(pretraining="STED"):
         if args.mode == "from-scratch":
             files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{args.mode}*-{sample}%-labels*", f"segmentation-scores.json"), recursive=True)
         else:
-            files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{args.mode}*_{pretraining.upper()}*-{sample}%-labels*", f"segmentation-scores.json"), recursive=True)
+            if args.sampling_mode == "samples":
+                files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{args.mode}*_{pretraining.upper()}*-{sample}-samples*", f"segmentation-scores.json"), recursive=True)
+            else:
+                files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{args.mode}*_{pretraining.upper()}*-{sample}%-labels*", f"segmentation-scores.json"), recursive=True)
 
 
         if args.mode == "pretrained":
             # remove files that contains samples
             files = list(filter(lambda x: "frozen" not in x, files))  
-
         # remove files that contains samples
         if len(files) < 1: 
-            print(f"Could not find files for mode: `{args.mode}` and pretraining: `{pretraining}`")
+            print(f"Could not find files for mode: `{args.mode}`, sample `{sample}` and pretraining: `{pretraining}` ({len(files)}/5)")
             return data
         if len(files) != 5:
-            print(f"Could not find all files for mode: `{args.mode}` and pretraining: `{pretraining}` ({len(files)})")
+            print(f"Could not find all files for mode: `{args.mode}`, sample `{sample}` and pretraining: `{pretraining}` ({len(files)}/5)")
+  
         scores = []
         for file in files:
             scores.append(load_file(file))
@@ -75,11 +79,12 @@ def get_full_data(mode=args.mode, pretraining="STED"):
         
     # remove files that contains samples
     files = list(filter(lambda x: "samples" not in x, files))
+    files = list(filter(lambda x: "labels" not in x, files))
     if len(files) < 1: 
-        print(f"Could not find files for mode: `{mode}` and pretraining: `{pretraining}`")
+        print(f"Could not find files for mode: `{mode}` and pretraining: `{pretraining}` ({len(files)}/5)")
         return data
     if len(files) != 5:
-        print(f"Could not find all files for mode: `{mode}` and pretraining: `{pretraining}`")
+        print(f"Could not find all files for mode: `{mode}` and pretraining: `{pretraining}` ({len(files)}/5)")
     scores = []
     for file in files:
         scores.append(load_file(file))
@@ -88,7 +93,7 @@ def get_full_data(mode=args.mode, pretraining="STED"):
 
 def plot_data(pretraining, data, figax=None, **kwargs):
     full_dataset_results = get_full_data(pretraining=pretraining)
-    full_dataset_results = [item[args.metric] for item in full_dataset_results["pretrained"]]
+    full_dataset_results = [item[args.metric] for item in full_dataset_results[args.mode]]
     full_dataset_results = numpy.ma.masked_equal(full_dataset_results, -1)
     full_mean = numpy.mean(full_dataset_results, axis=1)
     full_sem = stats.sem(full_dataset_results, axis=1)
@@ -126,7 +131,7 @@ def plot_data(pretraining, data, figax=None, **kwargs):
         #         part.set_color(COLORS[pretraining])
     ys.append(full_mean)
     errs.append(full_sem)
-    xs.append(100)
+    xs.append(200 if args.sampling_mode == "samples" else 100)
     ys = numpy.array(ys)
     errs = numpy.array(errs)
     ax.plot(xs, ys, color=COLORS[pretraining], marker=MARKERS[pretraining])
@@ -142,14 +147,19 @@ def main():
         data = get_data(pretraining=pretraining)
         fig, ax = plot_data(pretraining, data, figax=(fig, ax))
 
+    if args.sampling_mode == "samples":
+        xticklabels=list(args.samples) + ["Full"]
+    else:
+        xticklabels = [str(item) + "%" for item in args.samples] + ["100%"]
+        
     ax.set(
         ylabel=args.metric,
         # ylim=(0, 1),
-        xticks=[float(s) for s in args.samples] + [100],
-        xticklabels=list(args.samples) + ["Full"]
+        xticks=[float(s) for s in args.samples] + [200 if args.sampling_mode == "samples" else 100],
+        xticklabels=xticklabels
     )
 
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_{args.mode}_small-dataset"), extension="pdf")
+    savefig(fig, os.path.join(".", "results", f"{args.sampling_mode}-{args.model}_{args.dataset}_{args.mode}_small-dataset"), extension="pdf")
 
 if __name__ == "__main__":
     main()

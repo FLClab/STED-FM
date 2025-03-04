@@ -584,11 +584,12 @@ class PeroxisomeDataset(Dataset):
     def __init__(
         self, source:str, 
         transform: Any, 
-        classes: List = ["6hGluc", "6hMeOH"], #, "4hMeOH", "8hMeOH", "16hMeOH"], 
+        classes: List = ["4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"], 
         n_channels: int = 1,
         resize_mode : str = "pad",
         superclasses: bool = False,
         num_samples: int = None,
+        balance: bool = True,
         **kwargs
     ): 
         super().__init__()
@@ -613,12 +614,23 @@ class PeroxisomeDataset(Dataset):
         self.original_size = original_size
         if superclasses:
             self.__merge_superclasses()
-        self.info = self.__get_info()
+
+        if balance:
+            print("=== Balancing dataset ===")
+            self.__balance_classes()
 
         print("----------")
         for k in self.samples.keys():
             print(f"Class {k} samples: {len(self.samples[k])}")
         print("----------")
+
+        self.info = self.__get_info()
+
+    def __balance_classes(self) -> None:
+        min_samples = min([len(lst) for lst in list(self.samples.values())])
+        for key in self.samples.keys():
+            self.samples[key] = random.sample(self.samples[key], min_samples)
+        self.original_size = sum([len(lst) for lst in list(self.samples.values())])
 
     def _get_sampled_files(self, files_list, num_sample):
         if num_sample is not None:

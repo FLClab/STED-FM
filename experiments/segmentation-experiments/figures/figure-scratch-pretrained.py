@@ -99,7 +99,7 @@ def main():
 
     pyplot.legend(handles=legend_elements)
 
-    savefig(fig, os.path.join(".", "results", f"test_{args.model}_{args.dataset}_scratch-pretrained"), extension="pdf")
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_scratch-pretrained"), extension="pdf")
 
 if __name__ == "__main__":
     main()
