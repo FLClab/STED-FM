@@ -42,6 +42,7 @@ def get_data(mode="linear-probe", pretraining="STED"):
         return data
     if len(files) != 5:
         print(f"Could not find all files for mode: `{mode}` and pretraining: `{pretraining}`")
+
     scores = []
     for file in files:
         scores.append(load_file(file))
@@ -110,7 +111,7 @@ def main():
         ],
         fontsize=8
     )
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_{args.mode}-finetuned"), extension="pdf")
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_linear-probe-finetuned"), extension="pdf")
 
     # Calculate statistics
     values = []
@@ -122,7 +123,7 @@ def main():
     print(p_values)
     if F_p_values < 0.05:
         fig, ax = plot_p_values(p_values)
-        savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_{args.mode}-finetuned_stats"), extension="png")
+        savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_linear-probe-finetuned_stats"), extension="png")
 
 
 if __name__ == "__main__":

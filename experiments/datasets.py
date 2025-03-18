@@ -801,6 +801,14 @@ class PeroxisomeDataset(Dataset):
             self.samples[key] = random.sample(self.samples[key], min_samples)
         self.original_size = sum([len(lst) for lst in list(self.samples.values())])
 
+        self.info = self.__get_info()
+
+    def __balance_classes(self) -> None:
+        min_samples = min([len(lst) for lst in list(self.samples.values())])
+        for key in self.samples.keys():
+            self.samples[key] = random.sample(self.samples[key], min_samples)
+        self.original_size = sum([len(lst) for lst in list(self.samples.values())])
+
     def _get_sampled_files(self, files_list, num_sample):
         if num_sample is not None:
             return random.sample(files_list, num_sample)
