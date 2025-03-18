@@ -1,0 +1,5 @@
+Flask==2.2.2
+pydantic==1.10.2
+numpy==1.23.5
+requests==2.28.1
+sklearn-json

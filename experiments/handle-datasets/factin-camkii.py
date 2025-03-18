@@ -21,9 +21,12 @@ from utils.msrreader import MSRReader
 
 MSRKEY = "STED_635P {2}"
 MSRKEY = "STED_594 {2}"
+MSRKEY = "Conf_640 {4}"
 MASKKEY = "Conf_488 {2}"
+MASKKEY = "Conf_488 {4}"
 OPTIONALMSRKEYS = ["STED_594 {2}"]
 OPTIONALMSRKEYS = ["STED_635P {2}"]
+OPTIONALMSRKEYS = ["Conf_ 561 {4}"]
 CROP_SIZE = 224
 THRESHOLD = 0.05
 
@@ -133,12 +136,21 @@ def main():
     args = parser.parse_args()
 
     groups = {
-        "CTRL" : glob.glob(os.path.join(BASE_PATH, "evaluation-data", "camkii", "*.msr"), recursive=True),
+        "CTRL" : glob.glob(os.path.join(BASE_PATH, "detection-data", "confocal-actin", "*.msr"), recursive=True),
     }
     if args.export_to_tiff:
         for key, values in groups.items():
             export_to_tiff(key, values, "all")
         return
+
+    # groups = {
+    #     "CTRL" : glob.glob(os.path.join(BASE_PATH, "evaluation-data", "camkii", "*.msr"), recursive=True),
+    # }
+    # if args.export_to_tiff:
+    #     for key, values in groups.items():
+    #         export_to_tiff(key, values, "all")
+    #     return
+    print("Please use the correct path for the factin-camkii dataset.")
     exit()
     
     groups = {
@@ -168,3 +180,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+    print("Doneski!")

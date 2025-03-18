@@ -37,18 +37,25 @@ RESULTS = {
 
 def plot_results(results: dict) -> None:
     for key in results.keys():
-        fig = plt.figure()
+        fig = plt.figure(figsize=(3,3))
         ax = fig.add_subplot(111)
         data = [item for item in results[key].values()]
         data = [item / sum(data) for item in data]
         pretrainings = list(results[key].keys())
         positions = np.arange(len(pretrainings))
-        for pos, p, d in zip(positions, pretrainings, data):
-            ax.bar(pos, d, color=COLORS[p])
-        ax.set_ylabel("Proportion best performing model")
-        ax.set_xlabel("Pretraining dataset")
-        ax.set_xticks(positions)
-        ax.set_xticklabels(pretrainings)
+
+        ax.pie(
+            data, labels=pretrainings, autopct="%1.0f%%", rotatelabels=True, colors=[COLORS[p] for p in pretrainings],
+            pctdistance=0.75, labeldistance=1.1, startangle=90,
+            wedgeprops=dict(width=0.5, edgecolor="w"),
+            textprops=dict(color="black", fontsize=8)
+        )
+        # for pos, p, d in zip(positions, pretrainings, data):
+        #     ax.bar(pos, d, color=COLORS[p])
+        # ax.set_ylabel("Proportion best performing model")
+        # ax.set_xlabel("Pretraining dataset")
+        # ax.set_xticks(positions)
+        # ax.set_xticklabels(pretrainings)
         fig.savefig(f"../results/generalist_agent/{key}.pdf", dpi=1200, bbox_inches="tight", transparent=True)
         plt.close(fig)
 

@@ -3,6 +3,7 @@ import numpy
 import torch
 import random
 import tifffile
+import os
 
 from matplotlib import pyplot
 from skimage import measure, feature
@@ -24,8 +25,6 @@ class ImageDataset(Dataset):
         if self.y.ndim == 3:
             self.y = self.y[numpy.newaxis, ...]
 
-        self.mean, self.std = numpy.mean(self.x, axis=(-2, -1), keepdims=True), numpy.std(self.x, axis=(-2, -1), keepdims=True)
-
         self.size = size
         self.step = step
         self.in_channels = in_channels
@@ -34,7 +33,6 @@ class ImageDataset(Dataset):
         return len(self.x)
     
     def __getitem__(self, index):
-
         image_idx, (j, i) = index
         image_crop = self.x[image_idx, j - self.size // 2 : j + self.size // 2, i - self.size // 2 : i + self.size // 2]
         label_crop = self.y[image_idx, :, j - self.size // 2 : j + self.size // 2, i - self.size // 2 : i + self.size // 2]
@@ -49,9 +47,11 @@ class ImageDataset(Dataset):
         image_crop = image_crop[numpy.newaxis, ...]
         if self.in_channels == 3:
             image_crop = numpy.repeat(image_crop, 3, axis=0)
-            # mean, std = numpy.array([mean, mean, mean]), numpy.array([std, std, std])
-            # mean, std = numpy.array([0.014, 0.014, 0.014]), numpy.array([0.03, 0.03, 0.03])
-            image_crop = (image_crop - self.mean[image_idx]) / self.std[image_idx]       
+            mean = numpy.mean(image_crop, axis=(-2, -1))
+            std = numpy.std(image_crop, axis=(-2, -1))
+            mean, std = numpy.array([mean, mean, mean]), numpy.array([std, std, std])
+            mean, std = numpy.array([0.014, 0.014, 0.014]), numpy.array([0.03, 0.03, 0.03])
+            image_crop = (image_crop - mean[:, numpy.newaxis, numpy.newaxis]) / std[:, numpy.newaxis, numpy.newaxis]            
 
         image_crop = torch.tensor(image_crop, dtype=torch.float32)
         label_crop = torch.tensor(label_crop)
@@ -195,144 +195,72 @@ class Template:
             model_type = "convnet"
         return getattr(self, f"_get_{self.mode}_template_{model_type}")(model, cfg)
     
-    def _get_all_templates_vit(self, model, cfg):
+    def _get_all_template_vit(self, model, cfg):
 
-        def compute_template(image_crop, mask_crop):
-            image_crop = image_crop[numpy.newaxis, ...]
-            if cfg.in_channels == 3:
-                mean, std = numpy.mean(image_crop), numpy.std(image_crop)
-                image_crop = numpy.repeat(image_crop, 3, axis=0)
-                mean, std = numpy.array([mean, mean, mean]), numpy.array([std, std, std])
-                # mean, std = numpy.array([0.014, 0.014, 0.014]), numpy.array([0.03, 0.03, 0.03])
-                image_crop = (image_crop - mean[:, numpy.newaxis, numpy.newaxis]) / std[:, numpy.newaxis, numpy.newaxis]
-            image_crop = image_crop.astype(numpy.float32)
+        def compute_template(mask_crop, features):
+            templates_per_channels = {}
+            for channel in range(mask_crop.shape[0]):
+                if not numpy.any(mask_crop[channel]):
+                    continue
 
-            # fig, axes = pyplot.subplots(1, 2)
-            # axes[0].imshow(image_crop[0], cmap="gray", vmin=0, vmax=0.7*image_crop.max())
-            # axes[1].imshow(mask_crop)
-            # fig.savefig("crop.png")
-            # print(len(templates))
-            # input("Press Enter to continue...")
-            # pyplot.close()
+                m = measure.block_reduce(mask_crop[channel], (16, 16), numpy.mean)
+                threshold = 0.5 * m.max()
 
-            image_crop = torch.tensor(image_crop).unsqueeze(0).to(next(model.parameters()).device)
-            features = model.forward_features(image_crop)
-            features = features.cpu().squeeze().numpy()
-
-            m = measure.block_reduce(mask_crop, (16, 16), numpy.mean)
-            threshold = 0.5 * m.max()
-
-            patch_idx = numpy.argmax(m.ravel())
-            template = features[patch_idx]
-
-            patch_indices = numpy.argwhere(m.ravel() > threshold)
-            template = features[patch_indices]
-            template = numpy.mean(template, axis=0).ravel()
-
-            image_crop = image_crop.cpu().numpy()[0, 0]
-
-            return {
-                "template" : template,
-                "image-template" : image_crop,
-                "mask-template" : mask_crop
-            }           
-
+                patch_indices = numpy.argwhere(m.ravel() > threshold)
+                template = features[0, patch_indices]
+                templates_per_channels[channel] = template
+            return templates_per_channels
+        
         templates = []
         for key, values in self.images.items():
+            
+            if isinstance(values, dict):
+                images = values["image"]
+                labels = values["label"]
+            else:
+                images, labels = [], []
+                for image_name in values:
+                    label_name = image_name.replace(".tif", "_annotations.tif")
+                    if os.path.isfile(label_name):
+                        images.append(image_name)
+                        labels.append(label_name)
 
-            images = values["image"]
-            # if cfg.in_channels != 3:
-            m, M = numpy.min(images, axis=(-2, -1), keepdims=True), numpy.max(images, axis=(-2, -1), keepdims=True)
-            # M = numpy.quantile(images, 0.995, axis=(-2, -1), keepdims=True)
-            images = (images - m) / (M - m + 1e-6)
-            images = numpy.clip(images, 0, 1)
+            for image, label in zip(tqdm(images, desc=f"Images ({key})", leave=False), labels):
+                
+                image_name, label_name = None, None
+                if isinstance(image, str):
+                    image_name = image
+                    image = tifffile.imread(image)
+                    if image.ndim == 3:
+                        image = image[0]
+                    
+                    label_name = label
+                    label = tifffile.imread(label)
 
-            labels = values["label"]
+                # if cfg.in_channels != 3:
+                m, M = numpy.min(image, axis=(-2, -1), keepdims=True), numpy.max(image, axis=(-2, -1), keepdims=True)
+                image = (image - m) / (M - m + 1e-6)
+                image = numpy.clip(image, 0, 1)
 
-            for image, label in zip(images, labels):
+                dataset = ImageDataset(image, label, in_channels=cfg.in_channels, size=self.size, step=int(self.size * 0.5))
+                sampler = OnTheFlySampler(dataset)
+                loader = DataLoader(dataset, batch_size=cfg.batch_size, sampler=sampler)
+                builder = PredictionBuilder(image.shape, self.size, num_classes=1)
+                for X, y, positions in loader:
 
-                label = measure.label((label[self.class_id] > 0).astype(int))
+                    if X.ndim == 3:
+                        X = X.unsqueeze(1)
+                    X = X.to(next(model.parameters()).device)
+                    features = model.forward_features(X).unsqueeze(1)
 
-                if image.shape[0] == 224 and image.shape[1] == 224:
-                    image_crop = image
-                    mask_crop = label
+                    y = y.cpu().detach().numpy()
+                    features = features.cpu().detach().numpy()
 
-                    template = compute_template(image_crop, mask_crop)
-                    templates.append(template)
-                else:
-                    rprops = measure.regionprops(label)
-                    for rprop in rprops:
-                        r, c = rprop.centroid
-                        r, c = int(r), int(c)
-
-                        image_crop = image[
-                            max(0, r - self.size // 2) : min(r + self.size // 2, image.shape[0]),
-                            max(0, c - self.size // 2) : min(c + self.size // 2, image.shape[1]),
-                        ]
-                        image_crop = numpy.pad(
-                            image_crop,
-                            (
-                                (max(0, self.size // 2 - r), max(0, r + self.size // 2 - image.shape[0])),
-                                (max(0, self.size // 2 - c), max(0, c + self.size // 2 - image.shape[1])),
-                            ),
-                        )
-                        mask_crop = label[
-                            max(0, r - self.size // 2) : min(r + self.size // 2, image.shape[0]),
-                            max(0, c - self.size // 2) : min(c + self.size // 2, image.shape[1]),
-                        ]
-                        mask_crop = numpy.pad(
-                            mask_crop,
-                            (
-                                (max(0, self.size // 2 - r), max(0, r + self.size // 2 - image.shape[0])),
-                                (max(0, self.size // 2 - c), max(0, c + self.size // 2 - image.shape[1])),
-                            ),
-                        )
-
-                        template = compute_template(image_crop, mask_crop)
-                        templates.append(template)
-        return templates
-    
-    def _get_stack_template_vit(self, model, cfg):
-        templates = self._get_all_templates_vit(model, cfg)
-        return numpy.stack([template["template"] for template in templates], axis=0)
-    
-    def _get_avg_template_vit(self, model, cfg):
-        templates = self._get_all_templates_vit(model, cfg)
-        templates = [template["template"] for template in templates]
-        return numpy.mean(templates, axis=0)
-    
-    def _get_random_template_vit(self, model, cfg):
-        templates = self._get_all_templates_vit(model, cfg)
-        return random.choice(templates)["template"]
-        # return numpy.mean(templates, axis=0)    
-
-    def _get_choice_template_vit(self, model, cfg, choice=None):
-        if choice is None:
-            if self.class_id == 1:
-                choice = 224
-            elif self.class_id == 2:
-                choice = 5
-        templates = self._get_all_templates_vit(model, cfg)
-        return templates[choice]
-    
-    def _get_choices_template_vit(self, model, cfg, choices=None):
-        """
-        CHANID = 0 -- Perforated -- 5, 7, 9, 12, 16, 19, 30, 33, 34, 35, 36, 38, 43, 44, 45, 57, 60
-        CHANID = 0 -- Elongated -- 19, 42, 47, 90, 99, 147, 148, 173, 185, 186, 224, 225
-        """
-        if choices is None:
-            if self.class_id == 1:
-                choices = [19, 42, 47, 90, 99, 147, 148, 173, 185, 186, 224, 225]
-            elif self.class_id == 2:
-                choices = [5, 7, 9, 12, 16, 19, 30, 33, 34, 35, 36, 38, 43, 44, 45, 57, 60]
-
-        templates = self._get_all_templates_vit(model, cfg)
-        return {
-            "image-template" : numpy.stack([templates[choice]["image-template"] for choice in choices], axis=0),
-            "mask-template" : numpy.stack([templates[choice]["mask-template"] for choice in choices], axis=0),
-            "template" : numpy.mean([templates[choice]["template"] for choice in choices], axis=0),
-        }
-        # return numpy.mean([templates[choice]["template"] for choice in choices], axis=0)
+                    for image_crop, label_crop, feature in zip(X, y, features):
+                        if numpy.any(label_crop):
+                            template = compute_template(label_crop, feature)
+                            templates.append(template)
+        return templates    
     
     def _get_avg_template_convnet(self, model):
             raise NotImplementedError("Not yet implemented")
@@ -344,22 +272,15 @@ class Query:
         self.class_id = class_id
         self.size = size
     
-    def query(self, template, model, cfg):
+    def query(self, model, clf, cfg):
         model.eval()
         if "vit" in cfg.backbone:
             model_type = "vit"
         else:
             model_type = "convnet"
-        return getattr(self, f"_query_image_{model_type}")(template, model, cfg)   
+        return getattr(self, f"_query_image_{model_type}")(model, clf, cfg)   
     
-    def _query_image_vit(self, template, model, cfg):
-
-        template = torch.tensor(template)
-        if template.ndim == 1:
-            template = template.unsqueeze(0).unsqueeze(0)
-        elif template.ndim == 2:
-            template = template.unsqueeze(1)
-        template = template.to(next(model.parameters()).device)
+    def _query_image_vit(self, model, clf, cfg):
 
         for key, values in self.images.items():
             
@@ -368,7 +289,7 @@ class Query:
                 labels = values["label"]
             else:
                 images = values
-                labels = values
+                labels = [None] * len(images)
 
             for image, label in zip(tqdm(images, desc=f"Images ({key})", leave=False), labels):
                 
@@ -378,7 +299,6 @@ class Query:
                     image = tifffile.imread(image)
                     if image.ndim == 3:
                         image = image[0]
-                    # This assumes that there is no label
                     label = image.copy()[numpy.newaxis]
 
                 # if cfg.in_channels != 3:
@@ -386,7 +306,7 @@ class Query:
                 image = (image - m) / (M - m + 1e-6)
                 image = numpy.clip(image, 0, 1)
 
-                dataset = ImageDataset(image, label, in_channels=cfg.in_channels, size=self.size, step=int(self.size * 0.25))
+                dataset = ImageDataset(image, label, in_channels=cfg.in_channels, size=self.size, step=int(self.size * 1.0))
                 sampler = OnTheFlySampler(dataset)
                 loader = DataLoader(dataset, batch_size=cfg.batch_size, sampler=sampler)
                 builder = PredictionBuilder(image.shape, self.size, num_classes=1)
@@ -396,24 +316,27 @@ class Query:
                         X = X.unsqueeze(1)
                     X = X.to(next(model.parameters()).device)
                     features = model.forward_features(X).unsqueeze(1)
-                    distances = torch.nn.functional.cosine_similarity(features, template, dim=3)
-                    distances = distances.cpu().detach().numpy()
-
-                    # Max-pooling
-                    distances = numpy.max(distances, axis=1)
-
-                    distances = distances.reshape(-1, 14, 14)
-                    distances = rescale(distances, (1, 16, 16), order=0, anti_aliasing=False)
+                    features = features.cpu().detach().numpy()
                     
-                    for pred, j, i in zip(distances, *positions):
-                        builder.add_predictions_ji(pred, j, i)
+                    batch_size = features.shape[0]
+                    features = numpy.reshape(features, (-1, features.shape[-1]))
+                    y_pred = clf.predict(features)[..., numpy.newaxis]
+
+                    reshaped = numpy.reshape(y_pred, (batch_size, 14, 14, -1))
+                    reshaped = numpy.transpose(reshaped, (0, 3, 1, 2))
+                    reshaped = rescale(reshaped, (1, 1, 16, 16), anti_aliasing=False, order=0)
+
+                    for p, j, i in zip(reshaped, *positions):
+                        builder.add_predictions_ji(p, j, i)
+
                 prediction = builder.return_prediction()
-                
-                yield {"image" : image,
-                        "label" : label,
-                        "prediction" : prediction[0],
-                        "image-name" : image_name,
-                        "condition" : key}
+                yield {
+                    "image" : image,
+                    "label" : label,
+                    "prediction" : prediction,
+                    "image-name" : image_name,
+                    "condition" : key
+                }
 
     def _query_image_convnet(self, template, model, cfg):
         raise NotImplementedError("Not yet implemented")
