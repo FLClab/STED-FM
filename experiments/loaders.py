@@ -88,24 +88,24 @@ def get_neural_activity_states(
         transform=transform,
         n_channels=n_channels,
         num_samples=num_samples,
-        num_classes=4,
-        balance=kwargs.get("balance", True)
+        balance=kwargs.get("balance", True),
+        classes=kwargs.get("classes", ["Block", "0MgGlyBic", "GluGly", "48hTTX"]),
     )
     validation_dataset = datasets.NeuralActivityStates(
         tarpath=f"{path}/NAS_PSD95_valid_v2.tar",
         transform=transform,
         n_channels=n_channels,
         num_samples=None,
-        num_classes=4,
-        balance=kwargs.get("balance", True)
+        balance=kwargs.get("balance", True),
+        classes=kwargs.get("classes", ["Block", "0MgGlyBic", "GluGly", "48hTTX"]),
     )
     test_dataset = datasets.NeuralActivityStates(
         tarpath=f"{path}/NAS_PSD95_test_v2.tar",
         transform=transform,
         n_channels=n_channels,
         num_samples=None,
-        num_classes=4,
-        balance=kwargs.get("balance", True)
+        balance=kwargs.get("balance", True),
+        classes=kwargs.get("classes", ["Block", "0MgGlyBic", "GluGly", "48hTTX"]),
     )
     print("\n=== NAS dataset ===")
     print(np.unique(train_dataset.labels, return_counts=True))
@@ -390,6 +390,7 @@ def get_dataset(name, path=None, **kwargs):
             batch_size=kwargs.get("batch_size", 1),
             num_samples=kwargs.get("num_samples", None),
             balance=kwargs.get("balance", True),
+            classes=kwargs.get("classes", ["Block", "0MgGlyBic", "GluGly", "48hTTX"]),
             protein_id=3
         )
     elif name == "factin-rings-fibers":

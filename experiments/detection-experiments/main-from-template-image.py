@@ -16,6 +16,7 @@ import matplotlib
 from scipy.spatial import distance
 import tifffile
 import tiffwrapper
+import itertools
 
 from dataclasses import dataclass
 from lightly import loss
@@ -55,7 +56,7 @@ if __name__ == "__main__":
                     help="Name of the dataset to use")             
     parser.add_argument("--backbone", type=str, default="mae-lightning-small",
                         help="Backbone model to load")
-    parser.add_argument("--backbone-weights", type=str, default=None,
+    parser.add_argument("--backbone-weights", type=str, default="MAE_SMALL_STED",
                         help="Backbone model to load")    
     parser.add_argument("--template", type=str, required=True,
                         help="Template image to use. Must be a tiff file with two channels: image and mask")
@@ -105,15 +106,15 @@ if __name__ == "__main__":
                 "image" : numpy.rot90(template_image[0], k=i)[numpy.newaxis],
                 "label" : numpy.rot90(template_image[1], k=i)[numpy.newaxis, numpy.newaxis],
             } for i in range(4)
-        }, class_id=0, mode="avg")
+        }, class_id=0, mode="stack")
     else:
         # Assumes multiple templates
         template = Template({
-            f"template-{i}" : {
-                "image" : template_image[i, 0][numpy.newaxis],
-                "label" : template_image[i, 1][numpy.newaxis, numpy.newaxis],
-            } for i in range(template_image.shape[0])
-        }, class_id=0, mode="avg")
+            f"template-{i}-{k}" : {
+                "image" : numpy.rot90(template_image[i, 0], k=k)[numpy.newaxis],
+                "label" : numpy.rot90(template_image[i, 1], k=k)[numpy.newaxis, numpy.newaxis],
+            } for i, k in itertools.product(range(template_image.shape[0]), range(4))
+        }, class_id=0, mode="stack")
     template_query = template.get_template(model, cfg)
 
     # In mode "choice", template_query is a dictionary and we can extract the image and mask templates
@@ -130,6 +131,7 @@ if __name__ == "__main__":
         template_query = template_query["template"]
 
     testing_dataset = get_dataset(name=args.dataset, path=None, transform=None)
+    print(f"Testing dataset: {args.dataset} ({len(testing_dataset)} images)")
 
     image_name_mapper = defaultdict(list)
     query = Query(testing_dataset.images, class_id=None)
@@ -151,7 +153,12 @@ if __name__ == "__main__":
 
         if isinstance(image_path, str):
             image_name = os.path.basename(image_path)
-            savepath = os.path.join(BASE_PATH, "results", "detection-experiments", args.backbone_weights, template_name, query_result["condition"], image_name)
+            dset = args.dataset
+            if os.path.isdir(dset):
+                if dset.endswith("/"):
+                    dset = dset[:-1]
+                dset = os.path.basename(dset)
+            savepath = os.path.join(BASE_PATH, "results", "detection-experiments", args.backbone_weights, template_name, dset, query_result["condition"], image_name)
             os.makedirs(os.path.dirname(savepath), exist_ok=True)
 
             # Save metadata
@@ -160,7 +167,7 @@ if __name__ == "__main__":
                 "savepath" : os.path.relpath(savepath, BASE_PATH),
                 "original-path" : os.path.relpath(image_path, BASE_PATH),
             })
-            with open(os.path.join(os.path.join(BASE_PATH, "results", "detection-experiments", args.backbone_weights, template_name), "metadata.json"), "w") as f:
+            with open(os.path.join(os.path.join(BASE_PATH, "results", "detection-experiments", args.backbone_weights, template_name, dset), "metadata.json"), "w") as f:
                 json.dump(image_name_mapper, f, indent=4)
         else:
             savepath = f"image-{i}-{args.backbone_weights}.tif"
