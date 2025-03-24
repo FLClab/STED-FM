@@ -17,22 +17,27 @@ class MAEDecoderWrapper(torch.nn.Module):
         super().__init__()
         self.mae = mae
         self.cfg = cfg
+        try: # Normal MAE case
+            self.patch_size = self.mae.patch_size
+            self.sequence_length = self.mae.sequence_length
+        except AttributeError: # Catching the ViT case 
+            self.patch_size = self.mae.patch_embed.patch_size[0]
+            self.sequence_length = self.mae.patch_embed.num_patches * self.mae.num_prefix_tokens
+
         if self.cfg.freeze_backbone:
             for p in self.mae.backbone.parameters():
                 p.requires_grad = False
 
-        if freeze_decoder:
-            for name, p in self.mae.decoder.named_parameters():
-                # if name in ["decoder_norm", "decoder_pred"]:
-                #     continue
-                # else:
-                p.requires_grad = False
+        # if freeze_decoder:
+        #     for name, p in self.mae.decoder.named_parameters():
+        #         # if name in ["decoder_norm", "decoder_pred"]:
+        #         #     continue
+        #         # else:
+        #         p.requires_grad = False
 
-        print(self.cfg)
-        exit()
         self.decoder_pred = torch.nn.Linear(
             in_features=512, 
-            out_features=self.mae.patch_size ** 2 * self.mae.decoder.in_chans,
+            out_features=self.patch_size ** 2 * self.cfg.dataset_cfg.num_classes,
             bias=True 
         )
 
@@ -43,12 +48,13 @@ class MAEDecoderWrapper(torch.nn.Module):
             mask_ratio=0.0,
             device=x.device
         )
-        print(idx_keep.shape, idx_mask.shape)
         x_encoded = self.mae.forward_encoder(x=x, idx_keep=idx_keep)
         x_decode = self.mae.decoder.embed(x_encoded) 
         x_decoded = self.mae.decoder.decode(x_decode)
         x_pred = self.decoder_pred(x_decoded)
-        return x_pred 
+        x_pred = x_pred[:, 1:, :] # remove cls token 
+        out = unpatchify(x_pred, self.patch_size, self.cfg.dataset_cfg.num_classes)
+        return out 
 
 def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn.Module:
     """
