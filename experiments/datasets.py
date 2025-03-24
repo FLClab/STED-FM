@@ -80,6 +80,12 @@ def get_dataset(name: str, path: str, **kwargs):
             classes = ["CTRL"],
             **kwargs
         )
+    # This allows to load any folder dataset containing tiff files
+    elif os.path.isdir(name):
+        dataset = FolderDataset(
+            name,
+            **kwargs
+        )
     else:
         raise NotImplementedError(f"Dataset `{name}` not implemented yet.")
     return dataset
@@ -1123,16 +1129,16 @@ class NeuralActivityStates(Dataset):
             transform: Callable = None,
             n_channels: int = 1,
             num_samples: int = None,
-            num_classes: int = 4,
             classes: List[str] = ["Block", "0MgGlyBic", "GluGly", "48hTTX"],
-            balance: bool = True
+            balance: bool = True,
+            **kwargs
     ) -> None:
         self.tarpath = tarpath
         self.transform = transform
         self.n_channels = n_channels
         self.num_samples = num_samples
-        self.num_classes = num_classes
         self.classes = classes
+        self.num_classes = len(self.classes)
 
 
         imgs = []
@@ -1400,13 +1406,15 @@ class FolderDataset(Dataset):
         self.classes = classes
 
         if self.classes is None:
-            self.classes = [item for item in os.listdir(source) if os.path.isdir(item)]
+            self.classes = [item for item in os.listdir(source) if os.path.isdir(os.path.join(source, item))]
         self.classes = list(sorted(self.classes))
 
         self.images = {}
         for class_name in self.classes:
             files = glob.glob(os.path.join(source, class_name, "*.tif"))
-            self.images[class_name] = files
+            files += glob.glob(os.path.join(source, class_name, "*.tiff"))
+            files = list(filter(lambda x: "annotations" not in os.path.basename(x), files))
+            self.images[class_name] = list(sorted(files))
 
     def __len__(self):
         return sum([len(lst) for lst in list(self.images.values())])

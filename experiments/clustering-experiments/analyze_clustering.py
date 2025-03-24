@@ -1,5 +1,6 @@
 import numpy as np 
 import pickle 
+import os
 import matplotlib.pyplot as plt 
 from typing import List, Tuple, Dict, Any, Optional
 import argparse 
@@ -109,6 +110,8 @@ def extract_mean_feature_vector(node):
 def plot_frequencies(node_list, display: bool = False):
     num_clusters = len(node_list)
     states = ["Block", "48hTTX", "0MgGlyBic", "GluGly"] if args.dataset == "neural-activity-states" else ["4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"]
+    states = ["Block", "GluGly"]
+
     cluster_counts = {condition: {key: 0 for key in range(num_clusters)} for condition in states}
     condition_counts = {key: {condition: 0 for condition in states} for key in range(num_clusters)}
 
@@ -210,7 +213,7 @@ def display_graph(graph, node_size_scale_factor=10, edge_weight_factor=5.0, min_
                                 alpha=0.7, edge_color=edge_colors)
     else:
         networkx.draw_networkx_nodes(graph, pos=layout, node_color=colors, node_size=node_sizes)
-        networkx.draw_networkx_labels(graph, pos=layout)
+        # networkx.draw_networkx_labels(graph, pos=layout)
         networkx.draw_networkx_edges(graph, pos=layout, width=edge_widths, 
                                 alpha=0.7, edge_color='gray')
     
@@ -228,6 +231,7 @@ def display_graph(graph, node_size_scale_factor=10, edge_weight_factor=5.0, min_
     # ax.axis("off")
     plt.tight_layout()
     plt.show()
+    os.makedirs("./graphs", exist_ok=True)
     fig.savefig(f"./graphs/{args.condition}_{args.dataset}_graph.pdf", dpi=1200, bbox_inches="tight")
     
 
@@ -235,6 +239,8 @@ if __name__ == "__main__":
     data = load_data(args.data_path)
     tree = build_tree_from_nested_lists(data)
     all_nodes = find_leaf_nodes(tree)
+
+    max_depth = max([node.depth for node in all_nodes])
     # print_tree(tree)
     mean_vector = extract_mean_feature_vector(tree)
     graph = networkx.DiGraph()
@@ -242,7 +248,7 @@ if __name__ == "__main__":
     color, _ = get_color(all_counts[0], root=True)
     graph.add_node(tree.cluster_id, color=color, count=sum(list(all_counts[0].values())), add=True)
 
-    for d in range(1, args.depth + 1):
+    for d in range(1, min(args.depth + 1, max_depth + 1)):
         print(f"=== Depth {d} ===")
         depth_nodes = list(get_depth_nodes(tree, d))
         depth_counts = plot_frequencies(depth_nodes, display=False)

@@ -1,5 +1,6 @@
 import numpy as np 
 import pickle 
+import os
 import matplotlib.pyplot as plt 
 from typing import List, Tuple, Dict, Any, Optional
 import argparse 
@@ -12,6 +13,7 @@ from skimage import measure
 from networkx.drawing.nx_agraph import graphviz_layout
 from scipy.spatial import distance
 import sys
+from tqdm.auto import tqdm
 
 from sklearn.metrics import DistanceMetric 
 sys.path.insert(0, "../")
@@ -209,12 +211,15 @@ def display_graph(graph, feature: str, node_size_scale_factor=10, edge_weight_fa
     # ax.axis("off")
     plt.tight_layout()
     plt.show()
+    os.makedirs("./graphs", exist_ok=True)
     fig.savefig(f"./graphs/{feature}_{args.dataset}_graph.pdf", dpi=1200, bbox_inches="tight")
 
 if __name__=="__main__":
     data = load_data(args.data_path)
     tree = build_tree_from_nested_lists(data)
     all_nodes = find_leaf_nodes(tree)
+    max_depth = max([node.depth for node in all_nodes])
+
     _, _, test_loader = get_dataset(
         name=args.dataset,
         transform=None,
@@ -222,7 +227,8 @@ if __name__=="__main__":
         patch=None,
         batch_size=64,
         n_channels=1,
-        balance=False
+        balance=False,
+        classes=["Block", "GluGly"]
     )
     dataset = test_loader.dataset
     
@@ -242,10 +248,9 @@ if __name__=="__main__":
         count=root_count
     )
     
-    for d in range(1, args.depth + 1):
-        print(f"=== Depth {d} ===")
+    for d in range(1, min(args.depth + 1, max_depth + 1)):
         depth_nodes = list(get_depth_nodes(tree, d))
-        for node in depth_nodes:
+        for node in tqdm(depth_nodes, desc=f"Depth {d}"):
             node_features, node_count = get_average_features(node, dataset)
             node_vector = extract_mean_feature_vector(node)
             parent_vector = extract_mean_feature_vector(node.parent)

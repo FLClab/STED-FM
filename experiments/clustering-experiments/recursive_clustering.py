@@ -246,7 +246,8 @@ def main():
         path=None, 
         batch_size=cfg.batch_size,
         n_channels=n_channels,
-        balance=False
+        balance=False,
+        classes=["Block", "GluGly"]
     )
 
     if args.embed: 
