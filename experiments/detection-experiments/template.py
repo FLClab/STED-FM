@@ -2,12 +2,14 @@
 import numpy
 import torch
 import random
+import tifffile
 
 from matplotlib import pyplot
 from skimage import measure, feature
 from skimage.transform import rescale
 from torch.utils.data import Sampler, Dataset, DataLoader
 from scipy.spatial import distance
+from tqdm import tqdm
 
 CHANID = 0
 
@@ -22,6 +24,8 @@ class ImageDataset(Dataset):
         if self.y.ndim == 3:
             self.y = self.y[numpy.newaxis, ...]
 
+        self.mean, self.std = numpy.mean(self.x, axis=(-2, -1), keepdims=True), numpy.std(self.x, axis=(-2, -1), keepdims=True)
+
         self.size = size
         self.step = step
         self.in_channels = in_channels
@@ -30,6 +34,7 @@ class ImageDataset(Dataset):
         return len(self.x)
     
     def __getitem__(self, index):
+
         image_idx, (j, i) = index
         image_crop = self.x[image_idx, j - self.size // 2 : j + self.size // 2, i - self.size // 2 : i + self.size // 2]
         label_crop = self.y[image_idx, :, j - self.size // 2 : j + self.size // 2, i - self.size // 2 : i + self.size // 2]
@@ -44,8 +49,9 @@ class ImageDataset(Dataset):
         image_crop = image_crop[numpy.newaxis, ...]
         if self.in_channels == 3:
             image_crop = numpy.repeat(image_crop, 3, axis=0)
-            mean, std = numpy.array([0.014, 0.014, 0.014]), numpy.array([0.03, 0.03, 0.03])
-            image_crop = (image_crop - mean[:, numpy.newaxis, numpy.newaxis]) / std[:, numpy.newaxis, numpy.newaxis]            
+            # mean, std = numpy.array([mean, mean, mean]), numpy.array([std, std, std])
+            # mean, std = numpy.array([0.014, 0.014, 0.014]), numpy.array([0.03, 0.03, 0.03])
+            image_crop = (image_crop - self.mean[image_idx]) / self.std[image_idx]       
 
         image_crop = torch.tensor(image_crop, dtype=torch.float32)
         label_crop = torch.tensor(label_crop)
@@ -190,84 +196,105 @@ class Template:
         return getattr(self, f"_get_{self.mode}_template_{model_type}")(model, cfg)
     
     def _get_all_templates_vit(self, model, cfg):
+
+        def compute_template(image_crop, mask_crop):
+            image_crop = image_crop[numpy.newaxis, ...]
+            if cfg.in_channels == 3:
+                mean, std = numpy.mean(image_crop), numpy.std(image_crop)
+                image_crop = numpy.repeat(image_crop, 3, axis=0)
+                mean, std = numpy.array([mean, mean, mean]), numpy.array([std, std, std])
+                # mean, std = numpy.array([0.014, 0.014, 0.014]), numpy.array([0.03, 0.03, 0.03])
+                image_crop = (image_crop - mean[:, numpy.newaxis, numpy.newaxis]) / std[:, numpy.newaxis, numpy.newaxis]
+            image_crop = image_crop.astype(numpy.float32)
+
+            # fig, axes = pyplot.subplots(1, 2)
+            # axes[0].imshow(image_crop[0], cmap="gray", vmin=0, vmax=0.7*image_crop.max())
+            # axes[1].imshow(mask_crop)
+            # fig.savefig("crop.png")
+            # print(len(templates))
+            # input("Press Enter to continue...")
+            # pyplot.close()
+
+            image_crop = torch.tensor(image_crop).unsqueeze(0).to(next(model.parameters()).device)
+            features = model.forward_features(image_crop)
+            features = features.cpu().squeeze().numpy()
+
+            m = measure.block_reduce(mask_crop, (16, 16), numpy.mean)
+            threshold = 0.5 * m.max()
+
+            patch_idx = numpy.argmax(m.ravel())
+            template = features[patch_idx]
+
+            patch_indices = numpy.argwhere(m.ravel() > threshold)
+            template = features[patch_indices]
+            template = numpy.mean(template, axis=0).ravel()
+
+            image_crop = image_crop.cpu().numpy()[0, 0]
+
+            return {
+                "template" : template,
+                "image-template" : image_crop,
+                "mask-template" : mask_crop
+            }           
+
         templates = []
         for key, values in self.images.items():
 
             images = values["image"]
-            if cfg.in_channels != 3:
-                m, M = numpy.min(images, axis=(-2, -1), keepdims=True), numpy.max(images, axis=(-2, -1), keepdims=True)
-                # M = numpy.quantile(images, 0.995, axis=(-2, -1), keepdims=True)
-                images = (images - m) / (M - m + 1e-6)
-                images = numpy.clip(images, 0, 1)
+            # if cfg.in_channels != 3:
+            m, M = numpy.min(images, axis=(-2, -1), keepdims=True), numpy.max(images, axis=(-2, -1), keepdims=True)
+            # M = numpy.quantile(images, 0.995, axis=(-2, -1), keepdims=True)
+            images = (images - m) / (M - m + 1e-6)
+            images = numpy.clip(images, 0, 1)
 
             labels = values["label"]
 
-            for image, label in zip(images[[CHANID]], labels[[CHANID]]):
+            for image, label in zip(images, labels):
+
                 label = measure.label((label[self.class_id] > 0).astype(int))
-                rprops = measure.regionprops(label)
-                for rprop in rprops:
-                    r, c = rprop.centroid
-                    r, c = int(r), int(c)
 
-                    image_crop = image[
-                        max(0, r - self.size // 2) : min(r + self.size // 2, image.shape[0]),
-                        max(0, c - self.size // 2) : min(c + self.size // 2, image.shape[1]),
-                    ]
-                    image_crop = numpy.pad(
-                        image_crop,
-                        (
-                            (max(0, self.size // 2 - r), max(0, r + self.size // 2 - image.shape[0])),
-                            (max(0, self.size // 2 - c), max(0, c + self.size // 2 - image.shape[1])),
-                        ),
-                    )
-                    mask_crop = label[
-                        max(0, r - self.size // 2) : min(r + self.size // 2, image.shape[0]),
-                        max(0, c - self.size // 2) : min(c + self.size // 2, image.shape[1]),
-                    ]
-                    mask_crop = numpy.pad(
-                        mask_crop,
-                        (
-                            (max(0, self.size // 2 - r), max(0, r + self.size // 2 - image.shape[0])),
-                            (max(0, self.size // 2 - c), max(0, c + self.size // 2 - image.shape[1])),
-                        ),
-                    )
+                if image.shape[0] == 224 and image.shape[1] == 224:
+                    image_crop = image
+                    mask_crop = label
 
-                    image_crop = image_crop[numpy.newaxis, ...]
-                    if cfg.in_channels == 3:
-                        image_crop = numpy.repeat(image_crop, 3, axis=0)
-                        mean, std = numpy.array([0.014, 0.014, 0.014]), numpy.array([0.03, 0.03, 0.03])
-                        image_crop = (image_crop - mean[:, numpy.newaxis, numpy.newaxis]) / std[:, numpy.newaxis, numpy.newaxis]
-                    image_crop = image_crop.astype(numpy.float32)
+                    template = compute_template(image_crop, mask_crop)
+                    templates.append(template)
+                else:
+                    rprops = measure.regionprops(label)
+                    for rprop in rprops:
+                        r, c = rprop.centroid
+                        r, c = int(r), int(c)
 
-                    # fig, axes = pyplot.subplots(1, 2)
-                    # axes[0].imshow(image_crop[0], cmap="gray", vmin=0, vmax=0.7*image_crop.max())
-                    # axes[1].imshow(mask_crop)
-                    # fig.savefig("crop.png")
-                    # print(len(templates))
-                    # input("Press Enter to continue...")
-                    # pyplot.close()
+                        image_crop = image[
+                            max(0, r - self.size // 2) : min(r + self.size // 2, image.shape[0]),
+                            max(0, c - self.size // 2) : min(c + self.size // 2, image.shape[1]),
+                        ]
+                        image_crop = numpy.pad(
+                            image_crop,
+                            (
+                                (max(0, self.size // 2 - r), max(0, r + self.size // 2 - image.shape[0])),
+                                (max(0, self.size // 2 - c), max(0, c + self.size // 2 - image.shape[1])),
+                            ),
+                        )
+                        mask_crop = label[
+                            max(0, r - self.size // 2) : min(r + self.size // 2, image.shape[0]),
+                            max(0, c - self.size // 2) : min(c + self.size // 2, image.shape[1]),
+                        ]
+                        mask_crop = numpy.pad(
+                            mask_crop,
+                            (
+                                (max(0, self.size // 2 - r), max(0, r + self.size // 2 - image.shape[0])),
+                                (max(0, self.size // 2 - c), max(0, c + self.size // 2 - image.shape[1])),
+                            ),
+                        )
 
-                    image_crop = torch.tensor(image_crop).unsqueeze(0).to(next(model.parameters()).device)
-                    features = model.forward_features(image_crop)
-                    features = features.cpu().squeeze().numpy()
-
-                    m = measure.block_reduce(mask_crop, (16, 16), numpy.mean)
-                    threshold = 0.5 * m.max()
-
-                    patch_idx = numpy.argmax(m.ravel())
-                    template = features[patch_idx]
-
-                    patch_indices = numpy.argwhere(m.ravel() > threshold)
-                    template = features[patch_indices]
-                    template = numpy.mean(template, axis=0).ravel()
-
-                    image_crop = image_crop.cpu().numpy()[0, 0]
-                    templates.append({
-                        "template" : template,
-                        "image-template" : image_crop,
-                        "mask-template" : mask_crop,
-                    })
+                        template = compute_template(image_crop, mask_crop)
+                        templates.append(template)
         return templates
+    
+    def _get_stack_template_vit(self, model, cfg):
+        templates = self._get_all_templates_vit(model, cfg)
+        return numpy.stack([template["template"] for template in templates], axis=0)
     
     def _get_avg_template_vit(self, model, cfg):
         templates = self._get_all_templates_vit(model, cfg)
@@ -328,20 +355,38 @@ class Query:
     def _query_image_vit(self, template, model, cfg):
 
         template = torch.tensor(template)
+        if template.ndim == 1:
+            template = template.unsqueeze(0).unsqueeze(0)
+        elif template.ndim == 2:
+            template = template.unsqueeze(1)
+        template = template.to(next(model.parameters()).device)
 
         for key, values in self.images.items():
-            images = values["image"]
+            
+            if isinstance(values, dict):
+                images = values["image"]
+                labels = values["label"]
+            else:
+                images = values
+                labels = values
 
-            if cfg.in_channels != 3:
-                m, M = numpy.min(images, axis=(-2, -1), keepdims=True), numpy.max(images, axis=(-2, -1), keepdims=True)
-                images = (images - m) / (M - m + 1e-6)
-                images = numpy.clip(images, 0, 1)
+            for image, label in zip(tqdm(images, desc=f"Images ({key})", leave=False), labels):
+                
+                image_name = None
+                if isinstance(image, str):
+                    image_name = image
+                    image = tifffile.imread(image)
+                    if image.ndim == 3:
+                        image = image[0]
+                    # This assumes that there is no label
+                    label = image.copy()[numpy.newaxis]
 
-            labels = values["label"]
+                # if cfg.in_channels != 3:
+                m, M = numpy.min(image, axis=(-2, -1), keepdims=True), numpy.max(image, axis=(-2, -1), keepdims=True)
+                image = (image - m) / (M - m + 1e-6)
+                image = numpy.clip(image, 0, 1)
 
-            for image, label in zip(images[[CHANID]], labels[[CHANID]]):
-
-                dataset = ImageDataset(image, label, in_channels=cfg.in_channels, size=self.size, step=int(self.size * 0.1))
+                dataset = ImageDataset(image, label, in_channels=cfg.in_channels, size=self.size, step=int(self.size * 0.25))
                 sampler = OnTheFlySampler(dataset)
                 loader = DataLoader(dataset, batch_size=cfg.batch_size, sampler=sampler)
                 builder = PredictionBuilder(image.shape, self.size, num_classes=1)
@@ -350,10 +395,13 @@ class Query:
                     if X.ndim == 3:
                         X = X.unsqueeze(1)
                     X = X.to(next(model.parameters()).device)
-                    features = model.forward_features(X)
-                    features = features.cpu().squeeze()
-                    distances = torch.nn.functional.cosine_similarity(features, template.unsqueeze(0), dim=2)
-                    distances = distances.cpu().numpy()
+                    features = model.forward_features(X).unsqueeze(1)
+                    distances = torch.nn.functional.cosine_similarity(features, template, dim=3)
+                    distances = distances.cpu().detach().numpy()
+
+                    # Max-pooling
+                    distances = numpy.max(distances, axis=1)
+
                     distances = distances.reshape(-1, 14, 14)
                     distances = rescale(distances, (1, 16, 16), order=0, anti_aliasing=False)
                     
@@ -361,8 +409,11 @@ class Query:
                         builder.add_predictions_ji(pred, j, i)
                 prediction = builder.return_prediction()
                 
-                yield image, label, prediction[0]
-
+                yield {"image" : image,
+                        "label" : label,
+                        "prediction" : prediction[0],
+                        "image-name" : image_name,
+                        "condition" : key}
 
     def _query_image_convnet(self, template, model, cfg):
         raise NotImplementedError("Not yet implemented")

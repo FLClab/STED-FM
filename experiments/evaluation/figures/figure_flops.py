@@ -42,7 +42,7 @@ FLOPS_PER_EPOCH = {
         "linear-probe_samples-25": 0.038e9,
         "linear-probe_samples-50": 0.066e9,
         "linear-probe_samples-100": 0.123e9,
-        "finetuned_samples_10": 268.6e9,
+        "finetuned_samples-10": 268.6e9,
         "finetuned_samples-25": 537.2e9,
         "finetuned_samples-50": 940.2e9,
         "finetuned_samples-100": 1746.0e9,
@@ -174,14 +174,16 @@ def plot_data(pretraining: str, mode: str, data: dict, figax: Tuple=None, **kwar
             mean, std = np.mean(values), np.std(values)
             key = f"{training_mode}_samples-{sample}"
             flops = (FLOPS_PER_EPOCH[args.dataset][key] * 300) #/ 1e9
-            ax.scatter(flops, mean, marker=MODEL_MARKERS[key], c=COLORS[pretraining], alpha=0.5)
+            print(f"Pretraining: {pretraining}, Mode: {mode}, Sample: {sample}, Accuracy: {mean}")
+            ax.scatter(flops, mean, marker='o', c=COLORS[pretraining], alpha=0.5)
             PARETO_DATA.append([flops, mean, pretraining, key])
     else:
         all_values = data[mode]
         values = [item[args.metric] for item in all_values]
         mean, std = np.mean(values), np.std(values)
         flops = (FLOPS_PER_EPOCH[args.dataset][mode] * 300) #/ 1e9
-        ax.scatter(flops, mean, marker=MODEL_MARKERS[mode], c=COLORS[pretraining], alpha=0.5)
+        print(f"Pretraining: {pretraining}, Mode: {mode}, Accuracy: {mean}")
+        ax.scatter(flops, mean, marker='o', c=COLORS[pretraining], alpha=0.5)
         PARETO_DATA.append([flops, mean, pretraining, mode])
     return (fig, ax)
         
@@ -205,7 +207,7 @@ def main():
 
     pareto_front = get_pareto_front(PARETO_DATA)
     for p in pareto_front:
-        ax.scatter(p[0], p[1], marker=MODEL_MARKERS[p[3]], c=COLORS[p[2]], alpha=1.0)
+        ax.scatter(p[0], p[1], marker='o', c=COLORS[p[2]], alpha=1.0)
     ax.set(
         ylabel=args.metric,
         xlabel="Total FLOPs during training"

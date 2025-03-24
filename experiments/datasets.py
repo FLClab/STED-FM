@@ -68,6 +68,24 @@ def get_dataset(name: str, path: str, **kwargs):
             classes = ["A53T", "AIW"],
             **kwargs
         )        
+    elif name == "factin-camkii-folder":
+        dataset = FolderDataset(
+            os.path.join(BASE_PATH, "evaluation-data", "factin-camkii"),
+            classes = ["CTRL", "shRNA", "RESCUE"],
+            **kwargs
+        )
+    elif name == "camkii-folder":
+        dataset = FolderDataset(
+            os.path.join(BASE_PATH, "evaluation-data", "camkii"),
+            classes = ["CTRL"],
+            **kwargs
+        )
+    # This allows to load any folder dataset containing tiff files
+    elif os.path.isdir(name):
+        dataset = FolderDataset(
+            name,
+            **kwargs
+        )
     else:
         raise NotImplementedError(f"Dataset `{name}` not implemented yet.")
     return dataset
@@ -110,6 +128,7 @@ class CreateFActinDataset(Dataset):
         self.n_channels = n_channels
     
         self.samples = {}
+        self.images = {}
         for class_name in self.classes:
             files = []
             for exp, image_id in self.DATA[class_name][self.div]:
@@ -117,7 +136,8 @@ class CreateFActinDataset(Dataset):
                     found = sorted(glob.glob(os.path.join(self.data_folder, f"**/*{exp}*/{image_id}*merged.tif"), recursive=True))
                     files.extend(found)
             print(class_name, len(files))
-            self.samples[class_name] = self.get_valid_indices(files)
+            self.images[class_name] = files
+            # self.samples[class_name] = self.get_valid_indices(files)
         
     def get_valid_indices(self, files: list, crop_size:int=224):
 
@@ -403,6 +423,7 @@ class CreateFActinBlockGluGlyDataset(Dataset):
         out = []
         for file in files:
             image = tifffile.imread(file)
+
             # Dendrite foreground
             threshold = filters.threshold_otsu(image[2])
             foreground = image[2] > threshold
@@ -445,23 +466,134 @@ class CreateFActinBlockGluGlyDataset(Dataset):
         label = class_index
         
         image = tifffile.imread(path)[0]
-        image = image[info["slc"]]
-
+        if image.min() == 2 ** 15:
+            image = image.astype(numpy.float32) - 2 ** 15
+        # m, M = 0.0, 574.37
         m, M = image.min(), image.max()
+        
+        image = image[info["slc"]]
         image = (image - m) / (M - m)
+
         image = np.tile(image[np.newaxis], (self.n_channels, 1, 1))
         image = torch.tensor(image, dtype=torch.float32)        
         
         if self.transform:
             image = self.transform(image)
         
-        return image, {"label" : label, "dataset-idx" : dataset_idx}
+        return image, {"label" : label, "dataset-idx" : dataset_idx, "condition" : class_name}
     
     def __repr__(self):
         out = "\n"
         for key, values in self.samples.items():
             out += f"{key} - {len(values)}\n"
         return "Dataset(F-actin) -- length: {}".format(len(self)) + out
+
+class MICRANetHDF5Dataset(Dataset):
+    """
+    Creates a `Dataset` from a HDF5 file. It loads all the HDF5 file in cache. This
+    increases the loading speed.
+
+    :param file_path: A `str` to the hdf5 file
+    :param data_aug: A `float` in range [0, 1]
+    :param validation: (optional) Wheter the Dataset is for validation (no data augmentation)
+    :param size: (optional) The size of the crops
+    :param step: (optional) The step between each crops
+    """
+    def __init__(self, file_path, data_aug=0, validation=False, size=256, step=0.75, n_channels=1, return_non_ambiguous=False, **kwargs):
+        super(MICRANetHDF5Dataset, self).__init__()
+
+        self.file_path = file_path
+        self.size = size
+        self.step = step
+        self.validation = validation
+        self.data_aug = data_aug
+        self.n_channels = n_channels
+        self.return_non_ambiguous = return_non_ambiguous
+
+        self.cache = {}
+
+        self.samples = self.generate_valid_samples()
+
+        self.conditions = ["Rings", "Fibers"]
+
+    def generate_valid_samples(self):
+        """
+        Generates a list of valid samples from the dataset. This is performed only
+        once at each training
+        """
+        samples = []
+        with h5py.File(self.file_path, "r") as file:
+            for group_name, group in tqdm(file.items(), desc="Groups", leave=False):
+                data = group["data"][()].astype(numpy.float32) # Images
+                label = group["label"][()] # shape is Rings, Fibers, and Dendrite
+                shapes = group["label"].attrs["shapes"] # Not all images have same shape
+                for k, (dendrite_mask, shape) in enumerate(zip(label[:, -1], shapes)):
+                    for j in range(0, shape[0], int(self.size * self.step)):
+                        for i in range(0, shape[1], int(self.size * self.step)):
+                            dendrite = dendrite_mask[j : j + self.size, i : i + self.size]
+                            if dendrite.sum() >= 0.1 * self.size * self.size: # dendrite is at least 1% of image
+
+                                if self.return_non_ambiguous:
+                                    if numpy.sum(label[k, :-1].sum(axis=(1, 2)) == 0) == 1:
+                                        samples.append((group_name, k, j, i))
+                                else:
+                                    samples.append((group_name, k, j, i))
+                self.cache[group_name] = {"data" : data, "label" : label[:, :-1]}
+        return samples
+
+    @property
+    def labels(self):
+        return []
+
+    def __getitem__(self, index):
+        """
+        Implements the `__getitem__` function of the `Dataset`
+
+        :param index: An `int` of the sample to return
+
+        :returns: A `torch.tensor` of the image
+                  A `torch.tensor` of the label
+        """
+        group_name, k, j, i = self.samples[index]
+
+        image_crop = self.cache[group_name]["data"][k, j : j + self.size, i : i + self.size]
+        label_crop = self.cache[group_name]["label"][k, :, j : j + self.size, i : i + self.size]
+
+        if image_crop.size != self.size*self.size:
+            image_crop = numpy.pad(image_crop, ((0, self.size - image_crop.shape[0]), (0, self.size - image_crop.shape[1])), "constant")
+            label_crop = numpy.pad(label_crop, ((0, 0), (0, self.size - label_crop.shape[1]), (0, self.size - label_crop.shape[2])), "constant")
+
+        image = image_crop.astype(numpy.float32)
+        label = numpy.sum(label_crop > 0, axis=(1, 2)) > (0.05 * self.size * self.size)
+
+        # Applies data augmentation
+        if not self.validation:
+            if random.random() < self.data_aug:
+                # left-right flip
+                image = numpy.fliplr(image).copy()
+
+            if random.random() < self.data_aug:
+                # up-down flip
+                image = numpy.flipud(image).copy()
+
+            if random.random() < self.data_aug:
+                # intensity scale
+                intensityScale = numpy.clip(numpy.random.lognormal(0.01, numpy.sqrt(0.01)), 0, 1)
+                image = numpy.clip(image * intensityScale, 0, 1)
+
+            if random.random() < self.data_aug:
+                # gamma adaptation
+                gamma = numpy.clip(numpy.random.lognormal(0.005, numpy.sqrt(0.005)), 0, 1)
+                image = numpy.clip(image**gamma, 0, 1)
+
+        image = numpy.tile(image[numpy.newaxis], (self.n_channels, 1, 1))
+
+        x = torch.tensor(image, dtype=torch.float32)
+        y = torch.tensor(label, dtype=torch.float32)
+        return x, {"label" : y, "dataset-idx" : index, "group-name" : group_name, "condition" : self.conditions[numpy.argmax(label)]}
+
+    def __len__(self):
+        return len(self.samples)
 
 class ResolutionDataset(Dataset):
     """
@@ -530,7 +662,6 @@ class OptimDataset(Dataset):
         self.n_channels = n_channels
         self.class_files = {}
         self.samples = {}
-        self.num_classes = len(classes)
         self.min_quality_score = min_quality_score
 
         self.labels = []
@@ -664,6 +795,14 @@ class PeroxisomeDataset(Dataset):
     def __balance_classes(self) -> None:
         np.random.seed(42)
         random.seed(42)
+        min_samples = min([len(lst) for lst in list(self.samples.values())])
+        for key in self.samples.keys():
+            self.samples[key] = random.sample(self.samples[key], min_samples)
+        self.original_size = sum([len(lst) for lst in list(self.samples.values())])
+
+        self.info = self.__get_info()
+
+    def __balance_classes(self) -> None:
         min_samples = min([len(lst) for lst in list(self.samples.values())])
         for key in self.samples.keys():
             self.samples[key] = random.sample(self.samples[key], min_samples)
@@ -990,16 +1129,16 @@ class NeuralActivityStates(Dataset):
             transform: Callable = None,
             n_channels: int = 1,
             num_samples: int = None,
-            num_classes: int = 4,
             classes: List[str] = ["Block", "0MgGlyBic", "GluGly", "48hTTX"],
-            balance: bool = True
+            balance: bool = True,
+            **kwargs
     ) -> None:
         self.tarpath = tarpath
         self.transform = transform
         self.n_channels = n_channels
         self.num_samples = num_samples
-        self.num_classes = num_classes
         self.classes = classes
+        self.num_classes = len(self.classes)
 
 
         imgs = []
@@ -1024,6 +1163,7 @@ class NeuralActivityStates(Dataset):
         self.masks = masks 
         self.conditions = conditions 
         self.labels = [self.classes.index(condition) for condition in self.conditions]
+        self.original_size = len(self.labels)
 
         if balance:
             indices = self.__balance_classes(conditions)
@@ -1168,6 +1308,136 @@ class NeuralActivityStates(Dataset):
     #     img = self.transform(img) if self.transform is not None else img 
         
     #     return img, {"label": label, "protein": protein, "dataset-idx": idx}
+
+class FactinCaMKIIDataset(Dataset):
+    def __init__(
+            self,
+            tarpath: str,
+            transform: Callable = None,
+            n_channels: int = 1,
+            num_samples: int = None,
+            balance: bool = False,
+            classes: list[str] = ["CTRL", "shRNA"],
+            **kwargs) -> None:
+        self.tarpath = tarpath
+        self.transform = transform
+        self.n_channels = n_channels
+        self.num_samples = num_samples
+        self.balance = balance
+
+        self.imgs, self.conditions = [], []
+        means, stds = [], []
+        with tarfile.open(self.tarpath, "r") as handle:
+            names = handle.getnames()
+            for name in tqdm(names, desc="Processing dataset.."):
+
+                # Skipping files that do not belong to the classes
+                if not any([class_name in name for class_name in classes]):
+                    continue
+
+                buffer = io.BytesIO()
+                buffer.write(handle.extractfile(name).read())
+                buffer.seek(0)
+                data = np.load(buffer, allow_pickle=True)
+                data = {key : values for key, values in data.items()}
+
+                self.imgs.append(data["image"])
+                metadata = data["metadata"].item()
+                self.conditions.append(metadata["condition"])       
+
+                means.append(self.imgs[-1].mean())
+                stds.append(self.imgs[-1].std()) 
+        
+        self.classes = list(sorted(set(self.conditions)))
+        assert all([class_name in self.classes for class_name in classes]), "Classes not found in dataset"
+
+        self.num_classes = len(self.classes)
+        self.labels = [self.classes.index(condition) for condition in self.conditions]
+
+        if self.balance:
+            self.rng = np.random.default_rng(42)
+            self.__balance_classes()
+    
+        # print(f"Mean: {np.mean(means)}, Std: {np.mean(stds)}")
+
+    def __balance_classes(self) -> None:
+
+        min_samples = min([self.labels.count(i) for i in range(self.num_classes)])
+        indices = []
+        for i in range(self.num_classes):
+            inds = np.argwhere(np.array(self.labels) == i).ravel()
+            inds = self.rng.choice(inds, size=min_samples, replace=min_samples > len(inds))
+            indices.extend(inds)
+        self.imgs = [self.imgs[i] for i in indices]
+        self.conditions = [self.conditions[i] for i in indices]
+        self.labels = [self.labels[i] for i in indices]
+        assert len(self.imgs) == len(self.conditions) == len(self.labels)
+
+    def __len__(self) -> int:
+        return len(self.imgs)
+    
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, dict]:
+        img, label, condition = self.imgs[idx], self.labels[idx], self.conditions[idx]
+
+        if self.n_channels == 3:
+            img = np.tile(img[np.newaxis, :], (3, 1, 1))
+            img = torch.tensor(img, dtype=torch.float32)
+            # img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+            img = transforms.Normalize(mean=[0.051, 0.051, 0.051], std=[0.073, 0.073, 0.073])(img)
+        else:
+            img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
+
+        img = self.transform(img) if self.transform is not None else img
+
+        return img, {"label": label, "condition": condition, "dataset-idx": idx}    
+
+class FolderDataset(Dataset):
+    def __init__(
+            self, 
+            source: str, 
+            transform: Callable = None, 
+            n_channels: int = 1,
+            classes: List[str] = None,
+            **kwargs
+            ) -> None:
+        self.source = source
+        self.transform = transform
+        self.n_channels = n_channels
+        self.classes = classes
+
+        if self.classes is None:
+            self.classes = [item for item in os.listdir(source) if os.path.isdir(os.path.join(source, item))]
+        self.classes = list(sorted(self.classes))
+
+        self.images = {}
+        for class_name in self.classes:
+            files = glob.glob(os.path.join(source, class_name, "*.tif"))
+            files += glob.glob(os.path.join(source, class_name, "*.tiff"))
+            files = list(filter(lambda x: "annotations" not in os.path.basename(x), files))
+            self.images[class_name] = list(sorted(files))
+
+    def __len__(self):
+        return sum([len(lst) for lst in list(self.images.values())])
+    
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, dict]:
+        idx = idx % self.__len__()
+        for key, values in self.images.items():
+            if idx < len(values):
+                img = tifffile.imread(values[idx])
+                label = self.classes.index(key)
+                break
+            idx -= len(values)
+        
+        if self.n_channels == 3:
+            img = np.tile(img[np.newaxis, :], (3, 1, 1))
+            img = torch.tensor(img, dtype=torch.float32)
+            img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+        else:
+            img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
+        
+        img = self.transform(img) if self.transform is not None else img
+        return img, {"label": label, "dataset-idx": idx}
+
 
 class ProteinDataset(Dataset):
     def __init__(
