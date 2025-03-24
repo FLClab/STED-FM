@@ -22,7 +22,7 @@ CLASSES = [
 ]
 CONVERT = {
     "f-actin": "F-Actin",
-    "psd95": "PSD95",
+    "PSD95": "PSD95",
     "tubulin": "Tubulin",
     "beta-camkii": "Other",
     "vglut2" : "Other",
@@ -90,8 +90,10 @@ def main():
                 except ValueError:
                     pass
 
-            cm = confusion_matrix[:-1] / confusion_matrix[:-1].sum(axis=1, keepdims=True)
-            confusion_matrix[:-1] = cm
+            print(confusion_matrix)
+            
+            cm = confusion_matrix[:-2] / confusion_matrix[:-2].sum(axis=1, keepdims=True)
+            confusion_matrix[:-2] = cm
 
             fig, ax = pyplot.subplots(figsize=(3,3))
             ax.imshow(confusion_matrix, cmap="Purples", vmin=0, vmax=1)
@@ -107,6 +109,9 @@ def main():
             savefig(fig, f"./results/confusion_matrix-{user}-{model}", save_white=True)
             pyplot.close("all")
 
+            # Considers Other and Unclassifiable as the same class
+            cm[:, -2] += cm[:, -1]
+            print(cm)
             accuracies[model].append(numpy.diag(cm).mean())
             unclassiables[model].append(confusion_matrix[:-1, -1])
 
@@ -125,7 +130,8 @@ def main():
     ax.set(
         xticks=numpy.arange(len(MODELS)),
         xticklabels=MODELS,
-        ylabel="Accuracy"
+        ylabel="Accuracy", 
+        ylim=(0, 1)
     )
     pyplot.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
     savefig(fig, f"./results/accuracies", save_white=True)
