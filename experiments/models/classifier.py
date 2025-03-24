@@ -15,8 +15,10 @@ class LinearProbe(torch.nn.Module):
 
         if "mae" in name.lower():
             try:  # ViT case with none-ImageNet weights
+                print("--- ViT case with none-ImageNet weights or from scratch ---")
                 self.backbone = backbone.backbone.vit 
             except: # ViT case with ImageNet weights
+                print("--- ViT case with ImageNet weights ---")
                 self.backbone = backbone 
         else: # CNN case 
             self.backbone = backbone

@@ -232,8 +232,8 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
 
 
 def main():
-    # set_seeds()
-    # num_classes = get_number_of_classes(dataset=args.dataset)
+    set_seeds()
+    SAVENAME = get_save_folder()
     train_loader, _, _ = get_dataset(
         name=args.dataset, training=True
     )
@@ -242,14 +242,12 @@ def main():
     print(f"Dataset: {args.dataset}")
     print(f"Num. Classes: {num_classes}")
     print(f"Classes: {train_loader.dataset.classes}")
+    print(f"Weights: {SAVENAME}")
     print("=====================================")
 
-    set_seeds()
-
-    SAVENAME = get_save_folder()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {device} ---")
-    n_channels = 3 if "IMAGENET" in SAVENAME else 1
+    n_channels = 3 if "imagenet" in SAVENAME.lower() else 1
 
     probe = "linear-probe" if args.blocks == "all" else "finetuned"
     if args.from_scratch:
@@ -267,7 +265,6 @@ def main():
         as_classifier=True,
         blocks=args.blocks,
         num_classes=num_classes,
-        from_scratch=args.from_scratch
     )
     model = model.to(device)
 
@@ -300,6 +297,8 @@ def main():
     if args.num_per_class:
         budget = train_loader.dataset.original_size * num_epochs
         num_epochs = int(budget / (args.num_per_class * train_loader.dataset.num_classes))
+        if num_epochs > 1000:
+            num_epochs = 1000
         print(f"--- Training with {args.num_per_class} samples per class for {num_epochs} epochs ---")
     warmup_epochs = 0.1 * num_epochs
     if probe == "from-scratch":
@@ -324,7 +323,7 @@ def main():
 
     criterion = torch.nn.CrossEntropyLoss()
     modelname = args.model.replace("-lightning", "")
-    model_path = os.path.join(BASE_PATH, "baselines", SAVENAME, args.dataset)
+    model_path = os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
     #model_path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{SAVENAME}/{args.dataset}"
     os.makedirs(model_path, exist_ok=True)
 
@@ -347,6 +346,8 @@ def main():
         print(f"Estimated trainable FLOPs per epoch: {trainable_flops_per_epoch:,}")
         exit()
     
+
+    print(cfg)
     model.train() 
     # Training loop
     train_loss, val_loss, val_acc, lrates = ScoreTracker(), ScoreTracker(), ScoreTracker(), ScoreTracker()
@@ -370,8 +371,6 @@ def main():
     # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=0)
 
     step = 0
-    if num_epochs > 1000:
-        num_epochs = 1000
 
     for epoch in trange(num_epochs, desc="Epochs..."):
         model.train()

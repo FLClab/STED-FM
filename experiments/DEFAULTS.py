@@ -46,6 +46,7 @@ class NameMapper:
 class DefaultColorMapper(NameMapper):
 
     default: str = "tab:blue"
+    scratch: str = "grey"
     imagenet1k_v1: str = "#5F4690"
     imagenet: str = "#5F4690"
     jump: str = "#1D6996"
@@ -57,6 +58,7 @@ class DefaultColorMapper(NameMapper):
 class DefaultMarkerMapper(NameMapper):
 
     default: str = "o"
+    scratch: str = "o"
     imagenet1k_v1: str = "*"
     imagenet: str = "*"
     jump: str = "P"
@@ -68,6 +70,7 @@ class DefaultMarkerMapper(NameMapper):
 class DefaultDatasetMapper(NameMapper):
 
     default: str = "unknown"
+    scratch: str = "From scratch"
     imagenet1k_v1: str = "ImageNet"
     imagenet: str = "ImageNet"
     jump: str = "JUMP"

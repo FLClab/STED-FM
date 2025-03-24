@@ -80,7 +80,7 @@ def load_weights(name: str, weights: Union[str, Enum, None]) -> dict:
         state_dict = handle_str_state_dict(name=name, weights=weights)
         return state_dict   
     elif weights is None:
-        print(f"--- {name} | Pretrained Image-Net ---\n")
+        print(f"--- {name} | Pretrained Image-Net or from scratch ---\n")
         return None
     else:
         raise NotImplementedError("Weights not implemented yet.")

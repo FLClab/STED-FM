@@ -23,17 +23,22 @@ def load_file(file):
         data = json.load(handle)
     return data 
 
-def get_data(pretraining: str, downstream: str):
-    files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", downstream, f"{args.mode}*_{pretraining.upper()}*", f"segmentation-scores.json"), recursive=True)
+def get_data(pretraining: str, downstream: str, mode: str):
+    if mode != "from-scratch":
+        files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", downstream, f"{mode}*_{pretraining.upper()}*", f"segmentation-scores.json"), recursive=True)
+        if args.mode == "pretrained-frozen":
+            files = [f for f in files if "frozen" in f]
+    else:
+        files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", downstream, f"{mode}*", f"segmentation-scores.json"), recursive=True)
+
     files = [f for f in files if "labels" not in f]
     files = [f for f in files if "samples" not in f]
-    if args.mode == "pretrained-frozen":
-        files = [f for f in files if "frozen" in f]
+
     if len(files) < 1:
         print(f"Could not find files for pretraining: `{pretraining}`, downstream: `{downstream}`")
         return data
     if len(files) != 5:
-        print(f"Could not find all files for pretraining: `{pretraining}`, downstream: `{downstream}`")
+        print(f"Could not find all files for pretraining: `{pretraining}`, downstream: `{downstream}` ({len(files)}/5)")
     scores = [] 
     for file in files:
         scores.append(load_file(file))
@@ -41,13 +46,13 @@ def get_data(pretraining: str, downstream: str):
     return scores
 
 def main():
-    pretraining_datasets = ["STED", "SIM", "HPA", "JUMP", "ImageNet"]
+    pretraining_datasets = ["STED", "SIM", "HPA", "JUMP", "IMAGENET1K_V1","from-scratch"]
     downstream_datasets = ["factin", "synaptic-semantic-segmentation", "footprocess", "lioness"]
     P, D = len(pretraining_datasets), len(downstream_datasets)
     performance_heatmap = np.zeros((P, D))
     for i, pretraining in enumerate(pretraining_datasets):
         for j, downstream in enumerate(downstream_datasets):
-            scores = get_data(pretraining=pretraining, downstream=downstream)
+            scores = get_data(pretraining=pretraining, downstream=downstream, mode=args.mode if pretraining != "from-scratch" else "from-scratch")
             scores_masked = np.ma.masked_equal(scores, -1)
             mean = np.ma.mean(scores_masked, axis=1)
             mean = np.mean(np.mean(mean, axis=-1))
@@ -75,7 +80,7 @@ def main():
     ax.set_yticklabels(pretraining_datasets)
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
     plt.colorbar(im)
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.mode}_full_heatmap"), extension="pdf")
+    savefig(fig, os.path.join(".", "results", f"test_{args.model}_{args.mode}_full_heatmap"), extension="pdf")
         
             
             

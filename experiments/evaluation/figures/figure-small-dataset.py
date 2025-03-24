@@ -12,7 +12,7 @@ from DEFAULTS import BASE_PATH, COLORS, MARKERS
 from utils import savefig
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--model", type=str, 
+parser.add_argument("--model", type=str, default="mae-small",
                     help="Name of the model")
 parser.add_argument("--dataset", type=str, 
                     help="Name of the dataset")
@@ -41,6 +41,9 @@ def get_data(pretraining="STED"):
             continue
         if len(files) != 5:
             print(f"Could not find all files for sample: `{sample}` and pretraining: `{pretraining} ({len(files)}/5)")
+        if len(files) > 5:
+            print(f"Found more than 5 files for sample: `{sample}` and pretraining: `{pretraining} ({len(files)}/5)")
+            exit()
         scores = []
         for file in files:
             scores.append(load_file(file))
@@ -106,7 +109,7 @@ def main():
         data = get_data(pretraining=pretraining)
         fig, ax = plot_data(pretraining, data, figax=(fig, ax))
     ax.legend()
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_{args.mode}-small-dataset-samples"), extension="pdf")
+    savefig(fig, os.path.join(".", "results", f"test_{args.model}_{args.dataset}_{args.mode}-small-dataset-samples"), extension="pdf")
 
 if __name__ == "__main__":
     main()

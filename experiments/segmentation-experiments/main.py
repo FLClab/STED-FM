@@ -34,7 +34,7 @@ import sys
 sys.path.insert(0, "..")
 
 from model_builder import get_base_model, get_pretrained_model_v2
-from utils import update_cfg, save_cfg
+from utils import update_cfg, save_cfg, track_loss
 from configuration import Configuration
 from DEFAULTS import BASE_PATH
 
@@ -215,13 +215,16 @@ if __name__ == "__main__":
         checkpoint = {}
         model_name = ""
         if args.backbone_weights:
+            probe = "pretrained"
             model_name += f"pretrained-"
             print(cfg.freeze_backbone)
             if cfg.freeze_backbone:
+                probe = "pretrained-frozen"
                 model_name += "frozen-"
             model_name += f"{args.backbone_weights}"
         else:
             model_name += "from-scratch"
+            probe = "from-scratch"
         if args.label_percentage is not None and args.label_percentage < 1.0:
             model_name += f"-{int(args.label_percentage * 100)}%-labels"
         elif args.num_per_class is not None:
@@ -312,24 +315,37 @@ if __name__ == "__main__":
         budget = len(training_dataset) * num_epochs
         num_epochs = int(budget / (args.num_per_class * len(training_dataset.classes)))
         cfg.num_epochs = num_epochs
+        
         print(f"Training budget is updated: {cfg.num_epochs} epochs")
 
-    optimizer = torch.optim.AdamW(model.parameters(), lr = cfg.learning_rate, weight_decay=1e-2)
-    criterion = getattr(torch.nn, cfg.dataset_cfg.criterion)()
+    if cfg.num_epochs > 1000:
+        cfg.num_epochs = 1000
 
-    # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience = 10, threshold = 0.01, min_lr=1e-5, factor=0.1,)
-    # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
-    # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=cfg.num_epochs, eta_min=1e-5)
-    scheduler = CosineWarmupScheduler(
-        optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, max_epochs=num_epochs,
-        start_value=1.0, end_value=0.01
-    )
+    if probe == "from-scratch":
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0.1, betas=(0.9, 0.95)) # ,weight_decay=1e-2)
+        scheduler = CosineWarmupScheduler(
+            optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, max_epochs=cfg.num_epochs,
+            start_value=1.0, end_value=0.01
+        )
+    elif probe == "pretrained-frozen":
+        optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+        scheduler = CosineWarmupScheduler(
+            optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, max_epochs=cfg.num_epochs,
+            start_value=1.0, end_value=0.01,
+            period=cfg.num_epochs//10
+        )
+    else:
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.999))
+        scheduler = CosineWarmupScheduler(
+            optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, max_epochs=cfg.num_epochs,
+            start_value=1.0, end_value=0.01
+        )
+
+    criterion = getattr(torch.nn, cfg.dataset_cfg.criterion)()
 
     step = start_epoch * len(train_loader)
     print(start_epoch, step, cfg.num_epochs)
 
-    if cfg.num_epochs > 1000:
-        cfg.num_epochs = 1000
     for epoch in range(start_epoch, cfg.num_epochs):
 
         start = time.time()
@@ -407,6 +423,13 @@ if __name__ == "__main__":
             writer.add_scalar(f"Epochs/epoch", epoch, step)
         stats["trainStep"].append(step)
  
+        track_loss(
+            train_loss=stats["trainMean"],
+            val_loss=stats["testMean"],
+            val_acc=stats["testAcc"],
+            lrates=stats["lr"],
+            save_dir=os.path.join(OUTPUT_FOLDER, "training-curves.png")
+        )
         # Save if best model so far
         if min_valid_loss > stats["testMean"][-1]:
             min_valid_loss = stats["testMean"][-1]
