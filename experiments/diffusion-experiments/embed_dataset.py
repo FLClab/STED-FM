@@ -5,7 +5,7 @@ import random
 import json 
 from tqdm import tqdm, trange
 import argparse 
-from attribute_datasets import OptimQualityDataset, ProteinActivityDataset, LowHighResolutionDataset, TubulinActinDataset
+from attribute_datasets import OptimQualityDataset, ProteinActivityDataset, LowHighResolutionDataset, TubulinActinDataset, ALSDataset
 import os
 from torch.utils.data import DataLoader
 
@@ -107,6 +107,10 @@ def load_dataset(balance=True) -> torch.utils.data.Dataset:
             balance=False,
             classes=["CTRL", "RESCUE"]
         )        
+    elif args.dataset == "als":
+        dataset = ALSDataset(
+            tarpath=f"/home-local/Frederic/Datasets/ALS/catalog/PLKO_{args.split}.tar",
+        )
     else:
         raise ValueError(f"Dataset {args.dataset} not found")
     return dataset
@@ -125,7 +129,8 @@ def extract_features(image, show=False):
     foreground = np.count_nonzero(mask)
     pixels = image.shape[0] * image.shape[1]
     ratio = foreground / pixels 
-    if ratio < 0.05:
+    threshold = 0.06 if args.dataset == "als" else 0.05
+    if ratio < threshold:
         return None
 
     mask_label, num_proteins = measure.label(mask, return_num=True)
@@ -216,25 +221,47 @@ if __name__=="__main__":
     dataset = load_dataset()
 
     print(f"Dataset size: {len(dataset)}")
-    print(np.unique(dataset.labels, return_counts=True))    
+    # print(np.unique(dataset.labels, return_counts=True))    
 
     dataloader = DataLoader(dataset, batch_size=cfg.batch_size, shuffle=True, drop_last=False)
 
     embeddings = []
     all_labels = []
     model.eval()
+    dataset = dataloader.dataset 
+    N = len(dataset)
     with torch.no_grad():
-        for batch in tqdm(dataloader):
-            images, data_dict = batch
-            images = images.to(device)
+        for i in range(N):
+            images, data_dict = dataset[i]
+            masks = detect_spots(images.squeeze().cpu().numpy(), J_list=[3, 4], scale_threshold=2.0)
+            foreground = np.count_nonzero(masks)
+            pixels = images.shape[1] * images.shape[2]
+            ratio = foreground / pixels 
+            threshold = 0.06 if args.dataset == "als" else 0.05
+            if ratio < threshold:
+                # print(f"Skipping {i} because ratio is {ratio} < {threshold}")
+                continue
+
+            # fig, axs = plt.subplots(1, 2)
+            # axs[0].imshow(images.squeeze().cpu().numpy())
+            # axs[1].imshow(masks)
+            # fig.savefig(f"./{args.dataset}-experiment/temporary/example-{i}.png", dpi=1200, bbox_inches="tight")
+            # plt.close(fig)
+
+            images = images.unsqueeze(0).to(device)
+
             if "condition" in data_dict:
                 labels = data_dict["condition"]
             else:
                 labels = data_dict["label"]
+                # print(labels)
             
             features = model.forward_features(images)
             embeddings.append(features.cpu().detach().numpy())
-            all_labels.extend(labels)
+            if args.dataset == "als":
+                all_labels.append(labels)
+            else:
+                all_labels.extend(labels)
 
     embeddings = np.concatenate(embeddings, axis=0)
     print(embeddings.shape)
@@ -251,6 +278,7 @@ if __name__=="__main__":
         labels_mapping[label] = i
     all_labels = tmp
 
+    print(np.unique(all_labels, return_counts=True))
     os.makedirs(f"./{args.dataset}-experiment/embeddings", exist_ok=True)
     with open(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-labels_{args.split}.json", "w") as f:
         json.dump(labels_mapping, f)

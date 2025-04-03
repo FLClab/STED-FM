@@ -1317,7 +1317,7 @@ class FactinCaMKIIDataset(Dataset):
             n_channels: int = 1,
             num_samples: int = None,
             balance: bool = False,
-            classes: list[str] = ["CTRL", "shRNA"],
+            classes: List[str] = ["CTRL", "shRNA"],
             **kwargs) -> None:
         self.tarpath = tarpath
         self.transform = transform

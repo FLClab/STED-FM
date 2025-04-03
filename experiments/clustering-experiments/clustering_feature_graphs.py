@@ -228,7 +228,7 @@ if __name__=="__main__":
         batch_size=64,
         n_channels=1,
         balance=False,
-        classes=["Block", "GluGly"]
+        classes=["Block", "0MgGlyBic", "GluGly", "48hTTX"]
     )
     dataset = test_loader.dataset
     
