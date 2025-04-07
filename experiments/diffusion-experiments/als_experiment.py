@@ -39,6 +39,7 @@ parser.add_argument("--sanity-check", action="store_true")
 parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--direction", type=str, default="DIV14")
 parser.add_argument("--n-steps", type=int, default=5)
+parser.add_argument("--channel", type=str, default="FUS")
 args = parser.parse_args()
 
 def linear_interpolate(latent_code,
@@ -63,12 +64,12 @@ def linear_interpolate(latent_code,
                    f'[1, latent_space_dim] but {latent_code.shape} was received.')
 
 def load_svm():
-    with open(f"./{args.boundary}-experiment/boundaries/{args.weights}_{args.boundary}_svm.pkl", "rb") as f:
+    with open(f"./{args.boundary}-experiment/boundaries/{args.weights}_{args.boundary}_svm_{args.channel}.pkl", "rb") as f:
         return pickle.load(f)
 
 def load_boundary() -> np.ndarray:
     print(f"--- Loading boundary trained from {args.weights} embeddings ---")
-    data = np.load(f"./{args.boundary}-experiment/boundaries/{args.weights}_{args.boundary}_boundary.npz")
+    data = np.load(f"./{args.boundary}-experiment/boundaries/{args.weights}_{args.boundary}_boundary_{args.channel}.npz")
     boundary, intercept, norm = data["boundary"], data["intercept"], data["norm"]
     return boundary, intercept, norm
 
@@ -116,8 +117,8 @@ def extract_features(img: Union[np.ndarray, torch.Tensor], check_foreground: boo
 
 def plot_sanity_check(block_features: np.ndarray, mg_features: np.ndarray):
     keys = ["DIV14", "DIV5"]
-    os.makedirs(f"./{args.boundary}-experiment/features", exist_ok=True)
-    np.savez(f"./{args.boundary}-experiment/features/train-features.npz", block_features=block_features, mg_features=mg_features)
+    os.makedirs(f"./{args.boundary}-experiment/{args.channel}/features", exist_ok=True)
+    np.savez(f"./{args.boundary}-experiment/{args.channel}/features/train-features.npz", block_features=block_features, mg_features=mg_features)
     features = ["area", "perimeter", "mean_intensity", "eccentricity", "solidity", "1nn_dist", "num_proteins"]
     for i, f in enumerate(features):
         data = [ary[:, i] for ary in [block_features, mg_features]]
@@ -139,13 +140,13 @@ def plot_sanity_check(block_features: np.ndarray, mg_features: np.ndarray):
         plt.xticks([1.0, 1.6], ["DIV14", "DIV5"])
         # plt.xlim([0.5, 1.0])
         
-        fig.savefig(f"./{args.boundary}-experiment/features/{args.weights}-{f}.pdf", dpi=1200, bbox_inches='tight')
+        fig.savefig(f"./{args.boundary}-experiment/{args.channel}/features/{args.weights}-{f}.pdf", dpi=1200, bbox_inches='tight')
         plt.close(fig)
 
 def plot_distance_distribution(distances_to_boundary: dict):
     key1, key2 = list(distances_to_boundary.keys())
-    os.makedirs(f"./{args.boundary}-experiment/distributions", exist_ok=True)
-    np.savez(f"./{args.boundary}-experiment/distributions/{args.weights}-{args.boundary}-distance_distribution.npz", **distances_to_boundary)
+    os.makedirs(f"./{args.boundary}-experiment/{args.channel}/distributions", exist_ok=True)
+    np.savez(f"./{args.boundary}-experiment/{args.channel}/distributions/{args.weights}-{args.boundary}-distance_distribution.npz", **distances_to_boundary)
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
@@ -158,11 +159,11 @@ def plot_distance_distribution(distances_to_boundary: dict):
     ax.set_xlabel("Distance")
     ax.set_ylabel("Frequency")
     ax.legend()
-    fig.savefig(f"./{args.boundary}-experiment/distributions/{args.weights}-{args.boundary}-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
+    fig.savefig(f"./{args.boundary}-experiment/{args.channel}/distributions/{args.weights}-{args.boundary}-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
 def load_distance_distribution() -> np.ndarray:
-    data = np.load(f"./{args.boundary}-experiment/distributions/{args.weights}-{args.boundary}-distance_distribution.npz")
+    data = np.load(f"./{args.boundary}-experiment/{args.channel}/distributions/{args.weights}-{args.boundary}-distance_distribution.npz")
 
     scores = np.abs(data[args.direction])
 
@@ -171,7 +172,7 @@ def load_distance_distribution() -> np.ndarray:
     return avg - (3*std), distance_max * 4
 
 def plot_features(features: np.ndarray, distances: np.ndarray, index: int):
-    os.makedirs(f"./{args.boundary}-experiment/examples", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/{args.channel}/examples", exist_ok=True)
     
     features_min = features.min(axis=0)
     features_max = features.max(axis=0)
@@ -184,10 +185,10 @@ def plot_features(features: np.ndarray, distances: np.ndarray, index: int):
     plt.xticks([0, 1, 2, 3, 4, 5, 6], ["area", "perimeter","mean intensity", "eccentricity", "solidity", "1nn_dist", "num_proteins"], rotation=-45)
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
     plt.colorbar()
-    fig.savefig(f"./{args.boundary}-experiment/examples/{args.weights}-features_{index}_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
+    fig.savefig(f"./{args.boundary}-experiment/{args.channel}/examples/{args.weights}-features_{index}_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
 
 def save_examples(samples, distances, index):
-    os.makedirs(f"./{args.boundary}-experiment/examples", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/{args.channel}/examples", exist_ok=True)
 
     N = len(samples)
     fig, axs = plt.subplots(1, N, figsize=(10, 5))
@@ -198,12 +199,12 @@ def save_examples(samples, distances, index):
         axs[i].set_title("Distance: {:.2f}".format(d))
         axs[i].axis("off")
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
-    fig.savefig(f"./{args.boundary}-experiment/examples/{args.weights}-image_{index}_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
+    fig.savefig(f"./{args.boundary}-experiment/{args.channel}/examples/{args.weights}-image_{index}_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
     plt.close(fig)
 
 def save_raw_images(samples, distances, index):
-    os.makedirs(f"./{args.boundary}-experiment/examples/raw", exist_ok=True)
-    os.makedirs(f"./{args.boundary}-experiment/examples/raw-tif", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/{args.channel}/examples/raw", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/{args.channel}/examples/raw-tif", exist_ok=True)
     
     cmap = plt.get_cmap('hot')
     norm = Normalize(vmin=0.0, vmax=1.0, clip=True)
@@ -213,21 +214,21 @@ def save_raw_images(samples, distances, index):
             s = s[0, :, :]
 
         tifffile.imwrite(
-            f"./{args.boundary}-experiment/examples/raw-tif/{args.weights}-image_{index}_to{args.direction}_{i}.tif",
+            f"./{args.boundary}-experiment/{args.channel}/examples/raw-tif/{args.weights}-image_{index}_to{args.direction}_{i}.tif",
             s.astype(np.float32)
         )
 
         img = Image.fromarray((cmap(norm(s)) * 255).astype(np.uint8))
-        img.save(f"./{args.boundary}-experiment/examples/raw/{args.weights}-image_{index}_to{args.direction}_{i}.png")
+        img.save(f"./{args.boundary}-experiment/{args.channel}/examples/raw/{args.weights}-image_{index}_to{args.direction}_{i}.png")
 
 def plot_results() -> None:
-    os.makedirs(f"./{args.boundary}-experiment/features", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/{args.channel}/features", exist_ok=True)
 
     features = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to{args.direction}_RESULTS.npz")
     num_proteins = np.load(f"/home/frederic/flc-dataset/experiments/diffusion-experiments/lerp-results/wavelet_features/MAE_SMALL_STED_activity_all_to{args.direction}_NUM_PROTEINS.npz")
     feature_names = ["area", "perimeter", "mean_intensity", "eccentricity", "solidity", "1nn_dist"]
     keys = list(features.keys())
-    train_features = np.load(f"./{args.boundary}-experiment/features/train-features.npz")
+    train_features = np.load(f"./{args.boundary}-experiment/{args.channel}/features/train-features.npz")
     block_features, mg_features = train_features["block_features"], train_features["mg_features"]
     # block_features, mg_features = np.array(block_features), np.array(mg_features)   
     for i, f in enumerate(feature_names):
@@ -251,7 +252,7 @@ def plot_results() -> None:
             pc.set_facecolor(color)
             pc.set_alpha(0.7)
         ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8], ["Block", "0", "1", "2", "3", "4", "5", "0MgGlyBic"])
-        fig.savefig(f"./{args.boundary}-experiment/results/{args.weights}-{f}-with-train.pdf", dpi=1200, bbox_inches='tight')
+        fig.savefig(f"./{args.boundary}-experiment/{args.channel}/results/{args.weights}-{f}-with-train.pdf", dpi=1200, bbox_inches='tight')
         plt.close(fig)
 
     data = [num_proteins[k] for k in keys]
@@ -271,7 +272,7 @@ def plot_results() -> None:
         pc.set_facecolor(color)
         pc.set_alpha(0.7)
     ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8], ["Block", "0", "1", "2", "3", "4", "5", "0MgGlyBic"])
-    fig.savefig(f"./{args.boundary}-experiment/results/num_proteins-with-train.pdf", dpi=1200, bbox_inches='tight')
+    fig.savefig(f"./{args.boundary}-experiment/{args.channel}/results/num_proteins-with-train.pdf", dpi=1200, bbox_inches='tight')
     plt.close(fig)
 
 
@@ -296,7 +297,7 @@ def main():
         latent_encoder.to(DEVICE)
         latent_encoder.eval()
         dataset = ALSDataset(
-            tarpath="/home-local/Frederic/Datasets/ALS/catalog/PLKO_train.tar",
+            tarpath=f"/home-local/Frederic/Datasets/ALS/ALS_JM_Fred_unmixed/PLKO-262-{args.channel}-train.tar",
         ) 
         N = len(dataset)
         indices = np.arange(N)
@@ -311,7 +312,7 @@ def main():
                 label = metadata["label"]
 
                 original = img.squeeze().detach().cpu().numpy()
-                rprops, _, mean_features = extract_features(original, check_foreground=True)
+                rprops, _, mean_features = extract_features(original, check_foreground=False)
 
                 if mean_features is None:
                     print("Not enough foreground, skipping...")
@@ -383,14 +384,14 @@ def main():
         diffusion_model.load_state_dict(ckpt["state_dict"])
         diffusion_model.to(DEVICE)
         dataset = ALSDataset(
-            tarpath="/home-local/Frederic/Datasets/ALS/catalog/PLKO_test.tar",
+            tarpath=f"/home-local/Frederic/Datasets/ALS/ALS_JM_Fred_unmixed/PLKO-262-{args.channel}-test.tar",
         )
         N = len(dataset)
         indices = np.arange(N)
         np.random.shuffle(indices)
         counter = 0
 
-        with open(f"./{args.boundary}-experiment/embeddings/{args.weights}-{args.boundary}-labels_train.json", "r") as f:
+        with open(f"./{args.boundary}-experiment/embeddings/{args.weights}-{args.boundary}-labels_train_{args.channel}.json", "r") as f:
             target_labels = json.load(f)
 
         print(target_labels)
@@ -414,7 +415,7 @@ def main():
 
             img = torch.tensor(img, dtype=torch.float32).unsqueeze(0).to(DEVICE)
             original = img.squeeze().detach().cpu().numpy()
-            original_rprops, original_features, original_mean_features = extract_features(original, check_foreground=True)
+            original_rprops, original_features, original_mean_features = extract_features(original, check_foreground=False)
 
             if original_features is None:
                 print("Not enough foreground, skipping...")
@@ -460,9 +461,9 @@ def main():
             save_examples(samples, distances, counter)
             save_raw_images(samples, distances, counter)
 
-        os.makedirs(f"./{args.boundary}-experiment/results", exist_ok=True)
-        np.savez(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to{args.direction}_RESULTS.npz", **RESULTS)
-        np.savez(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to{args.direction}_NUM_PROTEINS.npz", **NUM_PROTEINS)
+        os.makedirs(f"./{args.boundary}-experiment/{args.channel}/results", exist_ok=True)
+        np.savez(f"./{args.boundary}-experiment/{args.channel}/results/{args.weights}_{args.boundary}_all_to{args.direction}_RESULTS.npz", **RESULTS)
+        np.savez(f"./{args.boundary}-experiment/{args.channel}/results/{args.weights}_{args.boundary}_all_to{args.direction}_NUM_PROTEINS.npz", **NUM_PROTEINS)
                 
         
 

@@ -394,18 +394,19 @@ class ALSDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         data = self.get_item_from_archive(self.members[idx])
-        image = data["img"]
-        metadata = data["metadata"].item()
+        image = data["image"]
+       # metadata = data["metadata"].item()
         # print(metadata)
-        dpi = metadata["DPI"] 
-        div = metadata["DIV"]
-        batch = metadata["batch_id"]
-        condition = metadata["condition"]
-        # label = self.classes.index(div)
+        dpi = str(data["dpi"]) 
+        div = str(data["div"])
+        batch = "26.2"
+        condition = str(data["condition"])
+        min_value = data["min_value"]
+        max_value = data["max_value"]
 
         img = torch.tensor(image[np.newaxis, ...], dtype=torch.float32)
         img = self.transform(img) if self.transform is not None else img
-        return img, {"label": div, "dataset-idx": idx, "batch": batch, "dpi": dpi, "protein": "PSD95"}
+        return img, {"label": div, "dataset-idx": idx, "batch": batch, "dpi": dpi, "protein": "PSD95", "min_value": min_value, "max_value": max_value}
 
         
 

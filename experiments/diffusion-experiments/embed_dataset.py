@@ -32,6 +32,7 @@ parser.add_argument("--num-per-class", type=int, default=None)
 parser.add_argument("--precomputed", action="store_true")
 parser.add_argument("--split", type=str, default="train")
 parser.add_argument("--dataset", type=str, default="quality")
+parser.add_argument("--channel", type=str, default="FUS")
 args = parser.parse_args()
 
 def load_dataset(balance=True) -> torch.utils.data.Dataset: 
@@ -109,7 +110,7 @@ def load_dataset(balance=True) -> torch.utils.data.Dataset:
         )        
     elif args.dataset == "als":
         dataset = ALSDataset(
-            tarpath=f"/home-local/Frederic/Datasets/ALS/catalog/PLKO_{args.split}.tar",
+            tarpath=f"/home-local/Frederic/Datasets/ALS/ALS_JM_Fred_unmixed/PLKO-262-{args.channel}-{args.split}.tar",
         )
     else:
         raise ValueError(f"Dataset {args.dataset} not found")
@@ -233,14 +234,14 @@ if __name__=="__main__":
     with torch.no_grad():
         for i in range(N):
             images, data_dict = dataset[i]
-            masks = detect_spots(images.squeeze().cpu().numpy(), J_list=[3, 4], scale_threshold=2.0)
-            foreground = np.count_nonzero(masks)
-            pixels = images.shape[1] * images.shape[2]
-            ratio = foreground / pixels 
-            threshold = 0.06 if args.dataset == "als" else 0.05
-            if ratio < threshold:
-                # print(f"Skipping {i} because ratio is {ratio} < {threshold}")
-                continue
+            # masks = detect_spots(images.squeeze().cpu().numpy(), J_list=[3, 4], scale_threshold=2.0)
+            # foreground = np.count_nonzero(masks)
+            # pixels = images.shape[1] * images.shape[2]
+            # ratio = foreground / pixels 
+            # threshold = 0.06 if args.dataset == "als" else 0.05
+            # if ratio < threshold:
+            #     # print(f"Skipping {i} because ratio is {ratio} < {threshold}")
+            #     continue
 
             # fig, axs = plt.subplots(1, 2)
             # axs[0].imshow(images.squeeze().cpu().numpy())
@@ -280,7 +281,12 @@ if __name__=="__main__":
 
     print(np.unique(all_labels, return_counts=True))
     os.makedirs(f"./{args.dataset}-experiment/embeddings", exist_ok=True)
-    with open(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-labels_{args.split}.json", "w") as f:
-        json.dump(labels_mapping, f)
-    np.savez(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-embeddings_{args.split}.npz", embeddings=embeddings, labels=all_labels)
+    if args.dataset == "als":
+        with open(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-labels_{args.split}_{args.channel}.json", "w") as f:
+            json.dump(labels_mapping, f)
+        np.savez(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-embeddings_{args.split}_{args.channel}.npz", embeddings=embeddings, labels=all_labels)
+    else:
+        with open(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-labels_{args.split}.json", "w") as f:
+            json.dump(labels_mapping, f)
+        np.savez(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-embeddings_{args.split}.npz", embeddings=embeddings, labels=all_labels)
 
