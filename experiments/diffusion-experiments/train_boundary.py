@@ -17,6 +17,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default="quality")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--seed", type=int, default=42)
+parser.add_argument("--channel", type=str, default="FUS")
 args = parser.parse_args()
 
 PATH = f"./{args.dataset}-experiment/embeddings"
@@ -32,10 +33,16 @@ def main():
 
     set_seeds(args.seed)
 
-    train_embeddings, train_labels = load_embedding(f"{PATH}/{args.weights}-{args.dataset}-embeddings_train.npz")
-    num_train_samples, latent_dim = train_embeddings.shape
-    valid_embeddings, valid_labels = load_embedding(f"{PATH}/{args.weights}-{args.dataset}-embeddings_valid.npz")
-    num_valid_samples, _ = valid_embeddings.shape
+    if args.dataset == "als":
+        train_embeddings, train_labels = load_embedding(f"{PATH}/{args.weights}-{args.dataset}-embeddings_train_{args.channel}.npz")
+        num_train_samples, latent_dim = train_embeddings.shape
+        valid_embeddings, valid_labels = load_embedding(f"{PATH}/{args.weights}-{args.dataset}-embeddings_valid_{args.channel}.npz")
+        num_valid_samples, _ = valid_embeddings.shape
+    else:
+        train_embeddings, train_labels = load_embedding(f"{PATH}/{args.weights}-{args.dataset}-embeddings_train.npz")
+        num_train_samples, latent_dim = train_embeddings.shape
+        valid_embeddings, valid_labels = load_embedding(f"{PATH}/{args.weights}-{args.dataset}-embeddings_valid.npz")
+        num_valid_samples, _ = valid_embeddings.shape
 
     C = 1.0
     clf = svm.SVC(kernel="linear", C=C, class_weight="balanced")
@@ -53,9 +60,15 @@ def main():
     boundary = boundary / norm
 
     os.makedirs(f"./{args.dataset}-experiment/boundaries", exist_ok=True)
-    with open(f"./{args.dataset}-experiment/boundaries/{args.weights}_{args.dataset}_svm.pkl", "wb") as f:
-        pickle.dump(clf, f)
-    np.savez(f"./{args.dataset}-experiment/boundaries/{args.weights}_{args.dataset}_boundary.npz", boundary=boundary, intercept=intercept, norm=norm)
+
+    if args.dataset == "als":
+        with open(f"./{args.dataset}-experiment/boundaries/{args.weights}_{args.dataset}_svm_{args.channel}.pkl", "wb") as f:
+            pickle.dump(clf, f)
+        np.savez(f"./{args.dataset}-experiment/boundaries/{args.weights}_{args.dataset}_boundary_{args.channel}.npz", boundary=boundary, intercept=intercept, norm=norm)
+    else:
+        with open(f"./{args.dataset}-experiment/boundaries/{args.weights}_{args.dataset}_svm.pkl", "wb") as f:
+            pickle.dump(clf, f)
+        np.savez(f"./{args.dataset}-experiment/boundaries/{args.weights}_{args.dataset}_boundary.npz", boundary=boundary, intercept=intercept, norm=norm)
 
 
 

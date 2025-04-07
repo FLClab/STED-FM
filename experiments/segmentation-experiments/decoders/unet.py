@@ -271,7 +271,7 @@ class UNet(torch.nn.Module):
                 out.append(x)
         return x, out
 
-    def forward_decoder(self, x : torch.Tensor, out : list[torch.Tensor]) -> torch.Tensor:
+    def forward_decoder(self, x : torch.Tensor, out : List[torch.Tensor]) -> torch.Tensor:
         """
         Forward pass for the decoder of the `UNet` model. This method is used
         to decode the features extracted by the encoder and segment the input data.
