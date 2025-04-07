@@ -204,7 +204,7 @@ class Template:
                     continue
 
                 m = measure.block_reduce(mask_crop[channel], (16, 16), numpy.mean)
-                threshold = 0.5 * m.max()
+                threshold = 0.25 # x% of the pixels within the crop
 
                 patch_indices = numpy.argwhere(m.ravel() > threshold)
                 template = features[0, patch_indices]
@@ -236,7 +236,7 @@ class Template:
                     
                     label_name = label
                     label = tifffile.imread(label)
-
+                
                 # if cfg.in_channels != 3:
                 m, M = numpy.min(image, axis=(-2, -1), keepdims=True), numpy.max(image, axis=(-2, -1), keepdims=True)
                 image = (image - m) / (M - m + 1e-6)
@@ -300,6 +300,9 @@ class Query:
                     if image.ndim == 3:
                         image = image[0]
                     label = image.copy()[numpy.newaxis]
+                else:
+                    if image.ndim == 3:
+                        image = image[0]
 
                 # if cfg.in_channels != 3:
                 m, M = numpy.min(image, axis=(-2, -1), keepdims=True), numpy.max(image, axis=(-2, -1), keepdims=True)

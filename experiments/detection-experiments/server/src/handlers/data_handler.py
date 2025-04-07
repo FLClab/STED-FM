@@ -6,6 +6,7 @@ from collections import defaultdict
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
+from scipy.spatial.distance import cdist
 
 import sys
 sys.path.insert(0, "..")
@@ -51,13 +52,22 @@ def train_model(clf, data, metadata):
     X = numpy.concatenate([values for values in data.values()], axis=0).squeeze()
     y = numpy.concatenate([numpy.ones(len(values)) * i for i, values in enumerate(data.values())], axis=0)
 
-    # Use the previous data to train the model
+    # Use the previous data to train the model; Only for warm start
+    # If the data is already present in the previous data, then do not use it
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, shuffle=True)
-    if model_data["X_train"] is not None:
-        X_train = numpy.concatenate([X_train, model_data["X_train"]], axis=0)
-        X_test = numpy.concatenate([X_test, model_data["X_test"]], axis=0)
-        y_train = numpy.concatenate([y_train, model_data["y_train"]], axis=0)
-        y_test = numpy.concatenate([y_test, model_data["y_test"]], axis=0)
+    if metadata.get("warm_start", False) and model_data["X_train"] is not None:
+        distances = cdist(X_train, model_data["X_train"])
+        mask = numpy.invert(numpy.any(distances == 0, axis=0))
+        if numpy.any(mask):
+            X_train = numpy.concatenate([X_train, model_data["X_train"][mask]], axis=0)
+            y_train = numpy.concatenate([y_train, model_data["y_train"][mask]], axis=0)
+
+        distances = cdist(X_test, model_data["X_test"])
+        mask = numpy.invert(numpy.any(distances == 0, axis=0))
+        if numpy.any(mask):
+            X_test = numpy.concatenate([X_test, model_data["X_test"][mask]], axis=0)
+            y_test = numpy.concatenate([y_test, model_data["y_test"][mask]], axis=0)
+    print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
 
     if clf is None:
         clf = RandomForestClassifier(n_estimators=metadata["n_estimators"], random_state=42, max_depth=metadata["max_depth"])
@@ -91,19 +101,16 @@ class DataHandler:
             templates = aggregate_from_templates(templates)
 
             clf = processed_data.get("model", None)
-            model_data = {
-                "X_train": processed_data.get("X_train", None),
-                "X_test": processed_data.get("X_test", None),
-                "y_train": processed_data.get("y_train", None),
-                "y_test": processed_data.get("y_test", None)
-            }
             clf, model_data = train_model(clf, templates, processed_data)     
         else:
             # Assumes the model is already trained
+            label = processed_data["image"].copy()
+            while label.ndim < 4:
+                label = label[numpy.newaxis]
             images = {
                 "group0" : {
                     "image" : processed_data["image"],
-                    "label" : processed_data["image"][numpy.newaxis, numpy.newaxis]
+                    "label" : label
                 }
             }
             clf = processed_data.get("model", None)
@@ -113,7 +120,7 @@ class DataHandler:
                 "y_train": processed_data["y_train"],
                 "y_test": processed_data["y_test"]
             }
-
+        
         query = Query(images, class_id=None)
         result = [query_result for query_result in query.query(model, clf, cfg)][0]
         result["prediction"] += 1
@@ -122,7 +129,6 @@ class DataHandler:
         result.update(**model_data)
 
         transformed_result = self.processing_service.transform_data(result)
-        print(transformed_result.keys())
 
         # Remove image and label from the result
         transformed_result.pop("image")

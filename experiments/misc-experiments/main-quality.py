@@ -118,21 +118,6 @@ if __name__ == "__main__":
         min_quality_score=0.,
     )
 
-    random.seed(42)
-    choices = random.sample(range(len(test_loader.dataset)), 50)
-    cmap = pyplot.get_cmap("gray")
-    for choice in choices:
-        img, metadata = test_loader.dataset[choice]
-        print(metadata)
-        img = img.numpy()[0]
-
-        img = cmap(img)[:, :, :-3] * 255.
-        import tifffile 
-        os.makedirs("tmp/optim", exist_ok=True)
-        tifffile.imwrite(f"tmp/optim/{metadata['label']}-{metadata['dataset-idx']}.tif", img.astype(numpy.uint8))
-
-    exit()
-
     X_train, y_train, _ = get_features(model, train_loader)
     X_valid, y_valid, _ = get_features(model, valid_loader)
     X_test, y_test, _ = get_features(model, test_loader)
