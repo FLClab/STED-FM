@@ -1,5 +1,7 @@
+import json
 import numpy as np 
 import matplotlib.pyplot as plt 
+from matplotlib.colors import Normalize
 from QualityNet.networks import NetTrueFCN 
 import argparse 
 import torch 
@@ -14,8 +16,11 @@ import os
 from attribute_datasets import get_dataset, OptimQualityDataset
 import sys
 import glob
+from PIL import Image
+import tifffile
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH, COLORS
+from utils import set_seeds
 from model_builder import get_pretrained_model_v2
 
 parser = argparse.ArgumentParser()
@@ -24,10 +29,12 @@ parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--timesteps", type=int, default=1000)
 parser.add_argument("--boundary", type=str, default="quality")
 parser.add_argument("--num-samples", type=int, default=20)
-parser.add_argument("--ckpt-path", type=str, default="/home-local/Frederic/baselines/DiffusionModels/latent-guidance")
+parser.add_argument("--ckpt-path", type=str, default=f"{BASE_PATH}/baselines/DiffusionModels/latent-guidance")
 parser.add_argument("--figure", action="store_true")
 parser.add_argument("--sanity-check", action="store_true")
+parser.add_argument("--direction", type=str, default="1")
 parser.add_argument("--n-steps", type=int, default=5)
+parser.add_argument("--seed", type=int, default=42)
 args = parser.parse_args()
 
 def denormalize(img: Union[np.ndarray, torch.Tensor], mu: float = 0.0695771782959453, std: float = 0.12546228631005282) -> np.ndarray:
@@ -37,6 +44,7 @@ def denormalize(img: Union[np.ndarray, torch.Tensor], mu: float = 0.069577178295
 def linear_interpolate(latent_code,
                        boundary,
                        intercept,
+                       norm=1.0,
                        start_distance=-4.0,
                        end_distance=4.0,
                        steps=8):
@@ -72,15 +80,18 @@ def linear_interpolate(latent_code,
           len(boundary.shape) == 2 and
           boundary.shape[1] == latent_code.shape[-1])
 
-  
-  linspace = np.linspace(start_distance, end_distance, steps)
+  if steps < 2:
+      linspace = np.array([end_distance])
+  else:
+    linspace = np.linspace(start_distance, end_distance, steps)
+
   if len(latent_code.shape) == 2:
     linspace = linspace - ((latent_code.dot(boundary.T)) + intercept)
     linspace = linspace.reshape(-1, 1).astype(np.float32)
-    return latent_code + linspace * boundary, linspace
+    return latent_code + linspace * boundary * norm, linspace
   if len(latent_code.shape) == 3:
     linspace = linspace.reshape(-1, 1, 1).astype(np.float32)
-    return latent_code + linspace * boundary.reshape(1, 1, -1), linspace
+    return latent_code + linspace * boundary.reshape(1, 1, -1) * norm, linspace
   raise ValueError(f'Input `latent_code` should be with shape '
                    f'[1, latent_space_dim] but {latent_code.shape} was received.')
 
@@ -116,7 +127,8 @@ def load_distance_distribution(weight: str = args.weights) -> np.ndarray:
     scores = data["key2"]
     avg, std = np.mean(scores), np.std(scores)
     max_distance = np.max(scores) 
-    return avg - (5*std), max_distance * 2
+
+    return avg - (5*std), max_distance, abs(avg), std
 
 def load_quality_net() -> nn.Module:
     quality_net = NetTrueFCN()
@@ -137,6 +149,7 @@ def plot_correlation(all_scores, all_distances, original_scores):
     distances = np.mean(all_distances, axis=0)
     distances = [round(d, 3) for d in distances]
     err = np.std(all_scores, axis=0)
+    os.makedirs(f"./{args.boundary}-experiment/correlation", exist_ok=True)
     np.savez(f"./{args.boundary}-experiment/correlation/{args.weights}-quality-correlation.npz", 
              all_scores=all_scores, all_distances=all_distances, original_scores=original_scores,
              scores=scores, distances=distances, err=err)
@@ -160,8 +173,28 @@ def plot_correlation(all_scores, all_distances, original_scores):
     fig.savefig(f"./{args.boundary}-experiment/correlation/{args.weights}-quality-scatter.png", bbox_inches="tight", dpi=1200)
     plt.close()
 
+def save_raw_images(samples, distances, index):
+    os.makedirs(f"./{args.boundary}-experiment/examples/raw", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/examples/raw-tif", exist_ok=True)
+    
+    cmap = plt.get_cmap('hot')
+    norm = Normalize(vmin=0.0, vmax=1.0, clip=True)
+
+    for i, (s, d) in enumerate(zip(samples, distances)):
+        if s.shape[0] == 3:
+            s = s[0, :, :]
+
+        tifffile.imwrite(
+            f"./{args.boundary}-experiment/examples/raw-tif/{args.weights}-image_{index}_to{args.direction}_{i}.tif",
+            s.astype(np.float32)
+        )
+
+        img = Image.fromarray((cmap(norm(s)) * 255).astype(np.uint8))
+        img.save(f"./{args.boundary}-experiment/examples/raw/{args.weights}-image_{index}_to{args.direction}_{i}.png")
 
 def save_examples(samples, distances, scores, raw_scores, index):
+    os.makedirs(f"./{args.boundary}-experiment/examples", exist_ok=True)
+
     print("--- Saving examples ---")
     N = len(samples)
     fig, axs = plt.subplots(1, N, figsize=(10, 5))
@@ -184,7 +217,7 @@ def plot_results():
     for f in files:
         w = f.split("/")[-1].split("-")[0]
         weight = w.replace("MAE_SMALL_", "")
-        _, distance_max = load_distance_distribution(weight=w)
+        _, distance_max, _, _ = load_distance_distribution(weight=w)
         data = np.load(f)
         scores, distances, original_scores = data["all_scores"], data["all_distances"], data["original_scores"]
         original_scores = np.array(original_scores)
@@ -211,9 +244,35 @@ def plot_results():
     fig.savefig(f"./{args.boundary}-experiment/correlation/quality-correlation.pdf", bbox_inches="tight", dpi=1200)
     plt.close()
 
+    files = glob.glob(f"./{args.boundary}-experiment/correlation/**-quality-correlation.npz")
+    # fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+    fig = plt.figure(figsize=(5, 5))
+    ax = fig.add_subplot(111)
+    for f in files:
+        w = f.split("/")[-1].split("-")[0]
+        weight = w.replace("MAE_SMALL_", "")
+        _, distance_max, _, _ = load_distance_distribution(weight=w)
+        data = np.load(f)
+
+        original_scores = data["original_scores"]
+        scores = data["all_scores"] + original_scores[:, np.newaxis]
+        scores_gain = scores[:, 1] - scores[:, 0]
+        ax.scatter(scores[:, 0], scores_gain, c=COLORS[weight], label=weight, marker='o')
+    ax.set(
+        xlim=(0, 0.8),
+        ylim=(-0.5, 0.5),
+        xlabel="Original score",
+        ylabel="Score gain",
+    )
+    fig.savefig(f"./{args.boundary}-experiment/correlation/quality-correlation-scatter.pdf", bbox_inches="tight", dpi=1200)
+    plt.close()
+
 def plot_distance_distribution(distances_to_boundary: dict):
     key1, key2 = list(distances_to_boundary.keys())
+
+    os.makedirs(f"./{args.boundary}-experiment/distributions", exist_ok=True)
     np.savez(f"./{args.boundary}-experiment/distributions/{args.weights}-quality-distance_distribution.npz", key1=distances_to_boundary[key1], key2=distances_to_boundary[key2])
+    
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist(distances_to_boundary["low"], bins=100, alpha=0.5, color='fuchsia', label="Low")
@@ -233,7 +292,7 @@ def cumulative_regret() -> None:
         w = f.split("/")[-1].split("-")[0]
         weight = w.replace("MAE_SMALL_", "")
         data = np.load(f)
-        distance_min, distance_max = load_distance_distribution(weight=w)
+        distance_min, distance_max, _, _ = load_distance_distribution(weight=w)
         all_scores, all_distances, original_scores = data["all_scores"], data["all_distances"], data["original_scores"]
 
         regret_per_image = []
@@ -283,7 +342,7 @@ def main():
         latent_encoder.eval()        
 
         dataset = OptimQualityDataset(
-            data_folder="/home-local/Frederic/evaluation-data/optim_train",
+            data_folder=os.path.join(BASE_PATH, f"evaluation-data/optim_train"),
             num_samples={"actin": None},
             classes=['actin'],
             high_score_threshold=0.70,
@@ -311,14 +370,26 @@ def main():
                 d = d[0][0]
                 key = "low" if label == 0 else "high"
                 distances_to_boundary[key].append(d)
+            
+        for key, values in distances_to_boundary.items():
+            distances_to_boundary[key] = np.array(values)
+            print(f"--- {key} ---")
+            print(f"Mean: {np.mean(values)}")
+            print(f"Std: {np.std(values)}")
+            print(f"Max: {np.max(values)}")
+            print(f"Min: {np.min(values)}")
+        
         plot_distance_distribution(distances_to_boundary)
 
     else:
         np.random.seed(42)
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        boundary, intercept, _ = load_boundary()
-        distance_min, distance_max = load_distance_distribution()
+        boundary, intercept, norm = load_boundary()
+        distance_min, distance_max, distance_mean, distance_std = load_distance_distribution()
         print(f"--- Moving from 0.0 to {distance_max} ---")
+        print(f"--- Norm of boundary: {norm} ---")
+        print(f"--- Intercept: {intercept} ---")
+        print(f"--- Distance mean: {distance_mean} ---")
 
         quality_net = load_quality_net()
         quality_net.to(DEVICE)
@@ -357,7 +428,7 @@ def main():
 
 
         dataset = OptimQualityDataset(
-            data_folder="/home-local/Frederic/evaluation-data/optim-data",
+            data_folder=os.path.join(BASE_PATH, f"evaluation-data/optim-data"),
             num_samples={"actin": None},
             classes=['actin'],
             high_score_threshold=0.70,
@@ -370,6 +441,10 @@ def main():
         np.random.shuffle(indices)
         counter = 0 
 
+        with open(f"./{args.boundary}-experiment/embeddings/{args.weights}-{args.boundary}-labels_train.json", "r") as f:
+            target_labels = json.load(f)
+        print(target_labels)
+
         with torch.no_grad():
             all_scores = np.zeros((args.num_samples, args.n_steps+1))
             all_distances = np.zeros((args.num_samples, args.n_steps+1))
@@ -381,7 +456,10 @@ def main():
                 img, metadata = dataset[i]
                 label = metadata["label"]
                 score = metadata["score"]
-                if label != 0 or score > 0.50:
+                target_label = target_labels[str(label)]
+                multiplier = 1 if target_label == 0 else -1
+
+                if args.direction == label or score > 0.50:
                     continue
 
                 if "imagenet" in args.weights.lower():
@@ -390,31 +468,37 @@ def main():
                     img = img.clone().detach().unsqueeze(0).to(DEVICE)
                 original = img.squeeze().detach().cpu().numpy()
 
+                # Ensures reproducibility
+                seed_offset = hash(args.direction) % (2**32-1)
+                set_seeds(args.seed + i + seed_offset)     
+
                 latent_code = diffusion_model.latent_encoder.forward_features(img) 
-                
                 numpy_code = latent_code.detach().cpu().numpy() 
-                distance_score = numpy_code.dot(boundary.T) + intercept
-                d = distance_score[0][0]
+
+                # distance_score = numpy_code.dot(boundary.T) + intercept
+                # d = distance_score[0][0]
             
-                # original_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=latent_code, progress=True) 
+                # # original_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=latent_code, progress=True) 
 
                 original_score = infer_quality(img, quality_net)
                 scores.append(original_score - original_score)
                 raw_scores.append(original_score)
                 original_scores.append(original_score)
+
                 # scores.append(infer_quality(original_sample, quality_net) - original_score)
 
                 # original_sample = original_sample.squeeze().detach().cpu().numpy()
                 samples = [original]
-
                 distances.append(0.0)
 
-                lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, start_distance=0.0, end_distance=distance_max, steps=args.n_steps)
+                # lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, start_distance=0.0, end_distance=distance_max, steps=args.n_steps)
+                lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=0.0, end_distance=distance_max, steps=args.n_steps)
+                print(d)
 
                 for c, code in enumerate(lerped_codes):
                     lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
                     lerped_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=lerped_code, progress=True)
-                    lerped_sample = denormalize(lerped_sample)
+                    # lerped_sample = denormalize(lerped_sample)
                     lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
                     
                     samples.append(lerped_sample_numpy)
@@ -429,6 +513,7 @@ def main():
                 all_distances[counter] = distances
                 counter += 1
                 save_examples(samples, distances, scores, raw_scores, counter)
+                save_raw_images(samples, distances, counter)
 
         print(all_scores.shape, all_distances.shape, len(original_scores))
         plot_correlation(all_scores, all_distances, original_scores)
