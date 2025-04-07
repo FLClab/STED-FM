@@ -133,6 +133,9 @@ class ProcessingService:
                 processed_data[key] = numpy.array(data[key])[numpy.newaxis]
             if key == "label":
                 ary = numpy.array(data[key])
+                if ary.ndim == 3:
+                    ary = ary[0]
+
                 uniques = numpy.unique(ary)
                 # Avoids 0 as a label
                 if 0 in uniques:

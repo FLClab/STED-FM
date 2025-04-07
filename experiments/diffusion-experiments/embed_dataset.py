@@ -248,7 +248,7 @@ if __name__=="__main__":
     for i, label in enumerate(unique_labels):
         idx = np.where(all_labels == label)[0]
         tmp[idx] = i
-        labels_mapping[label] = i
+        labels_mapping[int(label)] = i
     all_labels = tmp
 
     os.makedirs(f"./{args.dataset}-experiment/embeddings", exist_ok=True)
