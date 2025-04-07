@@ -234,21 +234,6 @@ if __name__=="__main__":
     with torch.no_grad():
         for i in range(N):
             images, data_dict = dataset[i]
-            # masks = detect_spots(images.squeeze().cpu().numpy(), J_list=[3, 4], scale_threshold=2.0)
-            # foreground = np.count_nonzero(masks)
-            # pixels = images.shape[1] * images.shape[2]
-            # ratio = foreground / pixels 
-            # threshold = 0.06 if args.dataset == "als" else 0.05
-            # if ratio < threshold:
-            #     # print(f"Skipping {i} because ratio is {ratio} < {threshold}")
-            #     continue
-
-            # fig, axs = plt.subplots(1, 2)
-            # axs[0].imshow(images.squeeze().cpu().numpy())
-            # axs[1].imshow(masks)
-            # fig.savefig(f"./{args.dataset}-experiment/temporary/example-{i}.png", dpi=1200, bbox_inches="tight")
-            # plt.close(fig)
-
             images = images.unsqueeze(0).to(device)
 
             if "condition" in data_dict:
@@ -259,10 +244,11 @@ if __name__=="__main__":
             
             features = model.forward_features(images)
             embeddings.append(features.cpu().detach().numpy())
-            if args.dataset == "als":
-                all_labels.append(labels)
-            else:
+       
+            try:
                 all_labels.extend(labels)
+            except TypeError:
+                all_labels.append(labels)
 
     embeddings = np.concatenate(embeddings, axis=0)
     print(embeddings.shape)
