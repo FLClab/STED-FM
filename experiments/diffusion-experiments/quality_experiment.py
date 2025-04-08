@@ -80,18 +80,20 @@ def linear_interpolate(latent_code,
           len(boundary.shape) == 2 and
           boundary.shape[1] == latent_code.shape[-1])
 
+  image_distance = latent_code.dot(boundary.T) + intercept
+  end_distance = end_distance - image_distance
   if steps < 2:
       linspace = np.array([end_distance])
   else:
     linspace = np.linspace(start_distance, end_distance, steps)
 
   if len(latent_code.shape) == 2:
-    linspace = linspace - ((latent_code.dot(boundary.T)) + intercept)
+    # linspace = linspace - ((latent_code.dot(boundary.T)) + intercept)
     linspace = linspace.reshape(-1, 1).astype(np.float32)
-    return latent_code + linspace * boundary * norm, linspace
+    return latent_code + linspace * boundary * norm, linspace, image_distance[0][0]
   if len(latent_code.shape) == 3:
     linspace = linspace.reshape(-1, 1, 1).astype(np.float32)
-    return latent_code + linspace * boundary.reshape(1, 1, -1) * norm, linspace
+    return latent_code + linspace * boundary.reshape(1, 1, -1) * norm, linspace, image_distance[0][0]
   raise ValueError(f'Input `latent_code` should be with shape '
                    f'[1, latent_space_dim] but {latent_code.shape} was received.')
 
@@ -126,9 +128,11 @@ def load_distance_distribution(weight: str = args.weights) -> np.ndarray:
     data = np.load(f"./{args.boundary}-experiment/distributions/{weight}-quality-distance_distribution.npz")
     scores = data["key2"]
     avg, std = np.mean(scores), np.std(scores)
-    max_distance = np.max(scores) 
 
-    return avg - (5*std), max_distance, abs(avg), std
+    min_distance = np.min(scores)
+    max_distance = np.max(scores)
+
+    return min_distance, max_distance
 
 def load_quality_net() -> nn.Module:
     quality_net = NetTrueFCN()
@@ -385,11 +389,10 @@ def main():
         np.random.seed(42)
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         boundary, intercept, norm = load_boundary()
-        distance_min, distance_max, distance_mean, distance_std = load_distance_distribution()
-        print(f"--- Moving from 0.0 to {distance_max} ---")
+        distance_min, distance_max = load_distance_distribution()
+        print(f"--- Moving from {distance_min} to {distance_max} ---")
         print(f"--- Norm of boundary: {norm} ---")
         print(f"--- Intercept: {intercept} ---")
-        print(f"--- Distance mean: {distance_mean} ---")
 
         quality_net = load_quality_net()
         quality_net.to(DEVICE)
@@ -489,10 +492,10 @@ def main():
 
                 # original_sample = original_sample.squeeze().detach().cpu().numpy()
                 samples = [original]
-                distances.append(0.0)
 
                 # lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, start_distance=0.0, end_distance=distance_max, steps=args.n_steps)
-                lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=0.0, end_distance=distance_max, steps=args.n_steps)
+                lerped_codes, d, image_distance = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=0, end_distance=distance_max, steps=args.n_steps)
+                distances.append(image_distance)
                 print(d)
 
                 for c, code in enumerate(lerped_codes):
@@ -505,7 +508,7 @@ def main():
                     curr_score = infer_quality(lerped_sample, quality_net)
                     scores.append(curr_score - original_score)
                     raw_scores.append(curr_score)
-                    distances.append(abs(d[c][0]))
+                    distances.append(image_distance + d[c][0])
             
                 scores = np.array(scores)
                 distances = np.array(distances)
