@@ -18,6 +18,16 @@ parser.add_argument("--dataset", type=str, default="neural-activity-states")
 parser.add_argument("--depth", type=int, default=9)
 args = parser.parse_args()
 
+def get_colormap(condition: str):
+    if condition == "Block":
+        return "Greys"
+    elif condition == "48hTTX":
+        return "Reds"
+    elif condition == "0MgGlyBic":
+        return "Blues"
+    elif condition == "GluGly":
+        return "Greens"
+
 class Node:
     def __init__(self, cluster_id, depth, data=None):
         self.cluster_id = cluster_id
@@ -110,7 +120,6 @@ def extract_mean_feature_vector(node):
 def plot_frequencies(node_list, display: bool = False):
     num_clusters = len(node_list)
     states = ["Block", "48hTTX", "0MgGlyBic", "GluGly"] if args.dataset == "neural-activity-states" else ["4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"]
-    states = ["Block", "GluGly"]
 
     cluster_counts = {condition: {key: 0 for key in range(num_clusters)} for condition in states}
     condition_counts = {key: {condition: 0 for condition in states} for key in range(num_clusters)}
@@ -206,8 +215,8 @@ def display_graph(graph, node_size_scale_factor=10, edge_weight_factor=5.0, min_
     # layout = networkx.kamada_kawai_layout(graph)
     layout = graphviz_layout(graph, prog="twopi")
     if args.condition is not None:
-        node_colors = [node[1]["color"] if node[1]["add"] else "white" for node in graph.nodes(data=True)]
-        edge_colors = ["gray" if edge[2]["add"] else "white" for edge in graph.edges(data=True)]
+        node_colors = [node[1]["color"] if node[1]["add"] else "gainsboro" for node in graph.nodes(data=True)]
+        edge_colors = ["gray" if edge[2]["add"] else "gainsboro" for edge in graph.edges(data=True)]
         networkx.draw_networkx_nodes(graph, pos=layout, node_color=node_colors, node_size=node_sizes)
         networkx.draw_networkx_edges(graph, pos=layout, width=edge_widths, 
                                 alpha=0.7, edge_color=edge_colors)

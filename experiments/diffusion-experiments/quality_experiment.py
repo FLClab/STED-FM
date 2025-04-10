@@ -44,56 +44,56 @@ def denormalize(img: Union[np.ndarray, torch.Tensor], mu: float = 0.069577178295
 def linear_interpolate(latent_code,
                        boundary,
                        intercept,
-                       norm=1.0,
+                       norm,
                        start_distance=-4.0,
                        end_distance=4.0,
                        steps=8):
-  """Manipulates the given latent code with respect to a particular boundary.
+    """Manipulates the given latent code with respect to a particular boundary.
 
-  Basically, this function takes a latent code and a boundary as inputs, and
-  outputs a collection of manipulated latent codes. For example, let `steps` to
-  be 10, then the input `latent_code` is with shape [1, latent_space_dim], input
-  `boundary` is with shape [1, latent_space_dim] and unit norm, the output is
-  with shape [10, latent_space_dim]. The first output latent code is
-  `start_distance` away from the given `boundary`, while the last output latent
-  code is `end_distance` away from the given `boundary`. Remaining latent codes
-  are linearly interpolated.
+    Basically, this function takes a latent code and a boundary as inputs, and
+    outputs a collection of manipulated latent codes. For example, let `steps` to
+    be 10, then the input `latent_code` is with shape [1, latent_space_dim], input
+    `boundary` is with shape [1, latent_space_dim] and unit norm, the output is
+    with shape [10, latent_space_dim]. The first output latent code is
+    `start_distance` away from the given `boundary`, while the last output latent
+    code is `end_distance` away from the given `boundary`. Remaining latent codes
+    are linearly interpolated.
 
-  Input `latent_code` can also be with shape [1, num_layers, latent_space_dim]
-  to support W+ space in Style GAN. In this case, all features in W+ space will
-  be manipulated same as each other. Accordingly, the output will be with shape
-  [10, num_layers, latent_space_dim].
+    Input `latent_code` can also be with shape [1, num_layers, latent_space_dim]
+    to support W+ space in Style GAN. In this case, all features in W+ space will
+    be manipulated same as each other. Accordingly, the output will be with shape
+    [10, num_layers, latent_space_dim].
 
-  NOTE: Distance is sign sensitive.
+    NOTE: Distance is sign sensitive.
 
-  Args:
+    Args:
     latent_code: The input latent code for manipulation.
     boundary: The semantic boundary as reference.
     start_distance: The distance to the boundary where the manipulation starts.
-      (default: -3.0)
+        (default: -3.0)
     end_distance: The distance to the boundary where the manipulation ends.
-      (default: 3.0)
+        (default: 3.0)
     steps: Number of steps to move the latent code from start position to end
-      position. (default: 10)
-  """
-  assert (latent_code.shape[0] == 1 and boundary.shape[0] == 1 and
-          len(boundary.shape) == 2 and
-          boundary.shape[1] == latent_code.shape[-1])
+        position. (default: 10)
+    """
+    assert (latent_code.shape[0] == 1 and boundary.shape[0] == 1 and
+            len(boundary.shape) == 2 and
+            boundary.shape[1] == latent_code.shape[-1])
 
-  if steps < 2:
-      linspace = np.array([end_distance])
-  else:
-    linspace = np.linspace(start_distance, end_distance, steps)
 
-  if len(latent_code.shape) == 2:
-    linspace = linspace - ((latent_code.dot(boundary.T)) + intercept)
-    linspace = linspace.reshape(-1, 1).astype(np.float32)
-    return latent_code + linspace * boundary * norm, linspace
-  if len(latent_code.shape) == 3:
-    linspace = linspace.reshape(-1, 1, 1).astype(np.float32)
-    return latent_code + linspace * boundary.reshape(1, 1, -1) * norm, linspace
-  raise ValueError(f'Input `latent_code` should be with shape '
-                   f'[1, latent_space_dim] but {latent_code.shape} was received.')
+    img_distance = latent_code.dot(boundary.T) + intercept
+    end_distance = end_distance - img_distance
+    linspace = np.linspace(start_distance, end_distance, steps)[1:]
+
+    if len(latent_code.shape) == 2:
+        # linspace = linspace - ((latent_code.dot(boundary.T)) + intercept)
+        linspace = linspace.reshape(-1, 1).astype(np.float32)
+        return latent_code + linspace * boundary * norm, linspace, img_distance[0][0]
+    if len(latent_code.shape) == 3:
+        linspace = linspace.reshape(-1, 1, 1).astype(np.float32)
+        return latent_code + linspace * boundary.reshape(1, 1, -1) * norm, linspace
+    raise ValueError(f'Input `latent_code` should be with shape '
+                    f'[1, latent_space_dim] but {latent_code.shape} was received.')
 
 def compute_confidence_intervals(all_scores: np.ndarray, confidence: float = 0.80) -> tuple:
     """Compute confidence intervals for scores at each step.
@@ -125,10 +125,8 @@ def load_boundary() -> np.ndarray:
 def load_distance_distribution(weight: str = args.weights) -> np.ndarray:
     data = np.load(f"./{args.boundary}-experiment/distributions/{weight}-quality-distance_distribution.npz")
     scores = data["key2"]
-    avg, std = np.mean(scores), np.std(scores)
-    max_distance = np.max(scores) 
-
-    return avg - (5*std), max_distance, abs(avg), std
+    min_distance, max_distance = 0, np.max(scores)
+    return min_distance, max_distance
 
 def load_quality_net() -> nn.Module:
     quality_net = NetTrueFCN()
@@ -217,7 +215,7 @@ def plot_results():
     for f in files:
         w = f.split("/")[-1].split("-")[0]
         weight = w.replace("MAE_SMALL_", "")
-        _, distance_max, _, _ = load_distance_distribution(weight=w)
+        distance_min, distance_max = load_distance_distribution(weight=w)
         data = np.load(f)
         scores, distances, original_scores = data["all_scores"], data["all_distances"], data["original_scores"]
         original_scores = np.array(original_scores)
@@ -385,11 +383,8 @@ def main():
         np.random.seed(42)
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         boundary, intercept, norm = load_boundary()
-        distance_min, distance_max, distance_mean, distance_std = load_distance_distribution()
+        distance_min, distance_max = load_distance_distribution()
         print(f"--- Moving from 0.0 to {distance_max} ---")
-        print(f"--- Norm of boundary: {norm} ---")
-        print(f"--- Intercept: {intercept} ---")
-        print(f"--- Distance mean: {distance_mean} ---")
 
         quality_net = load_quality_net()
         quality_net.to(DEVICE)
@@ -489,11 +484,11 @@ def main():
 
                 # original_sample = original_sample.squeeze().detach().cpu().numpy()
                 samples = [original]
-                distances.append(0.0)
+
 
                 # lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, start_distance=0.0, end_distance=distance_max, steps=args.n_steps)
-                lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=0.0, end_distance=distance_max, steps=args.n_steps)
-                print(d)
+                lerped_codes, d, img_distance = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=0.0, end_distance=distance_max, steps=args.n_steps + 1)
+                distances.append(img_distance)
 
                 for c, code in enumerate(lerped_codes):
                     lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
@@ -505,9 +500,9 @@ def main():
                     curr_score = infer_quality(lerped_sample, quality_net)
                     scores.append(curr_score - original_score)
                     raw_scores.append(curr_score)
-                    distances.append(abs(d[c][0]))
+                    distances.append(img_distance + d[c][0])
             
-                scores = np.array(scores)
+                scores = np.array(raw_scores)
                 distances = np.array(distances)
                 all_scores[counter] = scores
                 all_distances[counter] = distances
