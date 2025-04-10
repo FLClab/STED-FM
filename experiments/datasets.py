@@ -662,7 +662,6 @@ class OptimDataset(Dataset):
         self.n_channels = n_channels
         self.class_files = {}
         self.samples = {}
-        self.num_classes = len(classes)
         self.min_quality_score = min_quality_score
 
         self.labels = []
@@ -1164,6 +1163,7 @@ class NeuralActivityStates(Dataset):
         self.masks = masks 
         self.conditions = conditions 
         self.labels = [self.classes.index(condition) for condition in self.conditions]
+        self.original_size = len(self.labels)
 
         if balance:
             indices = self.__balance_classes(conditions)
@@ -1317,7 +1317,7 @@ class FactinCaMKIIDataset(Dataset):
             n_channels: int = 1,
             num_samples: int = None,
             balance: bool = False,
-            classes: list[str] = ["CTRL", "shRNA"],
+            classes: List[str] = ["CTRL", "shRNA"],
             **kwargs) -> None:
         self.tarpath = tarpath
         self.transform = transform

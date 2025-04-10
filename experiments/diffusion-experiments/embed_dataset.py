@@ -5,7 +5,7 @@ import random
 import json 
 from tqdm import tqdm, trange
 import argparse 
-from attribute_datasets import OptimQualityDataset, ProteinActivityDataset, LowHighResolutionDataset, TubulinActinDataset
+from attribute_datasets import OptimQualityDataset, ProteinActivityDataset, LowHighResolutionDataset, TubulinActinDataset, ALSDataset
 import os
 from torch.utils.data import DataLoader
 
@@ -32,6 +32,7 @@ parser.add_argument("--num-per-class", type=int, default=None)
 parser.add_argument("--precomputed", action="store_true")
 parser.add_argument("--split", type=str, default="train")
 parser.add_argument("--dataset", type=str, default="quality")
+parser.add_argument("--channel", type=str, default="FUS")
 args = parser.parse_args()
 
 def load_dataset(balance=True) -> torch.utils.data.Dataset: 
@@ -107,6 +108,10 @@ def load_dataset(balance=True) -> torch.utils.data.Dataset:
             balance=False,
             classes=["CTRL", "RESCUE"]
         )        
+    elif args.dataset == "als":
+        dataset = ALSDataset(
+            tarpath=f"/home-local/Frederic/Datasets/ALS/ALS_JM_Fred_unmixed/PLKO-262-{args.channel}-{args.split}.tar",
+        )
     else:
         raise ValueError(f"Dataset {args.dataset} not found")
     return dataset
@@ -125,7 +130,8 @@ def extract_features(image, show=False):
     foreground = np.count_nonzero(mask)
     pixels = image.shape[0] * image.shape[1]
     ratio = foreground / pixels 
-    if ratio < 0.05:
+    threshold = 0.06 if args.dataset == "als" else 0.05
+    if ratio < threshold:
         return None
 
     mask_label, num_proteins = measure.label(mask, return_num=True)
@@ -216,25 +222,33 @@ if __name__=="__main__":
     dataset = load_dataset()
 
     print(f"Dataset size: {len(dataset)}")
-    print(np.unique(dataset.labels, return_counts=True))    
+    # print(np.unique(dataset.labels, return_counts=True))    
 
     dataloader = DataLoader(dataset, batch_size=cfg.batch_size, shuffle=True, drop_last=False)
 
     embeddings = []
     all_labels = []
     model.eval()
+    dataset = dataloader.dataset 
+    N = len(dataset)
     with torch.no_grad():
-        for batch in tqdm(dataloader):
-            images, data_dict = batch
-            images = images.to(device)
+        for i in range(N):
+            images, data_dict = dataset[i]
+            images = images.unsqueeze(0).to(device)
+
             if "condition" in data_dict:
                 labels = data_dict["condition"]
             else:
                 labels = data_dict["label"]
+                # print(labels)
             
             features = model.forward_features(images)
             embeddings.append(features.cpu().detach().numpy())
-            all_labels.extend(labels)
+       
+            try:
+                all_labels.extend(labels)
+            except TypeError:
+                all_labels.append(labels)
 
     embeddings = np.concatenate(embeddings, axis=0)
     print(embeddings.shape)
@@ -251,8 +265,14 @@ if __name__=="__main__":
         labels_mapping[int(label)] = i
     all_labels = tmp
 
+    print(np.unique(all_labels, return_counts=True))
     os.makedirs(f"./{args.dataset}-experiment/embeddings", exist_ok=True)
-    with open(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-labels_{args.split}.json", "w") as f:
-        json.dump(labels_mapping, f)
-    np.savez(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-embeddings_{args.split}.npz", embeddings=embeddings, labels=all_labels)
+    if args.dataset == "als":
+        with open(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-labels_{args.split}_{args.channel}.json", "w") as f:
+            json.dump(labels_mapping, f)
+        np.savez(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-embeddings_{args.split}_{args.channel}.npz", embeddings=embeddings, labels=all_labels)
+    else:
+        with open(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-labels_{args.split}.json", "w") as f:
+            json.dump(labels_mapping, f)
+        np.savez(f"./{args.dataset}-experiment/embeddings/{args.weights}-{args.dataset}-embeddings_{args.split}.npz", embeddings=embeddings, labels=all_labels)
 

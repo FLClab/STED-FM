@@ -10,7 +10,6 @@ import sys
 import os
 import random
 from class_dict import class_dict
-import random
 from attribute_datasets import OptimQualityDataset
 sys.path.insert(0, "../")
 from DEFAULTS import BASE_PATH 
@@ -102,13 +101,7 @@ def main():
     ckpt = torch.load(path)
     model.load_state_dict(ckpt["state_dict"])
     model = model.to(DEVICE)
-
-    # dataset = get_dataset(
-    #     name="STED",
-    #     path=args.dataset_path,
-    #     use_cache=False,
-    #     return_metadata=True
-    # )
+    
     dataset = OptimQualityDataset(
             data_folder="/home-local/Frederic/evaluation-data/optim-data",
             num_samples={"actin": None, "tubulin": None, "CaMKII_Neuron": None, "PSD95_Neuron": None},

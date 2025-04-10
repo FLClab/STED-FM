@@ -267,7 +267,7 @@ def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn
     """
     print("\n===== Loading ViTSegmentationClassifier =====\n")
     if cfg.backbone in ["mae-lightning-tiny", "mae-lightning-small", "mae-lightning-base", "mae-lightning-large", "vit-tiny", "vit-small"]:
-        if "MAE_SMALL_IMAGENET1K_V1" not in cfg.backbone_weights:
+        if cfg.backbone_weights is None or "MAE_SMALL_IMAGENET1K_V1" not in cfg.backbone_weights:
             backbone = backbone.backbone.vit 
         return ViTSegmentationClassifier(backbone=backbone, cfg=cfg)
         # extract_layers = [3, 6, 9 ,12]
