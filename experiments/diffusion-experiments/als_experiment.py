@@ -42,26 +42,33 @@ parser.add_argument("--n-steps", type=int, default=5)
 parser.add_argument("--channel", type=str, default="FUS")
 args = parser.parse_args()
 
+def denormalize(img: np.ndarray, m: float, M: float) -> np.ndarray:
+    img = img * (M - m) + m
+    return img
+
 def linear_interpolate(latent_code,
                        boundary,
                        intercept,
+                       norm,
                        start_distance=-4.0,
                        end_distance=4.0,
                        steps=8):
-  assert (latent_code.shape[0] == 1 and boundary.shape[0] == 1 and
-          len(boundary.shape) == 2 and
-          boundary.shape[1] == latent_code.shape[-1])
+    assert (latent_code.shape[0] == 1 and boundary.shape[0] == 1 and
+            len(boundary.shape) == 2 and
+            boundary.shape[1] == latent_code.shape[-1])
 
-  linspace = np.linspace(start_distance, end_distance, steps)
-  if len(latent_code.shape) == 2:
-    linspace = linspace - (latent_code.dot(boundary.T) + intercept)
-    linspace = linspace.reshape(-1, 1).astype(np.float32)
-    return latent_code + linspace * boundary, linspace
-  if len(latent_code.shape) == 3:
-    linspace = linspace.reshape(-1, 1, 1).astype(np.float32)
-    return latent_code + linspace * boundary.reshape(1, 1, -1), linspace
-  raise ValueError(f'Input `latent_code` should be with shape '
-                   f'[1, latent_space_dim] but {latent_code.shape} was received.')
+    img_distance = latent_code.dot(boundary.T) + intercept 
+    end_distance = end_distance - img_distance
+    linspace = np.linspace(start_distance, end_distance, steps)[1:]
+    if len(latent_code.shape) == 2:
+        # linspace = linspace - ((latent_code.dot(boundary.T)) + intercept)
+        linspace = linspace.reshape(-1, 1).astype(np.float32)
+        return latent_code + linspace * boundary, linspace, img_distance[0][0]
+    if len(latent_code.shape) == 3:
+        linspace = linspace.reshape(-1, 1, 1).astype(np.float32)
+        return latent_code + linspace * boundary.reshape(1, 1, -1), linspace
+    raise ValueError(f'Input `latent_code` should be with shape '
+                    f'[1, latent_space_dim] but {latent_code.shape} was received.')
 
 def load_svm():
     with open(f"./{args.boundary}-experiment/boundaries/{args.weights}_{args.boundary}_svm_{args.channel}.pkl", "rb") as f:
@@ -73,9 +80,10 @@ def load_boundary() -> np.ndarray:
     boundary, intercept, norm = data["boundary"], data["intercept"], data["norm"]
     return boundary, intercept, norm
 
-def extract_features(img: Union[np.ndarray, torch.Tensor], check_foreground: bool = False) -> np.ndarray:
+def extract_features(img: Union[np.ndarray, torch.Tensor], m: float, M: float, check_foreground: bool = False) -> np.ndarray:
     if isinstance(img, torch.Tensor):
         img = img.squeeze().detach().cpu().numpy()
+    img = denormalize(img, m, M)
     mask = detect_spots(img)
     if check_foreground:
         foreground = np.count_nonzero(mask)
@@ -167,9 +175,8 @@ def load_distance_distribution() -> np.ndarray:
 
     scores = np.abs(data[args.direction])
 
-    avg, std = np.mean(scores), np.std(scores)
-    distance_max = np.max(scores)
-    return avg - (3*std), distance_max * 4
+    distance_min, distance_max = np.min(scores), np.max(scores)
+    return distance_min, distance_max
 
 def plot_features(features: np.ndarray, distances: np.ndarray, index: int):
     os.makedirs(f"./{args.boundary}-experiment/{args.channel}/examples", exist_ok=True)
@@ -310,9 +317,10 @@ def main():
                 img, metadata = dataset[idx]
                 img = img.to(DEVICE)
                 label = metadata["label"]
+                min_value, max_value = metadata["min_value"], metadata["max_value"]
 
                 original = img.squeeze().detach().cpu().numpy()
-                rprops, _, mean_features = extract_features(original, check_foreground=False)
+                rprops, _, mean_features = extract_features(original, m=min_value, M=max_value,check_foreground=False)
 
                 if mean_features is None:
                     print("Not enough foreground, skipping...")
@@ -405,6 +413,7 @@ def main():
             #     break 
             img, metadata = dataset[i]
             label = metadata["label"]
+            min_value, max_value = metadata["min_value"], metadata["max_value"]
             current_label = target_labels[label]
             print(label, current_label)
 
@@ -415,7 +424,7 @@ def main():
 
             img = torch.tensor(img, dtype=torch.float32).unsqueeze(0).to(DEVICE)
             original = img.squeeze().detach().cpu().numpy()
-            original_rprops, original_features, original_mean_features = extract_features(original, check_foreground=False)
+            original_rprops, original_features, original_mean_features = extract_features(original, m=min_value, M=max_value, check_foreground=False)
 
             if original_features is None:
                 print("Not enough foreground, skipping...")
@@ -434,23 +443,23 @@ def main():
             numpy_code = latent_code.detach().cpu().numpy() 
 
             samples = [original]
-            distances.append(0.0)
+
             rprops.append(original_rprops)
 
-            lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept,start_distance=multiplier*0.0, end_distance=multiplier*distance_max, steps=args.n_steps)
-            print(d)
+            lerped_codes, d, img_distance = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=multiplier*0.0, end_distance=multiplier*distance_max, steps=args.n_steps + 1)
+            distances.append(img_distance)
 
             for c, code in enumerate(lerped_codes):
                 lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
                 lerped_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=lerped_code, progress=True)
                 lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
-                lerped_rprops, lerped_sample_features, lerped_sample_mean_features = extract_features(lerped_sample_numpy)
+                lerped_rprops, lerped_sample_features, lerped_sample_mean_features = extract_features(lerped_sample_numpy, m=min_value, M=max_value, check_foreground=False)
                 RESULTS["lerp_" + str(c+1)] = lerped_sample_features if counter == 0 else np.r_[RESULTS["lerp_" + str(c+1)], lerped_sample_features]
                 samples.append(lerped_sample_numpy)
                 NUM_PROTEINS["lerp_" + str(c+1)].append(lerped_sample_mean_features[6])
                 all_features[c+1] = lerped_sample_mean_features
                 features.append(lerped_sample_features)
-                distances.append(abs(d[c][0]))
+                distances.append(img_distance + d[c][0])
                 rprops.append(lerped_rprops)
          
 
