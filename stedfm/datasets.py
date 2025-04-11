@@ -20,7 +20,7 @@ from skimage import filters
 from PIL import Image
 from zipfile import ZipFile
 
-from DEFAULTS import BASE_PATH
+from .DEFAULTS import BASE_PATH
 # from dataset_builder import condition_dict
 
 LOCAL_CACHE = {}

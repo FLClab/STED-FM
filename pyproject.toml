@@ -1,0 +1,58 @@
+
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+dynamic = ["version"]
+name = "stedfm"
+dependencies = [
+    "tifffile",
+    "matplotlib",
+    "numpy",
+    "scipy",
+    "h5py",
+    "huggingface-hub",
+    "imagecodecs",
+    "imageio",
+    "lightly",
+    "lightning",
+    "pandas",
+    "Pillow",
+    "pytorch-lightning",
+    "scikit-image",
+    "scikit-learn",
+    "seaborn",
+    "tensorboard",
+    "tiffwrapper @ git+https://github.com/FLClab/TiffWrapper.git",
+    "timm",
+    "torch",
+    "torchvision",
+    "torchsummary",
+    "torchinfo",
+    "tqdm",
+    "typing-extensions"
+]
+requires-python = ">=3.8"
+authors = [
+    {name = "Anthony Bilodeau"},
+    {name = "Frédéric Beaupré"},
+]
+maintainers = [
+    {name = "Anthony Bilodeau"},
+    {name = "Frédéric Beaupré"},    
+]
+description = "Package for using STED foundation models."
+readme = "README.md"
+license = { file = "LICENSE" }
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "stedfm.__version__"}
+
+[tool.setuptools.packages.find]
+namespaces = true
+where = ["."]
+
