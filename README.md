@@ -26,6 +26,15 @@ with torch.no_grad():
     out = model.forward_features(img) # (1, 384) --> uncomment the global_pool line to return all embeddings (1, 196, 384)
 ```
 
+## Download models
+
+To download the models use the following
+```bash
+mkdir -p "${HOME}/.stedfm"
+rclone copy --progress "valeria-s3:flclab-foundation-models/models/mae-small-sted.zip" "${HOME}/.stedfm"
+unzip "${HOME}/.stedfm/mae-small-sted.zip" -d "${HOME}/.stedfm"
+```
+
 ## Folder Architecture
 
 Here's the folder architecture that is assumed in the repository...
