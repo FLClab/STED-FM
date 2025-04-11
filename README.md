@@ -10,7 +10,7 @@ pip install -e .
 
 ## Example usage
 ```python
-from stedfm get_pretrained_model_v2
+from stedfm import get_pretrained_model_v2
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model, cfg = get_pretrained_model_v2(
