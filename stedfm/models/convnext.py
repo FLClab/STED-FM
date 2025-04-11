@@ -4,11 +4,8 @@ import torch
 import torchvision
 from dataclasses import dataclass
 from typing import Tuple
-
-import sys
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH
-from configuration import Configuration
+from stedfm.DEFAULTS import BASE_PATH
+from stedfm.configuration import Configuration
 
 class ConvNextWeights:
 

@@ -6,10 +6,8 @@ import torchvision
 from torch import nn
 from dataclasses import dataclass
 
-import sys
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH
-from configuration import Configuration
+from stedfm.DEFAULTS import BASE_PATH
+from stedfm.configuration import Configuration
 
 class MICRANetWeights:
     MICRANET_SSL_HPA = os.path.join(BASE_PATH, "baselines", "micranet_HPA", "checkpoint-999.pt")

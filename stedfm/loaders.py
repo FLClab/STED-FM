@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, Sampler, Dataset
 import torchvision.transforms as T
 import random
 import os
-from DEFAULTS import BASE_PATH
+from .DEFAULTS import BASE_PATH
 
 class BalancedSampler(Sampler):
     def __init__(self, dataset: Dataset, fewshot_pct: float = 0.01, num_classes: int = 4) -> None:

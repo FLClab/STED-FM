@@ -14,8 +14,9 @@ elif USER == "frederic":
 elif USER == "frbea320@ulaval.ca":
     BASE_PATH = "/home/ulaval.ca/frbea320/scratch"
 else:
-    raise ValueError("Please set the correct path for the user. Path can be modified in `flc-dataset/experiments/DEFAULTS.py`")
-
+    # raise ValueError("Please set the correct path for the user. Path can be modified in `flc-dataset/experiments/DEFAULTS.py`")
+    BASE_PATH = os.path.expanduser("~")
+    BASE_PATH = os.path.join(BASE_PATH, ".stedfm")
 # COLORS = {
 #     "IMAGENET1K_V1": "#5F4690",
 #     "ImageNet": "#5F4690",

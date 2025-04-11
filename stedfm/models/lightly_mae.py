@@ -9,11 +9,8 @@ import torchvision
 from pprint import pprint
 
 from dataclasses import dataclass
-
-import sys
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH
-from configuration import Configuration
+from stedfm.DEFAULTS import BASE_PATH
+from stedfm.configuration import Configuration
 
 class MAEWeights:
     # IMAGENET pretraining in timm refers to a model pretrained on ImageNet21K and finetuned on ImageNet1K

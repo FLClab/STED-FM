@@ -1,17 +1,17 @@
 
 import os
 
-from models.lightly_mae import LightlyMAE
-from models.classifier import LinearProbe
+from .models.lightly_mae import LightlyMAE
+from .models.classifier import LinearProbe
 from timm.models.vision_transformer import vit_small_patch16_224
 import lightly.models.utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 import torch
 import torchvision
 
-from models import get_model
-from models.loading import get_weights
-from DEFAULTS import BASE_PATH
+from .models import get_model
+from .models.loading import get_weights
+from .DEFAULTS import BASE_PATH
 
 def get_base_model(name: str, **kwargs):
     model, cfg = get_model(name, **kwargs)
@@ -29,21 +29,25 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
             print("--- Loaded model from scratch ---")
         elif state_dict is not None:
             backbone.load_state_dict(state_dict, strict=True)
+            cfg.backbone_weights = weights
             print(f"--- Loaded model {name} with weights {weights} ---")
         elif "imagenet" in weights.lower():
             # No state dict to load b/c ImageNet weights were loaded inside the get_weights function
             print(f"--- Loaded model {name} with ImageNet weights ---")
      
         if as_classifier:
+            num_blocks = kwargs.get("blocks", "all")
+            if num_blocks == "all":
+                cfg.freeze_backbone = True
             model = LinearProbe(
                 backbone=backbone,
                 name=name,
-                num_classes=kwargs['num_classes'],
+                num_classes=kwargs.get("num_classes", 4),
                 cfg=cfg,
-                num_blocks=kwargs['blocks'],
+                num_blocks=num_blocks,
                 global_pool=kwargs.get("global_pool", "avg")
             )
-            print(f"--- Added linear probe to {kwargs['blocks']} frozen blocks ---")
+            print(f"--- Added linear probe to {num_blocks} frozen blocks ---")
             return model, cfg
         else:
             return backbone, cfg
