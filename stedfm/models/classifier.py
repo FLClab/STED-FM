@@ -9,7 +9,7 @@ class LinearProbe(torch.nn.Module):
         cfg: dict,
         num_classes: int = 4, 
         global_pool: str = "avg",
-        num_blocks: int = 0,
+        num_blocks: str = "all",
     ) -> None:
         super().__init__()
 

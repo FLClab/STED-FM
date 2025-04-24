@@ -47,6 +47,8 @@ def main():
     C = 1.0
     clf = svm.SVC(kernel="linear", C=C, class_weight="balanced")
     clf.fit(train_embeddings, train_labels) 
+    print(valid_embeddings, valid_labels)
+    exit()
 
     val_prediction = clf.predict(valid_embeddings)
     print(np.unique(val_prediction, return_counts=True))

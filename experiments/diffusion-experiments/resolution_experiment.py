@@ -24,7 +24,7 @@ parser.add_argument("--num-samples", type=int, default=12)
 parser.add_argument("--ckpt-path", type=str, default="/home-local/Frederic/baselines/DiffusionModels/latent-guidance")
 parser.add_argument("--figure", action="store_true")
 parser.add_argument("--sanity-check", action="store_true")
-parser.add_argument("--n-steps", type=int, default=5)
+parser.add_argument("--n-steps", type=int, default=6)
 args = parser.parse_args()
 
 
@@ -69,7 +69,7 @@ def linear_interpolate(latent_code,
 
     img_distance = latent_code.dot(boundary.T) + intercept
     end_distance = end_distance - img_distance
-    linspace = np.linspace(start_distance, end_distance, steps)
+    linspace = np.linspace(start_distance, end_distance, steps)[1:]
     # linspace = np.linspace(img_distance, end_distance, steps)
     if len(latent_code.shape) == 2:
         # linspace = linspace - (latent_code.dot(boundary.T) + intercept)
@@ -104,7 +104,7 @@ def save_examples(samples, distances, resolutions, index):
        axs[i].set_title(f"Distance: {d:.2f}\nRes: {r:.2f}")
        axs[i].axis("off")
    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
-   fig.savefig(f"./{args.boundary}-experiment/examples/norm-{args.weights}-image_{index}.pdf", dpi=1200, bbox_inches="tight")
+   fig.savefig(f"./{args.boundary}-experiment/examples/{args.weights}-image_{index}.pdf", dpi=1200, bbox_inches="tight")
    plt.close(fig)
 
 def plot_distance_distribution(distances_to_boundary: dict):
@@ -396,7 +396,7 @@ def main():
                 samples = [original]
                 # distances.append(0.0)
 
-                lerped_codes, d, img_distance = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=0.0, end_distance=distance_max, steps=args.n_steps)
+                lerped_codes, d, img_distance = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=0.0, end_distance=distance_max, steps=args.n_steps + 1)
 
                 distances.append(img_distance)
 

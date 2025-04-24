@@ -198,31 +198,9 @@ if __name__=="__main__":
     )
     model = model.to(device)
 
-    # dataset = load_dataset(balance=False)
-    # exit()
-
-    # print(f"Dataset size: {len(dataset)}")
-    # print(np.unique(dataset.labels, return_counts=True))
-    
-    # from collections import defaultdict
-    # aggregated = defaultdict(list)
-    # for i in trange(len(dataset)):
-    #     image, metadata = dataset[i]
-    #     features = extract_features(image, show=False)
-    #     if features is None:
-    #         continue
-    #     aggregated[metadata["condition"]].append(features)
-    
-    # import pickle
-    # os.makedirs(f"./{args.dataset}-experiment/features", exist_ok=True)
-    # with open(f"./{args.dataset}-experiment/features/real-images-features-{args.split}.pkl", "wb") as f:
-    #     pickle.dump(aggregated, f)
-    
-    # exit()
     dataset = load_dataset()
 
-    print(f"Dataset size: {len(dataset)}")
-    # print(np.unique(dataset.labels, return_counts=True))    
+    print(f"Dataset size: {len(dataset)}")   
 
     dataloader = DataLoader(dataset, batch_size=cfg.batch_size, shuffle=True, drop_last=False)
 
@@ -232,7 +210,7 @@ if __name__=="__main__":
     dataset = dataloader.dataset 
     N = len(dataset)
     with torch.no_grad():
-        for i in range(N):
+        for i in trange(N):
             images, data_dict = dataset[i]
             images = images.unsqueeze(0).to(device)
 
@@ -240,29 +218,26 @@ if __name__=="__main__":
                 labels = data_dict["condition"]
             else:
                 labels = data_dict["label"]
-                # print(labels)
-            
             features = model.forward_features(images)
             embeddings.append(features.cpu().detach().numpy())
-       
-            try:
-                all_labels.extend(labels)
-            except TypeError:
-                all_labels.append(labels)
+            all_labels.append(labels)
 
     embeddings = np.concatenate(embeddings, axis=0)
-    print(embeddings.shape)
     all_labels = np.array(all_labels)
-    print(all_labels.shape)
+
 
     # Make sure labels are unique and in increasing order
     unique_labels = np.unique(all_labels)
+    print(unique_labels)
     tmp = np.zeros_like(all_labels)
     labels_mapping = {}
     for i, label in enumerate(unique_labels):
         idx = np.where(all_labels == label)[0]
         tmp[idx] = i
-        labels_mapping[int(label)] = i
+        try:
+            labels_mapping[int(label)] = i
+        except:
+            labels_mapping[label] = i
     all_labels = tmp
 
     print(np.unique(all_labels, return_counts=True))
