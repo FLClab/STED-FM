@@ -1,6 +1,6 @@
 # Usage 
 
-To launch the application use the information provided [here](./readme.md)
+To launch the application use the information provided [here](../readme.md)
 
 ## Installation
 
