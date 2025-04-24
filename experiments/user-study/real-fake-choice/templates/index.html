@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Choose the best candidate</title>
+</head>
+<body>
+    <h1>Select the best candidate</h1>
+    <div class="image-container">
+        <div class="candidates">
+            <h2>Images</h2>
+            <form action="{{ url_for('choose') }}" method="POST">
+                <div class="candidates-row">
+                    <div class="candidate">
+                        <button type="submit" name="selected_image" value="{{ candidate_images[0] }}"><img src="{{ url_for('static', filename=candidate_images[0]) }}" alt="Candidate 1"></button>
+                    </div>
+                    <div class="candidate">
+                        <button type="submit" name="selected_image" value="{{ candidate_images[1] }}"><img src="{{ url_for('static', filename=candidate_images[1]) }}" alt="Candidate 2"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <form action="{{ url_for('logout') }}" method="POST">
+        <div class="logout-container">
+            <button type="submit" name="logout" value="true">Logout</button>
+        </div>
+    </form>
+</body>
+</html>

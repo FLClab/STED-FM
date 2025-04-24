@@ -41,7 +41,7 @@ parser.add_argument("--num-samples", type=int, default=20)
 parser.add_argument("--ckpt-path", type=str, default=f"{BASE_PATH}/baselines/DiffusionModels/latent-guidance")
 parser.add_argument("--figure", action="store_true")
 parser.add_argument("--sanity-check", action="store_true")
-parser.add_argument("--direction", type=str, default="Fibers")
+parser.add_argument("--direction", type=str, default="shRNA")
 parser.add_argument("--n-steps", type=int, default=5)
 parser.add_argument("--seed", type=int, default=42)
 args = parser.parse_args()
@@ -72,6 +72,7 @@ def compute_confidence_intervals(all_scores: np.ndarray, confidence: float = 0.8
 def linear_interpolate(latent_code,
                        boundary,
                        intercept,
+                       norm=1.0,
                        start_distance=-4.0,
                        end_distance=4.0,
                        steps=8):
@@ -79,14 +80,19 @@ def linear_interpolate(latent_code,
           len(boundary.shape) == 2 and
           boundary.shape[1] == latent_code.shape[-1])
 
-  linspace = np.linspace(start_distance, end_distance, steps)
+  image_distance = latent_code.dot(boundary.T) + intercept
+  end_distance = end_distance - image_distance
+  if steps < 2:
+      linspace = np.array([end_distance])
+  else:
+    linspace = np.linspace(start_distance, end_distance, steps)[1:]
+
   if len(latent_code.shape) == 2:
-    linspace = linspace - (latent_code.dot(boundary.T) + intercept)
     linspace = linspace.reshape(-1, 1).astype(np.float32)
-    return latent_code + linspace * boundary, linspace
+    return latent_code + linspace * boundary * norm, linspace, image_distance[0][0]
   if len(latent_code.shape) == 3:
     linspace = linspace.reshape(-1, 1, 1).astype(np.float32)
-    return latent_code + linspace * boundary.reshape(1, 1, -1), linspace
+    return latent_code + linspace * boundary.reshape(1, 1, -1) * norm, linspace, image_distance[0][0]
   raise ValueError(f'Input `latent_code` should be with shape '
                    f'[1, latent_space_dim] but {latent_code.shape} was received.')
 
@@ -369,7 +375,8 @@ def load_distance_distribution() -> np.ndarray:
 
     avg, std = np.mean(scores), np.std(scores)
     distance_max = np.max(scores)
-    return avg - (3*std), distance_max * 8
+    distance_min = np.min(scores)
+    return distance_min, distance_max
 
 def main():
 
@@ -427,24 +434,26 @@ def main():
                 distances_to_boundary[label].append(d)
                 counters[label] += 1
         
+        for key, values in distances_to_boundary.items():
+            distances_to_boundary[key] = np.array(values)
+            print(f"--- {key} ---")
+            print(f"Mean: {np.mean(values)}")
+            print(f"Std: {np.std(values)}")
+            print(f"Max: {np.max(values)}")
+            print(f"Min: {np.min(values)}")
+
         print("Plotting...")
         plot_distance_distribution(distances_to_boundary)
 
     else:
-        RESULTS = {}
-        NUM_PROTEINS = {
-            "original": [],
-            "lerp_1": [],
-            "lerp_2": [],
-            "lerp_3": [],
-            "lerp_4": [],
-            "lerp_5": [],
-        }
 
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        boundary, intercept, _ = load_boundary()
+        boundary, intercept, norm = load_boundary()
         distance_min, distance_max = load_distance_distribution()
         print(f"--- Moving from 0.0 to {distance_max} ---")
+        print(f"--- Norm of boundary: {norm} ---")
+        print(f"--- Intercept: {intercept} ---")
+
         latent_encoder, model_config = get_pretrained_model_v2(
             name=args.latent_encoder,
             weights=args.weights,
@@ -490,78 +499,79 @@ def main():
 
         print(target_labels)
 
-        for i in tqdm(indices):
-            rprops = []
-            distances = [] 
-            features = []
-            all_features = np.zeros((args.n_steps+1, 7))
-            if counter >= args.num_samples:
-                break 
-            img, metadata = dataset[i]
-            label = metadata["label"]
+        with torch.no_grad():
+            for i in tqdm(indices):
+                rprops = []
+                distances = [] 
+                features = []
+                all_features = np.zeros((args.n_steps+1, 7))
+                if counter >= args.num_samples:
+                    break 
+                img, metadata = dataset[i]
+                label = metadata["label"]
 
 
-            condition = metadata["condition"]
-            target_label = target_labels[condition]
+                condition = metadata["condition"]
+                target_label = target_labels[condition]
 
-            multiplier = 1 if target_label == 0 else -1
-            if args.direction == condition:
-                print(f"Skipping {i} because condition is {condition} and direction is {args.direction}")
-                continue 
+                multiplier = 1 if target_label == 0 else -1
+                if args.direction == condition:
+                    print(f"Skipping {i} because condition is {condition} and direction is {args.direction}")
+                    continue 
 
-            if "imagenet" in args.weights.lower():
-                img = torch.tensor(img.clone().detach(), dtype=torch.float32).repeat(3, 1, 1).unsqueeze(0).to(DEVICE) 
-            else:
-                img = torch.tensor(img.clone().detach(), dtype=torch.float32).unsqueeze(0).to(DEVICE)
+                if "imagenet" in args.weights.lower():
+                    img = torch.tensor(img.clone().detach(), dtype=torch.float32).repeat(3, 1, 1).unsqueeze(0).to(DEVICE) 
+                else:
+                    img = torch.tensor(img.clone().detach(), dtype=torch.float32).unsqueeze(0).to(DEVICE)
 
-            original = img.squeeze().detach().cpu().numpy()
-            features = extract_features(original, check_foreground=True)
+                original = img.squeeze().detach().cpu().numpy()
+                features = extract_features(original, check_foreground=True)
+                
+                if not features:
+                    print("Not enough foreground, skipping...")
+                    continue
             
-            if not features:
-                print("Not enough foreground, skipping...")
-                continue
-        
-            # Ensures reproducibility
-            seed_offset = hash(args.direction) % (2**32-1)
-            set_seeds(args.seed + i + seed_offset)
+                # Ensures reproducibility
+                seed_offset = hash(args.direction) % (2**32-1)
+                set_seeds(args.seed + i + seed_offset)
 
-            latent_code = diffusion_model.latent_encoder.forward_features(img)
-            numpy_code = latent_code.detach().cpu().numpy()
+                latent_code = diffusion_model.latent_encoder.forward_features(img)
+                numpy_code = latent_code.detach().cpu().numpy()
 
-            samples = [original]
+                samples = [original]
 
-            distances.append(0.0)
 
-            lerped_codes, d = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept,start_distance=multiplier*0.0, end_distance=multiplier*distance_max, steps=args.n_steps)
-            print(d)
+                lerped_codes, d, image_distance = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=multiplier * 0.0, end_distance=multiplier * distance_max, steps=args.n_steps+1)
+                distances.append(image_distance)
+                print(d)
 
-            # lerped_samples = diffusion_model.p_sample_loop(
-            #     shape=(len(lerped_codes), 1, img.shape[2], img.shape[3]),
-            #     cond=torch.tensor(lerped_codes, dtype=torch.float32).to(DEVICE),
-            #     progress=True
-            # )
-            # lerped_samples_numpy = lerped_samples.squeeze().detach().cpu().numpy()
-            # samples.extend(lerped_samples_numpy)
-            # distances.extend(d.ravel())
+                # lerped_samples = diffusion_model.p_sample_loop(
+                #     shape=(len(lerped_codes), 1, img.shape[2], img.shape[3]),
+                #     cond=torch.tensor(lerped_codes, dtype=torch.float32).to(DEVICE),
+                #     progress=True
+                # )
+                # lerped_samples_numpy = lerped_samples.squeeze().detach().cpu().numpy()
+                # samples.extend(lerped_samples_numpy)
+                # distances.extend(d.ravel())
 
-            for c, code in enumerate(lerped_codes):
-                lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
-                lerped_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=lerped_code, progress=True)
-                lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
+                for c, code in enumerate(lerped_codes):
+                    lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
+                    lerped_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=lerped_code, progress=True)
+                    lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
 
-                samples.append(lerped_sample_numpy)
-                distances.append(abs(d[c][0]))
-         
-            distances = np.array(distances)
-            counter += 1
+                    samples.append(lerped_sample_numpy)
+                    distances.append(image_distance + d[c][0])
+            
+                distances = np.array(distances)
+                counter += 1
 
-            # plot_features(features=all_features, distances=distances, index=counter)
-            save_examples(samples, distances, counter)
-            save_raw_images(samples, distances, counter)
+                # plot_features(features=all_features, distances=distances, index=counter)
+                save_examples(samples, distances, counter)
+                save_raw_images(samples, distances, counter)
 
-        # os.makedirs(f"./{args.boundary}-experiment/results", exist_ok=True)
-        # np.savez(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to{args.direction}_RESULTS.npz", **RESULTS)
-        # np.savez(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to{args.direction}_NUM_PROTEINS.npz", **NUM_PROTEINS)
+            # os.makedirs(f"./{args.boundary}-experiment/results", exist_ok=True)
+            # np.savez(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to{args.direction}_RESULTS.npz", **RESULTS)
+            # np.savez(f"./{args.boundary}-experiment/results/{args.weights}_{args.boundary}_all_to{args.direction}_NUM_PROTEINS.npz", **NUM_PROTEINS)
 
 
 if __name__ == "__main__":

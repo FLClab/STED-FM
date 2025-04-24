@@ -71,7 +71,6 @@ def linear_interpolate(latent_code,
     end_distance = end_distance - img_distance
     linspace = np.linspace(start_distance, end_distance, steps)[1:]
     # linspace = np.linspace(img_distance, end_distance, steps)
-    print(linspace)
     if len(latent_code.shape) == 2:
         # linspace = linspace - (latent_code.dot(boundary.T) + intercept)
         linspace = linspace.reshape(-1, 1).astype(np.float32)

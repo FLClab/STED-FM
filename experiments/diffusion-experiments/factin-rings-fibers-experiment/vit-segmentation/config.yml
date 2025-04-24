@@ -8,7 +8,7 @@ measurement-names:
 - STED_594
 model-config:
   batch_size: 128
-  model: ViT
+  model: ViT-Segmentation-Classifier
   model-path: /home-local/Actin/pretrained-MAE_SMALL_STED-43
   normalize: default
   size: 224
