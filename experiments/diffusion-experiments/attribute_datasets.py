@@ -359,6 +359,7 @@ class ALSDataset(Dataset):
         self.n_channels = n_channels
         self.num_samples = num_samples
         self.num_classes = num_classes
+        self.names = [m.name for m in self.members]
 
     def get_members(self):
         members = list(sorted(self.archive_obj.getmembers(), key=lambda m: m.name)) 

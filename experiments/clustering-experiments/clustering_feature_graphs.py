@@ -16,14 +16,13 @@ import sys
 from tqdm.auto import tqdm
 
 from sklearn.metrics import DistanceMetric 
-sys.path.insert(0, "../")
-from loaders import get_dataset
+from stedfm.loaders import get_dataset
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--data-path", type=str, default="./recursive-clustering-experiment/MAE_SMALL_STED_neural-activity-states_recursive_clusters_tree.pkl")
+parser.add_argument("--data-path", type=str, default="./recursive-clustering-experiment/manual/MAE_SMALL_STED_neural-activity-states_recursive_clusters_tree.pkl")
 parser.add_argument("--condition", type=str, default=None)
 parser.add_argument("--dataset", type=str, default="neural-activity-states")
-parser.add_argument("--depth", type=int, default=9)
+parser.add_argument("--depth", type=int, default=20)
 args = parser.parse_args()
 
 class Node:
@@ -126,7 +125,10 @@ def get_average_features(node, dataset):
     area, intensity, eccentricity, nn, num_proteins, density, blur_effect, shannon_entropy, signal_to_noise = [], [], [], [], [], [], [], [], []
     for leaf in leaf_nodes:
         total += leaf.data["data"].shape[0]
-        data_idx = [item["dataset-idx"].item() for item in leaf.data["metadata"]]
+        try:
+            data_idx = [item["dataset-idx"].item() for item in leaf.data["metadata"]]
+        except:
+            data_idx = [item["dataset-idx"] for item in leaf.data["metadata"]]
         imgs = [dataset[idx][0].squeeze().numpy() for idx in data_idx]
         masks = [dataset[idx][1]["mask"] for idx in data_idx]
         for img, mask in zip(imgs, masks):
@@ -141,14 +143,25 @@ def get_average_features(node, dataset):
             background_intensity = np.mean(img[inverted_mask])
             signal_to_noise.append(foreground_intensity / background_intensity)
             # Protein-level features
-            img_density = []
-            for y in np.arange(0, img.shape[0], 16):
-                for x in np.arange(0, img.shape[1], 16):
-                    crop_proteins = np.unique(label_image[y:y+16, x:x+16])
-                    img_density.append(len(crop_proteins) / (16 * 16))
-            density.append(np.mean(img_density))
+            # img_density = []
+            # for y in np.arange(0, img.shape[0], 16):
+            #     for x in np.arange(0, img.shape[1], 16):
+            #         crop_proteins = np.unique(label_image[y:y+16, x:x+16])
+            #         img_density.append(len(crop_proteins) / (16 * 16))
+            # density.append(np.mean(img_density))
             rprops = measure.regionprops(label_image, intensity_image=img)
             centroids = [r.weighted_centroid for r in rprops]
+            if len(centroids) == 1:
+                density.append(1.0)
+            else:
+                distance_matrix = distance.cdist(centroids, centroids, metric="euclidean")
+                distance_matrix = np.sort(distance_matrix, axis=1)
+                img_density = []
+                for d in range(distance_matrix.shape[0]):
+                    num_neighbors = np.sum(distance_matrix[d] < 50)
+                    img_density.append(num_neighbors)
+                density.append(np.mean(img_density))
+                
             img_area, img_intensity, img_eccentricity, img_nn = [], [], [], []
             for rprop in rprops:
                 distances = distance.cdist(centroids, [rprop.weighted_centroid], metric="euclidean")
@@ -211,8 +224,8 @@ def display_graph(graph, feature: str, node_size_scale_factor=10, edge_weight_fa
     # ax.axis("off")
     plt.tight_layout()
     plt.show()
-    os.makedirs("./graphs", exist_ok=True)
-    fig.savefig(f"./graphs/{feature}_{args.dataset}_graph.pdf", dpi=1200, bbox_inches="tight")
+    os.makedirs("./graphs-manual", exist_ok=True)
+    fig.savefig(f"./graphs-manual/test_{feature}_{args.dataset}_graph.pdf", dpi=1200, bbox_inches="tight")
 
 if __name__=="__main__":
     data = load_data(args.data_path)

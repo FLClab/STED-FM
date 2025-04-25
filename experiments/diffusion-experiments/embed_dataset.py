@@ -15,12 +15,11 @@ from skimage import measure, feature
 from scipy.spatial import distance
 from scipy.ndimage import gaussian_filter
 
-import sys 
-sys.path.insert(0, "../")
-from utils import set_seeds
-from DEFAULTS import BASE_PATH
-from model_builder import get_pretrained_model_v2
-from datasets import MICRANetHDF5Dataset, FactinCaMKIIDataset
+
+from stedfm.DEFAULTS import BASE_PATH
+from stedfm import get_pretrained_model_v2
+from stedfm.utils import set_seeds
+# from datasets import MICRANetHDF5Dataset, FactinCaMKIIDataset
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mae-lightning-small")
@@ -32,7 +31,7 @@ parser.add_argument("--num-per-class", type=int, default=None)
 parser.add_argument("--precomputed", action="store_true")
 parser.add_argument("--split", type=str, default="train")
 parser.add_argument("--dataset", type=str, default="quality")
-parser.add_argument("--channel", type=str, default="FUS")
+parser.add_argument("--channel", type=str, default="PSD95")
 args = parser.parse_args()
 
 def load_dataset(balance=True) -> torch.utils.data.Dataset: 
@@ -212,12 +211,28 @@ if __name__=="__main__":
     with torch.no_grad():
         for i in trange(N):
             images, data_dict = dataset[i]
+            if args.dataset == "als": 
+                img = images.squeeze().detach().cpu().numpy()
+                mask = detect_spots(img)
+                fg_intensity = np.mean(img[mask])
+                if fg_intensity < 0.15:
+                    print(f"Skipping {i} because foreground intensity is too low: {fg_intensity}")
+                    continue
             images = images.unsqueeze(0).to(device)
-
-            if "condition" in data_dict:
-                labels = data_dict["condition"]
+            if args.dataset == "als":
+                div = data_dict["label"]
+                dpi = data_dict["dpi"]
+                if "5" in div and "4" in dpi:
+                    labels = "young"
+                elif "14" in div and "11" in dpi:
+                    labels = "old"
+                else:
+                    continue
             else:
-                labels = data_dict["label"]
+                if "condition" in data_dict:
+                    labels = data_dict["condition"]
+                else:
+                    labels = data_dict["label"]
             features = model.forward_features(images)
             embeddings.append(features.cpu().detach().numpy())
             all_labels.append(labels)
@@ -228,7 +243,8 @@ if __name__=="__main__":
 
     # Make sure labels are unique and in increasing order
     unique_labels = np.unique(all_labels)
-    print(unique_labels)
+    print("--- Labels ---")
+    print(np.unique(all_labels, return_counts=True))
     tmp = np.zeros_like(all_labels)
     labels_mapping = {}
     for i, label in enumerate(unique_labels):

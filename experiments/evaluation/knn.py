@@ -14,10 +14,9 @@ import json
 from scipy.spatial.distance import pdist, cdist
 from typing import List, Optional
 import pandas 
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH
-from loaders import get_dataset 
-from model_builder import get_pretrained_model_v2 
+from stedfm.DEFAULTS import BASE_PATH
+from stedfm.loaders import get_dataset 
+from stedfm import get_pretrained_model_v2 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default="optim")

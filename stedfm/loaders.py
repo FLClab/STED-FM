@@ -2,12 +2,12 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import List, Iterable, Callable
-import datasets
 from torch.utils.data import DataLoader, Sampler, Dataset
 import torchvision.transforms as T
 import random
 import os
 from .DEFAULTS import BASE_PATH
+from stedfm import datasets
 
 class BalancedSampler(Sampler):
     def __init__(self, dataset: Dataset, fewshot_pct: float = 0.01, num_classes: int = 4) -> None:
@@ -50,9 +50,6 @@ class UltraSmallSampler(Sampler):
         ids = np.concatenate([ids.ravel() for ids in self.indices]).astype(np.int64)
         random.shuffle(ids)
         return iter(ids)
-
-
-from DEFAULTS import BASE_PATH
 
 def get_JUMP_dataset(transform: Callable, path: str):
     dataset = datasets.TarJUMPDataset(tar_path=path, transform=transform)
