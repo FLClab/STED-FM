@@ -19,12 +19,12 @@ import sys
 from scipy.spatial.distance import cdist 
 import glob 
 from PIL import Image
+from scipy.spatial import distance 
 import pickle 
 import tifffile 
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH, COLORS 
-from model_builder import get_pretrained_model_v2 
-from utils import set_seeds 
+from stedfm.DEFAULTS import BASE_PATH, COLORS 
+from stedfm import get_pretrained_model_v2 
+from stedfm.utils import set_seeds 
 
 
 parser = argparse.ArgumentParser()
@@ -37,9 +37,9 @@ parser.add_argument("--ckpt-path", type=str, default=f"{BASE_PATH}/baselines/Dif
 parser.add_argument("--figure", action="store_true")
 parser.add_argument("--sanity-check", action="store_true")
 parser.add_argument("--seed", type=int, default=42)
-parser.add_argument("--direction", type=str, default="DIV14")
+parser.add_argument("--direction", type=str, default="young")
 parser.add_argument("--n-steps", type=int, default=5)
-parser.add_argument("--channel", type=str, default="FUS")
+parser.add_argument("--channel", type=str, default="PSD95")
 args = parser.parse_args()
 
 def denormalize(img: np.ndarray, m: float, M: float) -> np.ndarray:
@@ -63,7 +63,7 @@ def linear_interpolate(latent_code,
     if len(latent_code.shape) == 2:
         # linspace = linspace - ((latent_code.dot(boundary.T)) + intercept)
         linspace = linspace.reshape(-1, 1).astype(np.float32)
-        return latent_code + linspace * boundary, linspace, img_distance[0][0]
+        return latent_code + linspace * boundary * norm, linspace, img_distance[0][0]
     if len(latent_code.shape) == 3:
         linspace = linspace.reshape(-1, 1, 1).astype(np.float32)
         return latent_code + linspace * boundary.reshape(1, 1, -1), linspace
@@ -95,6 +95,18 @@ def extract_features(img: Union[np.ndarray, torch.Tensor], m: float, M: float, c
     mask_label, num_proteins = measure.label(mask, return_num=True)
     props = measure.regionprops(mask_label, intensity_image=img)
     coordinates = np.array([p.weighted_centroid for p in props])
+    
+    if len(coordinates) == 1:
+        density = 1.0
+    else:
+        distance_matrix = distance.cdist(coordinates, coordinates, metric="euclidean")
+        distance_matrix = np.sort(distance_matrix, axis=1)
+        img_density = []
+        for d in range(distance_matrix.shape[0]):
+            num_neighbors = np.sum(distance_matrix[d] < 50)
+            img_density.append(num_neighbors)
+        density = np.mean(img_density)
+
     features = np.zeros((len(props), 6))
     for i, prop in enumerate(props):
         features[i, 0] = prop.area
@@ -120,14 +132,13 @@ def extract_features(img: Union[np.ndarray, torch.Tensor], m: float, M: float, c
         print("\n\n")
         print(mean_features)
         exit()
-    mean_features = np.r_[mean_features, num_proteins]
+    mean_features = np.r_[mean_features, num_proteins, density]
     return props, features, mean_features
 
 def plot_sanity_check(block_features: np.ndarray, mg_features: np.ndarray):
-    keys = ["DIV14", "DIV5"]
     os.makedirs(f"./{args.boundary}-experiment/{args.channel}/features", exist_ok=True)
     np.savez(f"./{args.boundary}-experiment/{args.channel}/features/train-features.npz", block_features=block_features, mg_features=mg_features)
-    features = ["area", "perimeter", "mean_intensity", "eccentricity", "solidity", "1nn_dist", "num_proteins"]
+    features = ["area", "perimeter", "mean_intensity", "eccentricity", "solidity", "1nn_dist", "num_proteins", "density"]
     for i, f in enumerate(features):
         data = [ary[:, i] for ary in [block_features, mg_features]]
         fig = plt.figure()
@@ -145,7 +156,7 @@ def plot_sanity_check(block_features: np.ndarray, mg_features: np.ndarray):
         parts['cmins'].set_color('black')
         parts['cmaxes'].set_color('black')  
         plt.ylabel(f)
-        plt.xticks([1.0, 1.6], ["DIV14", "DIV5"])
+        plt.xticks([1.0, 1.6], ["old", "young"])
         # plt.xlim([0.5, 1.0])
         
         fig.savefig(f"./{args.boundary}-experiment/{args.channel}/features/{args.weights}-{f}.pdf", dpi=1200, bbox_inches='tight')
@@ -161,8 +172,8 @@ def plot_distance_distribution(distances_to_boundary: dict):
     m = min(min(distances_to_boundary[key1]), min(distances_to_boundary[key2]))
     M = max(max(distances_to_boundary[key1]), max(distances_to_boundary[key2]))
 
-    ax.hist(distances_to_boundary["DIV14"], bins=np.linspace(m, M, 50), alpha=0.5, color='fuchsia', label="DIV14")
-    ax.hist(distances_to_boundary["DIV5"], bins=np.linspace(m, M, 50), alpha=0.5, color='dodgerblue', label="DIV5")
+    ax.hist(distances_to_boundary["old"], bins=np.linspace(m, M, 50), alpha=0.5, color='fuchsia', label="old")
+    ax.hist(distances_to_boundary["young"], bins=np.linspace(m, M, 50), alpha=0.5, color='dodgerblue', label="young")
     ax.axvline(0.0, color='black', linestyle='--', label="Decision boundary")
     ax.set_xlabel("Distance")
     ax.set_ylabel("Frequency")
@@ -188,8 +199,8 @@ def plot_features(features: np.ndarray, distances: np.ndarray, index: int):
 
     fig = plt.figure(figsize=(5,5))
     plt.imshow(features, cmap='viridis')
-    plt.yticks([0, 1, 2, 3, 4, 5], ["DIV5" if args.direction == "DIV14" else "DIV14", "1", "2", "3", "4", "5"])
-    plt.xticks([0, 1, 2, 3, 4, 5, 6], ["area", "perimeter","mean intensity", "eccentricity", "solidity", "1nn_dist", "num_proteins"], rotation=-45)
+    plt.yticks([0, 1, 2, 3, 4, 5], ["young" if args.direction == "old" else "old", "1", "2", "3", "4", "5"])
+    plt.xticks([0, 1, 2, 3, 4, 5, 6, 7], ["area", "perimeter","mean intensity", "eccentricity", "solidity", "1nn_dist", "num_proteins", "density"], rotation=-45)
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
     plt.colorbar()
     fig.savefig(f"./{args.boundary}-experiment/{args.channel}/examples/{args.weights}-features_{index}_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
@@ -202,7 +213,7 @@ def save_examples(samples, distances, index):
     for i, (s, d) in enumerate(zip(samples, distances)):
         if s.shape[0] == 3:
             s = s[0, :, :]
-        axs[i].imshow(s, cmap='hot', vmin=0.0, vmax=0.8)
+        axs[i].imshow(s, cmap='hot', vmin=0.0, vmax=1.0)
         axs[i].set_title("Distance: {:.2f}".format(d))
         axs[i].axis("off")
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
@@ -309,14 +320,25 @@ def main():
         N = len(dataset)
         indices = np.arange(N)
         np.random.shuffle(indices)
-        counters = {"DIV14": 0, "DIV5": 0}
-        distances_to_boundary = {"DIV14": [], "DIV5": []}
-        features = {"DIV14" : None, "DIV5": None}
+        counters = {"old": 0, "young": 0}
+        distances_to_boundary = {"old": [], "young": []}
+        features = {"old" : None, "young": None}
         with torch.no_grad():
             for i, idx in tqdm(enumerate(indices), total=N):
                 img, metadata = dataset[idx]
+                temp_img = img.squeeze().detach().cpu().numpy()
+                mask = detect_spots(temp_img)
+                fg_intensity = np.mean(temp_img[mask])
+                if fg_intensity < 0.15:
+                    continue
                 img = img.to(DEVICE)
-                label = metadata["label"]
+                div, dpi = metadata["label"], metadata["dpi"]
+                if "5" in div and "4" in dpi:
+                    label = "young"
+                elif "14" in div and "11" in dpi:
+                    label = "old"
+                else:
+                    continue
                 min_value, max_value = metadata["min_value"], metadata["max_value"]
 
                 original = img.squeeze().detach().cpu().numpy()
@@ -343,7 +365,7 @@ def main():
             
         for key, values in features.items():
             print(f"Key: {key}, Features: {values.shape}")
-        plot_sanity_check(features["DIV14"], features["DIV5"])
+        plot_sanity_check(features["old"], features["young"])
         plot_distance_distribution(distances_to_boundary)
 
     else:
@@ -408,14 +430,25 @@ def main():
             rprops = [] 
             distances = []
             features = []
-            all_features = np.zeros((args.n_steps+1, 7))
+            all_features = np.zeros((args.n_steps+1, 8))
             # if counter >= args.num_samples:
             #     break 
             img, metadata = dataset[i]
-            label = metadata["label"]
+            temp_img = img.squeeze().detach().cpu().numpy()
+            mask = detect_spots(temp_img)
+            fg_intensity = np.mean(temp_img[mask])
+            if fg_intensity < 0.15:
+                continue
+            div, dpi = metadata["label"], metadata["dpi"]
+            if "5" in div and "4" in dpi:
+                label = "young"
+            elif "14" in div and "11" in dpi:
+                label = "old"
+            else:
+                continue
             min_value, max_value = metadata["min_value"], metadata["max_value"]
-            current_label = target_labels[label]
-            print(label, current_label)
+            current_label = target_labels[label] 
+            print(label, current_label) # (old, 0) or (young, 1)
 
             multiplier = 1 if current_label == 0 else -1
             if args.boundary == "als" and args.direction == label: 

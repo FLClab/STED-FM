@@ -12,10 +12,10 @@ from matplotlib.patches import Patch
 from networkx.drawing.nx_agraph import graphviz_layout
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--data-path", type=str, default="./recursive-clustering-experiment/MAE_SMALL_STED_neural-activity-states_recursive_clusters_tree.pkl")
 parser.add_argument("--condition", type=str, default=None)
 parser.add_argument("--dataset", type=str, default="neural-activity-states")
-parser.add_argument("--depth", type=int, default=9)
+parser.add_argument("--depth", type=int, default=20)
+parser.add_argument("--mode", type=str, default="deep", choices=["deep", "manual", "morphological"])
 args = parser.parse_args()
 
 def get_colormap(condition: str):
@@ -49,6 +49,7 @@ class Node:
 def print_tree(node, indent=0):
     """Helper function to visualize the tree structure"""
     print("  " * indent + str(node))
+    print(f"DATA: {node.data}\n\n")
     if node.data is not None:
         print("  " * (indent + 1) + f"Data: {node.data}")
     for child in node.children:
@@ -123,6 +124,7 @@ def plot_frequencies(node_list, display: bool = False):
 
     cluster_counts = {condition: {key: 0 for key in range(num_clusters)} for condition in states}
     condition_counts = {key: {condition: 0 for condition in states} for key in range(num_clusters)}
+
 
     for node_idx, node in enumerate(node_list):
         leaf_nodes = find_leaf_nodes(node)
@@ -227,26 +229,37 @@ def display_graph(graph, node_size_scale_factor=10, edge_weight_factor=5.0, min_
                                 alpha=0.7, edge_color='gray')
     
     
-    # Remove axis
-    if args.condition is None:
-        if args.dataset == "neural-activity-states":
-            conditions = ["Block", "48hTTX", "0MgGlyBic", "GluGly"]
-        else:
-            conditions = ["4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"]
-        legend_elements = [
-            Patch(facecolor=colors_per_condition[i], label=conditions[i]) for i in range(4)
-        ]
-        ax.legend(handles=legend_elements, loc="center left", bbox_to_anchor=(1, 0.5))
-    # ax.axis("off")
+    # # Remove axis
+    # if args.condition is None:
+    #     if args.dataset == "neural-activity-states":
+    #         conditions = ["Block", "48hTTX", "0MgGlyBic", "GluGly"]
+    #     else:
+    #         conditions = ["4hMeOH", "6hMeOH", "8hMeOH", "16hMeOH"]
+    #     legend_elements = [
+    #         Patch(facecolor=colors_per_condition[i], label=conditions[i]) for i in range(4)
+    #     ]
+    #     ax.legend(handles=legend_elements, loc="center left", bbox_to_anchor=(1, 0.5))
+    # # ax.axis("off")
     plt.tight_layout()
     plt.show()
-    os.makedirs("./graphs", exist_ok=True)
-    fig.savefig(f"./graphs/{args.condition}_{args.dataset}_graph.pdf", dpi=1200, bbox_inches="tight")
+    os.makedirs(f"./graphs-{args.mode}", exist_ok=True)
+    fig.savefig(f"./graphs-{args.mode}/{args.condition}_{args.dataset}_graph.pdf", dpi=1200, bbox_inches="tight")
+    # os.makedirs("./trees", exist_ok=True)
+    # fig.savefig(f"./trees/{args.mode}_{args.condition}_{args.dataset}_graph.pdf", dpi=1200, bbox_inches="tight")
     
 
 if __name__ == "__main__":
-    data = load_data(args.data_path)
+    if args.mode == "deep":
+        data_path = "./recursive-clustering-experiment/deep/MAE_SMALL_STED_neural-activity-states_recursive_clusters_tree.pkl" 
+    elif args.mode == "manual":
+        data_path = "./recursive-clustering-experiment/manual/MAE_SMALL_STED_neural-activity-states_recursive_clusters_tree.pkl"
+    elif args.mode == "morphological":
+        data_path = "./recursive-clustering-experiment/morphological/MAE_SMALL_STED_neural-activity-states_recursive_clusters_tree.pkl"
+    data = load_data(data_path)
+    
     tree = build_tree_from_nested_lists(data)
+
+  
     all_nodes = find_leaf_nodes(tree)
 
     max_depth = max([node.depth for node in all_nodes])

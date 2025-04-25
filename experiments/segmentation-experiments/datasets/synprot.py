@@ -20,10 +20,8 @@ from sklearn.cluster import DBSCAN
 import tarfile
 from sklearn.neighbors import KernelDensity
 
-import sys
-sys.path.insert(0, "..")
-from DEFAULTS import BASE_PATH
-from configuration import Configuration
+from stedfm.DEFAULTS import BASE_PATH
+from stedfm.configuration import Configuration
 
 DATAPATH = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/TheresaProteins"
 
