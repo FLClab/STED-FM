@@ -6,10 +6,8 @@ import numpy
 from matplotlib import pyplot
 from collections import defaultdict
 
-import sys
-sys.path.insert(0, "../../")
-from DEFAULTS import COLORS
-from utils import savefig
+from stedfm.DEFAULTS import COLORS
+from stedfm.utils import savefig
 
 MODELS = ["ImageNet", "JUMP", "HPA", "SIM", "STED", "classifier", "real"]
 MODELS = ["classifier", "STED", "real"]
