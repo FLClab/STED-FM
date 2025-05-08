@@ -5,16 +5,16 @@ import argparse
 import torch.nn.functional as F 
 from tqdm import trange
 import matplotlib.pyplot as plt
-import sys 
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH 
-from loaders import get_dataset 
-from model_builder import get_pretrained_model_v2 
+from sklearn.metrics import roc_auc_score, average_precision_score
+from stedfm.DEFAULTS import BASE_PATH 
+from stedfm.loaders import get_dataset 
+from stedfm import get_pretrained_model_v2 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mae-lightning-small")
 parser.add_argument("--global_pool", type=str, default="avg")
-parser.add_argument("--num-neighbors", type=int, default=10)
+parser.add_argument("--num-neighbors", type=int, default=100)
+parser.add_argument("--metric", type=str, default="auc", choices=["auc", "aupr"])
 args = parser.parse_args()
 
 def main():
@@ -81,11 +81,41 @@ def main():
                 sorted_indices = np.argsort(similarities)[::-1] 
 
                 query_labels = []
-                for w in sorted_indices[1:K+1]:
+
+                ## AUC
+                for w in sorted_indices:
                     data_index = dataset_indices[w]
-                    query_labels.append(labels[w])
-                ap = np.sum(query_labels == curr_label) / len(query_labels)
-                average_precision.append(ap)
+                    query_labels.append(1 if labels[w] == curr_label else 0)
+                if np.unique(query_labels).shape[0] == 1 and query_labels[0] == 1:
+                    auc = 1.0
+                elif np.unique(query_labels).shape[0] == 1 and query_labels[0] == 0:
+                    auc = 0.0
+                else:
+                    if args.metric == "auc":
+                        auc = roc_auc_score(query_labels, similarities[sorted_indices])
+                    elif args.metric == "aupr":
+                        auc = average_precision_score(query_labels, similarities[sorted_indices])
+                average_precision.append(auc)
+
+                ## Mean average precision @ K = 20
+
+                # for w in sorted_indices[1:K+1]:
+                #     data_index = dataset_indices[w]
+                #     query_labels.append(labels[w])
+                # apk = 0
+                # relevance = query_labels == curr_label 
+                # num_relevant = np.sum(relevance)
+                # if num_relevant == 0:
+                #     average_precision.append(0)
+                # else:
+                #     for temp_idx in range(1, K+1):
+                #         pk = np.sum(relevance[:temp_idx]) / temp_idx 
+                #         pk = pk * relevance[temp_idx-1]
+                #         apk += pk 
+                #     apk /= num_relevant 
+                #     average_precision.append(apk)
+
+
             performance_heatmap[i, j] = np.mean(average_precision)
     
     normalized_heatmap = performance_heatmap.copy()
@@ -94,7 +124,7 @@ def main():
         normalized_heatmap[:, col] += diff
     
 
-    np.savez("./results/image_retrieval_results.npz", performance_heatmap=performance_heatmap, normalized_heatmap=normalized_heatmap)
+    np.savez(f"./results/{args.metric}_image_retrieval_results.npz", performance_heatmap=performance_heatmap, normalized_heatmap=normalized_heatmap)
     fig = plt.figure()
     ax = fig.add_subplot(111)
     im = ax.imshow(normalized_heatmap, cmap="RdPu")
@@ -111,7 +141,7 @@ def main():
     ax.set_yticklabels(pretraining_datasets)
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
     plt.colorbar(im)
-    fig.savefig("./results/image_retrieval_results.pdf", bbox_inches='tight', dpi=1200)
+    fig.savefig(f"./results/{args.metric}_image_retrieval_results.pdf", bbox_inches='tight', dpi=1200)
     plt.close(fig)
 
 if __name__=="__main__":

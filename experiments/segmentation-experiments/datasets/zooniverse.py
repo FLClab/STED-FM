@@ -6,10 +6,8 @@ from dataclasses import dataclass
 import h5py
 import numpy as np
 
-import sys
-sys.path.insert(0, "..")
-from DEFAULTS import BASE_PATH
-from configuration import Configuration
+from stedfm.DEFAULTS import BASE_PATH
+from stedfm.configuration import Configuration
 
 DATAPATH = "/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/zooniverse"
 

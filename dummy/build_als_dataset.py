@@ -24,15 +24,20 @@ args = parser.parse_args()
 
 def get_metadata(filename: str):
     folder = filename.split("/")[-3]
-    div, condition, dpi = folder.split(" ")
-    div = div.replace("INF", "")
+    split_data = folder.split(" ")
+    if len(split_data) > 3:
+        moi_mask = ["moi" in s.lower() for s in split_data]
+        moi_index = np.where(moi_mask)[0][0]
+        del split_data[moi_index]
+    div, condition, dpi = split_data
+    div = div.replace("INF", "").replace("inf", "")
     metadata = (condition, div, dpi)
     return metadata
 
 def load_files(path: str, batch_id: str, condition: str):
-    files = glob.glob(f"{path}/{batch_id}/**/**/*tif", recursive=True)
+    files = glob.glob(f"{path}/**/**/**/*tif", recursive=True)
     files = list(set(files))
-    files = [f for f in files if condition in f]
+    files = [f for f in files if condition in f] # filters out shFUS condition
     N = len(files)
     train_files = np.random.choice(files, size=int(0.6*N), replace=False)
     valid_files = [f for f in files if f not in train_files]

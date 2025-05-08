@@ -8,16 +8,13 @@ import pickle
 import os
 
 from sklearn.metrics import confusion_matrix
-
-import sys
-sys.path.insert(0, "../")
-from utils import set_seeds
+from stedfm.utils import set_seeds
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default="quality")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--seed", type=int, default=42)
-parser.add_argument("--channel", type=str, default="FUS")
+parser.add_argument("--channel", type=str, default="PSD95")
 args = parser.parse_args()
 
 PATH = f"./{args.dataset}-experiment/embeddings"
@@ -47,11 +44,11 @@ def main():
     C = 1.0
     clf = svm.SVC(kernel="linear", C=C, class_weight="balanced")
     clf.fit(train_embeddings, train_labels) 
-    print(valid_embeddings, valid_labels)
-    exit()
 
     val_prediction = clf.predict(valid_embeddings)
-    print(np.unique(val_prediction, return_counts=True))
+    print("[---] Labels [---]")
+    print(f"\t Predictions: {np.unique(val_prediction, return_counts=True)}")
+    print(f"\t Ground truth: {np.unique(valid_labels, return_counts=True)}")
     accuracy = np.sum(val_prediction == valid_labels) / num_valid_samples
     print(f"Validation accuracy: {accuracy}")
     print(f"Confusion matrix: \n{confusion_matrix(valid_labels, val_prediction)}")
