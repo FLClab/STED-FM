@@ -9,10 +9,9 @@ from tqdm import tqdm
 import sys 
 from attribute_datasets import TubulinActinDataset 
 import glob 
-sys.path.insert(0, "../")
-from model_builder import get_pretrained_model_v2 
-from DEFAULTS import BASE_PATH, COLORS 
-from utils import set_seeds
+from stedfm import get_pretrained_model_v2 
+from stedfm.DEFAULTS import BASE_PATH, COLORS 
+from stedfm.utils import set_seeds
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--latent-encoder", type=str, default="mae-lightning-small")
@@ -91,7 +90,7 @@ def compute_power_spectrum(image, center=None):
 
 def load_boundary() -> np.ndarray:
     print(f"--- Loading boundary trained from {args.weights} embeddings ---")
-    data = np.load(f"./lerp-results/boundaries/{args.boundary}/{args.weights}_{args.boundary}_boundary.npz")
+    data = np.load(f"./tubulin-actin-experiment/boundaries/{args.weights}_{args.boundary}_boundary.npz")
     boundary, intercept, norm = data["boundary"], data["intercept"], data["norm"]
     return boundary, intercept, norm
 
@@ -103,7 +102,7 @@ def save_power_spectra(power_spectra, index, freq):
     for i, (k, p) in enumerate(zip(keys, power_spectra)):
         ax.plot(freq[mask], p[mask] / p[0], label=k)
     ax.legend()
-    fig.savefig(f"./lerp-results/examples/tubulin-actin/{args.weights}-powerspectrum_{index}.pdf", dpi=1200, bbox_inches="tight")
+    fig.savefig(f"./tubulin-actin-experiment/examples/{args.weights}-powerspectrum_{index}.pdf", dpi=1200, bbox_inches="tight")
     plt.close()
 
 def save_examples(samples, distances, index):
@@ -116,7 +115,7 @@ def save_examples(samples, distances, index):
        axs[i].set_title(f"Distance: {d:.2f}")
        axs[i].axis("off")
    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
-   fig.savefig(f"./lerp-results/examples/tubulin-actin/{args.weights}-image_{index}_to{args.direction}.pdf", dpi=1200, bbox_inches="tight")
+   fig.savefig(f"./tubulin-actin-experiment/examples/{args.weights}-image_{index}_to{args.direction}.pdf", dpi=1200, bbox_inches="tight")
    plt.close(fig)
 
 
@@ -128,7 +127,7 @@ def plot_distance_distribution(distances_to_boundary: dict):
     ax.set_xlabel("Distance")
     ax.set_ylabel("Frequency")
     ax.legend()
-    fig.savefig(f"./lerp-results/examples/tubulin-actin/sanity-check/{args.weights}-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
+    fig.savefig(f"./tubulin-actin-experiment/examples/sanity-check/{args.weights}-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
 def main():
@@ -225,6 +224,7 @@ def main():
         n_steps = 4 
         # all_power_spectra = np.zeros((args.num_samples, 156, n_steps+2))
         # all_distances = np.zeros((args.num_samples, n_steps+2))
+        num_anchors = 0
         for i in tqdm(indices):
             if counter >= args.num_samples:
                 break
@@ -236,6 +236,9 @@ def main():
             multiplier = 1 if args.direction == "actin" else -1
             if args.boundary == "tubulin-actin" and metadata["label"] != target_label:
                 continue 
+            else:
+                num_anchors += 1
+                continue
 
             if "imagenet" in args.weights.lower():
                 img = torch.tensor(img, dtype=torch.float32).repeat(3, 1, 1).unsqueeze(0).to(DEVICE)
@@ -274,6 +277,7 @@ def main():
             save_examples(samples, distances, counter)
             # save_power_spectra(power_spectra, counter, freq=original_freq)
             counter += 1
+        print(f"Number of anchors: {num_anchors}")
         
 
 

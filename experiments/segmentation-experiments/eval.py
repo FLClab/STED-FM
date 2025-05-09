@@ -28,15 +28,15 @@ from skimage import measure
 from sklearn.metrics import average_precision_score, auc, precision_recall_curve, roc_auc_score
 from matplotlib import pyplot
 
-from decoders import get_decoder
+# from decoders import get_decoder
 from datasets import get_dataset
 
 import sys 
-sys.path.insert(0, "..")
-from DEFAULTS import BASE_PATH
-from model_builder import get_pretrained_model_v2
-from utils import update_cfg, save_cfg
-from configuration import Configuration
+from stedfm import get_decoder
+from stedfm.DEFAULTS import BASE_PATH
+from stedfm import get_pretrained_model_v2
+from stedfm.utils import update_cfg, save_cfg
+from stedfm.configuration import Configuration
 
 def get_save_folder() -> str:
     if "imagenet" in args.backbone_weights.lower():

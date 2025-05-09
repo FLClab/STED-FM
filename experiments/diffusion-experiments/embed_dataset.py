@@ -199,6 +199,7 @@ if __name__=="__main__":
 
     dataset = load_dataset()
 
+
     print(f"Dataset size: {len(dataset)}")   
 
     dataloader = DataLoader(dataset, batch_size=cfg.batch_size, shuffle=True, drop_last=False)
@@ -208,6 +209,7 @@ if __name__=="__main__":
     model.eval()
     dataset = dataloader.dataset 
     N = len(dataset)
+    num_used = 0
     with torch.no_grad():
         for i in trange(N):
             images, data_dict = dataset[i]
@@ -224,8 +226,10 @@ if __name__=="__main__":
                 dpi = data_dict["dpi"]
                 if "5" in div and "4" in dpi:
                     labels = "young"
+                    num_used += 1
                 elif "14" in div and "11" in dpi:
                     labels = "old"
+                    num_used += 1
                 else:
                     continue
             else:
@@ -237,6 +241,8 @@ if __name__=="__main__":
             embeddings.append(features.cpu().detach().numpy())
             all_labels.append(labels)
 
+    print(f"Number of used images: {num_used}")
+    exit()
     embeddings = np.concatenate(embeddings, axis=0)
     all_labels = np.array(all_labels)
 
