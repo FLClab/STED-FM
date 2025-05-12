@@ -12,6 +12,7 @@ from DEFAULTS import COLORS
 from utils import savefig
 
 MODELS = ["ImageNet", "JUMP", "HPA", "SIM", "STED", "classifier", "real"]
+MODELS = ["classifier", "STED", "real"]
 
 # Manually adding the colors for the models
 COLORS["classifier"] = "silver"
@@ -65,6 +66,9 @@ def get_user_choices():
             continue
 
         for key, value in user_choices.items():
+            model = get_model(key)
+            if model is None:
+                continue
             scores[get_model(key)].append({
                 "truth" : get_class(key),
                 "choice" : value,
