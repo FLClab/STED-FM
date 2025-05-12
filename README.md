@@ -8,7 +8,7 @@ cd flc-dataset
 pip install -e .
 ```
 
-## Example usage
+## Example usage of the backbone
 ```python
 from stedfm import get_pretrained_model_v2
 
@@ -24,6 +24,29 @@ model.eval()
 with torch.no_grad():
     img = torch.randn(1, 1, 224, 224).to(device)
     out = model.forward_features(img) # (1, 384) --> uncomment the global_pool line to return all embeddings (1, 196, 384)
+```
+
+## Example usage of adding a decoder to the backbone 
+```python
+from stedfm import get_pretrained_model_v2, get_decoders
+from stedfm.configuration import Configuration
+
+class SegmentationConfiguration(Configuration):
+    
+    freeze_backbone: bool = True 
+    num_epochs: int = 300
+    learning_rate: float = 1e-4
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+backbone, cfg = get_pretrained_model_v2(
+    name="mae-lightning-small",
+    weights="MAE_SMALL_STED",
+)
+
+model = get_decoder(backbone, cfg).to(device)
+with torch.no_grad():
+    img = torch.randn(1, 1, 224, 224).to(device)
+    out = model(img)
 ```
 
 ## Download models

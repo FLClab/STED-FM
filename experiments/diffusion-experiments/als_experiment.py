@@ -26,7 +26,6 @@ from stedfm.DEFAULTS import BASE_PATH, COLORS
 from stedfm import get_pretrained_model_v2 
 from stedfm.utils import set_seeds 
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument("--latent-encoder", type=str, default="mae-lightning-small")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
@@ -40,6 +39,7 @@ parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--direction", type=str, default="young")
 parser.add_argument("--n-steps", type=int, default=5)
 parser.add_argument("--channel", type=str, default="PSD95")
+parser.add_argument("--young-dpi", type=str, default="7")
 args = parser.parse_args()
 
 def denormalize(img: np.ndarray, m: float, M: float) -> np.ndarray:
@@ -58,11 +58,14 @@ def linear_interpolate(latent_code,
             boundary.shape[1] == latent_code.shape[-1])
 
     img_distance = latent_code.dot(boundary.T) + intercept 
-    end_distance = end_distance - img_distance
-    linspace = np.linspace(start_distance, end_distance, steps)[1:]
+    # start_distance = start_distance - img_distance
+    # end_distance = end_distance - img_distance
+    print(start_distance, end_distance)
+    linspace = np.linspace(start_distance, end_distance, steps)# [1:]
     if len(latent_code.shape) == 2:
         # linspace = linspace - ((latent_code.dot(boundary.T)) + intercept)
         linspace = linspace.reshape(-1, 1).astype(np.float32)
+        print(linspace.shape)
         return latent_code + linspace * boundary * norm, linspace, img_distance[0][0]
     if len(latent_code.shape) == 3:
         linspace = linspace.reshape(-1, 1, 1).astype(np.float32)
@@ -184,10 +187,17 @@ def plot_distance_distribution(distances_to_boundary: dict):
 def load_distance_distribution() -> np.ndarray:
     data = np.load(f"./{args.boundary}-experiment/{args.channel}/distributions/{args.weights}-{args.boundary}-distance_distribution.npz")
 
-    scores = np.abs(data[args.direction])
+    old_scores, young_scores = data["old"], data["young"]
+    old, young = np.mean(old_scores), np.mean(young_scores)
 
-    distance_min, distance_max = np.min(scores), np.max(scores)
-    return distance_min, distance_max
+    scores = np.abs(data[args.direction])
+    # distance_min, distance_max = np.min(scores), np.max(scores)
+    # return distance_min, distance_max
+    if args.direction == "young":
+        return old, young
+    else:
+        return young, old
+
 
 def plot_features(features: np.ndarray, distances: np.ndarray, index: int):
     os.makedirs(f"./{args.boundary}-experiment/{args.channel}/examples", exist_ok=True)
@@ -214,7 +224,7 @@ def save_examples(samples, distances, index):
         if s.shape[0] == 3:
             s = s[0, :, :]
         axs[i].imshow(s, cmap='hot', vmin=0.0, vmax=1.0)
-        axs[i].set_title("Distance: {:.2f}".format(d))
+        axs[i].set_title("d: {:.2f}".format(d))
         axs[i].axis("off")
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
     fig.savefig(f"./{args.boundary}-experiment/{args.channel}/examples/{args.weights}-image_{index}_to{args.direction}.pdf", dpi=1200, bbox_inches='tight')
@@ -232,12 +242,12 @@ def save_raw_images(samples, distances, index):
             s = s[0, :, :]
 
         tifffile.imwrite(
-            f"./{args.boundary}-experiment/{args.channel}/examples/raw-tif/{args.weights}-image_{index}_to{args.direction}_{i}.tif",
+            f"./{args.boundary}-experiment/{args.channel}/examples/raw-tif/{args.weights}-image_{index}_to{args.direction}_{i}_{d:.2f}.tif",
             s.astype(np.float32)
         )
 
         img = Image.fromarray((cmap(norm(s)) * 255).astype(np.uint8))
-        img.save(f"./{args.boundary}-experiment/{args.channel}/examples/raw/{args.weights}-image_{index}_to{args.direction}_{i}.png")
+        img.save(f"./{args.boundary}-experiment/{args.channel}/examples/raw/{args.weights}-image_{index}_to{args.direction}_{i}_{d:.2f}.png")
 
 def plot_results() -> None:
     os.makedirs(f"./{args.boundary}-experiment/{args.channel}/features", exist_ok=True)
@@ -333,7 +343,7 @@ def main():
                     continue
                 img = img.to(DEVICE)
                 div, dpi = metadata["label"], metadata["dpi"]
-                if "5" in div and "4" in dpi:
+                if "5" in div and args.young_dpi in dpi:
                     label = "young"
                 elif "14" in div and "11" in dpi:
                     label = "old"
@@ -377,12 +387,13 @@ def main():
             "lerp_3": [],
             "lerp_4": [],
             "lerp_5": [],
+            "lerp_6": [],
         }
 
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         boundary, intercept, norm = load_boundary()
         distance_min, distance_max = load_distance_distribution()
-        print(f"--- Moving from 0.0 to {distance_max} ---")
+        print(f"--- Moving from {distance_min} to {distance_max} (w/o) direction multiplier---")
         latent_encoder, model_config = get_pretrained_model_v2(
             name=args.latent_encoder,
             weights=args.weights,
@@ -430,7 +441,7 @@ def main():
             rprops = [] 
             distances = []
             features = []
-            all_features = np.zeros((args.n_steps+1, 8))
+            all_features = np.zeros((args.n_steps+2, 8))
             # if counter >= args.num_samples:
             #     break 
             img, metadata = dataset[i]
@@ -440,7 +451,7 @@ def main():
             if fg_intensity < 0.15:
                 continue
             div, dpi = metadata["label"], metadata["dpi"]
-            if "5" in div and "4" in dpi:
+            if "5" in div and args.young_dpi in dpi:
                 label = "young"
             elif "14" in div and "11" in dpi:
                 label = "old"
@@ -450,7 +461,8 @@ def main():
             current_label = target_labels[label] 
             print(label, current_label) # (old, 0) or (young, 1)
 
-            multiplier = 1 if current_label == 0 else -1
+            multiplier = 1 if args.direction == "young" else -1 # NOTE: Careful with this one because it is hardcoded and assumes old has class 0 and young has class 1
+
             if args.boundary == "als" and args.direction == label: 
                 print(f"Skipping {i} because condition is {label} and target is {args.direction}")
                 continue 
@@ -479,7 +491,7 @@ def main():
 
             rprops.append(original_rprops)
 
-            lerped_codes, d, img_distance = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=multiplier*0.0, end_distance=multiplier*distance_max, steps=args.n_steps + 1)
+            lerped_codes, d, img_distance = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=distance_min, end_distance=distance_max, steps=args.n_steps + 1)
             distances.append(img_distance)
 
             for c, code in enumerate(lerped_codes):
@@ -492,7 +504,8 @@ def main():
                 NUM_PROTEINS["lerp_" + str(c+1)].append(lerped_sample_mean_features[6])
                 all_features[c+1] = lerped_sample_mean_features
                 features.append(lerped_sample_features)
-                distances.append(img_distance + d[c][0])
+                # distances.append(img_distance + d[c][0])
+                distances.append(d[c][0])
                 rprops.append(lerped_rprops)
          
 
