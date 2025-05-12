@@ -224,7 +224,7 @@ if __name__=="__main__":
             if args.dataset == "als":
                 div = data_dict["label"]
                 dpi = data_dict["dpi"]
-                if "5" in div and "4" in dpi:
+                if "5" in div and "7" in dpi:
                     labels = "young"
                     num_used += 1
                 elif "14" in div and "11" in dpi:
@@ -241,8 +241,6 @@ if __name__=="__main__":
             embeddings.append(features.cpu().detach().numpy())
             all_labels.append(labels)
 
-    print(f"Number of used images: {num_used}")
-    exit()
     embeddings = np.concatenate(embeddings, axis=0)
     all_labels = np.array(all_labels)
 
