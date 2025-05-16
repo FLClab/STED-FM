@@ -1,6 +1,27 @@
 # STED-FM
 Repository for the paper `A Foundation Model for Super-Resolution Microscopy Enabling Multi-Task Analysis, Representation-Based Discovery, and Interactive Microscopy`.
 
+## Abstract
+
+## System Requirements
+
+### Hardware requirements
+Training of the STED-FM model most likely requires a multi-GPU setup for reasonable run time. In our case, it was trained on a high-performance computing system with the following specifications:
+- 1 node with 10 CPU core
+- 4 Tesla V100-SXM2-16Gb GPU per node
+- Allocation of the entire node's memory (maximum of 191Gb)
+
+The time required to train the models depends on the dataset size and the number of epochs. With the specifications listed above, training of the ViT-small backbone took 24 hours. To maintain a 24-hour training for the ViT-large backbone, the number of nodes needed to be increased to 4 (i.e., 16 GPUs).  
+
+After pre-training, all fine-tuning experiments of the STED-FM model can be run on a single-GPU setup. The longer configuration is the fine-tuning of the full network, which in some settings can take up to 12 hours.
+
+### Software requirements. 
+*OS requirements*
+The source code was test on the Linux - CentOS 7 operating system.
+
+*Python dependencies*
+The code was run using Python 3.8.18, 3.10.13 and 3.11.5. The required python installation should be `python>=3.8`.
+
 ## Installation 
 ```
 git clone https://github.com/FLClab/flc-dataset.git
@@ -58,20 +79,20 @@ rclone copy --progress "valeria-s3:flclab-foundation-models/models/mae-small-ste
 unzip "${HOME}/.stedfm/mae-small-sted.zip" -d "${HOME}/.stedfm"
 ```
 
-## Folder Architecture
+## Project Structure & Experiments
 
-Here's the folder architecture that is assumed in the repository...
-```bash
-baselines
-|--- resnet18
-segmentation-baselines
-|--- resnet18
-|---|--- <DATASET>
-ssl-data
-|--- <DATASET>
-evaluation-data
-|--- <DATASET>
-segmentation-data
-|--- <DATASET>
-```
+The training of STED-FM is done through the `pretrain_lightning.py` script. 
+The repository is mostly split in sub-folders of the `experiments` folder, corresponding to the various families of tasks that were performed by the model in the paper. A separate README is provided for every set of experiments.
+- The unsupervised experiments (recursive clustering, image retrieval) are in the `clustering-experiments` sub-folder.
+- The supervised classification fine-tuning experiments as well as KNN classification experiment are in the `evaluation` sub-folder. 
+- The supervised segmentation experiments as well as the patch retrieval experiment can be found in the `segmentation-experiments` sub-folder. 
+- The image generation and latent attribute manipulation experiments are in the `diffusion-experiments` sub-folder.
+- The code for extracting attention maps from STED-FM is in the `interpretability-experiments` sub-folder.
+- The code for performing user studies on the various tasks are in the `user-study` sub-folder.
+
+## Documentation
+
+## Citation
+
+
 
