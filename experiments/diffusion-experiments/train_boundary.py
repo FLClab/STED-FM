@@ -52,7 +52,6 @@ def main():
     accuracy = np.sum(val_prediction == valid_labels) / num_valid_samples
     print(f"Validation accuracy: {accuracy}")
     print(f"Confusion matrix: \n{confusion_matrix(valid_labels, val_prediction)}")
-
     boundary = clf.coef_.reshape(1, latent_dim).astype(np.float32)
     norm = np.linalg.norm(boundary)
     intercept = clf.intercept_ / norm
