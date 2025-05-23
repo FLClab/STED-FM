@@ -7,7 +7,7 @@ from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 from lightning.pytorch.core import LightningModule
 import torchvision
 from pprint import pprint
-#from custom_vit import build_mae_lightning_64_p8
+from custom_vit import build_mae_lightning_64_p8
 
 from dataclasses import dataclass
 from stedfm.DEFAULTS import BASE_PATH
@@ -103,22 +103,20 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
             backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
     elif name == 'mae-lightning-64-p8':
-        cfg.dim = 256
+        cfg.embed_dim = 128
         cfg.depth = 6
         cfg.num_heads = 4
         cfg.patch_size = 8
         cfg.img_size = 64
-        cfg.in_channels = 1
-        cfg.batch_size = 256
+        cfg.in_chans = 1
+        cfg.batch_size = 512
         cfg.backbone = "vit-64-p8"
-        vit = build_mae_lightning_64_p8(cfg,pretrained=True)
+        vit = build_mae_lightning_64_p8(cfg,pretrained=False)
         if cfg.pretrained:
             backbone = vit
         else :
             vit = build_mae_lightning_64_p8(cfg, pretrained=False)
             backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
-
-
     else:
         raise NotImplementedError(f"`{name}` not implemented")
     return backbone, cfg
@@ -233,3 +231,5 @@ class LightlyMAE(torch.nn.Module):
         patches = lightly.models.utils.patchify(images, self.patch_size)
         target = lightly.models.utils.get_at_index(patches, idx_mask-1)
         return x_pred, target
+
+        

@@ -10,8 +10,7 @@ def build_mae_lightning_64_p8(cfg, pretrained=False):
         depth = cfg.depth, # nb of transformer block
         num_heads = cfg.num_heads, # attention heads
         mlp_ratio = 4.0,
-        num_classes = 0
+        num_classes = 0,
         global_pool = "" # returns all token 
-
     )
 
