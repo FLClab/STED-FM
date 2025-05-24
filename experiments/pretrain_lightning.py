@@ -5,6 +5,7 @@ import torchvision.transforms
 from collections import defaultdict 
 from collections.abc import Mapping 
 from multiprocessing import Manager 
+import matplotlib.pyplot as plt 
 from torch.utils.tensorboard import SummaryWriter
 from lightning.pytorch import Trainer, seed_everything
 from lightning.pytorch.core import LightningModule 
@@ -21,6 +22,7 @@ from stedfm.datasets import get_dataset
 from stedfm.modules.transforms import RandomResizedCropMinimumForeground
 from stedfm.modules.datamodule import MultiprocessingDataModule
 from stedfm.utils import update_cfg
+from stedfm.datasets import ProteinImageDataset
 
 
 parser = argparse.ArgumentParser()
