@@ -4,7 +4,7 @@ import numpy as np
 import io
 import torch
 import skimage.transform
-from typing import Any, List, Tuple, Callable, Optional
+from typing import Any, List, Tuple, Callable, Optional, Dict
 from torch.utils.data import Dataset, get_worker_info
 from tqdm import tqdm
 from torchvision import transforms
@@ -89,7 +89,7 @@ def get_dataset(name: str, path: str, **kwargs):
                 crop_size=crop_size,
                 **kwargs
             )
-            print("[---] Loading training dataset [---]")
+            print("[---] Loading synaptic proteins training dataset [---]")
             return train_dataset
         else:
             test_dataset = ProteinDiffusionDataset(
@@ -97,7 +97,7 @@ def get_dataset(name: str, path: str, **kwargs):
                 crop_size=crop_size,
                 **kwargs
             )
-            print("[---] Loading test dataset [---]")
+            print("[---] Loading synaptic proteins test dataset [---]")
             return test_dataset
     
     # This allows to load any folder dataset containing tiff files
@@ -2295,7 +2295,7 @@ class ArchiveDatasetV2(Dataset):
         rank: int = 0,
         **kwargs,
     ):
-        super(ArchiveDataset, self).__init__() 
+        super(ArchiveDatasetV2, self).__init__() 
         self.__cache = {} 
         self.__max_cache_size = max_cache_size  
         self.archive_path = archive_path 
@@ -2434,6 +2434,7 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
         rank: int = 0,
         crop_size: int = 224,
         anomaly_prob: float = 0.0,
+        return_metadata: bool = True,
         **kwargs,
     ) -> None:
         super(ProteinDiffusionDataset, self).__init__(
@@ -2447,6 +2448,7 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
             **kwargs,
         )
         # self.isTest = isTest
+        self.return_metadata = return_metadata
         self.anomaly_prob = anomaly_prob
         if self.anomaly_prob > 0.0:
             self.anomaly_factory = AnomalyFactory()
@@ -2454,7 +2456,7 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
         crop_indices = []
         self.pad = crop_size // 2
         current = 0
-        for i, member in enumerate(self.members):
+        for i, member in tqdm(enumerate(self.members), desc="[---] Processing members [---]", total=len(self.members)):
             buffer = io.BytesIO()
             buffer.write(self.get_reader().extractfile(member).read())
             buffer.seek(0)
@@ -2532,8 +2534,10 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
         metadata["anomaly_mask"] = anomaly_mask
         metadata["crop_original"] = crop_original
         metadata["mask_original"] = mask_original
-        
-        return crop, mask_crop, latent_vector, metadata
+        if self.return_metadata:
+            return crop, mask_crop, latent_vector, metadata
+        else:
+            return crop
     
     def __sample_random_crop(self, data, c):
         other_chanel_mask = data["handcrafted_features"][:, 0]!= c
