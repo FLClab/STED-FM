@@ -22,6 +22,7 @@ MODELS = {
     "mae-lightning-small": get_mae_backbone,
     "mae-lightning-base": get_mae_backbone,
     "mae-lightning-large": get_mae_backbone,
+    "mae-lightning-64-p8": get_mae_backbone,
 }
 
 

@@ -80,6 +80,26 @@ def get_dataset(name: str, path: str, **kwargs):
             classes = ["CTRL"],
             **kwargs
         )
+    elif name == "protein-diffusion":
+        training = kwargs.get("training", True)
+        crop_size = kwargs.get("crop_size", 64)
+        if training: 
+            train_dataset = ProteinDiffusionDataset(
+                tarpath=f"{path}/synaptic_proteins_train_catalog.tar",
+                crop_size=crop_size,
+                **kwargs
+            )
+            print("[---] Loading training dataset [---]")
+            return train_dataset
+        else:
+            test_dataset = ProteinDiffusionDataset(
+                tarpath=f"{path}/synaptic_proteins_test_catalog.tar",
+                crop_size=crop_size,
+                **kwargs
+            )
+            print("[---] Loading test dataset [---]")
+            return test_dataset
+    
     # This allows to load any folder dataset containing tiff files
     elif os.path.isdir(name):
         dataset = FolderDataset(
@@ -2254,3 +2274,279 @@ class HPADataset(ArchiveDataset):
                 img = img[np.newaxis]
             img = torch.tensor(img, dtype=torch.float32)  
         return img
+
+
+#### For the Neurodegeneration project ####
+class ArchiveDatasetV2(Dataset):
+    
+    READERS = {
+        ".zip": ZipFile,
+        ".tar": tarfile.open
+    }
+
+    def __init__(
+        self, 
+        archive_path: str,
+        use_cache: bool = False,
+        max_cache_size: int = 16e9,
+        transform: Callable = None,
+        cache_system: str = None,
+        world_size: int = 1,
+        rank: int = 0,
+        **kwargs,
+    ):
+        super(ArchiveDataset, self).__init__() 
+        self.__cache = {} 
+        self.__max_cache_size = max_cache_size  
+        self.archive_path = archive_path 
+        self.transform = transform 
+        self.world_size = world_size 
+        self.rank = rank 
+
+        ext = os.path.splitext(self.archive_path)[1]
+
+        if ext not in self.READERS:
+            raise NotImplementedError(f"Archive type `{ext}` is not implemented. The only supported archives are: {self.READERS.keys()}")
+        self.archive_reader = self.READERS[ext]
+
+        worker = get_worker_info() 
+        worker = worker.id if worker else None 
+        self.archive_obj = {worker: self.archive_reader(self.archive_path, "r")}
+        self.members = self.get_members() 
+        # self.members = self.__setup_multiprocessing(members)
+
+        if use_cache and self.__max_cache_size > 0:
+            self.__cache_size = 0
+            if not cache_system is None: 
+                self.__cache = cache_system 
+            self.__fill_cache()
+        
+
+    def get_members(self) -> List[tarfile.TarInfo]:
+        raise NotImplementedError("Implement in daughter class")
+
+    def get_item_from_archive(self, member: tarfile.TarInfo) -> Dict:
+        raise NotImplementedError("Implement in daughter class")
+    
+    def get_reader(self):
+        worker = get_worker_info() 
+        worker = worker.id if worker else None 
+        if worker not in self.archive_obj:
+            self.archive_obj[worker] = self.archive_reader(self.archive_path, "r")
+        return self.archive_obj[worker]
+
+    def get_data(self, idx: int) -> Dict:
+        if idx in self.__cache:
+            data = self.__cache[idx] 
+        else:
+            data = self.get_item_from_archive(self.members[idx])
+        return data 
+
+    def __getsizeof(self, obj: Any) -> int:
+        """
+        Implements a simple function to estimate the size of an object in memory.
+
+        :param obj: The object to estimate the size of.
+
+        :returns : The size of the object in bytes.
+        """
+        if isinstance(obj, dict):
+            return sum([self.__getsizeof(o) for o in obj.values()])
+        elif isinstance(obj, (list, tuple)):
+            return sum([self.__getsizeof(o) for o in obj])
+        elif isinstance(obj, str):
+            return len(obj)
+        else:
+            return obj.size * obj.dtype.itemsize 
+
+    def __fill_cache(self):
+        """
+        Implements a function to fill up the cache with data from the TarFile.
+        """
+        indices = np.arange(0, len(self.members), 1)
+        np.random.shuffle(indices)
+        print("Filling up the cache...")
+        # pbar = tqdm(indices, total=indices.shape[0])
+        for n, idx in enumerate(indices):
+            if self.__cache_size >= self.__max_cache_size:
+                break
+            data = self.get_item_from_archive(self.members[idx])
+            self.__cache[idx] = data
+            self.__cache_size += self.__getsizeof(data)
+            # pbar.set_description(f"Cache size --> {self.__cache_size * 1e-9:0.2f}G")
+            if n % 1000 == 0:
+                worker = get_worker_info()
+                worker = worker.id if worker else None
+                print(f"Current cache (worker: {worker} | rank: {self.rank}): {n}/{len(indices)} ({self.__cache_size * 1e-9:0.2f}G/{self.__max_cache_size * 1e-9:0.2f}G)")  
+
+    def __setup_multiprocessing(self, members: List[tarfile.TarInfo]) -> List[tarfile.TarInfo]:
+        """
+        Setup multiprocessing for the dataset.
+
+        :param members: The list of members to setup multiprocessing for.
+
+        :returns : A `list` of members.
+        """
+        if self.world_size > 1:
+            num_members = len(members)
+            num_members_per_gpu = num_members // self.world_size
+
+            # members = members[self.rank * num_members_per_gpu : (self.rank + 1) * num_members_per_gpu]
+            # Since the members are sorted, it makes more sense to take every `world_size` items
+            members = members[self.rank:num_members_per_gpu*self.world_size:self.world_size]
+        return members
+
+    def __len__(self) -> int:
+        raise NotImplementedError("Implement in daughter class")
+
+    def __getitem__(self, idx: int) -> Dict:
+        raise NotImplementedError("Implement in daughter class")
+
+    def __del__(self):
+        """
+        Close the ZipFile file handles on exit.
+        """
+        if hasattr(self, 'archive_obj'):  # Check if attribute exists
+            for o in self.archive_obj.values():
+                try:
+                    if o is not None:  # Check if object exists
+                        o.close()
+                except Exception as e:
+                    print(f"Error closing archive handle: {e}") 
+
+    def __getstate__(self) -> Dict:
+        """
+        Serialize without the ZipFile references, for multiprocessing compatibility.
+        """
+        state = dict(self.__dict__)
+        state['archive_obj'] = {}
+        return state
+
+class ProteinDiffusionDataset(ArchiveDatasetV2):
+    def __init__(
+        self, 
+        tarpath: str,
+        use_cache: bool = False,
+        max_cache_size: int = 16e9,
+        transform: Callable = None,
+        cache_system: str = None,
+        world_size: int = 1,
+        rank: int = 0,
+        crop_size: int = 224,
+        anomaly_prob: float = 0.0,
+        **kwargs,
+    ) -> None:
+        super(ProteinDiffusionDataset, self).__init__(
+            archive_path=tarpath,
+            use_cache=use_cache,
+            max_cache_size=max_cache_size,
+            transform=transform,
+            cache_system=cache_system,
+            world_size=world_size,
+            rank=rank,
+            **kwargs,
+        )
+        # self.isTest = isTest
+        self.anomaly_prob = anomaly_prob
+        if self.anomaly_prob > 0.0:
+            self.anomaly_factory = AnomalyFactory()
+
+        crop_indices = []
+        self.pad = crop_size // 2
+        current = 0
+        for i, member in enumerate(self.members):
+            buffer = io.BytesIO()
+            buffer.write(self.get_reader().extractfile(member).read())
+            buffer.seek(0)
+            data = np.load(buffer, allow_pickle=True)
+            num_tokens = data["handcrafted_features"].shape[0]
+            current += num_tokens 
+            for n in range(num_tokens):
+                crop_indices.append((i, n))
+
+        
+        self.crop_indices = crop_indices
+        self.crop_indices = self._distribute_indices(crop_indices)
+
+    def get_members(self) -> List[tarfile.TarInfo]:
+        return list(sorted(self.get_reader().getmembers(), key=lambda m: m.name))  
+
+    def _distribute_indices(self, indices: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
+        if self.world_size > 1:
+            num_indices = len(indices)
+            num_indices_per_gpu = num_indices // self.world_size 
+            indices = indices[self.rank:num_indices_per_gpu*self.world_size:self.world_size]
+        return indices
+
+    def __len__(self) -> int:
+        return len(self.crop_indices)
+
+    def get_item_from_archive(self, member: tarfile.TarInfo) -> Dict:
+        buffer = io.BytesIO()
+        buffer.write(self.get_reader().extractfile(member).read())
+        buffer.seek(0)
+        data = np.load(buffer, allow_pickle=True)
+        data = {key: values for key, values in data.items()}
+        return data 
+
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, Dict]:
+        member_idx, token_idx = self.crop_indices[idx]
+        data = self.get_data(member_idx) 
+        metadata = data["metadata"]
+        metadata = metadata.item()
+        c, x, y = data["handcrafted_features"][token_idx, :3]
+        c, x, y = int(c), int(x), int(y)
+        img = data["image"][c, :, :]
+        mask = data["mask"][c, :, :]
+        mask = mask.astype(np.float32)
+
+
+        m, M = np.quantile(img, [0.0001, 0.9999])
+        img = (img - m) / (M - m)
+        img = np.clip(img, 0.0, 1.0).astype(np.float32)
+        embeddings = data["embeddings"]
+        
+        crop = img[y-self.pad:y+self.pad, x-self.pad:x+self.pad]
+        crop_original = copy.copy(crop)
+        mask_crop = mask[y-self.pad:y+self.pad, x-self.pad:x+self.pad]
+        mask_original = copy.copy(mask_crop)
+        latent_vector = embeddings[token_idx]
+        latent_vector = torch.tensor(latent_vector, dtype=torch.float32)
+        metadata["anomaly_type"] = "normal"
+        anomaly_mask = np.zeros_like(mask_crop)
+
+        if self.anomaly_prob > 0.0:
+            prob = random.random()
+            if prob <= self.anomaly_prob:
+                other_crop, other_mask_crop = self.__sample_random_crop(data, c)
+                crop, mask_crop, anomaly_mask, anomaly_type  = self.anomaly_factory(crop, mask_crop, other_crop=other_crop, other_mask_crop=other_mask_crop)
+                metadata["anomaly_type"] = anomaly_type
+
+        crop = torch.tensor(crop[np.newaxis, ...], dtype=torch.float32)
+        mask_crop = torch.tensor(mask_crop[np.newaxis, ...], dtype=torch.float32)
+        anomaly_mask = torch.tensor(anomaly_mask[np.newaxis, ...], dtype=torch.float32)
+        crop_original = torch.tensor(crop_original[np.newaxis, ...], dtype=torch.float32)
+        mask_original = torch.tensor(mask_original[np.newaxis, ...], dtype=torch.float32)
+        
+
+        metadata["anomaly_mask"] = anomaly_mask
+        metadata["crop_original"] = crop_original
+        metadata["mask_original"] = mask_original
+        
+        return crop, mask_crop, latent_vector, metadata
+    
+    def __sample_random_crop(self, data, c):
+        other_chanel_mask = data["handcrafted_features"][:, 0]!= c
+        other_chanel_data = data["handcrafted_features"][other_chanel_mask]
+        row_inx = np.random.randint(0, other_chanel_data.shape[0])
+        c_other, x_other, y_other = data["handcrafted_features"][row_inx, :3]
+        c_other, x_other, y_other = int(c_other), int(x_other), int(y_other)
+        other_image = data["image"][c_other, :, :]
+        m, M = np.quantile(other_image, [0.0001, 0.9999])
+        other_image = (other_image - m) / (M - m)
+
+        other_crop = other_image[y_other-self.pad:y_other+self.pad, x_other-self.pad:x_other+self.pad]
+
+        other_mask = data["mask"][c_other, :, :]
+        other_mask_crop = other_mask[y_other-self.pad:y_other+self.pad, x_other-self.pad:x_other+self.pad]
+        return other_crop, other_mask_crop
