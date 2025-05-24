@@ -161,7 +161,6 @@ class MAE(LightningModule):
 
     def training_step(self, batch, batch_idx):
         images = batch 
-        print(images.shape)
         batch_size = images.shape[0]
         idx_keep, idx_mask = lightly.models.utils.random_token_mask(
             size=(batch_size, self.sequence_length),
