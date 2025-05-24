@@ -2365,9 +2365,9 @@ class ArchiveDatasetV2(Dataset):
         """
         indices = np.arange(0, len(self.members), 1)
         np.random.shuffle(indices)
-        print("Filling up the cache...")
+        print("Filling up the cache (v2)...")
         # pbar = tqdm(indices, total=indices.shape[0])
-        for n, idx in enumerate(indices):
+        for n, idx in tqdm(enumerate(indices), total=indices.shape[0]):
             if self.__cache_size >= self.__max_cache_size:
                 break
             data = self.get_item_from_archive(self.members[idx])
