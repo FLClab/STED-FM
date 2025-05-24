@@ -1,7 +1,7 @@
 import torch
 import os
 import lightly.models.utils
-from timm.models.vision_transformer import vit_small_patch16_224, vit_tiny_patch16_224, vit_base_patch16_224, vit_large_patch16_224
+from timm.models.vision_transformer import vit_small_patch16_224, vit_tiny_patch16_224, vit_base_patch16_224, vit_large_patch16_224, VisionTransformer
 import lightly.models.utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 from lightning.pytorch.core import LightningModule
@@ -104,6 +104,7 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
             backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
     elif name == "mae-lightning-64-p8":
+        print("[---] Using vit-64-p8 backbone [---]")
         cfg.dim = 128 
         cfg.batch_size = 512
         cfg.backbone = "vit-64-p8"
@@ -113,9 +114,8 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
             in_chans=cfg.in_channels,
             num_classes=4,
             embed_dim=cfg.dim,
-            depth=12,
-            num_heads=6,
-            pretrained=False,
+            depth=8,
+            num_heads=4,
         )
         backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
