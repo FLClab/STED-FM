@@ -124,7 +124,12 @@ def get_dataset(name: str, path: str, **kwargs):
     # This allows to load any folder dataset containing tiff files
     elif os.path.isdir(name):
         dataset = FolderDataset(
-            name,
+            os.path.join(BASE_PATh),
+            **kwargs
+        )
+    elif name == "synaptic-proteins":
+        dataset = ProteinDiffusionDataset(
+            os.path.join(BASE_PATH,"/home-local/Tassnym/Datasets/LargeProteinModels/synaptic_proteins_train_catalog.tar"),
             **kwargs
         )
     else:
@@ -2296,8 +2301,14 @@ class HPADataset(ArchiveDataset):
             img = torch.tensor(img, dtype=torch.float32)  
         return img
 
+<<<<<<< HEAD
+from typing import Dict
+
+#### Neurodegeneration project 
+=======
 
 #### For the Neurodegeneration project ####
+>>>>>>> main
 class ArchiveDatasetV2(Dataset):
     
     READERS = {
@@ -2386,9 +2397,15 @@ class ArchiveDatasetV2(Dataset):
         """
         indices = np.arange(0, len(self.members), 1)
         np.random.shuffle(indices)
+<<<<<<< HEAD
+        print("Filling up the cache...")
+        # pbar = tqdm(indices, total=indices.shape[0])
+        for n, idx in enumerate(indices):
+=======
         print("Filling up the cache (v2)...")
         # pbar = tqdm(indices, total=indices.shape[0])
         for n, idx in tqdm(enumerate(indices), total=indices.shape[0]):
+>>>>>>> main
             if self.__cache_size >= self.__max_cache_size:
                 break
             data = self.get_item_from_archive(self.members[idx])
@@ -2441,6 +2458,9 @@ class ArchiveDatasetV2(Dataset):
         """
         state = dict(self.__dict__)
         state['archive_obj'] = {}
+<<<<<<< HEAD
+        return state  
+=======
         return state
 
 
@@ -2516,6 +2536,7 @@ class ProteinImageDataset(ArchiveDatasetV2):
         crop = img[c, y-self.pad:y+self.pad, x-self.pad:x+self.pad]
         crop = torch.tensor(crop[np.newaxis, ...], dtype=torch.float32)
         return crop
+>>>>>>> main
 
 class ProteinDiffusionDataset(ArchiveDatasetV2):
     def __init__(
@@ -2529,7 +2550,10 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
         rank: int = 0,
         crop_size: int = 224,
         anomaly_prob: float = 0.0,
+<<<<<<< HEAD
+=======
         return_metadata: bool = True,
+>>>>>>> main
         **kwargs,
     ) -> None:
         super(ProteinDiffusionDataset, self).__init__(
@@ -2543,7 +2567,10 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
             **kwargs,
         )
         # self.isTest = isTest
+<<<<<<< HEAD
+=======
         self.return_metadata = return_metadata
+>>>>>>> main
         self.anomaly_prob = anomaly_prob
         if self.anomaly_prob > 0.0:
             self.anomaly_factory = AnomalyFactory()
@@ -2551,7 +2578,11 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
         crop_indices = []
         self.pad = crop_size // 2
         current = 0
+<<<<<<< HEAD
+        for i, member in enumerate(self.members):
+=======
         for i, member in tqdm(enumerate(self.members), desc="[---] Processing members [---]", total=len(self.members)):
+>>>>>>> main
             buffer = io.BytesIO()
             buffer.write(self.get_reader().extractfile(member).read())
             buffer.seek(0)
@@ -2629,10 +2660,15 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
         metadata["anomaly_mask"] = anomaly_mask
         metadata["crop_original"] = crop_original
         metadata["mask_original"] = mask_original
+<<<<<<< HEAD
+        
+        return crop, mask_crop, latent_vector, metadata
+=======
         if self.return_metadata:
             return crop, mask_crop, latent_vector, metadata
         else:
             return crop
+>>>>>>> main
     
     def __sample_random_crop(self, data, c):
         other_chanel_mask = data["handcrafted_features"][:, 0]!= c
@@ -2648,4 +2684,14 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
 
         other_mask = data["mask"][c_other, :, :]
         other_mask_crop = other_mask[y_other-self.pad:y_other+self.pad, x_other-self.pad:x_other+self.pad]
+<<<<<<< HEAD
         return other_crop, other_mask_crop
+
+
+
+
+
+
+=======
+        return other_crop, other_mask_crop
+>>>>>>> main

@@ -7,6 +7,7 @@ from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 from lightning.pytorch.core import LightningModule
 import torchvision
 from pprint import pprint
+from custom_vit import build_mae_lightning_64_p8
 
 from dataclasses import dataclass
 from stedfm.DEFAULTS import BASE_PATH
@@ -233,3 +234,5 @@ class LightlyMAE(torch.nn.Module):
         patches = lightly.models.utils.patchify(images, self.patch_size)
         target = lightly.models.utils.get_at_index(patches, idx_mask-1)
         return x_pred, target
+
+        
