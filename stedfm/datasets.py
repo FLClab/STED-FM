@@ -2537,3 +2537,8 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
         other_mask_crop = other_mask[y_other-self.pad:y_other+self.pad, x_other-self.pad:x_other+self.pad]
         return other_crop, other_mask_crop
 
+
+
+
+
+
