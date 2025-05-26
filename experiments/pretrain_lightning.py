@@ -2,29 +2,27 @@ import torch
 import os 
 import argparse 
 import torchvision.transforms
-from loaders import get_STED_dataset, get_JUMP_dataset
 from collections import defaultdict 
 from collections.abc import Mapping 
 from multiprocessing import Manager 
+import matplotlib.pyplot as plt 
 from torch.utils.tensorboard import SummaryWriter
 from lightning.pytorch import Trainer, seed_everything
 from lightning.pytorch.core import LightningModule 
 from lightning.pytorch.callbacks import ModelCheckpoint 
 from lightning.pytorch.loggers import TensorBoardLogger
 from tqdm import tqdm 
-from model_builder import get_base_model 
+from stedfm.model_builder import get_base_model 
 # from torchinfo import summary 
 
-from DEFAULTS import BASE_PATH
-from configuration import Configuration
-from models.lightly_mae import MAE
-from datasets import get_dataset
-from modules.transforms import RandomResizedCropMinimumForeground
-from modules.datamodule import MultiprocessingDataModule
-
-import sys
-sys.path.insert(0, ".")
-from utils import update_cfg
+from stedfm.DEFAULTS import BASE_PATH
+from stedfm.configuration import Configuration
+from stedfm.models.lightly_mae import MAE
+from stedfm.datasets import get_dataset
+from stedfm.modules.transforms import RandomResizedCropMinimumForeground
+from stedfm.modules.datamodule import MultiprocessingDataModule
+from stedfm.utils import update_cfg
+from stedfm.datasets import ProteinImageDataset
 
 
 parser = argparse.ArgumentParser()
@@ -55,15 +53,17 @@ class DataModuleConfig(Configuration):
 
     num_workers : int = None
     shuffle : bool = True
-    use_cache : bool = True
+    use_cache : bool = False
     max_cache_size : float = 32e+9
     return_metadata : bool = False
 
 if __name__=="__main__":
 
     seed_everything(args.seed, workers=True)
-
+    print(args)
     model, cfg = get_base_model(name=args.model)
+
+
     cfg.datamodule = DataModuleConfig()
     cfg.args = args
     update_cfg(cfg, args.opts)

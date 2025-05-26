@@ -1,7 +1,7 @@
 import torch
 import os
 import lightly.models.utils
-from timm.models.vision_transformer import vit_small_patch16_224, vit_tiny_patch16_224, vit_base_patch16_224, vit_large_patch16_224
+from timm.models.vision_transformer import vit_small_patch16_224, vit_tiny_patch16_224, vit_base_patch16_224, vit_large_patch16_224, VisionTransformer
 import lightly.models.utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 from lightning.pytorch.core import LightningModule
@@ -20,6 +20,8 @@ class MAEWeights:
     MAE_SMALL_IMAGENET1K_V1 = None
     MAE_BASE_IMAGENET1K_V1 = None
     MAE_LARGE_IMAGENET1K_V1 = None
+
+    MAE_64_P8_PROTEINS = os.path.join(BASE_PATH, "baselines", "mae-64-p8_PROTEINS", "pl_checkpoint-999.pth")
 
     MAE_TINY_STED = os.path.join(BASE_PATH, "baselines", "mae-tiny_STED", "pl_checkpoint-999.pth")
     MAE_SMALL_STED = os.path.join(BASE_PATH, "baselines", "mae-small_STED", "pl_checkpoint-999.pth")
@@ -102,21 +104,22 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
         else:
             backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
-    elif name == 'mae-lightning-64-p8':
-        cfg.embed_dim = 128
-        cfg.depth = 6
-        cfg.num_heads = 4
-        cfg.patch_size = 8
-        cfg.img_size = 64
-        cfg.in_chans = 1
+    elif name == "mae-lightning-64-p8":
+        print("[---] Using vit-64-p8 backbone [---]")
+        cfg.dim = 128 
         cfg.batch_size = 512
         cfg.backbone = "vit-64-p8"
-        vit = build_mae_lightning_64_p8(cfg,pretrained=False)
-        if cfg.pretrained:
-            backbone = vit
-        else :
-            vit = build_mae_lightning_64_p8(cfg, pretrained=False)
-            backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+        vit = VisionTransformer(
+            img_size=64,
+            patch_size=8,
+            in_chans=cfg.in_channels,
+            num_classes=4,
+            embed_dim=cfg.dim,
+            depth=8,
+            num_heads=4,
+        )
+        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+
     else:
         raise NotImplementedError(f"`{name}` not implemented")
     return backbone, cfg

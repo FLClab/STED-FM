@@ -4,7 +4,7 @@ import numpy as np
 import io
 import torch
 import skimage.transform
-from typing import Any, List, Tuple, Callable, Optional
+from typing import Any, List, Tuple, Callable, Optional, Dict
 from torch.utils.data import Dataset, get_worker_info
 from tqdm import tqdm
 from torchvision import transforms
@@ -80,6 +80,47 @@ def get_dataset(name: str, path: str, **kwargs):
             classes = ["CTRL"],
             **kwargs
         )
+
+    elif name == "protein-images":
+        training = kwargs.get("training", True)
+        crop_size = kwargs.get("crop_size", 64)
+        if training:
+            train_dataset = ProteinImageDataset(
+                tarpath=f"{path}/synaptic_proteins_train_catalog.tar",
+                crop_size=crop_size,
+                **kwargs
+            )
+            print("[---] Loading synaptic proteins train images dataset [---]")
+            return train_dataset
+        else:
+            test_dataset = ProteinImageDataset(
+                tarpath=f"{path}/synaptic_proteins_test_catalog.tar",
+                crop_size=crop_size,
+                **kwargs
+            )
+            print("[---] Loading synaptic proteins test images dataset [---]")
+            return test_dataset
+
+    elif name == "protein-diffusion":
+        training = kwargs.get("training", True)
+        crop_size = kwargs.get("crop_size", 64)
+        if training: 
+            train_dataset = ProteinDiffusionDataset(
+                tarpath=f"{path}/synaptic_proteins_train_catalog.tar",
+                crop_size=crop_size,
+                **kwargs
+            )
+            print("[---] Loading synaptic proteins training dataset [---]")
+            return train_dataset
+        else:
+            test_dataset = ProteinDiffusionDataset(
+                tarpath=f"{path}/synaptic_proteins_test_catalog.tar",
+                crop_size=crop_size,
+                **kwargs
+            )
+            print("[---] Loading synaptic proteins test dataset [---]")
+            return test_dataset
+    
     # This allows to load any folder dataset containing tiff files
     elif os.path.isdir(name):
         dataset = FolderDataset(
@@ -2260,9 +2301,14 @@ class HPADataset(ArchiveDataset):
             img = torch.tensor(img, dtype=torch.float32)  
         return img
 
+<<<<<<< HEAD
 from typing import Dict
 
 #### Neurodegeneration project 
+=======
+
+#### For the Neurodegeneration project ####
+>>>>>>> main
 class ArchiveDatasetV2(Dataset):
     
     READERS = {
@@ -2351,9 +2397,15 @@ class ArchiveDatasetV2(Dataset):
         """
         indices = np.arange(0, len(self.members), 1)
         np.random.shuffle(indices)
+<<<<<<< HEAD
         print("Filling up the cache...")
         # pbar = tqdm(indices, total=indices.shape[0])
         for n, idx in enumerate(indices):
+=======
+        print("Filling up the cache (v2)...")
+        # pbar = tqdm(indices, total=indices.shape[0])
+        for n, idx in tqdm(enumerate(indices), total=indices.shape[0]):
+>>>>>>> main
             if self.__cache_size >= self.__max_cache_size:
                 break
             data = self.get_item_from_archive(self.members[idx])
@@ -2406,7 +2458,85 @@ class ArchiveDatasetV2(Dataset):
         """
         state = dict(self.__dict__)
         state['archive_obj'] = {}
+<<<<<<< HEAD
         return state  
+=======
+        return state
+
+
+class ProteinImageDataset(ArchiveDatasetV2):
+    def __init__(
+        self, 
+        tarpath: str, 
+        use_cache: bool = False,
+        max_cache_size: int = 16e9,
+        transform: Callable = None,
+        cache_system: str = None,
+        world_size: int = 1,
+        rank: int = 0,
+        crop_size: int = 64,
+        **kwargs,
+    ) -> None:
+        super(ProteinImageDataset, self).__init__(
+            archive_path=tarpath,
+            use_cache=use_cache,
+            max_cache_size=max_cache_size,
+            transform=transform,
+            cache_system=cache_system,
+            world_size=world_size,
+            rank=rank,
+            **kwargs,
+        )
+        self.pad = crop_size // 2
+        items = []
+        imgs = []
+        for i, member in tqdm(enumerate(self.members), desc="[---] Processing members [---]", total=len(self.members)):
+            buffer = io.BytesIO()
+            buffer.write(self.get_reader().extractfile(member).read())
+            buffer.seek(0)
+            data = np.load(buffer, allow_pickle=True)
+            image = data["image"]
+            features = data["handcrafted_features"]
+            img_copy = copy.deepcopy(image).astype(np.float32)
+            img0 = img_copy[0, :, :]
+            img1 = img_copy[1, :, :] 
+            m0, M0 = np.quantile(img0, [0.0001, 0.9999]) 
+            m1, M1 = np.quantile(img1, [0.0001, 0.9999])
+            img0 = (img0 - m0) / (M0 - m0)
+            img1 = (img1 - m1) / (M1 - m1)
+            img_copy[0, :, :] = img0
+            img_copy[1, :, :] = img1
+            img_copy = img_copy.astype(np.float32)
+            imgs.append(img_copy)
+            for r in range(features.shape[0]):
+                row = features[r, :]
+                c, x, y = int(row[0]), int(row[1]), int(row[2])
+                items.append((i, c, x, y))
+
+        self.imgs = imgs
+        self.items = items 
+        self.items = self.__distribute_items(items)
+
+    def __distribute_items(self, items: List[Tuple[int, int, int, int]]) -> List[Tuple[int, int, int, int]]:
+        if self.world_size > 1:
+            num_items = len(items)
+            num_items_per_gpu = num_items // self.world_size
+            items = items[self.rank:num_items_per_gpu*self.world_size:self.world_size]
+        return items
+            
+    def get_members(self) -> List[tarfile.TarInfo]:
+        return list(sorted(self.get_reader().getmembers(), key=lambda m: m.name)) 
+
+    def __len__(self) -> int:
+        return len(self.items)
+
+    def __getitem__(self, idx: int) -> Dict:
+        img_idx, c, x, y = self.items[idx]
+        img = self.imgs[img_idx]
+        crop = img[c, y-self.pad:y+self.pad, x-self.pad:x+self.pad]
+        crop = torch.tensor(crop[np.newaxis, ...], dtype=torch.float32)
+        return crop
+>>>>>>> main
 
 class ProteinDiffusionDataset(ArchiveDatasetV2):
     def __init__(
@@ -2420,6 +2550,10 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
         rank: int = 0,
         crop_size: int = 224,
         anomaly_prob: float = 0.0,
+<<<<<<< HEAD
+=======
+        return_metadata: bool = True,
+>>>>>>> main
         **kwargs,
     ) -> None:
         super(ProteinDiffusionDataset, self).__init__(
@@ -2433,6 +2567,10 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
             **kwargs,
         )
         # self.isTest = isTest
+<<<<<<< HEAD
+=======
+        self.return_metadata = return_metadata
+>>>>>>> main
         self.anomaly_prob = anomaly_prob
         if self.anomaly_prob > 0.0:
             self.anomaly_factory = AnomalyFactory()
@@ -2440,7 +2578,11 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
         crop_indices = []
         self.pad = crop_size // 2
         current = 0
+<<<<<<< HEAD
         for i, member in enumerate(self.members):
+=======
+        for i, member in tqdm(enumerate(self.members), desc="[---] Processing members [---]", total=len(self.members)):
+>>>>>>> main
             buffer = io.BytesIO()
             buffer.write(self.get_reader().extractfile(member).read())
             buffer.seek(0)
@@ -2518,8 +2660,15 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
         metadata["anomaly_mask"] = anomaly_mask
         metadata["crop_original"] = crop_original
         metadata["mask_original"] = mask_original
+<<<<<<< HEAD
         
         return crop, mask_crop, latent_vector, metadata
+=======
+        if self.return_metadata:
+            return crop, mask_crop, latent_vector, metadata
+        else:
+            return crop
+>>>>>>> main
     
     def __sample_random_crop(self, data, c):
         other_chanel_mask = data["handcrafted_features"][:, 0]!= c
@@ -2535,6 +2684,7 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
 
         other_mask = data["mask"][c_other, :, :]
         other_mask_crop = other_mask[y_other-self.pad:y_other+self.pad, x_other-self.pad:x_other+self.pad]
+<<<<<<< HEAD
         return other_crop, other_mask_crop
 
 
@@ -2542,3 +2692,6 @@ class ProteinDiffusionDataset(ArchiveDatasetV2):
 
 
 
+=======
+        return other_crop, other_mask_crop
+>>>>>>> main
