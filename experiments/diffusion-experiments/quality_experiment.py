@@ -18,10 +18,9 @@ import sys
 import glob
 from PIL import Image
 import tifffile
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH, COLORS
-from utils import set_seeds
-from model_builder import get_pretrained_model_v2
+from stedfm.DEFAULTS import BASE_PATH, COLORS
+from stedfm.utils import set_seeds
+from stedfm.model_builder import get_pretrained_model_v2
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--latent-encoder", type=str, default="mae-lightning-small")

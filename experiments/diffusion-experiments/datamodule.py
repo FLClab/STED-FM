@@ -10,8 +10,7 @@ from lightning.pytorch.core import LightningDataModule
 import sys
 
 import torch.distributed
-sys.path.insert(0, "..")
-from datasets import get_dataset
+from stedfm.datasets import get_dataset
 
 class MultiprocessingDistributedSampler(torch.utils.data.DistributedSampler):
     def __init__(self, *args, **kwargs):

@@ -15,10 +15,10 @@ import sys
 import torch.nn.functional as F
 import os
 from wavelet import detect_spots
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH
-from model_builder import get_pretrained_model_v2
-from loaders import get_dataset
+
+from stedfm.DEFAULTS import BASE_PATH
+from stedfm.model_builder import get_pretrained_model_v2
+from stedfm.loaders import get_dataset
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default="neural-activity-states")

@@ -6,10 +6,9 @@ from tqdm import tqdm
 import numpy as np 
 from typing import List, Optional, Tuple 
 import sys 
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH 
-from loaders import get_dataset 
-from model_builder import get_pretrained_model_v2 
+from stedfm.DEFAULTS import BASE_PATH 
+from stedfm.loaders import get_dataset 
+from stedfm.model_builder import get_pretrained_model_v2 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default="optim")

@@ -10,9 +10,8 @@ import argparse
 from tqdm import tqdm, trange
 import os
 import sys
-sys.path.insert(0, '../..')
-from DEFAULTS import BASE_PATH, COLORS 
-from model_builder import get_pretrained_model_v2 
+from stedfm.DEFAULTS import BASE_PATH, COLORS 
+from stedfm.model_builder import get_pretrained_model_v2 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)

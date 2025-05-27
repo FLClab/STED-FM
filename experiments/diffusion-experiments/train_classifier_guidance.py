@@ -16,8 +16,7 @@ import argparse
 import sys 
 from datamodule import MultiprocessingDataModule
 from class_dict import class_dict
-sys.path.insert(0, "../")
-from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss, update_cfg, get_number_of_classes
+from stedfm.utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss, update_cfg, get_number_of_classes
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)

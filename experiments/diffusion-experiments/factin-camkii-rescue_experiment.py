@@ -23,11 +23,10 @@ import pickle
 from PIL import Image
 import tifffile
 
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH, COLORS 
-from model_builder import get_pretrained_model_v2 
-from utils import set_seeds
-from datasets import FactinCaMKIIDataset
+from stedfm.DEFAULTS import BASE_PATH, COLORS 
+from stedfm.model_builder import get_pretrained_model_v2 
+from stedfm.utils import set_seeds
+from stedfm.datasets import FactinCaMKIIDataset
 
 CONDITIONA = "CTRL"
 CONDITIONB = "RESCUE"
