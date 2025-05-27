@@ -1,5 +1,5 @@
 # STED-FM
-Repository for the paper `A Foundation Model for Super-Resolution Microscopy Enabling Multi-Task Analysis, Representation-Based Discovery, and Interactive Microscopy`.
+Repository for the paper `STED-FM: A Foundation Model for STED Microscopy`.
 
 ## Abstract
 
