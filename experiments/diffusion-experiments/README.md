@@ -20,19 +20,22 @@ python embed_dataset.py --dataset als --split valid
 python train_boundary.py --dataset als 
 ```
 
-3.1) First, the distribution of the train images' distance to the decision boundary is computed using the script below with the `--sanity-check` argument. 
+3) First, the distribution of the train images' distance to the decision boundary is computed using the script below with the `--sanity-check` argument. 
 
 ```bash
 python als_experiment.py --sanity-check
 ```
 
-3.2) The latent attribute manipulation can now be performed with the following:
+4) The latent attribute manipulation can now be performed with the following:
 ```bash
 python als_experiment.py
 ```
 
 ### Other experiments
 All experiments can be performed by doing steps 1-2 with the adequate arguments. For step 3, the experiments are performed by different scripts.  
-- *actin to tubulin experiment*: `tubulin_actin_experiment.py`
-- 
+- *F-actin to tubulin experiment*: `tubulin_actin_experiment.py`
+- *Image quality experiment*: `quality_experiment.py`
+- *Image resolution experiment*: `resolution_experiment.py`
+- *Synaptic development experiment*: `als_experiment.py`
+- *Activity-dependent F-actin experiment*: `factin-rings-fibers_experiment.py`
 
