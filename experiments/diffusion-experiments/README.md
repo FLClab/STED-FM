@@ -32,7 +32,7 @@ python als_experiment.py
 ```
 
 ### Other experiments
-All experiments can be performed by doing steps 1-2 with the adequate arguments. For step 3, the experiments are performed by different scripts.
-    - *actin to tubulin experiment*: `tubulin_actin_experiment.py`
-    - 
+All experiments can be performed by doing steps 1-2 with the adequate arguments. For step 3, the experiments are performed by different scripts.  
+- *actin to tubulin experiment*: `tubulin_actin_experiment.py`
+- 
 
