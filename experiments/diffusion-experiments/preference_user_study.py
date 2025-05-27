@@ -8,10 +8,9 @@ from tqdm import trange, tqdm
 import copy 
 import sys 
 import random 
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH 
-from datasets import get_dataset 
-from model_builder import get_pretrained_model_v2 
+from stedfm.DEFAULTS import BASE_PATH 
+from stedfm.datasets import get_dataset 
+from stedfm.model_builder import get_pretrained_model_v2 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)

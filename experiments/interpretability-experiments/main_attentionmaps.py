@@ -19,11 +19,10 @@ import torch
 import os
 from tqdm import tqdm
 import tarfile
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH
-from loaders import get_dataset 
-from model_builder import get_pretrained_model_v2
-from utils import SaveBestModel, AverageMeter, update_cfg, get_number_of_classes 
+from stedfm.DEFAULTS import BASE_PATH
+from stedfm.loaders import get_dataset 
+from stedfm.model_builder import get_pretrained_model_v2
+from stedfm.utils import SaveBestModel, AverageMeter, update_cfg, get_number_of_classes 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=4242)

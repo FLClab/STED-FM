@@ -11,10 +11,9 @@ import os
 import random
 from class_dict import class_dict
 from attribute_datasets import OptimQualityDataset
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH 
-from datasets import get_dataset 
-from model_builder import get_pretrained_model_v2
+from stedfm.DEFAULTS import BASE_PATH 
+from stedfm.datasets import get_dataset 
+from stedfm.model_builder import get_pretrained_model_v2
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=32)

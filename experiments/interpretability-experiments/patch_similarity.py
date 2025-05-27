@@ -9,10 +9,9 @@ import sys
 from scipy.stats import gaussian_kde
 import random
 import torch.nn.functional as F
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH, COLORS
-from loaders import get_dataset 
-from model_builder import get_pretrained_model_v2
+from stedfm.DEFAULTS import BASE_PATH, COLORS
+from stedfm.loaders import get_dataset 
+from stedfm.model_builder import get_pretrained_model_v2
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)

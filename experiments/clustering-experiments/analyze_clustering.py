@@ -54,7 +54,7 @@ def print_tree(node, indent=0):
         print("  " * (indent + 1) + f"Data: {node.data}")
     for child in node.children:
         print_tree(child, indent + 1)
-
+        
 def build_tree_from_nested_lists(nested_lists, depth=0, parent_id=0):
     """
     Recursively builds a tree from nested lists.
