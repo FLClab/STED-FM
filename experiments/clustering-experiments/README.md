@@ -3,7 +3,7 @@ This folder contains the scripts to run the recursive consensus clustering, imag
 
 ### Recursive Consensus Clustering (RCC)
 The recursive consensus clustering procedure can be run on a dataset of images using either the deep (`deep` argument) features from STED-FM or hand-crafted (`manual` argument) features. Below is the example command to run RCC using the deep features.
-```python
+```bash
 python recursive_clustering.py --dataset <dataset_name> --mode <deep or manual>
 ``` 
 
