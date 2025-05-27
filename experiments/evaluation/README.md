@@ -21,5 +21,5 @@ The fine-tuning script allows for either training from scratch, only training a 
 
 - By default, the `num-per-class` argument is None so that all available training samples are used. For fine-tuning in the small data regime, this parameter must be set. Below is an example of full fine-tuning with the vit-tiny backbone pre-trained on the STED dataset, in the small data regime,  with 10 samples per class from the neural activity states dataset:  
     ```bash
-    python finetune_v2.py --blocks 0 --num-per-class 10 --model mae-lightning-tiny --weights MAE_SMALL_STED --dataset neural-activity-states
+    python finetune.py --blocks 0 --num-per-class 10 --model mae-lightning-tiny --weights MAE_SMALL_STED --dataset neural-activity-states
     ```
