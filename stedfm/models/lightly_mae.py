@@ -18,7 +18,7 @@ class MAEWeights:
     MAE_BASE_IMAGENET1K_V1 = None
     MAE_LARGE_IMAGENET1K_V1 = None
 
-    MAE_64_P8_PROTEINS = os.path.join(BASE_PATH, "baselines", "mae-64-p8_PROTEINS", "pl_checkpoint-999.pth")
+    MAE_64_P8 = os.path.join(BASE_PATH, "baselines", "mae-small_64-p8", "checkpoint-999.pth")
 
     MAE_TINY_STED = os.path.join(BASE_PATH, "baselines", "mae-tiny_STED", "pl_checkpoint-999.pth")
     MAE_SMALL_STED = os.path.join(BASE_PATH, "baselines", "mae-small_STED", "pl_checkpoint-999.pth")

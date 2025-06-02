@@ -1,6 +1,21 @@
 import torch
 from typing import List, Union
 
+class ClassificationHead(torch.nn.Module):
+    def __init__(
+            self,
+            in_features: int = 384,
+            num_classes: int = 4,
+    ) -> None:
+        super().__init__()
+        self.classfication_head = torch.nn.Sequential(
+            torch.nn.BatchNorm1d(num_features=in_features, affine=False, eps=1e-6),
+            torch.nn.Linear(in_features=in_features, out_features=num_classes)
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.classfication_head(x)
+
 class LinearProbe(torch.nn.Module):
     def __init__(
         self,

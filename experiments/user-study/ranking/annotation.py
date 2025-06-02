@@ -7,8 +7,7 @@ import tifffile
 from collections.abc import Hashable
 
 import sys
-sys.path.insert(0, "../../")
-from DEFAULTS import COLORS
+from stedfm.DEFAULTS import COLORS
 
 def ask_user(current, other):
     import matplotlib.pyplot as plt
@@ -463,8 +462,7 @@ if __name__ == "__main__":
     from collections import defaultdict
     from itertools import combinations
     from scipy.stats import kendalltau
-    sys.path.insert(0, "../../")
-    from DEFAULTS import COLORS
+    from stedfm.DEFAULTS import COLORS
 
 
     ranking_dict = glob.glob("/home/frederic/flc-dataset/experiments/segmentation-experiments/patch-retrieval-experiment/candidates/*", recursive=True)
@@ -492,11 +490,11 @@ if __name__ == "__main__":
         correlation = [item.split("/")[-1].split(".")[0] for item in rankings]
         correlation = [ranking_dict[item] for item in correlation]
         correlation_array[idx] = correlation[:10]
-        print(f"=== {user} ===")
+        # cleaprint(f"=== {user} ===")
         USERS.append(user)
-        for r in rankings[:10]:
-            print(f"\t{r}")
-        print("\n\n")
+        # for r in rankings[:10]:
+        #     print(f"\t{r}")
+        # print("\n\n")
         rankings = [item.split("/")[-1].split(".")[0] for item in rankings]
         for pretraining in pretraining_datasets:
             curr_rankings = np.array([(pretraining.lower() in item.lower())*1 for item in rankings])[:10]
@@ -525,11 +523,16 @@ if __name__ == "__main__":
         ax.legend()
         fig.savefig(f"./ranking-{user}-patch-retrieval-experiment.pdf", dpi=300, bbox_inches="tight")
 
-    fig = pyplot.figure()
+    fig = pyplot.figure(figsize=(4, 4))
     ax = fig.add_subplot(111)
     data = list(scores.values())
     keys = list(scores.keys())
-    boxes = ax.boxplot(data, labels=keys, patch_artist=True)
+    boxes = ax.boxplot(data, labels=keys, patch_artist=True, showfliers=False)
+    for i, (k, points) in enumerate(zip(keys, data)):
+        print(k, len(points))
+        x = [np.random.normal(i+1, 0.1) for _ in range(len(points))]
+        y = points
+        ax.scatter(x, y, label=k, edgecolor="black", color=COLORS[k])
     
     # Style each box
     for key, box in zip(keys, boxes['boxes']):
@@ -544,7 +547,7 @@ if __name__ == "__main__":
     pyplot.setp(boxes['caps'], color='black')   
     pyplot.setp(boxes['fliers'], markerfacecolor='black', marker='o') 
     ax.set_ylabel("% in top 10")
-    fig.savefig("./patch-retrieval-boxplot.pdf", dpi=1200, bbox_inches="tight")
+    fig.savefig("./points-patch-retrieval-boxplot.pdf", dpi=1200, bbox_inches="tight")
     pyplot.close(fig)
 
     ## Correlation code 
