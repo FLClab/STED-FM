@@ -30,10 +30,10 @@ class LinearProbe(torch.nn.Module):
 
         if "mae" in name.lower():
             try:  # ViT case with none-ImageNet weights
-                print("--- ViT case with none-ImageNet weights or from scratch ---")
+                # print("--- ViT case with none-ImageNet weights or from scratch ---")
                 self.backbone = backbone.backbone.vit 
             except: # ViT case with ImageNet weights
-                print("--- ViT case with ImageNet weights ---")
+                # print("--- ViT case with ImageNet weights ---")
                 self.backbone = backbone 
         else: # CNN case 
             self.backbone = backbone
@@ -43,7 +43,7 @@ class LinearProbe(torch.nn.Module):
         self.frozen_blocks = num_blocks 
 
         if self.frozen_blocks == "all":
-            print(f"--- Freezing every parameter in {name} ---")
+            # print(f"--- Freezing every parameter in {name} ---")
             for p in self.backbone.parameters():
                 p.requires_grad = False
 
