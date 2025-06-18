@@ -25,8 +25,8 @@ The code was run using Python 3.8.18, 3.10.13 and 3.11.5. The required python in
 
 ## Installation 
 ```
-git clone https://github.com/FLClab/flc-dataset.git
-cd flc-dataset
+git clone https://github.com/FLClab/STED-FM.git
+cd STED-FM
 pip install -e .
 ```
 
