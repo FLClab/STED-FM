@@ -28,6 +28,8 @@ LOCAL_CACHE = {}
 def get_dataset(name: str, path: str, **kwargs):
     if name == "CTC":
         dataset = CTCDataset(path, **kwargs)
+    elif name == "synaptic-proteins":
+        dataset = ProteinDiffusionDataset(path, **kwargs)
     elif name == "JUMP":
         dataset = TarJUMPDataset(path, **kwargs)
     elif name == "STED": 
@@ -127,11 +129,11 @@ def get_dataset(name: str, path: str, **kwargs):
             os.path.join(BASE_PATh),
             **kwargs
         )
-    elif name == "synaptic-proteins":
-        dataset = ProteinDiffusionDataset(
-            os.path.join(BASE_PATH,"/home-local/Tassnym/Datasets/LargeProteinModels/synaptic_proteins_test_catalog.tar"),
-            **kwargs
-        )
+    # elif name == "synaptic-proteins":
+    #     dataset = ProteinDiffusionDataset(
+    #         os.path.join(BASE_PATH,"/home-local/Tassnym/Datasets/LargeProteinModels/synaptic_proteins_test_catalog.tar"),
+    #         **kwargs
+    #     )
     else:
         raise NotImplementedError(f"Dataset `{name}` not implemented yet.")
     return dataset

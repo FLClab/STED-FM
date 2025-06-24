@@ -7,7 +7,7 @@ from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 from lightning.pytorch.core import LightningModule
 import torchvision
 from pprint import pprint
-from custom_vit import build_mae_lightning_64_p8
+
 
 from dataclasses import dataclass
 from stedfm.DEFAULTS import BASE_PATH
