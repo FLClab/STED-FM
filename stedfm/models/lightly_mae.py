@@ -74,7 +74,7 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
         else:
             backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
-    elif name == "mae-lightning-small":
+    elif name == "mae-lightning-small" or name =="mae-lightning-224-p16":
         cfg.dim = 384
         cfg.batch_size = 256
         cfg.backbone = "vit-small"

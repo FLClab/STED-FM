@@ -30,11 +30,10 @@ from decoders import get_decoder
 from datasets import get_dataset
 
 import sys 
-sys.path.insert(0, "..")
 
-from model_builder import get_pretrained_model_v2
-from utils import update_cfg, save_cfg, savefig
-from configuration import Configuration
+from stedfm.model_builder import get_pretrained_model_v2
+from stedfm.utils import update_cfg, save_cfg, savefig
+from stedfm.configuration import Configuration
 
 def comptue_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray, **kwargs) -> list:
     """

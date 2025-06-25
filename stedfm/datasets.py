@@ -2462,6 +2462,7 @@ class ProteinImageDataset(ArchiveDatasetV2):
         world_size: int = 1,
         rank: int = 0,
         crop_size: int = 64,
+        in_channels: int = 1,
         **kwargs,
     ) -> None:
         super(ProteinImageDataset, self).__init__(
@@ -2475,6 +2476,7 @@ class ProteinImageDataset(ArchiveDatasetV2):
             **kwargs,
         )
         self.pad = crop_size // 2
+        self.in_channels = in_channels
         items = []
         imgs = []
         for i, member in tqdm(enumerate(self.members), desc="[---] Processing members [---]", total=len(self.members)):
@@ -2520,8 +2522,12 @@ class ProteinImageDataset(ArchiveDatasetV2):
     def __getitem__(self, idx: int) -> Dict:
         img_idx, c, x, y = self.items[idx]
         img = self.imgs[img_idx]
-        crop = img[c, y-self.pad:y+self.pad, x-self.pad:x+self.pad]
-        crop = torch.tensor(crop[np.newaxis, ...], dtype=torch.float32)
+        if self.in_channels == 1:
+            crop = img[c, y-self.pad:y+self.pad, x-self.pad:x+self.pad]
+            crop = torch.tensor(crop[np.newaxis, ...], dtype=torch.float32)
+        else:
+            crop = img[:, y-self.pad:y+self.pad, x-self.pad:x+self.pad]
+            crop = torch.tensor(crop, dtype=torch.float32)
         return crop
 
 class ProteinDiffusionDataset(ArchiveDatasetV2):

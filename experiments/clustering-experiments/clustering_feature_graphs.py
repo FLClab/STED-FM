@@ -193,39 +193,42 @@ def display_graph(graph, feature: str, node_size_scale_factor=10, edge_weight_fa
     # Get node colors
     feature_values = [node[1][feature] for node in graph.nodes(data=True)]
     feature_values = np.array(feature_values)
-    feature_values = (feature_values - np.quantile(feature_values, 0.05)) / (np.quantile(feature_values, 0.95) - np.quantile(feature_values, 0.05))
-    feature_values = np.clip(feature_values, 0.3, 1.0)
-    cmap = colormaps.get_cmap("RdPu")
-    colors = cmap(feature_values)
+    print(feature_values)
+    print(f"--- Feature {feature}: {np.quantile(feature_values, 0.05)} {np.quantile(feature_values, 0.95)} ---\n")
     
-    edge_weights = np.array([graph[u][v]['weight'] for u, v in graph.edges()])
-    # print(edge_weights)
-    edge_weights = (edge_weights - edge_weights.min()) / (edge_weights.max() - edge_weights.min())
-    # edge_weights = [item + 1 for item in edge_weights]
+    # feature_values = (feature_values - np.quantile(feature_values, 0.05)) / (np.quantile(feature_values, 0.95) - np.quantile(feature_values, 0.05))
+    # feature_values = np.clip(feature_values, 0.3, 1.0)
+    # cmap = colormaps.get_cmap("RdPu")
+    # colors = cmap(feature_values)
+    
+    # edge_weights = np.array([graph[u][v]['weight'] for u, v in graph.edges()])
+    # # print(edge_weights)
+    # edge_weights = (edge_weights - edge_weights.min()) / (edge_weights.max() - edge_weights.min())
+    # # edge_weights = [item + 1 for item in edge_weights]
 
-    edge_widths = [min_edge_width + (weight * edge_weight_factor) for weight in edge_weights]
-    # edge_widths = [min_edge_width]
-    node_sizes = np.array([node[1]["count"] * node_size_scale_factor for node in graph.nodes(data=True)])
-    node_sizes = np.clip(node_sizes, 10, 800)
-    # Create figure
-    fig = plt.figure(figsize=(15, 15))
-    ax = fig.add_subplot(111)
+    # edge_widths = [min_edge_width + (weight * edge_weight_factor) for weight in edge_weights]
+    # # edge_widths = [min_edge_width]
+    # node_sizes = np.array([node[1]["count"] * node_size_scale_factor for node in graph.nodes(data=True)])
+    # node_sizes = np.clip(node_sizes, 10, 800)
+    # # Create figure
+    # fig = plt.figure(figsize=(15, 15))
+    # ax = fig.add_subplot(111)
     
 
-    # layout = networkx.kamada_kawai_layout(graph)
-    layout = graphviz_layout(graph, prog="twopi")
+    # # layout = networkx.kamada_kawai_layout(graph)
+    # layout = graphviz_layout(graph, prog="twopi")
    
-    networkx.draw_networkx_nodes(graph, pos=layout, node_color=colors, node_size=node_sizes)
-    networkx.draw_networkx_edges(graph, pos=layout, width=edge_widths, 
-                                alpha=0.7, edge_color='gray')
+    # networkx.draw_networkx_nodes(graph, pos=layout, node_color=colors, node_size=node_sizes)
+    # networkx.draw_networkx_edges(graph, pos=layout, width=edge_widths, 
+    #                             alpha=0.7, edge_color='gray')
     
     
-    # Remove axis
-    # ax.axis("off")
-    plt.tight_layout()
-    plt.show()
-    os.makedirs("./graphs-manual", exist_ok=True)
-    fig.savefig(f"./graphs-manual/test_{feature}_{args.dataset}_graph.pdf", dpi=1200, bbox_inches="tight")
+    # # Remove axis
+    # # ax.axis("off")
+    # plt.tight_layout()
+    # plt.show()
+    # os.makedirs("./graphs-manual", exist_ok=True)
+    # fig.savefig(f"./graphs-manual/test_{feature}_{args.dataset}_graph.pdf", dpi=1200, bbox_inches="tight")
 
 if __name__=="__main__":
     data = load_data(args.data_path)

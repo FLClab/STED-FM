@@ -32,11 +32,10 @@ with warnings.catch_warnings():
 from tiffwrapper import make_composite
 from batch_effects import IdendityBatchEffect, RotationBatchEffect, FlipBatchEffect, PoissonBatchEffect, GaussianBatchEffect, ContrastBatchEffect, GaussianBlurBatchEffect
 
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH
-from loaders import get_dataset
-from model_builder import get_pretrained_model_v2, get_classifier_v3
-from utils import update_cfg, savefig
+from stedfm.DEFAULTS import BASE_PATH
+from stedfm.loaders import get_dataset
+from stedfm.model_builder import get_pretrained_model_v2, get_classifier_v3
+from stedfm.utils import update_cfg, savefig
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)

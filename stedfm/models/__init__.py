@@ -23,6 +23,7 @@ MODELS = {
     "mae-lightning-base": get_mae_backbone,
     "mae-lightning-large": get_mae_backbone,
     "mae-lightning-64-p8": get_mae_backbone,
+    "mae-lightning-224-p16": get_mae_backbone,
 }
 
 def get_model(name : str, **kwargs) -> torch.nn.Module:

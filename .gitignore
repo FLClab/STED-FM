@@ -215,3 +215,7 @@ experiments/segmentation-experiments/logs/
 experiments/denoising-experiments/results/inferred/
 experiments/evaluation/results/*.pdf
 experiments/evaluation/results/
+experiments/scripts/
+experiments/segmentation-experiments/figures/
+experiments/segmentation-experiments/scripts/
+experiments/pretrain_script.sh

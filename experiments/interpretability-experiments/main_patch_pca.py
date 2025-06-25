@@ -11,10 +11,9 @@ from tqdm import tqdm
 from skimage.filters import threshold_otsu
 from segmentation_datasets import get_dataset as get_actin_dataset
 import os
-sys.path.insert(0, "../")
-from DEFAULTS import BASE_PATH
-from loaders import get_dataset 
-from model_builder import get_pretrained_model_v2
+from stedfm.DEFAULTS import BASE_PATH
+from stedfm.loaders import get_dataset 
+from stedfm.model_builder import get_pretrained_model_v2
 
 
 parser = argparse.ArgumentParser()
