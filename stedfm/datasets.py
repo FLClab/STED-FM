@@ -124,7 +124,7 @@ def get_dataset(name: str, path: str, **kwargs):
     # This allows to load any folder dataset containing tiff files
     elif os.path.isdir(name):
         dataset = FolderDataset(
-            os.path.join(BASE_PATh),
+            os.path.join(BASE_PATH),
             **kwargs
         )
     elif name == "synaptic-proteins":
