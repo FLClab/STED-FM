@@ -4,7 +4,8 @@ import os
 USER = os.environ.get("USER")
 
 if USER == "frbea320":
-    BASE_PATH = "/home/frbea320/scratch"
+    # BASE_PATH = "/home/frbea320/scratch"
+    BASE_PATH = "/home/f/frbea320/links/scratch" # on Tamia
 elif USER == "anbil106":
     BASE_PATH = "/home/anbil106/scratch/projects/SSL"
 elif USER == "anthony":

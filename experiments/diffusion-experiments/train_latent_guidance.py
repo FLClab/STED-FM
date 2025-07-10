@@ -53,8 +53,6 @@ def get_save_folder() -> str:
     else:
         raise NotImplementedError("The requested weights do not exist.")
 
-
-
 class ReconstructionCallback(Callback):
     def on_train_epoch_end(self, trainer, pl_module):
         SAVEFOLDER = get_save_folder()
