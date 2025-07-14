@@ -16,9 +16,8 @@ import argparse
 import sys 
 from datamodule import MultiprocessingDataModule
 from class_dict import class_dict
-sys.path.insert(0, "../")
-from model_builder import get_pretrained_model_v2
-from utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss, update_cfg, get_number_of_classes
+from stedfm.model_builder import get_pretrained_model_v2
+from stedfm.utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss, update_cfg, get_number_of_classes
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)
@@ -53,8 +52,6 @@ def get_save_folder() -> str:
         return "SIM"
     else:
         raise NotImplementedError("The requested weights do not exist.")
-
-
 
 class ReconstructionCallback(Callback):
     def on_train_epoch_end(self, trainer, pl_module):

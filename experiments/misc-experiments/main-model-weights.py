@@ -13,9 +13,8 @@ from scipy.spatial.distance import cosine
 from matplotlib import pyplot
 
 import sys 
-sys.path.insert(0, "..")
-from DEFAULTS import BASE_PATH, COLORS, DATASETS
-from model_builder import get_pretrained_model_v2
+from stedfm.DEFAULTS import BASE_PATH, COLORS, DATASETS
+from stedfm.model_builder import get_pretrained_model_v2
 
 FOLDER_NAMES = {
     "MAE_SMALL_IMAGENET1K_V1" : "mae-small_ImageNet",

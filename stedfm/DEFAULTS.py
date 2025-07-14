@@ -4,7 +4,8 @@ import os
 USER = os.environ.get("USER")
 
 if USER == "frbea320":
-    BASE_PATH = "/home/frbea320/scratch"
+    # BASE_PATH = "/home/frbea320/scratch"
+    BASE_PATH = "/home/f/frbea320/links/scratch" # For Tamia
 elif USER == "anbil106":
     BASE_PATH = "/home/anbil106/scratch/projects/SSL"
 elif USER == "anthony":
@@ -13,6 +14,10 @@ elif USER == "frederic":
     BASE_PATH = "/home-local/Frederic/"
 elif USER == "frbea320@ulaval.ca":
     BASE_PATH = "/home/ulaval.ca/frbea320/scratch"
+elif USER == "chaos":
+    BASE_PATH = "/home/chaos/Desktop/stage"
+elif USER == "malan612":
+    BASE_PATH = "/home/malan612/scratch"
 else:
     # raise ValueError("Please set the correct path for the user. Path can be modified in `flc-dataset/experiments/DEFAULTS.py`")
     BASE_PATH = os.path.expanduser("~")

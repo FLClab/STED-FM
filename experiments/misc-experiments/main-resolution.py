@@ -30,12 +30,11 @@ from sklearn.model_selection import GridSearchCV
 from scipy.stats import pearsonr
 
 import sys 
-sys.path.insert(0, "..")
 
-from DEFAULTS import COLORS
-from loaders import get_dataset
-from model_builder import get_base_model, get_pretrained_model_v2
-from utils import update_cfg, save_cfg, savefig
+from stedfm.DEFAULTS import COLORS
+from stedfm.loaders import get_dataset
+from stedfm.model_builder import get_base_model, get_pretrained_model_v2
+from stedfm.utils import update_cfg, save_cfg, savefig
 
 def set_seeds():
     random.seed(args.seed)

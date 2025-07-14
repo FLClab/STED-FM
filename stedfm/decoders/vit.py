@@ -56,6 +56,8 @@ class ViTDecoder(torch.nn.Module):
             print(f"--- Freezing backbone ---")
             for p in self.backbone.parameters():
                 p.requires_grad = False
+        else:
+            print(f"--- End-to-end fine-tuning ---")
 
 
         self.decoder12_upsampler = SingleDeconv(embed_dim, 512)
@@ -152,7 +154,7 @@ class ViTDecoder(torch.nn.Module):
         z0 = self.decoder0(z0)
         pred = self.decoder0_predict(torch.cat([z0, z3], dim=1))
         pred = torch.sigmoid(pred)
-        return pred
+        return pred, out
 
 class ViTSegmentationClassifier(torch.nn.Module):
     def __init__(self, backbone: torch.nn.Module, cfg: dataclass, global_pool: str = "patch") -> None:
@@ -265,12 +267,20 @@ def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn
 
     :returns : A `ViTDecoder` instance
     """
-    print("\n===== Loading ViTSegmentationClassifier =====\n")
-    if cfg.backbone in ["mae-lightning-tiny", "mae-lightning-small", "mae-lightning-base", "mae-lightning-large", "vit-tiny", "vit-small"]:
-        if cfg.backbone_weights is None or "MAE_SMALL_IMAGENET1K_V1" not in cfg.backbone_weights:
-            backbone = backbone.backbone.vit 
-        return ViTSegmentationClassifier(backbone=backbone, cfg=cfg)
-        # extract_layers = [3, 6, 9 ,12]
-    #     return ViTDecoder(backbone.backbone, cfg, extract_layers=extract_layers, **kwargs)
-    else:
-        raise ValueError(f"Backbone {cfg.backbone} for decoder is not supported")
+    full_decoder = kwargs.get("full_decoder", False)
+    print("\n===== Loading Full ViT Decoder =====\n")
+    if full_decoder:
+        if cfg.backbone in ["mae-lightning-tiny", "mae-lightning-small", "mae-lightning-base", "mae-lightning-large", "vit-tiny", "vit-small"]:
+            extract_layers = [3, 6, 9 ,12]
+            return ViTDecoder(backbone.backbone, cfg, extract_layers=extract_layers, **kwargs)
+        else:
+            raise ValueError(f"Backbone {cfg.backbone} for decoder is not supported")
+    else: 
+        print("\n===== Loading ViTSegmentationClassifier =====\n")
+
+        if cfg.backbone in ["mae-lightning-tiny", "mae-lightning-small", "mae-lightning-base", "mae-lightning-large", "vit-tiny", "vit-small"]:
+            if cfg.backbone_weights is None or "MAE_SMALL_IMAGENET1K_V1" not in cfg.backbone_weights:
+                backbone = backbone.backbone.vit 
+            return ViTSegmentationClassifier(backbone=backbone, cfg=cfg)
+        else:
+            raise ValueError(f"Backbone {cfg.backbone} for decoder is not supported")

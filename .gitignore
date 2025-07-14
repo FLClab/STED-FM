@@ -1,4 +1,5 @@
 experiments/clustering-experiments/recursive-clustering-experiment/
+experiments/lightning_logs/
 experiments/clustering-experiments/results/
 experiments/diffusion-experiments/resolution-experiment/correlation/
 experiments/diffusion-experiments/resolution-experiment/
@@ -214,3 +215,7 @@ experiments/segmentation-experiments/logs/
 experiments/denoising-experiments/results/inferred/
 experiments/evaluation/results/*.pdf
 experiments/evaluation/results/
+experiments/scripts/
+experiments/segmentation-experiments/figures/
+experiments/segmentation-experiments/scripts/
+experiments/pretrain_script.sh

@@ -1,7 +1,10 @@
 # STED-FM
-Repository for the paper `A Foundation Model for Super-Resolution Microscopy Enabling Multi-Task Analysis, Representation-Based Discovery, and Interactive Microscopy`.
+Repository for the paper `A Self-Supervised Foundation Model for Robust and Generalizable Representation Learning in STED Microscopy`.  
+
+Visit the [website](https://flclab.github.io/stedfm/)
 
 ## Abstract
+Foundation Models (FMs) have drastically increased the potential and power of deep learning algorithms in the fields of natural language processing and computer vision. However, their application in specialized fields like biomedical imaging, and fluorescence microscopy remains difficult due to distribution shifts, and the scarcity of high-quality annotated datasets. The high cost of data acquisition and the requirement for in-domain expertise further exacerbate this challenge in super-resolution microscopy. To address this, we introduce STED-FM, a foundation model specifically designed for super-resolution STimulated Emission Depletion (STED) microscopy. STED-FM leverages a Vision Transformer (ViT) architecture trained at scale with Masked Autoencoding (MAE) on a new dataset of nearly one million STED images. STED-FM learns expressive latent representations without extensive annotations. Our comprehensive evaluation demonstrates STED-FM's versatility across diverse downstream tasks. Unsupervised experiments highlight the discriminative nature of its learned latent space. Our model significantly reduces the need for annotated data required to achieve strong performance in classification and segmentation tasks, both in- and out-of-distribution. Furthermore, STED-FM enhances diffusion model-generated images, enabling latent attribute manipulation and the discovery of novel and subtle nanostructures and phenotypes. Its structure retrieval capabilities are also integrated into automated STED microscopy acquisition pipelines. The high expressivity and strong performance across tasks make STED-FM a compelling resource for researchers analyzing super-resolution STED images.
 
 ## System Requirements
 
@@ -24,8 +27,8 @@ The code was run using Python 3.8.18, 3.10.13 and 3.11.5. The required python in
 
 ## Installation 
 ```
-git clone https://github.com/FLClab/flc-dataset.git
-cd flc-dataset
+git clone https://github.com/FLClab/STED-FM.git
+cd STED-FM
 pip install -e .
 ```
 
@@ -91,6 +94,11 @@ The repository is mostly split in sub-folders of the `experiments` folder, corre
 - The code for performing user studies on the various tasks are in the `user-study` sub-folder.
 
 ## Documentation
+Below is an example command for pre-training the ViT-S architecture with the large-scale STED dataset, which results in STED-FM. Note that this will probably be infeasibly long with a single GPU.
+
+```bash
+python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset STED --use-tensorboard --save-folder <path/to/save/checkpoint> --dataset-path "<path/to/STED/dataset/stedfm-dataset-crops.tar>"
+```
 
 ## Citation
 

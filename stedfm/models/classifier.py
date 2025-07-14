@@ -1,6 +1,21 @@
 import torch
 from typing import List, Union
 
+class ClassificationHead(torch.nn.Module):
+    def __init__(
+            self,
+            in_features: int = 384,
+            num_classes: int = 4,
+    ) -> None:
+        super().__init__()
+        self.classfication_head = torch.nn.Sequential(
+            torch.nn.BatchNorm1d(num_features=in_features, affine=False, eps=1e-6),
+            torch.nn.Linear(in_features=in_features, out_features=num_classes)
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.classfication_head(x)
+
 class LinearProbe(torch.nn.Module):
     def __init__(
         self,
@@ -15,10 +30,10 @@ class LinearProbe(torch.nn.Module):
 
         if "mae" in name.lower():
             try:  # ViT case with none-ImageNet weights
-                print("--- ViT case with none-ImageNet weights or from scratch ---")
+                # print("--- ViT case with none-ImageNet weights or from scratch ---")
                 self.backbone = backbone.backbone.vit 
             except: # ViT case with ImageNet weights
-                print("--- ViT case with ImageNet weights ---")
+                # print("--- ViT case with ImageNet weights ---")
                 self.backbone = backbone 
         else: # CNN case 
             self.backbone = backbone
@@ -28,7 +43,7 @@ class LinearProbe(torch.nn.Module):
         self.frozen_blocks = num_blocks 
 
         if self.frozen_blocks == "all":
-            print(f"--- Freezing every parameter in {name} ---")
+            # print(f"--- Freezing every parameter in {name} ---")
             for p in self.backbone.parameters():
                 p.requires_grad = False
 
@@ -55,20 +70,23 @@ class LinearProbe(torch.nn.Module):
     def _freeze_blocks(self, blocks: Union[List, int]) -> None:
         raise NotImplementedError("Partial fine-tuning not yet implemented.") 
     
-    def forward_features(self, x: torch.Tensor) -> torch.Tensor:
+    def forward_features(self, x: torch.Tensor, return_patches: bool = False) -> torch.Tensor:
         if "mae" in self.name.lower():
             features = self.backbone.forward_features(x)
             if self.global_pool == "token":
-                features = features[:, 0, :] # class token 
+                out = features[:, 0, :] # class token 
             elif self.global_pool == "avg":
-                features = torch.mean(features[:, 1:, :], dim=1) # Average patch tokens
+                out = torch.mean(features[:, 1:, :], dim=1) # Average patch tokens
             elif self.global_pool == "patch":
-                features = features[:, 1:, :]
+                out = features[:, 1:, :]
             else:
                 raise NotImplementedError(f"Invalid `{self.global_pool}` pooling function.")
         else:
-            features = self.backbone.forward(x)  
-        return features    
+            out = self.backbone.forward(x)  
+        if return_patches:
+            return out, features 
+        else:
+            return out    
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         features = self.forward_features(x)

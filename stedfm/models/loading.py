@@ -29,7 +29,11 @@ MODELS = {
     'mae-lightning-base': MAEWeights,
     'mae-lightning-large': MAEWeights,
     'mae-base': MAEWeights,
-    'mae-large': MAEWeights
+    'mae-large': MAEWeights,
+    "mae-lightning-64-p8": MAEWeights,
+    "mae-64-p8": MAEWeights,
+    "mae-lightning-224-p16": MAEWeights,
+    "mae-224-p16": MAEWeights,
 }
 
 def handle_url_state_dict(name: str, weights: Union[str, Enum]) -> dict:

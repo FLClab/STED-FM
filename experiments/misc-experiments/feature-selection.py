@@ -9,8 +9,7 @@ from sklearn.linear_model import Ridge, Lasso, RidgeClassifier
 from sklearn.feature_selection import RFE, SelectKBest, r_regression, f_regression, mutual_info_regression, SequentialFeatureSelector, f_classif, mutual_info_classif
 
 import sys
-sys.path.insert(0, "..")
-from utils import savefig
+from stedfm.utils import savefig
 
 import argparse
 parser = argparse.ArgumentParser()
