@@ -154,5 +154,22 @@ def main():
     # pyplot.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
     # savefig(fig, f"./results/unclassifiables", save_white=True)
 
+    samples = [values for values in accuracies.values()]
+
+    from scipy.stats import kruskal
+    import scikit_posthocs
+    H, p_value = kruskal(*samples)
+    if p_value < 0.05:
+        print(f"Kruskal-Wallis test: Reject null hypothesis (p_value: {p_value})")
+        result = scikit_posthocs.posthoc_mannwhitney(samples)
+        print(result)
+
+    from stedfm.stats import resampling_stats, plot_p_values
+    p_values, F_p_value = resampling_stats(samples, labels=list(accuracies.keys()))
+    print(p_values)
+    print(F_p_value)
+    fig, ax = plot_p_values(p_values)
+    savefig(fig, f"./results/p_values", save_white=True)
+
 if __name__ == "__main__":
     main()

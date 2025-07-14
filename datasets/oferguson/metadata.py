@@ -79,7 +79,7 @@ def main():
         current = [m["image-id"] for m in metadata[PROTEIN]]
         files = get_files("flclab-private/FLCDataset/oferguson/synaptic_proteins")
         for f in files:
-            image_id = file["Path"]
+            image_id = f["Path"]
             image_type = os.path.splitext(image_id)[-1][1:]
             meta = {
                 "image-id": os.path.join("oferguson/synaptic_proteins", os.path.basename(image_id)),
