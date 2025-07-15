@@ -80,11 +80,11 @@ def linear_interpolate(latent_code,
           boundary.shape[1] == latent_code.shape[-1])
 
   image_distance = latent_code.dot(boundary.T) + intercept
-  end_distance = end_distance - image_distance
+#   end_distance = end_distance - image_distance
   if steps < 2:
       linspace = np.array([end_distance])
   else:
-    linspace = np.linspace(start_distance, end_distance, steps)[1:]
+    linspace = np.linspace(start_distance, end_distance, steps)#[1:]
 
   if len(latent_code.shape) == 2:
     linspace = linspace.reshape(-1, 1).astype(np.float32)
@@ -371,14 +371,21 @@ def load_distance_distribution(weight: str = args.weights) -> np.ndarray:
     data = np.load(f"./{args.boundary}-experiment/distributions/{args.weights}-{args.boundary}-distance_distribution.npz")
     scores = data[args.direction]
 
-    mean_distance = np.mean(scores)
+    mean_distances = {
+        key : np.mean(data[key]) for key in data.keys()
+    }
+    print(mean_distances)
+    # mean_distance = np.mean(scores)
 
-    scores = np.abs(scores)
+    # scores = np.abs(scores)
 
-    min_distance = np.min(scores)
-    max_distance = np.max(scores)
+    # min_distance = np.min(scores)
+    # max_distance = np.max(scores)
 
-    return min_distance, max_distance
+    # return min_distance, max_distance
+    conditions = list(mean_distances.keys())
+    conditions.remove(args.direction)
+    return mean_distances[conditions[0]], mean_distances[args.direction]
 
 def main():
 
@@ -452,7 +459,7 @@ def main():
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         boundary, intercept, norm = load_boundary()
         distance_min, distance_max = load_distance_distribution()
-        print(f"--- Moving from 0.0 to {distance_max} ---")
+        print(f"--- Moving from {distance_min} to {distance_max} ---")
         print(f"--- Norm of boundary: {norm} ---")
         print(f"--- Intercept: {intercept} ---")
 
@@ -546,7 +553,7 @@ def main():
 
                 samples = [original]
 
-                lerped_codes, d, image_distance = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=multiplier * 0.0, end_distance=multiplier * distance_max, steps=args.n_steps+1)
+                lerped_codes, d, image_distance = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=distance_min, end_distance=distance_max, steps=args.n_steps+1)
                 distances.append(image_distance)
                 print(d)
 
@@ -556,7 +563,7 @@ def main():
                     lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
 
                     samples.append(lerped_sample_numpy)
-                    distances.append(image_distance + d[c][0])
+                    distances.append(d[c][0])
             
                 distances = np.array(distances)
                 counter += 1
