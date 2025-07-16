@@ -1,7 +1,5 @@
 
 import os
-
-from .models.lightly_mae import LightlyMAE
 from .models.classifier import LinearProbe
 from timm.models.vision_transformer import vit_small_patch16_224
 import lightly.models.utils
