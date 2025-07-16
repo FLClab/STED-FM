@@ -19,6 +19,7 @@ class MAEWeights:
     MAE_LARGE_IMAGENET1K_V1 = None
 
     MAE_64_P8 = os.path.join(BASE_PATH, "baselines", "mae-small_64-p8", "checkpoint-999.pth")
+    MAE_224_P16 = os.path.join(BASE_PATH, "baselines", "mae-small-224-p16", "checkpoint-999.pth")
 
     MAE_TINY_STED = os.path.join(BASE_PATH, "baselines", "mae-tiny_STED", "pl_checkpoint-999.pth")
     MAE_SMALL_STED = os.path.join(BASE_PATH, "baselines", "mae-small_STED", "pl_checkpoint-999.pth")
@@ -71,7 +72,7 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
         else:
             backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
-    elif name == "mae-lightning-small":
+    elif name == "mae-lightning-small" or name == "mae-lightning-224-p16":
         cfg.dim = 384
         cfg.batch_size = 256
         cfg.backbone = "vit-small"
