@@ -122,6 +122,7 @@ def load_weights(name: str, weights: Union[str, Enum, None]) -> dict:
             if weights.endswith(".zip"):
                 print(f"--- {name} | ({weights}) Downloading from URL and extracting zip ---\n")
                 state_dict = handle_url_zip_state_dict(name, weights)
+                return state_dict
             else:
                 print(f"--- {name} | ({weights}) Downloading from URL ---\n")
                 state_dict = handle_url_state_dict(name, weights=weights)
