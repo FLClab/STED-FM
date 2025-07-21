@@ -177,7 +177,8 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> Tuple[Dataset,
             validation=False,
             size=224,
             step=0.75,
-            n_channels=cfg.in_channels
+            n_channels=cfg.in_channels,
+            **kwargs
         )
         validation_dataset = HDF5Dataset(
             file_path=hdf5_validation_path,
@@ -186,7 +187,8 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> Tuple[Dataset,
             validation=True,
             size=224,
             step=0.75,
-            n_channels=cfg.in_channels
+            n_channels=cfg.in_channels,
+            **kwargs
         )
     testing_dataset = HDF5Dataset(
         file_path=hdf5_testing_path,
@@ -197,6 +199,7 @@ def get_dataset(cfg:dataclass, test_only:bool=False, **kwargs) -> Tuple[Dataset,
         step=0.75,
         n_channels=cfg.in_channels,
         return_foregound=True,
-        return_index=kwargs.get("return_index", False)
+        return_index=kwargs.get("return_index", False),
+        **kwargs
     )
     return training_dataset, validation_dataset, testing_dataset
