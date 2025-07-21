@@ -34,7 +34,7 @@ class HDF5Dataset(Dataset):
     :param out_channels: (optional) The number of output channels to return
     :param return_foregound: (optional) Wheter to return the foreground mask
     """
-    def __init__(self, file_path, transform=None, data_aug=0, validation=False, size=256, step=0.75, cache_system=None, n_channels=1, return_foregound=False, return_index=False,**kwargs):
+    def __init__(self, file_path, transform=None, data_aug=0, validation=False, size=256, step=0.75, cache_system=None, n_channels=1, return_foregound=False, return_index=False, use_cache=True, **kwargs):
         super(HDF5Dataset, self).__init__()
 
         self.file_path = file_path
@@ -51,6 +51,7 @@ class HDF5Dataset(Dataset):
         self.return_foregound = return_foregound
         self.classes = ["Rings", "Fibers"]
 
+        self.use_cache = use_cache
         self.cache = {}
         if cache_system is not None:
             self.cache = cache_system
@@ -77,10 +78,11 @@ class HDF5Dataset(Dataset):
                             if dendrite.sum() >= 0.1 * self.size * self.size: # dendrite is at least 10% of image
                                 stats.append((numpy.mean(data[k, j : j + self.size, i : i + self.size]), numpy.std(data[k, j : j + self.size, i : i + self.size])))
                                 samples.append((group_name, k, j, i))
-                if self.return_foregound:
-                    self.cache[group_name] = {"data" : data, "label" : label}
-                else:
-                    self.cache[group_name] = {"data" : data, "label" : label[:, :-1]}
+                if self.use_cache:
+                    if self.return_foregound:
+                        self.cache[group_name] = {"data" : data, "label" : label}
+                    else:
+                        self.cache[group_name] = {"data" : data, "label" : label[:, :-1]}
         print(f"{numpy.mean(stats, axis=0)=}")
         return samples
 
@@ -95,8 +97,16 @@ class HDF5Dataset(Dataset):
         """
         group_name, k, j, i = self.samples[index]
 
-        image_crop = self.cache[group_name]["data"][k, j : j + self.size, i : i + self.size]
-        label_crop = self.cache[group_name]["label"][k, :, j : j + self.size, i : i + self.size]
+        if self.use_cache:
+            image_crop = self.cache[group_name]["data"][k, j : j + self.size, i : i + self.size]
+            label_crop = self.cache[group_name]["label"][k, :, j : j + self.size, i : i + self.size]
+        else:
+            with h5py.File(self.file_path, "r") as file:
+                image_crop = file[group_name]["data"][k, j : j + self.size, i : i + self.size].astype(numpy.float32)
+                if self.return_foregound:
+                    label_crop = file[group_name]["label"][k, :, j : j + self.size, i : i + self.size]
+                else:
+                    label_crop = file[group_name]["label"][k, :-1, j : j + self.size, i : i + self.size]
 
         if image_crop.size != self.size*self.size:
             image_crop = numpy.pad(image_crop, ((0, self.size - image_crop.shape[0]), (0, self.size - image_crop.shape[1])), "constant")
