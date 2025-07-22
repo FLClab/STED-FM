@@ -1,7 +1,8 @@
 # STED-FM
 
 [![Github Pages](https://img.shields.io/badge/github%20pages-121013?style=for-the-badge&logo=github&logoColor=white)](https://flclab.github.io/stedfm/)
-<a href="https://github.com/FLClab/STED-FM/tree/main/notebooks/stedfm_example.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
+<a href="https://colab.research.google.com/github/FLClab/STED-FM/blob/main/notebooks/stedfm_example.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
+[![DOI:10.1101/2025.06.06.656993](http://img.shields.io/badge/DOI-10.1101/2025.06.06.656993-B31B1B.svg)](https://doi.org/10.1101/2025.06.06.656993)
 
 Repository for the paper `A Self-Supervised Foundation Model for Robust and Generalizable Representation Learning in STED Microscopy`.  
 
@@ -60,7 +61,7 @@ We provided an example notebook `stedfm_example.ipynb` that demonstrates how to 
 
 The notebook can be found in the `notebooks` folder. You can open the notebook in Google Colab.
 
-<a href="https://github.com/FLClab/STED-FM/tree/main/notebooks/stedfm_example.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
+<a href="https://colab.research.google.com/github/FLClab/STED-FM/blob/main/notebooks/stedfm_example.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 
 ## Project Structure & Experiments
 
@@ -82,5 +83,16 @@ python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset STE
 
 ## Citation
 
-
-
+```bibtex
+@article{Bilodeau2025.06.06.656993,
+	author = {Bilodeau, Anthony and Beaupr{\'e}, Fr{\'e}d{\'e}ric and Chabbert, Julia and Bellavance, Jean-Michel and Lessard, Koraly and Desch{\^e}nes, Andr{\'e}anne and Bernatchez, Renaud and De Koninck, Paul and Gagn{\'e}, Christian and Lavoie-Cardinal, Flavie},
+	title = {A Self-Supervised Foundation Model for Robust and Generalizable Representation Learning in STED Microscopy},
+	elocation-id = {2025.06.06.656993},
+	year = {2025},
+	doi = {10.1101/2025.06.06.656993},
+	publisher = {Cold Spring Harbor Laboratory},
+	URL = {https://www.biorxiv.org/content/early/2025/06/06/2025.06.06.656993},
+	eprint = {https://www.biorxiv.org/content/early/2025/06/06/2025.06.06.656993.full.pdf},
+	journal = {bioRxiv}
+}
+```
