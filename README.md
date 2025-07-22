@@ -60,7 +60,7 @@ We provided an example notebook `stedfm_example.ipynb` that demonstrates how to 
 
 The notebook can be found in the `notebooks` folder. You can open the notebook in Google Colab.
 
-
+<a href="https://github.com/FLClab/STED-FM/tree/main/notebooks/stedfm_example.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 
 ## Project Structure & Experiments
 
