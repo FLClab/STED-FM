@@ -1378,7 +1378,7 @@ class FactinCaMKIIDataset(Dataset):
             for name in tqdm(names, desc="Processing dataset.."):
 
                 # Skipping files that do not belong to the classes
-                if not any([class_name in name for class_name in classes]):
+                if not any([name.startswith(class_name) for class_name in classes]):
                     continue
 
                 buffer = io.BytesIO()
@@ -1432,6 +1432,92 @@ class FactinCaMKIIDataset(Dataset):
             img = transforms.Normalize(mean=[0.051, 0.051, 0.051], std=[0.073, 0.073, 0.073])(img)
         else:
             img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
+
+        img = self.transform(img) if self.transform is not None else img
+
+        return img, {"label": label, "condition": condition, "dataset-idx": idx}    
+
+class LQHQDenoisingDataset(Dataset):
+    def __init__(
+            self,
+            tarpath: str,
+            transform: Callable = None,
+            n_channels: int = 1,
+            num_samples: int = None,
+            balance: bool = False,
+            classes: List[str] = ["LQHQ"],
+            seed: int = 42,
+            **kwargs) -> None:
+        self.tarpath = tarpath
+        self.transform = transform
+        self.n_channels = n_channels
+        self.num_samples = num_samples
+        self.balance = balance
+
+        self.imgs, self.conditions = [], []
+        means, stds = [], []
+        with tarfile.open(self.tarpath, "r") as handle:
+            names = handle.getnames()
+            for name in tqdm(names, desc="Processing dataset.."):
+
+                # Skipping files that do not belong to the classes
+                if not any([name.startswith(class_name) for class_name in classes]):
+                    continue
+
+                buffer = io.BytesIO()
+                buffer.write(handle.extractfile(name).read())
+                buffer.seek(0)
+                data = np.load(buffer, allow_pickle=True)
+                data = {key : values for key, values in data.items()}
+
+                self.imgs.append(data["image"])
+                metadata = data["metadata"].item()
+                self.conditions.append(metadata["condition"])       
+
+                means.append(self.imgs[-1].mean(axis=(1, 2)))
+                stds.append(self.imgs[-1].std(axis=(1, 2))) 
+
+        self.classes = list(sorted(set(self.conditions)))
+        assert all([class_name in self.classes for class_name in classes]), "Classes not found in dataset"
+
+        self.num_classes = len(self.classes)
+        self.labels = [self.classes.index(condition) for condition in self.conditions]
+
+        if self.balance:
+            self.rng = np.random.default_rng(seed)
+            self.__balance_classes()
+
+        print(f"Mean: {np.mean(means, axis=0)}, Std: {np.mean(stds, axis=0)}")
+
+    def __balance_classes(self) -> None:
+
+        min_samples = min([self.labels.count(i) for i in range(self.num_classes)])
+        indices = []
+        for i in range(self.num_classes):
+            inds = np.argwhere(np.array(self.labels) == i).ravel()
+            inds = self.rng.choice(inds, size=min_samples, replace=min_samples > len(inds))
+            indices.extend(inds)
+        self.imgs = [self.imgs[i] for i in indices]
+        self.conditions = [self.conditions[i] for i in indices]
+        self.labels = [self.labels[i] for i in indices]
+        assert len(self.imgs) == len(self.conditions) == len(self.labels)
+
+    def __len__(self) -> int:
+        return len(self.imgs)
+    
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, dict]:
+        img, label, condition = self.imgs[idx], self.labels[idx], self.conditions[idx]
+
+        if self.n_channels == 3:
+            img = np.tile(img[np.newaxis, :], (3, 1, 1))
+            img = torch.tensor(img, dtype=torch.float32)
+            # img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+            img = transforms.Normalize(mean=[0.041, 0.041, 0.041], std=[0.073, 0.073, 0.073])(img)
+        else:
+            if img.ndim == 2:
+                img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
+            else:
+                img = torch.tensor(img, dtype=torch.float32)
 
         img = self.transform(img) if self.transform is not None else img
 
