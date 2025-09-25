@@ -7,6 +7,8 @@ import pandas
 import hashlib
 import numpy
 import json
+import re
+
 from tqdm.auto import tqdm
 
 # import sys
@@ -56,6 +58,24 @@ def yield_msrfiles(path: str, msrfiles=None) -> str:
         if files:
             for file in files:
                 yield os.path.join(root, file)
+
+def remove_content_in_braces_and_filter(text):
+    """
+    Removes the content and the surrounding curly braces, including
+    any preceding space, from a string.
+    """
+    # The regex pattern matches a space, '{', any characters non-greedily, and '}'.
+    pattern = r" \{.*?\}"
+    
+    # Replace the matched pattern with an empty string
+    result = re.sub(pattern, "", text)
+    
+    # .strip() removes any remaining leading/trailing whitespace
+    result = result.strip()
+    result = result.replace(" ", "")
+    result = result.replace("_", "")
+    result = result.replace("-", "")
+    return result.strip() 
 
 def filter_image_size(image: dict) -> dict:
     """
@@ -119,11 +139,12 @@ def merge_confocal_sted(image: dict) -> dict:
     :returns : A `dict` of the merged image
     """
     merged = {}
-    dict_keys = [key.lower().strip() for key in image.keys()]
+    dict_keys = [remove_content_in_braces_and_filter(key.lower()) for key in image.keys()]
     for key, value in image.items():
-        if "sted" in key.lower():
+        filtered_key = remove_content_in_braces_and_filter(key.lower())
+        if "sted" in filtered_key:
             for attempt in ("conf", "confocal"):
-                confocal_key = key.lower().replace("sted", attempt)
+                confocal_key = filtered_key.replace("sted", attempt)
                 if confocal_key in dict_keys:
                     tmp = get_merged_stack(key, confocal_key, dict_keys, image)
                     if tmp is not None:

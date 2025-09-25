@@ -1570,6 +1570,105 @@ class FolderDataset(Dataset):
         img = self.transform(img) if self.transform is not None else img
         return img, {"label": label, "dataset-idx": idx}
 
+class RestorationFolderDataset(Dataset):
+    """
+    Dataset for image restoration tasks.
+
+    The dataset assumes that images are stored in a folder structure where the source images (e.g., low-quality images)
+    are located in a specified source directory, and the target images (e.g., high-quality images) are located in a specified target directory.
+    Each image in the source directory should have a corresponding image in the target directory with the same filename.
+    """
+    def __init__(
+            self, 
+            source: str,
+            target: str,
+            transform: Callable = None, 
+            n_channels: int = 1,
+            crop_size: int = 224,
+            **kwargs
+            ) -> None:
+        self.source = source
+        self.target = target
+        self.transform = transform
+        self.n_channels = n_channels
+        self.crop_size = crop_size
+
+        files = glob.glob(os.path.join(source, "*.tif"))
+        files += glob.glob(os.path.join(source, "*.tiff"))
+        files += glob.glob(os.path.join(source, "*.png"))
+        files += glob.glob(os.path.join(source, "*.jpg"))
+
+        target_files = [f.replace(source, target) for f in files]
+        self.images = [(f, tf) for f, tf in zip(files, target_files) if os.path.exists(tf)]
+        assert len(self.images) > 0, "No matching source-target image pairs found."
+
+        self.samples = self._index_dataset()
+
+    def _index_dataset(self):
+        samples = []
+        for f, tf in tqdm(self.images):
+            image = self.read_image(f)
+            C, H, W = image.shape
+            for c in range(C):
+                for j in range(0, H - self.crop_size, self.crop_size):
+                    for i in range(0, W - self.crop_size, self.crop_size):
+                        slc = (
+                            slice(j, j + self.crop_size) if j + self.crop_size < H else slice(H - self.crop_size, H),
+                            slice(i,  i + self.crop_size) if i + self.crop_size < W else slice(W - self.crop_size, W),
+                        )
+                        samples.append({
+                            "source-image": f,
+                            "target-image": tf,
+                            "chan-idx": c,
+                            "slc": slc
+                        })
+        return samples
+
+    def read_image(self, path: str) -> np.ndarray:
+        ext = os.path.splitext(path)[-1].lower()
+        if ext in [".png", ".jpg", ".jpeg"]:
+            image = Image.open(path)
+            image = np.array(image)
+        else:
+            image = tifffile.imread(path)
+
+        # No normalization for float images; we assume they are already in [0, 1]
+        if np.issubdtype(image.dtype, np.integer):
+            image = (image - image.min()) / (image.max() - image.min())
+        if image.ndim == 2:
+            image = np.expand_dims(image, axis=0)
+        return image
+
+    def __len__(self):
+        return len(self.samples)
+    
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, dict]:
+        sample = self.samples[idx]
+
+        source = self.read_image(sample["source-image"])
+        source = source[sample["chan-idx"]]
+        source = source[sample["slc"]]
+
+        target = self.read_image(sample["target-image"])
+        target = target[sample["chan-idx"]]
+        target = target[sample["slc"]]
+
+        if self.n_channels == 3:
+            source = np.tile(source[np.newaxis, :], (3, 1, 1))
+            target = np.tile(target[np.newaxis, :], (3, 1, 1))
+
+            source = torch.tensor(source, dtype=torch.float32)
+            target = torch.tensor(target, dtype=torch.float32)
+            # img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+        else:
+            source = torch.tensor(source[np.newaxis, :], dtype=torch.float32)
+            target = torch.tensor(target[np.newaxis, :], dtype=torch.float32)
+
+        cat = torch.cat([source, target], dim=0)
+        cat = self.transform(cat) if self.transform is not None else cat
+        source, target = cat[0:1], cat[1:2]
+
+        return source, target#, {"dataset-idx": idx}
 
 class ProteinDataset(Dataset):
     def __init__(

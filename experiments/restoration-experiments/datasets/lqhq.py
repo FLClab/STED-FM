@@ -1,6 +1,8 @@
 
 import os
+import random
 
+from torch import nn
 from torch.utils.data import Dataset
 from torchvision import transforms
 from stedfm.DEFAULTS import BASE_PATH
@@ -28,15 +30,32 @@ class SplitViewsDataset(Dataset):
         view1 = img[0:1, :, :]  # First channel as first view
         view2 = img[1:2, :, :]  # Second channel as second view
         return view1, view2
+    
+class Random90DegreeRotation(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.degrees = [0, 90, 180, 270]
+
+    def forward(self, img):
+        angle = random.choice(self.degrees)
+        return transforms.functional.rotate(img, angle)
 
 def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
     cfg.dataset_cfg = LQHQConfiguration()
 
+    transform = transforms.Compose([
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomVerticalFlip(),
+        Random90DegreeRotation()
+    ])
+
     if name == "lqhq":
         path = os.path.join(BASE_PATH, "denoising-data", "lqhq")
         training_dataset = LQHQDenoisingDataset(
-            tarpath=os.path.join(path, "train-dataset.tar"), 
-            n_channels=cfg.in_channels, **kwargs)
+            tarpath=os.path.join(path, "train-dataset.tar"),
+            n_channels=cfg.in_channels, 
+            transform=transform,
+            **kwargs)
         validation_dataset = LQHQDenoisingDataset(
             tarpath=os.path.join(path, "valid-dataset.tar"), 
             n_channels=cfg.in_channels, **kwargs)

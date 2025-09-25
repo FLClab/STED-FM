@@ -5,6 +5,7 @@ import tarfile
 import numpy
 import io
 import tiffwrapper
+import SimpleITK as sitk
 
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
@@ -28,6 +29,36 @@ THRESHOLD = 0.01
 
 OUTPATH = os.path.join(BASE_PATH, "denoising-data", "lqhq")
 
+def register_images(stack):
+
+    stack = stack.astype(numpy.float32)
+
+    moving_image = sitk.GetImageFromArray(stack[0])
+    fixed_image = sitk.GetImageFromArray(stack[1])
+
+    R = sitk.ImageRegistrationMethod()
+    R.SetMetricAsMeanSquares()
+    R.SetOptimizerAsRegularStepGradientDescent(4.0, 0.01, 200)
+    R.SetInitialTransform(sitk.TranslationTransform(fixed_image.GetDimension()))
+    R.SetInterpolator(sitk.sitkLinear)
+    outTx = R.Execute(fixed_image, moving_image)
+
+    print("-------")
+    print(outTx)
+    print("Optimizer stop condition: {0}".format(R.GetOptimizerStopConditionDescription()))
+    print(" Iteration: {0}".format(R.GetOptimizerIteration()))
+    print(" Metric value: {0}".format(R.GetMetricValue()))
+
+    resampler = sitk.ResampleImageFilter()
+    resampler.SetReferenceImage(fixed_image)
+    resampler.SetInterpolator(sitk.sitkLinear)
+    resampler.SetTransform(outTx)
+    out = resampler.Execute(moving_image)
+
+    registered_image = sitk.GetArrayFromImage(out)
+
+    return numpy.stack([registered_image, stack[1]], axis=0)
+
 def normalize(img: numpy.ndarray, channel: int=1):
     """
     Normalize the image to [0, 1] based on the 0.0001 and 0.9999 quantiles.
@@ -38,7 +69,7 @@ def normalize(img: numpy.ndarray, channel: int=1):
     
     :return: Normalized image.
     """
-    m, M = numpy.quantile(img[channel], 0.0001), numpy.quantile(img[channel], 0.9999)
+    m, M = numpy.quantile(img, 0.0001, keepdims=True), numpy.quantile(img, 0.9999, keepdims=True)
     img = (img - m) / (M - m)
     img = numpy.clip(img, 0, 1)
     img = img.astype(numpy.float32)
@@ -93,6 +124,7 @@ def add_files_to_tar(condition, files, split):
                     img = numpy.stack([
                         data[key] for key in keys
                     ], axis=0)
+                    img = register_images(img)
 
                     # Mask is applied on the HQ channel
                     mask = img[1] > threshold_otsu(img[1])
@@ -147,19 +179,54 @@ def add_files_to_tar(condition, files, split):
         print(f"Added {end_length - start_length} images to the tar file.")        
 
 def export_to_tiff(condition, files, split):
+
+    os.makedirs(os.path.join(OUTPATH, "tiff-exports", condition, split), exist_ok=True)
         
-    with MSRReader() as msrreader:
+    with Reader() as msrreader:
 
         for i, f in enumerate(tqdm(files, desc=f"{condition} ({split}) files...")):
             
             data = msrreader.read(f)
+            metadata = msrreader.get_metadata(f)
 
-            img = data[MSRKEY]
-            export_image = numpy.stack((img, *[data[key] for key in OPTIONALMSRKEYS]), axis=0)
-            if MASKKEY is not None:
-                export_image = numpy.concatenate((export_image, data[MASKKEY][numpy.newaxis]), axis=0)
-            tiffwrapper.imwrite(f.replace(".msr", ".tif"), export_image.astype(numpy.uint16), 
-                                composite=True, luts=["gray", "magenta", "cyan"])
+            keys = list(data.keys())
+            available_keys = [key for key in keys 
+                                if ("conf" not in key.lower()) and 
+                                ("overview" not in key.lower()) and 
+                                ("pop" not in key.lower()) and 
+                                ("focus" not in key.lower())]
+            if len(available_keys) < 2:
+                continue
+            
+            found = False
+            for keys in MSRKEYS:
+                if all(key in data for key in keys):
+                    found = True
+                    break
+            if not found:
+                print(f"Skipping {f}\n\tAvailable keys: {available_keys}")
+                continue
+
+            for keys in MSRKEYS:
+                if any(key not in data for key in keys):
+                    continue
+                if not is_shape_match(data, keys):
+                    print(f"Skipping {f} due to shape mismatch: {[data[key].shape for key in keys]}")
+                    continue
+                # print(f"Processing {f}...")
+
+                img = numpy.stack([
+                    data[key] for key in keys
+                ], axis=0)
+                img = register_images(img)
+
+                tiffwrapper.imsave(
+                    os.path.join(OUTPATH, "tiff-exports", condition, split, f"{condition}-{os.path.basename(f)}.tiff"),
+                    img.astype(numpy.uint16),
+                    composite=True,
+                    luts=["green", "magenta"]
+                )
+
 
 def main():
 

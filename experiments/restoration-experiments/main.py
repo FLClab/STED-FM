@@ -28,7 +28,7 @@ from lightly.utils.scheduler import CosineWarmupScheduler
 
 # from decoders import get_decoder
 from datasets import get_dataset
-# from eval import evaluate_segmentation
+from eval import evaluate_denoising
 
 from stedfm import get_decoder
 from stedfm import get_pretrained_model_v2
@@ -180,6 +180,7 @@ if __name__ == "__main__":
         backbone, cfg = get_pretrained_model_v2(args.backbone, weights=args.backbone_weights)
     else:
         backbone, cfg = get_base_model(args.backbone)
+    cfg.seed = args.seed
 
     # Loads dataset and dataset-specific configuration
     cache_manager = Manager()
@@ -329,14 +330,13 @@ if __name__ == "__main__":
             start_value=1.0, end_value=0.01
         )
     elif probe == "pretrained-frozen":
-        optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
         scheduler = CosineWarmupScheduler(
             optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, max_epochs=cfg.num_epochs,
-            start_value=1.0, end_value=0.01,
-            period=cfg.num_epochs//10
+            start_value=1.0, end_value=0.01
         )
     else:
-        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.999))
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0.05, betas=(0.9, 0.999))
         scheduler = CosineWarmupScheduler(
             optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, max_epochs=cfg.num_epochs,
             start_value=1.0, end_value=0.01
@@ -481,8 +481,8 @@ if __name__ == "__main__":
         num_workers=0
     )
 
-    scores = evaluate_segmentation(model, test_loader, savefolder=None, device=DEVICE, dataset_name=args.dataset)
-    with open(os.path.join(OUTPUT_FOLDER, "segmentation-scores.json"), "w") as file: 
+    scores = evaluate_denoising(model, test_loader, savefolder=None, device=DEVICE, dataset_name=args.dataset)
+    with open(os.path.join(OUTPUT_FOLDER, "denoising-scores.json"), "w") as file: 
         json.dump(scores, file, indent=4)
 
     print("----------------------------------------")
