@@ -51,10 +51,19 @@ def add_files_to_tar(condition, filename, stack_names, split):
         start_length = len(handle.getnames())
         for i, stack_name in enumerate(stack_names):
             with Reader() as reader:
-                data = reader.read(filename, keys=stack_name)
-                metadata = reader.get_metadata(filename)[stack_name]
+                try:
+                    data = reader.read(filename, keys=stack_name)
+                    metadata = reader.get_metadata(filename)[stack_name]
+                except Exception as e:
+                    print(f"Error reading {stack_name} from {filename}: {e}")
+                    continue
 
-            stack = data[stack_name]
+            try:
+                stack = data[stack_name]
+            except Exception as e:
+                print(f"Error accessing data for {stack_name} from {filename}: {e}")
+                continue
+            
             if CHANNELS[condition] is not None:
                 stack = stack[:, CHANNELS[condition], ...]
 
