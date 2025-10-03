@@ -359,6 +359,21 @@ def get_resolution_dataset(path: str, batch_size: int = 128, **kwargs):
 
     return train_loader, valid_loader, test_loader
 
+def get_lqhq_denoising_dataset(path: str, batch_size: int = 128, **kwargs):
+    training_dataset = datasets.LQHQDenoisingDataset(tarpath=os.path.join(path, "train-dataset.tar"), **kwargs)
+    validation_dataset = datasets.LQHQDenoisingDataset(tarpath=os.path.join(path, "valid-dataset.tar"), **kwargs)
+    testing_dataset = datasets.LQHQDenoisingDataset(tarpath=os.path.join(path, "test-dataset.tar"), **kwargs)
+
+    print(f"Training size: {len(training_dataset)}")
+    print(f"Validation size: {len(validation_dataset)}")
+    print(f"Test size: {len(testing_dataset)}")
+
+    train_loader = DataLoader(dataset=training_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+    valid_loader = DataLoader(dataset=validation_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+    test_loader = DataLoader(dataset=testing_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+
+    return train_loader, valid_loader, test_loader
+
 def get_dataset(name, path=None, **kwargs):
     if name == "optim":
         return get_optim_dataset(
@@ -424,6 +439,14 @@ def get_dataset(name, path=None, **kwargs):
     elif name == "resolution":
         return get_resolution_dataset(
             path=os.path.join(BASE_PATH, "evaluation-data", "resolution-dataset"), 
+            n_channels=kwargs.get("n_channels", 1), 
+            transform=kwargs.get("transform", None),
+            batch_size=kwargs.get("batch_size", 64),
+            num_samples=kwargs.get("num_samples", None),
+        )
+    elif name == "lqhq-denoising":
+        return get_lqhq_denoising_dataset(
+            path=os.path.join(BASE_PATH, "denoising-data", "lqhq"), 
             n_channels=kwargs.get("n_channels", 1), 
             transform=kwargs.get("transform", None),
             batch_size=kwargs.get("batch_size", 64),

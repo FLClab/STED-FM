@@ -19,7 +19,7 @@ from scipy.ndimage import gaussian_filter
 from stedfm.DEFAULTS import BASE_PATH
 from stedfm import get_pretrained_model_v2
 from stedfm.utils import set_seeds
-# from datasets import MICRANetHDF5Dataset, FactinCaMKIIDataset
+from stedfm.datasets import MICRANetHDF5Dataset, FactinCaMKIIDataset
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mae-lightning-small")
@@ -93,11 +93,11 @@ def load_dataset(balance=True) -> torch.utils.data.Dataset:
             return_non_ambiguous=True,
             size=224
         )
-    elif args.dataset == "factin-camkii":
+    elif args.dataset == "factin-camkii-shrna":
         dataset = FactinCaMKIIDataset(
             os.path.join(BASE_PATH, "evaluation-data", "factin-camkii", f"{args.split}-dataset.tar"),
             n_channels=3 if "imagenet" in args.weights.lower() else 1,
-            balance=True,
+            balance=False,
             classes=["CTRL", "shRNA"]
         )
     elif args.dataset == "factin-camkii-rescue":
@@ -107,6 +107,41 @@ def load_dataset(balance=True) -> torch.utils.data.Dataset:
             balance=False,
             classes=["CTRL", "RESCUE"]
         )        
+    elif args.dataset == "factin-camkii-glugly-shrna":
+        dataset = FactinCaMKIIDataset(
+            os.path.join(BASE_PATH, "evaluation-data", "factin-camkii", f"{args.split}-dataset.tar"),
+            n_channels=3 if "imagenet" in args.weights.lower() else 1,
+            balance=False,
+            classes=["GluGly-CTRL", "GluGly-shRNA"]
+        )
+    elif args.dataset == "factin-camkii-glugly-rescue":
+        dataset = FactinCaMKIIDataset(
+            os.path.join(BASE_PATH, "evaluation-data", "factin-camkii", f"{args.split}-dataset.tar"),
+            n_channels=3 if "imagenet" in args.weights.lower() else 1,
+            balance=False,
+            classes=["GluGly-CTRL", "GluGly-RESCUE"]
+        )        
+    elif args.dataset == "factin-camkii-block-glugly":
+        dataset = FactinCaMKIIDataset(
+            os.path.join(BASE_PATH, "evaluation-data", "factin-camkii", f"{args.split}-dataset.tar"),
+            n_channels=3 if "imagenet" in args.weights.lower() else 1,
+            balance=False,
+            classes=["CTRL", "GluGly-CTRL"]
+        )    
+    elif args.dataset == "factin-camkii-block-glugly-shrna":
+        dataset = FactinCaMKIIDataset(
+            os.path.join(BASE_PATH, "evaluation-data", "factin-camkii", f"{args.split}-dataset.tar"),
+            n_channels=3 if "imagenet" in args.weights.lower() else 1,
+            balance=False,
+            classes=["shRNA", "GluGly-shRNA"]
+        )            
+    elif args.dataset == "factin-camkii-block-glugly-rescue":
+        dataset = FactinCaMKIIDataset(
+            os.path.join(BASE_PATH, "evaluation-data", "factin-camkii", f"{args.split}-dataset.tar"),
+            n_channels=3 if "imagenet" in args.weights.lower() else 1,
+            balance=False,
+            classes=["RESCUE", "GluGly-RESCUE"]
+        )            
     elif args.dataset == "als":
         dataset = ALSDataset(
             tarpath=f"/home-local/Frederic/Datasets/ALS/ALS_JM_Fred_unmixed/PLKO-262-{args.channel}-{args.split}.tar",

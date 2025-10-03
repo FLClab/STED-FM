@@ -154,7 +154,8 @@ class ViTDecoder(torch.nn.Module):
         z0 = self.decoder0(z0)
         pred = self.decoder0_predict(torch.cat([z0, z3], dim=1))
         pred = torch.sigmoid(pred)
-        return pred, out
+        # return pred, out
+        return pred
 
 class ViTSegmentationClassifier(torch.nn.Module):
     def __init__(self, backbone: torch.nn.Module, cfg: dataclass, global_pool: str = "patch") -> None:
@@ -267,7 +268,7 @@ def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn
 
     :returns : A `ViTDecoder` instance
     """
-    full_decoder = kwargs.get("full_decoder", False)
+    full_decoder = kwargs.get("full_decoder", False) or cfg.get("full_decoder", False)
     if full_decoder:
         print("\n===== Loading Full ViT Decoder =====\n")
         if cfg.backbone in ["mae-lightning-tiny", "mae-lightning-small", "mae-lightning-base", "mae-lightning-large", "vit-tiny", "vit-small"]:
