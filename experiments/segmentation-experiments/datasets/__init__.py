@@ -8,6 +8,8 @@ from .synprot import get_dataset as get_synaptic_protein_dataset
 from .lioness import get_dataset as get_lioness_dataset
 from .zooniverse import get_dataset as get_zooniverse_dataset
 from .mitochondria import get_dataset as get_mitochondria_dataset
+from .lcn import get_dataset as get_lcn_dataset
+from .deepd3 import get_dataset as get_deepd3_dataset
 
 DATASETS = {
     "factin" : get_actin_dataset,
@@ -20,6 +22,8 @@ DATASETS = {
     "multidomain-detection" : get_synaptic_protein_dataset,
     "lioness" : get_lioness_dataset,
     "mitochondria" : get_mitochondria_dataset,
+    "lcn": get_lcn_dataset,
+    "deepd3" : get_deepd3_dataset,
 }
 
 def get_dataset(name: str, cfg: dataclass, **kwargs) -> Dataset:
