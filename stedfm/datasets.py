@@ -1051,7 +1051,6 @@ class PolymerRingsDataset(Dataset):
     def __len__(self):
         return len(self.info)    
 
-    
 class DLSIMDataset(Dataset):
     """
     Dataset for the DLSIM dataset containing 4 classes: factin, adhesion, microtubule and mitochondrial.
@@ -1167,6 +1166,143 @@ class DLSIMDataset(Dataset):
     def __len__(self):
         return len(self.info)   
 
+class BBBCDataset(Dataset):
+    """
+    Dataset for the BBBC datasets.
+    """
+    def __init__(
+        self, source:str, 
+        transform: Any, 
+        classes: List = ["CK-666", "Cofilin1", "PFN1", "TBeta4"], 
+        n_channels: int = 1,
+        num_samples: int = None,
+        crop_size: int = 224,
+        step: float = 0.75,
+        mean: List = [0.10, 0.10, 0.10],
+        std: List = [0.14, 0.14, 0.14],
+        **kwargs
+    ): 
+        super().__init__()
+        self.source = source
+        self.transform = transform
+        self.classes = classes
+        self.n_channels = n_channels
+        self.num_classes = len(self.classes)
+        self.crop_size = crop_size
+        self.step = step
+
+        self.mean, self.std = mean, std
+
+        with open(source, "r") as file:
+            files = file.readlines()
+            files = [os.path.join(BASE_PATH, file.strip()) for file in files]
+        
+        self.samples = {}        
+        original_size = 0
+        for i, class_name in enumerate(self.classes):
+            # Detect if class_name looks like a regex (e.g., contains regex special chars)
+            if re.search(r"[\[\]\(\)\.\*\+\?\|\^\$]", class_name):
+                files_list = [f for f in files if re.search(class_name, os.path.basename(f))]
+            else:
+                files_list = [f for f in files if class_name in f]
+            original_size += len(files_list)
+
+            # Modify class_name to remove any regex special characters for consistent labeling
+            class_name = re.sub(r"[\[\]\(\)\.\*\+\?\|\^\$]", "", class_name)
+
+            self.samples[class_name] = self._get_sampled_files(files_list=files_list, num_sample=num_samples)
+        
+        self.original_size = original_size
+
+        print("Samples: ", os.path.basename(source))
+        for key, values in self.samples.items():
+            print(key, len(values))
+
+        self.classes = list(sorted(self.samples.keys()))
+        self.num_classes = len(self.classes)
+        self.info = self.__get_info()
+
+        print("----------")
+        for k in self.samples.keys():
+            print(f"Class {k} samples: {len(self.samples[k])}")
+        print("----------")
+
+        statistics = defaultdict(list)
+        paths = set([item["path"] for item in self.info])
+        for path in paths:
+            img = self._read_image(path)
+            m, M = img.min(), img.max()
+            img = (img - m) / (M - m)
+            statistics["mean"].append(numpy.mean(img))
+            statistics["std"].append(numpy.std(img))
+        print(f"Mean: {numpy.mean(statistics['mean'])}, Std: {numpy.mean(statistics['std'])}")
+
+    def _read_image(self, path: str) -> np.ndarray:
+        ext = os.path.splitext(path)[-1].lower()
+        if ext in [".tif", ".tiff"]:
+            image = tifffile.imread(path)
+        elif ext in [".png", ".jpg", ".jpeg"]:
+            image = skimage.io.imread(path)
+        else:
+            raise ValueError(f"Unsupported file extension: {ext}")
+        return image
+
+    def _get_sampled_files(self, files_list, num_sample):
+        if num_sample is not None:
+            return random.sample(files_list, num_sample)
+        else:
+            return files_list
+
+    def __get_info(self):
+        info = []
+        for key, values in self.samples.items():
+            protein_id = key
+            for file in values:
+
+                image = self._read_image(file)
+                # Dendrite foreground
+                threshold = filters.threshold_otsu(image)
+                foreground = image > threshold
+                for j in range(0, image.shape[-2], int(self.step * self.crop_size)):
+                    for i in range(0, image.shape[-1], int(self.step * self.crop_size)):
+                        slc = (
+                            slice(j, j + self.crop_size) if j + self.crop_size < image.shape[-2] else slice(image.shape[-2] - self.crop_size, image.shape[-2]),
+                            slice(i,  i + self.crop_size) if i + self.crop_size < image.shape[-1] else slice(image.shape[-1] - self.crop_size, image.shape[-1]),
+                        )                    
+                        crop = foreground[slc]
+                        if crop.sum() > 0.1 * crop.size:
+                            info.append({
+                                "path" : file,
+                                "label" : key,
+                                "slc" : slc
+                            })
+                
+        return info
+    
+    def __getitem__(self, idx: int):
+        item = self.info[idx]
+
+        img = self._read_image(item["path"])
+        m, M = img.min(), img.max()
+        img = (img - m) / (M - m)
+
+        # crop image
+        img = img[item["slc"]]
+        label = self.classes.index(item["label"])
+
+        if self.n_channels == 3:
+            img = np.tile(img[np.newaxis, :], (3, 1, 1))
+            img = torch.tensor(img, dtype=torch.float32)
+            img = transforms.Normalize(mean=self.mean, std=self.std)(img)
+        else:
+            img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
+        
+        img = self.transform(img) if self.transform is not None else img      
+        
+        return img, {"label" : label, "dataset-idx" : idx}
+
+    def __len__(self):
+        return len(self.info)   
 
 class NeuralActivityStates(Dataset):
     def __init__(
