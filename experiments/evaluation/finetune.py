@@ -386,8 +386,8 @@ def main():
             optimizer.step()
             loss_meter.update(loss.item())
 
-            # if (epoch < warmup_epochs and step % 10 == 0) or (step % 100 == 0):
-            if (step % 100 == 0):                
+            if (epoch < warmup_epochs and step % 10 == 0) or (step % 100 == 0):
+            # if (step % 100 == 0):                
                 v_loss, v_acc, v_cm = validation_step(
                     model=model,
                     valid_loader=valid_loader,
