@@ -154,7 +154,8 @@ class ViTDecoder(torch.nn.Module):
         z0 = self.decoder0(z0)
         pred = self.decoder0_predict(torch.cat([z0, z3], dim=1))
         pred = torch.sigmoid(pred)
-        return pred, out
+        # return pred, out
+        return pred
 
 class ViTSegmentationClassifier(torch.nn.Module):
     def __init__(self, backbone: torch.nn.Module, cfg: dataclass, global_pool: str = "patch") -> None:

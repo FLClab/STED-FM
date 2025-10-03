@@ -18,18 +18,19 @@ from datamodule import MultiprocessingDataModule
 from class_dict import class_dict
 from stedfm.model_builder import get_pretrained_model_v2
 from stedfm.utils import SaveBestModel, AverageMeter, compute_Nary_accuracy, track_loss, update_cfg, get_number_of_classes
+from stedfm.DEFAULTS import BASE_PATH
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)
-parser.add_argument("--dataset-path", type=str, default="./Datasets/FLCDataset/baselines/dataset.tar")
+parser.add_argument("--dataset-path", type=str, default=f"/home-local2/projects/FLCDataset/STED-FM-subset-dataset-crops.tar")
 parser.add_argument("--model", type=str, default="mae-lightning-small")
 parser.add_argument("--weights", type=str, default="MAE_SMALL_STED")
 parser.add_argument("--timesteps", type=int, default=1000)
 parser.add_argument("--epochs", type=int, default=1000)
 parser.add_argument("--dataset", type=str, default="STED")
-parser.add_argument("--save-folder", type=str, default='/home/frbea320/scratch/model_checkpoints/DiffusionModels/latent-guidance')
+parser.add_argument("--save-folder", type=str, default=f"{BASE_PATH}/baselines/DiffusionModels/latent-guidance-cycle")
 parser.add_argument("--num-classes", type=int, default=24)
-parser.add_argument("--checkpoint", type=str, default=None)
+parser.add_argument("--checkpoint", type=str, default=f"{BASE_PATH}/baselines/DiffusionModels/latent-guidance")
 parser.add_argument("--batch-size", type=int, default=4)
 parser.add_argument("--use-tensorboard", action='store_true')
 parser.add_argument("--restore-from", type=str, default=None)
@@ -52,8 +53,6 @@ def get_save_folder() -> str:
         return "SIM"
     else:
         raise NotImplementedError("The requested weights do not exist.")
-
-
 
 class ReconstructionCallback(Callback):
     def on_train_epoch_end(self, trainer, pl_module):
@@ -86,7 +85,7 @@ class ReconstructionCallback(Callback):
 class DatasetConfig:
     num_workers : int = None
     shuffle : bool = True
-    use_cache : bool = True
+    use_cache : bool = False
     max_cache_size : float = 32e+9
     return_metadata : bool = True
     batch_size: int = args.batch_size
@@ -94,39 +93,41 @@ class DatasetConfig:
 if __name__=="__main__":
     SAVEFOLDER = get_save_folder()
     print(f"--- Dataset: {SAVEFOLDER} ---")
-    if args.checkpoint is not None:
-        raise NotImplementedError("Loading from checkpoint not implemented yet")
 
-    else:
-        channels = 3 if SAVEFOLDER == "ImageNet" else 1
-        print(f"Number of channels {channels}")
-        OUTPUT_FOLDER = f"{args.save_folder}/{args.weights}"
-        latent_encoder, model_config = get_pretrained_model_v2(
-            name=args.model,
-            weights=args.weights,
-            path=None,
-            mask_ratio=0.0, 
-            pretrained=True if channels == 3 else False,
-            in_channels=channels,
-            as_classifier=True,
-            blocks="all",
-            num_classes=4, # will not be used
-        )
-        denoising_model = UNet(
-            dim=64, 
-            channels=1, 
-            cond_dim=model_config.dim,
-            dim_mults=(1,2,4),
-            condition_type="latent",
-            num_classes=4 # placeholder, not used
-        )
-        model = DDPM(
-            denoising_model=denoising_model,
-            timesteps=args.timesteps,
-            beta_schedule="linear",
-            condition_type="latent",
-            latent_encoder=latent_encoder
-        )
+    channels = 3 if SAVEFOLDER == "ImageNet" else 1
+    print(f"Number of channels {channels}")
+    OUTPUT_FOLDER = f"{args.save_folder}/{args.weights}"
+    latent_encoder, model_config = get_pretrained_model_v2(
+        name=args.model,
+        weights=args.weights,
+        path=None,
+        mask_ratio=0.0, 
+        pretrained=True if channels == 3 else False,
+        in_channels=channels,
+        as_classifier=True,
+        blocks="all",
+        num_classes=4, # will not be used
+    )
+    denoising_model = UNet(
+        dim=64, 
+        channels=1, 
+        cond_dim=model_config.dim,
+        dim_mults=(1,2,4),
+        condition_type="latent",
+        num_classes=4 # placeholder, not used
+    )
+    model = DDPM(
+        denoising_model=denoising_model,
+        timesteps=args.timesteps,
+        beta_schedule="linear",
+        condition_type="latent",
+        latent_encoder=latent_encoder,
+        cycle_consistency=True,
+    )
+    if args.checkpoint is not None:
+        ckpt = torch.load(os.path.join(args.checkpoint, args.weights, "checkpoint-69.pth"), map_location='cpu')
+        model.load_state_dict(ckpt['state_dict'])
+        print(f"Loaded model from {os.path.join(args.checkpoint, args.weights, 'checkpoint-69.pth')}")
 
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
     logger = TensorBoardLogger(OUTPUT_FOLDER) if args.use_tensorboard else None
@@ -150,7 +151,7 @@ if __name__=="__main__":
     
     callbacks = [last_model_callback, checkpoint_callback, ReconstructionCallback()]
     cfg = DatasetConfig()
-    datamodule = MultiprocessingDataModule(args, cfg, transform=None, in_channels=channels)
+    datamodule = MultiprocessingDataModule(args, cfg, transform=None, in_channels=channels, debug=False)
 
     trainer = Trainer(
         max_epochs=1000,

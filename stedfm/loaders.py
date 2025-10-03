@@ -359,6 +359,70 @@ def get_resolution_dataset(path: str, batch_size: int = 128, **kwargs):
 
     return train_loader, valid_loader, test_loader
 
+def get_lqhq_denoising_dataset(path: str, batch_size: int = 128, **kwargs):
+    training_dataset = datasets.LQHQDenoisingDataset(tarpath=os.path.join(path, "train-dataset.tar"), **kwargs)
+    validation_dataset = datasets.LQHQDenoisingDataset(tarpath=os.path.join(path, "valid-dataset.tar"), **kwargs)
+    testing_dataset = datasets.LQHQDenoisingDataset(tarpath=os.path.join(path, "test-dataset.tar"), **kwargs)
+
+    print(f"Training size: {len(training_dataset)}")
+    print(f"Validation size: {len(validation_dataset)}")
+    print(f"Test size: {len(testing_dataset)}")
+
+    train_loader = DataLoader(dataset=training_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+    valid_loader = DataLoader(dataset=validation_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+    test_loader = DataLoader(dataset=testing_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+
+    return train_loader, valid_loader, test_loader
+
+def get_bbbc026_dataset(path: str, batch_size: int = 128, **kwargs):
+
+    training_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC026-training.txt"), **kwargs)
+    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC026-validation.txt"), **kwargs)
+    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC026-testing.txt"), **kwargs)
+
+    print(f"Training size: {len(training_dataset)}")
+    print(f"Validation size: {len(validation_dataset)}")
+    print(f"Test size: {len(testing_dataset)}")
+
+    train_loader = DataLoader(dataset=training_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+    valid_loader = DataLoader(dataset=validation_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+    test_loader = DataLoader(dataset=testing_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+
+    return train_loader, valid_loader, test_loader
+
+
+def get_bbbc052_dataset(path: str, batch_size: int = 128, **kwargs):
+    
+    training_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC052-training.txt"), **kwargs)
+    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC052-validation.txt"), **kwargs)
+    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC052-testing.txt"), **kwargs)
+
+    print(f"Training size: {len(training_dataset)}")
+    print(f"Validation size: {len(validation_dataset)}")
+    print(f"Test size: {len(testing_dataset)}")
+
+    train_loader = DataLoader(dataset=training_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+    valid_loader = DataLoader(dataset=validation_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+    test_loader = DataLoader(dataset=testing_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+
+    return train_loader, valid_loader, test_loader
+
+def get_bbbc053_dataset(path: str, batch_size: int = 128, **kwargs):
+
+    training_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC053-training.txt"), **kwargs)
+    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC053-validation.txt"), **kwargs)
+    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC053-testing.txt"), **kwargs)
+
+    print(f"Training size: {len(training_dataset)}")
+    print(f"Validation size: {len(validation_dataset)}")
+    print(f"Test size: {len(testing_dataset)}")
+
+    train_loader = DataLoader(dataset=training_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+    valid_loader = DataLoader(dataset=validation_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+    test_loader = DataLoader(dataset=testing_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)
+
+    return train_loader, valid_loader, test_loader
+
 def get_dataset(name, path=None, **kwargs):
     if name == "optim":
         return get_optim_dataset(
@@ -428,6 +492,47 @@ def get_dataset(name, path=None, **kwargs):
             transform=kwargs.get("transform", None),
             batch_size=kwargs.get("batch_size", 64),
             num_samples=kwargs.get("num_samples", None),
+        )
+    elif name == "lqhq-denoising":
+        return get_lqhq_denoising_dataset(
+            path=os.path.join(BASE_PATH, "denoising-data", "lqhq"), 
+            n_channels=kwargs.get("n_channels", 1), 
+            transform=kwargs.get("transform", None),
+            batch_size=kwargs.get("batch_size", 64),
+            num_samples=kwargs.get("num_samples", None),
+        )
+    elif name == "bbbc026":
+        return get_bbbc026_dataset(
+            path=os.path.join(BASE_PATH, "evaluation-data", "BBBC026"),
+            classes=[r"_[A-Za-z]01_", r"_[A-Za-z]23_"],
+            n_channels=kwargs.get("n_channels", 1), 
+            transform=kwargs.get("transform", None),
+            batch_size=kwargs.get("batch_size", 64),
+            num_samples=kwargs.get("num_samples", None),
+            mean=kwargs.get("mean", [0.10, 0.10, 0.10]),
+            std=kwargs.get("std", [0.10, 0.10, 0.10]),
+        )
+    elif name == "bbbc052":
+        return get_bbbc052_dataset(
+            path=os.path.join(BASE_PATH, "evaluation-data", "BBBC052"), 
+            classes=["CK-666", "Cofilin1", "PFN1", "TBeta4"],
+            n_channels=kwargs.get("n_channels", 1), 
+            transform=kwargs.get("transform", None),
+            batch_size=kwargs.get("batch_size", 64),
+            num_samples=kwargs.get("num_samples", None),
+            mean=kwargs.get("mean", [0.10, 0.10, 0.10]),
+            std=kwargs.get("std", [0.14, 0.14, 0.14]),
+        )
+    elif name == "bbbc053":
+        return get_bbbc053_dataset(
+            path=os.path.join(BASE_PATH, "evaluation-data", "BBBC053"), 
+            classes=["FCCP/DMSO", "FCCP/FCCP"],
+            n_channels=kwargs.get("n_channels", 1), 
+            transform=kwargs.get("transform", None),
+            batch_size=kwargs.get("batch_size", 64),
+            num_samples=kwargs.get("num_samples", None),
+            mean=kwargs.get("mean", [0.035, 0.035, 0.035]),
+            std=kwargs.get("std", [0.07, 0.07, 0.07]),
         )
     else:
         raise NotImplementedError(f"`{name}` dataset is not supported.")

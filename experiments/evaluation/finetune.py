@@ -276,11 +276,11 @@ def main():
     transform = transforms.Compose([
         transforms.RandomHorizontalFlip(p=0.5),
         transforms.RandomVerticalFlip(p=0.5),
-        transforms.RandomChoice([
-            transforms.RandomRotation(degrees=90),
-            transforms.RandomRotation(degrees=180),
-            transforms.RandomRotation(degrees=270),
-        ])
+        # transforms.RandomChoice([
+        #     transforms.RandomRotation(degrees=90),
+        #     transforms.RandomRotation(degrees=180),
+        #     transforms.RandomRotation(degrees=270),
+        # ])
     ])
     train_loader, valid_loader, test_loader = get_dataset(
         name=args.dataset,
@@ -387,6 +387,7 @@ def main():
             loss_meter.update(loss.item())
 
             if (epoch < warmup_epochs and step % 10 == 0) or (step % 100 == 0):
+            # if (step % 100 == 0):                
                 v_loss, v_acc, v_cm = validation_step(
                     model=model,
                     valid_loader=valid_loader,
