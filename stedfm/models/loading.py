@@ -122,17 +122,15 @@ def load_weights(name: str, weights: Union[str, Enum, None]) -> dict:
             if weights.endswith(".zip"):
                 print(f"--- {name} | ({weights}) Downloading from URL and extracting zip ---\n")
                 state_dict = handle_url_zip_state_dict(name, weights)
-                return state_dict
             else:
                 print(f"--- {name} | ({weights}) Downloading from URL ---\n")
                 state_dict = handle_url_state_dict(name, weights=weights)
-                return state_dict
         elif os.path.isfile(weights):
             print(f"--- {name} | ({weights}) Loading from local file ---\n")
             state_dict = handle_str_state_dict(name, weights=weights)
-            return state_dict
         else:
             raise NotImplementedError(f"Invalid weights path: {weights}. It should be a URL or a local file path.")
+        return state_dict
     elif weights is None:
         print(f"--- {name} | Pretrained Image-Net or from scratch ---\n")
         return None
