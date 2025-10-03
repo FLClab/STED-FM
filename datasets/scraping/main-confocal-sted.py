@@ -9,6 +9,7 @@ import numpy
 import json
 import re
 
+from typing import Generator
 from tqdm.auto import tqdm
 
 # import sys
@@ -34,7 +35,7 @@ def get_msrfiles(path: str) -> list[str]:
     """
     return glob.glob(os.path.join(path, "**/*.msr"), recursive=True)
 
-def yield_msrfiles(path: str, msrfiles=None) -> str:
+def yield_msrfiles(path: str, msrfiles: str=None, outdata: dict=None) -> Generator[str, None, None]:
     """
     Yields the list of MSR files from the path.
 
@@ -45,10 +46,28 @@ def yield_msrfiles(path: str, msrfiles=None) -> str:
     if msrfiles is not None:
         with open(msrfiles, "r") as f:
             i = 0
-            lines = list(f.readlines())
+            lines = [line for line in f.readlines()]
+
+            if outdata is not None:
+                seen_files = [value["image-id"] for value in outdata.values() if "image-id" in value]
+                print(f"Filtering {len(lines)} files with existing {len(outdata)} entries...")
+                for line in lines:
+                    if "pdk-nas" in msrfiles:
+                        filename = os.path.join(os.path.expanduser("~"), "mnt", line[2:].strip())
+                    else:
+                        filename = os.path.join(os.path.expanduser("~"), "valeria-s3", line.strip())
+                    if filename in seen_files:
+                        lines.remove(line)
+                print(f"Remaining {len(lines)} files to process...")
+
             f.seek(0)  # Reset file pointer to the beginning
             for line in tqdm(lines, desc="Reading MSR files list", total=len(lines)):
-                yield os.path.join(os.path.expanduser("~"), "valeria-s3", line.strip())
+                if "pdk-nas" in msrfiles:
+                    if "#snapshot" in line:
+                        continue
+                    yield os.path.join(os.path.expanduser("~"), "mnt", line[2:].strip())
+                else:
+                    yield os.path.join(os.path.expanduser("~"), "valeria-s3", line.strip())
                 i += 1
         return
 
@@ -122,6 +141,19 @@ def filter_sted_channels(image: dict) -> dict:
             if "sted" in key.lower()
     }
 
+def filter_image_only(image: dict) -> dict:
+    """
+    Filters the image only within the dict
+
+    :param image: A `dict` of the image
+
+    :returns : A `dict` of the filtered image
+    """
+    return {
+        key : value for key, value in image.items()
+            if isinstance(value, numpy.ndarray)
+    }
+
 def get_merged_stack(key: str, confocal_key: str, keys: list[str], image: dict) -> numpy.ndarray:
     index = keys.index(confocal_key)
     confocal_key = list(image.keys())[index] # Retrieves the original key
@@ -164,6 +196,7 @@ def main():
     parser = argparse.ArgumentParser(description="Convert MSR files to TIFF files")
     parser.add_argument("--path", type=str, default="pdk-nas", help="Path to the MSR files")
     parser.add_argument("--msrfiles", type=str, default=None, help="Path to a text file containing the list of MSR files to process")
+    parser.add_argument("--overwrite", action="store_true", help="Overwrite existing files")
     parser.add_argument("--dry-run", action="store_true", help="Dry run")
     args = parser.parse_args()
 
@@ -182,21 +215,32 @@ def main():
     if args.msrfiles is not None and not os.path.isfile(args.msrfiles):
         raise ValueError(f"MSR files list {args.msrfiles} does not exist")
     if args.msrfiles:
-        outdir = os.path.join(OUTPUTPATH, f"scraping-confocal-sted")
+        if "pdk-nas" in args.msrfiles:
+            outdir = os.path.join(OUTPUTPATH, f"scraping-confocal-sted-pdk-nas")
+        else:
+            outdir = os.path.join(OUTPUTPATH, f"scraping-confocal-sted")
     
     os.makedirs(outdir, exist_ok=True)
 
     outdata = {}
+    if os.path.isfile(os.path.join(outdir, "metadata.json")) and not args.overwrite:
+        outdata = json.load(open(os.path.join(outdir, "metadata.json"), "r"))
+        print(f"Loaded existing metadata with {len(outdata)} entries")
+
     i = 0
-    for msrfile in yield_msrfiles(DEFAULTPATHS[args.path], msrfiles=args.msrfiles):
+    for msrfile in yield_msrfiles(DEFAULTPATHS[args.path], msrfiles=args.msrfiles, outdata=outdata):
+
         with Reader() as msrreader:
             try:
                 image = msrreader.read(msrfile)
                 metadata = msrreader.get_metadata(msrfile)
-            except (OSError, javabridge.jutil.JavaException) as err:
+            except (OSError, javabridge.jutil.JavaException, mureader.reader.JavaBridgeException) as err:
                 print(err)
                 print("Could not read the file...")
                 continue
+
+            # Ensure all images are numpy arrays
+            image = filter_image_only(image)
 
             # Filter image size
             image = filter_image_size(image)
@@ -215,7 +259,47 @@ def main():
             #     print(key, value.shape)
             
             for key, value in image.items():
+                if key not in metadata:
+                    metadata[key] = {
+                        "Pixels" : {
+                            "SizeX" : int(value.shape[-1]),
+                            "SizeY" : int(value.shape[-2]),
+                            "SizeZ" : int(value.shape[-3]) if value.ndim == 3 else 1,
+                            "PhysicalSizeX" : 1.0,
+                            "PhysicalSizeY" : 1.0,
+                            "PhysicalSizeZ" : 1.0,
+                            "PhysicalSizeXUnit" : "µm",
+                            "PhysicalSizeYUnit" : "µm",
+                            "PhysicalSizeZUnit" : "µm",
+                        }
+                    }
+
                 hashvalue = get_hash(msrfile + key)
+                if isinstance(metadata[key], numpy.ndarray):
+                    # Strange case where metadata is an image; happens on old files
+                    metadata[key] = {
+                        "Pixels" : {
+                            "SizeX" : int(value.shape[-1]),
+                            "SizeY" : int(value.shape[-2]),
+                            "SizeZ" : int(value.shape[-3]) if value.ndim == 3 else 1,
+                            "PhysicalSizeX" : 1.0,
+                            "PhysicalSizeY" : 1.0,
+                            "PhysicalSizeZ" : 1.0,
+                            "PhysicalSizeXUnit" : "µm",
+                            "PhysicalSizeYUnit" : "µm",
+                            "PhysicalSizeZUnit" : "µm",
+                        }
+                    }
+                scale_ = 1.0
+                if metadata[key]["Pixels"]["PhysicalSizeXUnit"] == "µm":
+                    scale_ = 1.0
+                elif metadata[key]["Pixels"]["PhysicalSizeXUnit"] == "nm":
+                    scale_ = 1e-3
+                elif metadata[key]["Pixels"]["PhysicalSizeXUnit"] == "m":
+                    scale_ = 1e+6
+                else:
+                    print(f"Unknown unit {metadata[key]['Pixels']['PhysicalSizeXUnit']}, assuming µm")
+
                 outdata[hashvalue] = {
                     "image-id" : msrfile,
                     "image-type" : "tif",
@@ -227,7 +311,7 @@ def main():
                 tifffile.imwrite(
                     os.path.join(outdir, f"{hashvalue}.tif"), 
                     value.astype(numpy.uint16),
-                    resolution = (1. / (metadata[key]["Pixels"]["PhysicalSizeX"] * 1e+6), 1. / (metadata[key]["Pixels"]["PhysicalSizeY"] * 1e+6)),
+                    resolution=(1. / (metadata[key]["Pixels"]["PhysicalSizeX"] * scale_), 1. / (metadata[key]["Pixels"]["PhysicalSizeY"] * scale_)),
                     imagej=True,
                     metadata = {"unit" : "um", "mode" : "composite"}
                 )
@@ -247,4 +331,3 @@ if __name__ == "__main__":
     #     javabridge.kill_vm()
     #     raise err
     # javabridge.kill_vm()
-    

@@ -55,7 +55,7 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
             source=os.path.join(path, "test"),
             target=os.path.join(path, "test", "testgt"),
             n_channels=cfg.in_channels,
-            transform=transform,
+            transform=None,
             **kwargs)
     elif name == "3d-rcan-npc":
         print("Loading 3D-RCAN-NPC dataset...")
@@ -76,7 +76,7 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
             source=os.path.join(path, "test"),
             target=os.path.join(path, "test", "testgt"),
             n_channels=cfg.in_channels,
-            transform=transform,
+            transform=None,
             **kwargs)
     else:
         raise NotImplementedError(f"`{name}` is not a valid option.")

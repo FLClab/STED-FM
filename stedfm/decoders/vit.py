@@ -153,7 +153,7 @@ class ViTDecoder(torch.nn.Module):
         z3 = self.decoder3_upsampler(torch.cat([z3, z6], dim=1))
         z0 = self.decoder0(z0)
         pred = self.decoder0_predict(torch.cat([z0, z3], dim=1))
-        # pred = torch.sigmoid(pred)
+        pred = torch.sigmoid(pred)
         # return pred, out
         return pred
 

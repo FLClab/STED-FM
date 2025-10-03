@@ -36,11 +36,11 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
         Random90DegreeRotation()
     ])
 
-    if name == "ov-lqhq-live-mito":
-        path = os.path.join(BASE_PATH, "denoising-data", "ov-lqhq-live-mito", "live_cell_mitochondria_u2os_tom20_halotag7_dm_sir")
+    if name == "lioness-lqhq":
+        path = os.path.join(BASE_PATH, "denoising-data", "lioness-lqhq")
         training_dataset = RestorationFolderDataset(
-            source=os.path.join(path, "test_and_training_data_2", "low_intensity_images"),
-            target=os.path.join(path, "test_and_training_data_2", "ground_truth_images"),
+            source=os.path.join(path, "training data", "low"),
+            target=os.path.join(path, "training data", "gt"),
             n_channels=cfg.in_channels, 
             transform=transform,
             **kwargs)
@@ -51,29 +51,8 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
         training_dataset = torch.utils.data.Subset(training_dataset, list(set(range(num_samples)) - set(random_indices)))
 
         testing_dataset = RestorationFolderDataset(
-            source=os.path.join(path, "test_and_training_data_1", "low_intensity_images"),
-            target=os.path.join(path, "test_and_training_data_1", "ground_truth_images"),
-            n_channels=cfg.in_channels, 
-            transform=None,
-            **kwargs)
-    elif name == "ov-lqhq-mt":
-        print("Loading OV-LQHQ-MT dataset...")
-        path = os.path.join(BASE_PATH, "denoising-data", "ov-lqhq-mt", "fixed_cell_microtubule_u2os_alphatubulin_star635p")
-        training_dataset = RestorationFolderDataset(
-            source=os.path.join(path, "training_data", "low_intensity_image_patches"),
-            target=os.path.join(path, "training_data", "ground_truth_image_patches"),
-            n_channels=cfg.in_channels, 
-            transform=transform,
-            **kwargs)
-        
-        num_samples = len(training_dataset)
-        random_indices = rng.choice(num_samples, size=int(0.1 * num_samples), replace=False)
-        validation_dataset = torch.utils.data.Subset(training_dataset, random_indices)
-        training_dataset = torch.utils.data.Subset(training_dataset, list(set(range(num_samples)) - set(random_indices)))
-
-        testing_dataset = RestorationFolderDataset(
-            source=os.path.join(path, "test_data", "low_intensity_image_patches"),
-            target=os.path.join(path, "test_data", "ground_truth_image_patches"),
+            source=os.path.join(path, "testing data", "low"),
+            target=os.path.join(path, "testing data", "gt"),
             n_channels=cfg.in_channels, 
             transform=None,
             **kwargs)

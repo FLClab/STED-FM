@@ -129,7 +129,7 @@ class RandomNumberOfSamplesSampler(Sampler):
 class SegmentationConfiguration(Configuration):
     
     freeze_backbone: bool = True
-    num_epochs: int = 300
+    num_epochs: int = 100
     learning_rate: float = 1e-4
     full_decoder: bool = True
 
@@ -324,13 +324,13 @@ if __name__ == "__main__":
         cfg.num_epochs = 1000
 
     if probe == "from-scratch":
-        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0.1, betas=(0.9, 0.95)) # ,weight_decay=1e-2)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-2, betas=(0.9, 0.95)) # ,weight_decay=1e-2)
         scheduler = CosineWarmupScheduler(
             optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, max_epochs=cfg.num_epochs,
             start_value=1.0, end_value=0.01
         )
     elif probe == "pretrained-frozen":
-        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-2, betas=(0.9, 0.999)) # ,weight_decay=1e-2)
         scheduler = CosineWarmupScheduler(
             optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, max_epochs=cfg.num_epochs,
             start_value=1.0, end_value=0.01

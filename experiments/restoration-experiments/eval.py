@@ -3,13 +3,14 @@ import torch
 import numpy
 import random
 import os
+import json
 
 from collections import defaultdict
 from tqdm import tqdm
 from skimage.metrics import structural_similarity
 from torchmetrics.image import MultiScaleStructuralSimilarityIndexMeasure
 
-def compute_scores(gt_images, pred_images, dataset_name: str):
+def compute_scores(gt_images, pred_images, dataset_name: str = None):
     """
     Compute evaluation scores between ground truth and predicted images.
 
@@ -157,9 +158,11 @@ if __name__ == "__main__":
         num_workers=0,
         drop_last=False,
     )
-    
+
     # Evaluate
     scores = evaluate_denoising(model, test_loader, device, args.save_folder, args.dataset)
+    with open(os.path.join(args.restore_from, "denoising-scores.json"), "w") as file: 
+        json.dump(scores, file, indent=4)    
 
     # Print average scores
     for metric, values in scores.items():
