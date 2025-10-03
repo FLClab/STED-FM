@@ -177,6 +177,8 @@ class ViTSegmentationClassifier(torch.nn.Module):
         )
 
     def forward_encoder(self, x: torch.Tensor) -> torch.Tensor:
+        if x.dtype == torch.float64:
+            x = x.float()
         features = self.backbone.forward_features(x)
         if self.global_pool == "token":
             features = features[:, 0, :] # class token 
@@ -268,8 +270,8 @@ def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn
     :returns : A `ViTDecoder` instance
     """
     full_decoder = kwargs.get("full_decoder", False)
-    print("\n===== Loading Full ViT Decoder =====\n")
     if full_decoder:
+        print("\n===== Loading Full ViT Decoder =====\n")
         if cfg.backbone in ["mae-lightning-tiny", "mae-lightning-small", "mae-lightning-base", "mae-lightning-large", "vit-tiny", "vit-small"]:
             extract_layers = [3, 6, 9 ,12]
             return ViTDecoder(backbone.backbone, cfg, extract_layers=extract_layers, **kwargs)

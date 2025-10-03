@@ -4,6 +4,7 @@ import torchvision
 import numpy
 import os
 import typing
+from typing import Dict, List, Tuple
 import random
 import dataclasses
 import time
@@ -189,6 +190,79 @@ def compute_auap(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.nd
         auap_per_class.append(auc(recall, precision_star))
     return auap_per_class
 
+def compute_pr_curve(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> Dict[int, List[float]]:
+    thresholds = numpy.linspace(0, 1, 100)
+    pr_per_class = {
+        i: [] for i in range(truth.shape[0])
+    }
+    
+    for class_idx, (t, p) in enumerate(zip(truth, prediction)):
+        t, p = t[mask].ravel(), p[mask].ravel()
+        pr_scores = []
+        for thresh in thresholds:
+            p = p > thresh 
+            if not numpy.any(t) and not numpy.any(p):
+                pr_scores.append((-1, -1))
+                continue
+            if numpy.unique(t).size == 1:
+                pr_scores.append((-1, -1)) 
+                continue 
+
+            precision = numpy.sum(numpy.logical_and(t, p)) / numpy.sum(p) 
+            recall = numpy.sum(numpy.logical_and(t, p)) / numpy.sum(t)
+            pr_scores.append((precision, recall))
+        pr_per_class[class_idx] = pr_scores
+      
+    return pr_per_class
+
+
+def compute_dice_curve(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> Dict[int, List[float]]:
+    thresholds = numpy.linspace(0, 1, 100)
+    dice_per_class = {
+        i: [] for i in range(truth.shape[0])
+    }
+    for class_idx, (t, p) in enumerate(zip(truth, prediction)):
+        t, p = t[mask].ravel(), p[mask].ravel()
+        threshold_scores = []
+        for thresh in thresholds:
+            p = p > thresh 
+            if not numpy.any(t) and not numpy.any(p):
+                threshold_scores.append(-1)
+                continue
+            if numpy.unique(t).size == 1:
+                threshold_scores.append(-1) 
+                continue 
+
+            intersection = numpy.logical_and(t, p).sum()
+            dice_score = (2 * intersection + 1) / (numpy.sum(t) + numpy.sum(p) + 1)
+            threshold_scores.append(dice_score)
+        dice_per_class[class_idx] = threshold_scores
+    return dice_per_class
+
+            
+def compute_iou_curve(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray) -> Dict[int, List[float]]:
+    thresholds = numpy.linspace(0, 1, 100)
+    iou_per_class = {
+        i: [] for i in range(truth.shape[0])
+    }
+    for class_idx, (t, p) in enumerate(zip(truth, prediction)):
+        t, p = t[mask].ravel(), p[mask].ravel()
+        threshold_scores = []
+        for thresh in thresholds:
+            p = p > thresh 
+            if not numpy.any(t) and not numpy.any(p):
+                threshold_scores.append(-1)
+                continue
+            if numpy.unique(t).size == 1:
+                threshold_scores.append(-1)
+                continue
+            intersection = numpy.logical_and(t, p).sum()
+            union = numpy.logical_or(t, p).sum()
+            iou_score = intersection / union
+            threshold_scores.append(iou_score)
+        iou_per_class[class_idx] = threshold_scores
+    return iou_per_class
+
 def compute_scores(truth: torch.Tensor, prediction: torch.Tensor, dataset_name: str) -> dict:
     """
     Compute the prediction between the truth and the prediction
@@ -219,7 +293,24 @@ def compute_scores(truth: torch.Tensor, prediction: torch.Tensor, dataset_name: 
             scores["aupr"].append(compute_aupr(truth_, prediction_, mask) )
             scores["auroc"].append(compute_auroc(truth_, prediction_, mask))
             scores["auap"].append(compute_auap(truth_, prediction_, mask))
+            
     return scores
+
+def compute_curves(truth: torch.Tensor, prediction: torch.Tensor, dataset_name: str) -> Dict:
+    truth = truth.cpu().data.numpy()
+    prediction = prediction.cpu().data.numpy()
+    if truth.shape[1] != prediction.shape[1]:
+        truth, foreground = truth[:, :-1], truth[:, -1]
+    else:
+        foreground = numpy.ones((len(truth), *truth.shape[-2:]))
+        
+    curves = defaultdict(list)
+    for truth_, prediction_, mask in zip(truth, prediction, foreground):
+        mask = mask > 0 
+        curves["dice"].append(compute_dice_curve(truth_, prediction_, mask))
+        curves["iou"].append(compute_iou_curve(truth_, prediction_, mask))
+        curves["pr"].append(compute_pr_curve(truth_, prediction_, mask))
+    return curves
 
 def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataLoader, savefolder: str = None, device="cpu", dataset_name: str = None) -> dict:
     """
@@ -231,6 +322,7 @@ def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataL
     :returns : A `dict` of the computed scores
     """
     all_scores = defaultdict(list)
+    all_curves = defaultdict(list)
     for i, (X, y) in enumerate(tqdm(loader, desc="[----] ")):
 
         # Reshape
@@ -262,9 +354,13 @@ def evaluate_segmentation(model: torch.nn.Module, loader: torch.utils.data.DataL
         for key, values in scores.items():
             all_scores[key].extend(values)
 
+        curves = compute_curves(y, pred, dataset_name=dataset_name)
+        for key, values in curves.items():
+            all_curves[key].extend(values)
+
         del X, y, pred
 
-    return all_scores
+    return all_scores, all_curves
 
 if __name__ == "__main__":
 

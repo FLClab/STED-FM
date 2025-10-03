@@ -10,6 +10,7 @@ import time
 import json
 import argparse
 import uuid
+import pickle
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from lightly import loss
@@ -464,9 +465,9 @@ if __name__ == "__main__":
 
     # Build the UNet model.
     model = get_decoder(backbone, cfg)
-    ckpt = torch.load(os.path.join(OUTPUT_FOLDER, "result.pt"))["model"]
+    ckpt = torch.load(os.path.join(OUTPUT_FOLDER, "result.pt"), weights_only=False)["model"]
     print("Restoring model...")
-    model.load_state_dict(ckpt)
+    model.load_state_dict(ckpt, strict=True)
     model = model.to(DEVICE)
     model.eval()
 
@@ -480,9 +481,13 @@ if __name__ == "__main__":
 
 
 
-    scores = evaluate_segmentation(model, test_loader, savefolder=None, device=DEVICE, dataset_name=args.dataset)
+    scores, curves = evaluate_segmentation(model, test_loader, savefolder=None, device=DEVICE, dataset_name=args.dataset)
     with open(os.path.join(OUTPUT_FOLDER, "segmentation-scores.json"), "w") as file: 
         json.dump(scores, file, indent=4)
+
+    # Save curves
+    with open(os.path.join(OUTPUT_FOLDER, "segmentation-curves.pkl"), "wb") as file:
+        pickle.dump(curves, file, protocol=pickle.HIGHEST_PROTOCOL)
 
     print("----------------------------------------")
     print("Evaluation is over")

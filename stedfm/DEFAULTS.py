@@ -5,7 +5,8 @@ USER = os.environ.get("USER")
 
 if USER == "frbea320":
     # BASE_PATH = "/home/frbea320/scratch"
-    BASE_PATH = "/home/frbea320/links/scratch"
+    # BASE_PATH = "/home/frbea320/links/scratch"
+    BASE_PATH = "/home/frbea320/links/projects/def-flavielc/shared"
 elif USER == "anbil106":
     BASE_PATH = "/home/anbil106/scratch/projects/SSL"
 elif USER == "anthony":
