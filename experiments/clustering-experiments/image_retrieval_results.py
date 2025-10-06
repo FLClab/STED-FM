@@ -45,5 +45,5 @@ if __name__=="__main__":
     ax.set_yticks(np.arange(len(avg_scores)))
     if args.mode == "raw":
         ax.set_xlim([0.6, 1.0])
-    fig.savefig(f"./results/{args.metric}_{args.mode}_image_retrieval.pdf", bbox_inches='tight', dpi=1200)
+    fig.savefig(f"./results/test2_{args.metric}_{args.mode}_image_retrieval.pdf", bbox_inches='tight', dpi=1200)
     plt.close(fig)

@@ -124,7 +124,7 @@ def main():
         normalized_heatmap[:, col] += diff
     
 
-    np.savez(f"./results/{args.metric}_image_retrieval_results.npz", performance_heatmap=performance_heatmap, normalized_heatmap=normalized_heatmap)
+    np.savez(f"./results/test_{args.metric}_image_retrieval_results.npz", performance_heatmap=performance_heatmap, normalized_heatmap=normalized_heatmap)
     fig = plt.figure()
     ax = fig.add_subplot(111)
     im = ax.imshow(normalized_heatmap, cmap="RdPu")
@@ -141,7 +141,7 @@ def main():
     ax.set_yticklabels(pretraining_datasets)
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
     plt.colorbar(im)
-    fig.savefig(f"./results/{args.metric}_image_retrieval_results.pdf", bbox_inches='tight', dpi=1200)
+    fig.savefig(f"./results/test_{args.metric}_image_retrieval_results.pdf", bbox_inches='tight', dpi=1200)
     plt.close(fig)
 
 if __name__=="__main__":
