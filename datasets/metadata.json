@@ -25793,13 +25793,13 @@
     ],
     "glur1": [
         {
-            "chan-id": "STED_594 {12}",
+            "chan-id": "STED 594 {12}",
             "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-23_PSD95_nano643+AMPAR(GluR1)r_1_500_A594+Vglut1gp_490LS_N3.msr",
             "image-type": "msr",
             "user-id": "apelletierrioux"
         },
         {
-            "chan-id": "STED_594 {12}",
+            "chan-id": "STED 594 {12}",
             "image-id": "apelletierrioux/Maitrise/2023-12-18_Test_prots_Synaptque_last_4_colors_and_Gaba_ampa/2023-12-23_PSD95_nano643+AMPAR(GluR1)r_1_500_A594+Vglut1gp_490LS_N1.msr",
             "image-type": "msr",
             "user-id": "apelletierrioux"
@@ -28343,115 +28343,115 @@
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i1.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i2.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_1ul_cs4n1_i3.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_2_NTemp.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n1_i3.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i1.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i2.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n2_i3.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i1.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i2.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs1n3_i3.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i1.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i2.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n1_i3.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n2_i1.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n2_i2++.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n5_i1.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n5_i2.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {10}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/16-2022-09-14_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin-SNAP610-SNAP647_LAM18/16-SNAP-Tubulin-SNAP610/16-SNAP-Tubulin-SNAP610_LIVE/16-2022-09-14_SNAP-tubulin-SNAP610_cs2-n6.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
@@ -36024,284 +36024,278 @@
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_01_FLC_Optim_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01_den_Poster_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01_den_Poster_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_04_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02_den_WOW_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_03_axo_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_04_den2_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01_den1_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_02_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_03_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_03_den_no_TH_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_04_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_04_dend_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_05_same_neuron_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_06_same_neuron_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_02_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV10_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV10_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV10_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV10_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV10_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV10_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV10_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_04_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_04_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan-id": 1,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
-            "image-type": "tif",
+            "image-id": "oferguson/synaptic_proteins/README.md",
+            "image-type": "md",
             "user-id": "oferguson"
         }
     ],
@@ -39101,43 +39095,43 @@
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {12}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n1.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {12}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n2.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {12}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n3.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {12}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n4.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {12}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n5.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {12}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n6.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
         },
         {
-            "chan-id": "STED640 {12}",
+            "chan-id": "STED640 {0}",
             "image-id": "jchabbert/17-2022-09-28_SNAP-Actin-Tubulin-Actin-GFP_SiR-Actin--SNAP647_HD18/17-SNAP647-Tubulin/17-SNAP647-Tubulin_LIVED/17-2022-09-29_SNAP-tubulin-SNAP647_cs2n7.msr",
             "image-type": "msr",
             "user-id": "jchabbert"
@@ -44962,284 +44956,284 @@
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/.README.md.swp",
+            "image-type": "swp",
+            "user-id": "oferguson"
+        },
+        {
+            "chan-id": 0,
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_01_FLC_Optim_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01_den_Poster_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01_den_Poster_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_04_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02_den_WOW_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_03_axo_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_04_den2_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV15_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01_den1_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_02_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_03_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_03_den_no_TH_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_04_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_04_dend_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_05_same_neuron_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_06_same_neuron_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P1_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n5_02_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV10_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV10_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV10_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_02_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV10_A53T_Lev_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n4_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV10_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV10_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV10_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01_den_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_02_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_03_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n1_04_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n2_04_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_01_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
+            "image-id": "oferguson/synaptic_proteins/P2_DIV20_Ctl_TH488_aSyn490LS_VGLUT2_594_PSD95_635_n3_02_.tif",
             "image-type": "tif",
             "user-id": "oferguson"
         },
         {
             "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
-            "image-type": "tif",
-            "user-id": "oferguson"
-        },
-        {
-            "chan-id": 0,
-            "image-id": "oferguson/synaptic_proteins/L8_3x_msTH488_RbTom20_635_ON_Neuron5_04_.tif",
-            "image-type": "tif",
+            "image-id": "oferguson/synaptic_proteins/README.md",
+            "image-type": "md",
             "user-id": "oferguson"
         }
     ],

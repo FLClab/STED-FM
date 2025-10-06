@@ -7,10 +7,10 @@ import argparse
 
 from matplotlib import pyplot
 
-import sys
-sys.path.insert(0, "../../")
-from DEFAULTS import COLORS
-from utils import savefig
+# import sys
+# sys.path.insert(0, "../../")
+# from DEFAULTS import COLORS
+# from utils import savefig
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default="example", help="Dataset to use")
@@ -50,6 +50,7 @@ def get_user_choices():
         if len(user_choices) == 0:
             continue
         for template, candidate, selected in user_choices:
+            print(template, candidate, selected)
             scores[get_class(candidate)] += candidate == selected
             num_candidates_per_class[get_class(candidate)] += 1
         
@@ -89,28 +90,7 @@ def main():
     numpy.random.seed(42)
 
     per_user_scores = get_user_choices()
-
-    # all_values = []
-    # for user, scores in per_user_scores.items():
-    #     values = numpy.array([scores[c] for c in CLASSES])
-    #     all_values.append(values)
-    # all_values = numpy.array(all_values)
-
-    # all_values = all_values / all_values.sum(axis=1, keepdims=True)
-
-    # fig, ax = pyplot.subplots(figsize=(3, 3))
-    # for i in range(all_values.shape[1]):
-    #     mean = numpy.mean(all_values[:, i])
-    #     std = numpy.std(all_values[:, i])
-    #     ax.scatter(numpy.random.normal(i, 0., size=all_values.shape[0]), all_values[:, i], facecolor="none", edgecolor="black", zorder=100)
-    #     ax.bar(i, mean, yerr=std, width=0.8, label=CLASSES[i], align="center", color=COLORS[CLASSES[i]])
-    
-    # ax.set_xticks(numpy.arange(len(scores.keys())))
-    # ax.set_xticklabels([NAMES[c] for c in CLASSES], rotation=45)
-    # ax.set(
-    #     ylabel="Proportion (-)", ylim=(0, 1)
-    # )
-    # savefig(fig, f"./results/{args.dataset}/choices", save_white=True)
+    print(per_user_scores)
 
 if __name__ == "__main__":
     main()

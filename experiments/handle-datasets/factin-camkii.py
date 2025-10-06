@@ -10,23 +10,21 @@ from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 from skimage.filters import threshold_otsu
 
+from stedfm.DEFAULTS import BASE_PATH
+
 import sys
-sys.path.insert(0, "../")
-
-from DEFAULTS import BASE_PATH
-
 sys.path.insert(0, "../..")
 
 from utils.msrreader import MSRReader
 
 MSRKEY = "STED_635P {2}"
-MSRKEY = "STED_594 {2}"
-MSRKEY = "Conf_640 {4}"
+# MSRKEY = "STED_594 {2}"
+# MSRKEY = "Conf_640 {4}"
 MASKKEY = "Conf_488 {2}"
-MASKKEY = "Conf_488 {4}"
+# MASKKEY = "Conf_488 {4}"
 OPTIONALMSRKEYS = ["STED_594 {2}"]
-OPTIONALMSRKEYS = ["STED_635P {2}"]
-OPTIONALMSRKEYS = ["Conf_ 561 {4}"]
+# OPTIONALMSRKEYS = ["STED_635P {2}"]
+# OPTIONALMSRKEYS = ["Conf_ 561 {4}"]
 CROP_SIZE = 224
 THRESHOLD = 0.05
 
@@ -135,13 +133,13 @@ def main():
     parser.add_argument("--export-to-tiff", action="store_true")
     args = parser.parse_args()
 
-    groups = {
-        "CTRL" : glob.glob(os.path.join(BASE_PATH, "detection-data", "confocal-actin", "*.msr"), recursive=True),
-    }
-    if args.export_to_tiff:
-        for key, values in groups.items():
-            export_to_tiff(key, values, "all")
-        return
+    # groups = {
+    #     "CTRL" : glob.glob(os.path.join(BASE_PATH, "detection-data", "confocal-actin", "*.msr"), recursive=True),
+    # }
+    # if args.export_to_tiff:
+    #     for key, values in groups.items():
+    #         export_to_tiff(key, values, "all")
+    #     return
 
     # groups = {
     #     "CTRL" : glob.glob(os.path.join(BASE_PATH, "evaluation-data", "camkii", "*.msr"), recursive=True),
@@ -151,13 +149,18 @@ def main():
     #         export_to_tiff(key, values, "all")
     #     return
     print("Please use the correct path for the factin-camkii dataset.")
-    exit()
     
     groups = {
         "CTRL" : glob.glob(os.path.join(BASE_PATH, "evaluation-data", "factin-camkii", "**/*Block_GFP/*.msr"), recursive=True),
         "shRNA" : glob.glob(os.path.join(BASE_PATH, "evaluation-data", "factin-camkii", "**/*Block_shRNA/*.msr"), recursive=True),
         "RESCUE" : glob.glob(os.path.join(BASE_PATH, "evaluation-data", "factin-camkii", "**/*Block_[rR]escue/*.msr"), recursive=True),
+        "GluGly-CTRL" : glob.glob(os.path.join(BASE_PATH, "evaluation-data", "factin-camkii", "**/*GluGly_GFP/*.msr"), recursive=True),
+        "GluGly-shRNA" : glob.glob(os.path.join(BASE_PATH, "evaluation-data", "factin-camkii", "**/*GluGly_shRNA/*.msr"), recursive=True),
+        "GluGly-RESCUE" : glob.glob(os.path.join(BASE_PATH, "evaluation-data", "factin-camkii", "**/*GluGly_[rR]escue/*.msr"), recursive=True),
     }
+    for key, values in groups.items():
+        print(key, len(values))
+        
     if args.export_to_tiff:
         for key, values in groups.items():
             export_to_tiff(key, values, "all")

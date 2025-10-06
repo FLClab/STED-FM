@@ -1051,7 +1051,6 @@ class PolymerRingsDataset(Dataset):
     def __len__(self):
         return len(self.info)    
 
-    
 class DLSIMDataset(Dataset):
     """
     Dataset for the DLSIM dataset containing 4 classes: factin, adhesion, microtubule and mitochondrial.
@@ -1167,6 +1166,143 @@ class DLSIMDataset(Dataset):
     def __len__(self):
         return len(self.info)   
 
+class BBBCDataset(Dataset):
+    """
+    Dataset for the BBBC datasets.
+    """
+    def __init__(
+        self, source:str, 
+        transform: Any, 
+        classes: List = ["CK-666", "Cofilin1", "PFN1", "TBeta4"], 
+        n_channels: int = 1,
+        num_samples: int = None,
+        crop_size: int = 224,
+        step: float = 0.75,
+        mean: List = [0.10, 0.10, 0.10],
+        std: List = [0.14, 0.14, 0.14],
+        **kwargs
+    ): 
+        super().__init__()
+        self.source = source
+        self.transform = transform
+        self.classes = classes
+        self.n_channels = n_channels
+        self.num_classes = len(self.classes)
+        self.crop_size = crop_size
+        self.step = step
+
+        self.mean, self.std = mean, std
+
+        with open(source, "r") as file:
+            files = file.readlines()
+            files = [os.path.join(BASE_PATH, file.strip()) for file in files]
+        
+        self.samples = {}        
+        original_size = 0
+        for i, class_name in enumerate(self.classes):
+            # Detect if class_name looks like a regex (e.g., contains regex special chars)
+            if re.search(r"[\[\]\(\)\.\*\+\?\|\^\$]", class_name):
+                files_list = [f for f in files if re.search(class_name, os.path.basename(f))]
+            else:
+                files_list = [f for f in files if class_name in f]
+            original_size += len(files_list)
+
+            # Modify class_name to remove any regex special characters for consistent labeling
+            class_name = re.sub(r"[\[\]\(\)\.\*\+\?\|\^\$]", "", class_name)
+
+            self.samples[class_name] = self._get_sampled_files(files_list=files_list, num_sample=num_samples)
+        
+        self.original_size = original_size
+
+        print("Samples: ", os.path.basename(source))
+        for key, values in self.samples.items():
+            print(key, len(values))
+
+        self.classes = list(sorted(self.samples.keys()))
+        self.num_classes = len(self.classes)
+        self.info = self.__get_info()
+
+        print("----------")
+        for k in self.samples.keys():
+            print(f"Class {k} samples: {len(self.samples[k])}")
+        print("----------")
+
+        statistics = defaultdict(list)
+        paths = set([item["path"] for item in self.info])
+        for path in paths:
+            img = self._read_image(path)
+            m, M = img.min(), img.max()
+            img = (img - m) / (M - m)
+            statistics["mean"].append(numpy.mean(img))
+            statistics["std"].append(numpy.std(img))
+        print(f"Mean: {numpy.mean(statistics['mean'])}, Std: {numpy.mean(statistics['std'])}")
+
+    def _read_image(self, path: str) -> np.ndarray:
+        ext = os.path.splitext(path)[-1].lower()
+        if ext in [".tif", ".tiff"]:
+            image = tifffile.imread(path)
+        elif ext in [".png", ".jpg", ".jpeg"]:
+            image = skimage.io.imread(path)
+        else:
+            raise ValueError(f"Unsupported file extension: {ext}")
+        return image
+
+    def _get_sampled_files(self, files_list, num_sample):
+        if num_sample is not None:
+            return random.sample(files_list, num_sample)
+        else:
+            return files_list
+
+    def __get_info(self):
+        info = []
+        for key, values in self.samples.items():
+            protein_id = key
+            for file in values:
+
+                image = self._read_image(file)
+                # Dendrite foreground
+                threshold = filters.threshold_otsu(image)
+                foreground = image > threshold
+                for j in range(0, image.shape[-2], int(self.step * self.crop_size)):
+                    for i in range(0, image.shape[-1], int(self.step * self.crop_size)):
+                        slc = (
+                            slice(j, j + self.crop_size) if j + self.crop_size < image.shape[-2] else slice(image.shape[-2] - self.crop_size, image.shape[-2]),
+                            slice(i,  i + self.crop_size) if i + self.crop_size < image.shape[-1] else slice(image.shape[-1] - self.crop_size, image.shape[-1]),
+                        )                    
+                        crop = foreground[slc]
+                        if crop.sum() > 0.1 * crop.size:
+                            info.append({
+                                "path" : file,
+                                "label" : key,
+                                "slc" : slc
+                            })
+                
+        return info
+    
+    def __getitem__(self, idx: int):
+        item = self.info[idx]
+
+        img = self._read_image(item["path"])
+        m, M = img.min(), img.max()
+        img = (img - m) / (M - m)
+
+        # crop image
+        img = img[item["slc"]]
+        label = self.classes.index(item["label"])
+
+        if self.n_channels == 3:
+            img = np.tile(img[np.newaxis, :], (3, 1, 1))
+            img = torch.tensor(img, dtype=torch.float32)
+            img = transforms.Normalize(mean=self.mean, std=self.std)(img)
+        else:
+            img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
+        
+        img = self.transform(img) if self.transform is not None else img      
+        
+        return img, {"label" : label, "dataset-idx" : idx}
+
+    def __len__(self):
+        return len(self.info)   
 
 class NeuralActivityStates(Dataset):
     def __init__(
@@ -1378,7 +1514,7 @@ class FactinCaMKIIDataset(Dataset):
             for name in tqdm(names, desc="Processing dataset.."):
 
                 # Skipping files that do not belong to the classes
-                if not any([class_name in name for class_name in classes]):
+                if not any([name.startswith(class_name) for class_name in classes]):
                     continue
 
                 buffer = io.BytesIO()
@@ -1437,6 +1573,92 @@ class FactinCaMKIIDataset(Dataset):
 
         return img, {"label": label, "condition": condition, "dataset-idx": idx}    
 
+class LQHQDenoisingDataset(Dataset):
+    def __init__(
+            self,
+            tarpath: str,
+            transform: Callable = None,
+            n_channels: int = 1,
+            num_samples: int = None,
+            balance: bool = False,
+            classes: List[str] = ["LQHQ"],
+            seed: int = 42,
+            **kwargs) -> None:
+        self.tarpath = tarpath
+        self.transform = transform
+        self.n_channels = n_channels
+        self.num_samples = num_samples
+        self.balance = balance
+
+        self.imgs, self.conditions = [], []
+        means, stds = [], []
+        with tarfile.open(self.tarpath, "r") as handle:
+            names = handle.getnames()
+            for name in tqdm(names, desc="Processing dataset.."):
+
+                # Skipping files that do not belong to the classes
+                if not any([name.startswith(class_name) for class_name in classes]):
+                    continue
+
+                buffer = io.BytesIO()
+                buffer.write(handle.extractfile(name).read())
+                buffer.seek(0)
+                data = np.load(buffer, allow_pickle=True)
+                data = {key : values for key, values in data.items()}
+
+                self.imgs.append(data["image"])
+                metadata = data["metadata"].item()
+                self.conditions.append(metadata["condition"])       
+
+                means.append(self.imgs[-1].mean(axis=(1, 2)))
+                stds.append(self.imgs[-1].std(axis=(1, 2))) 
+
+        self.classes = list(sorted(set(self.conditions)))
+        assert all([class_name in self.classes for class_name in classes]), "Classes not found in dataset"
+
+        self.num_classes = len(self.classes)
+        self.labels = [self.classes.index(condition) for condition in self.conditions]
+
+        if self.balance:
+            self.rng = np.random.default_rng(seed)
+            self.__balance_classes()
+
+        print(f"Mean: {np.mean(means, axis=0)}, Std: {np.mean(stds, axis=0)}")
+
+    def __balance_classes(self) -> None:
+
+        min_samples = min([self.labels.count(i) for i in range(self.num_classes)])
+        indices = []
+        for i in range(self.num_classes):
+            inds = np.argwhere(np.array(self.labels) == i).ravel()
+            inds = self.rng.choice(inds, size=min_samples, replace=min_samples > len(inds))
+            indices.extend(inds)
+        self.imgs = [self.imgs[i] for i in indices]
+        self.conditions = [self.conditions[i] for i in indices]
+        self.labels = [self.labels[i] for i in indices]
+        assert len(self.imgs) == len(self.conditions) == len(self.labels)
+
+    def __len__(self) -> int:
+        return len(self.imgs)
+    
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, dict]:
+        img, label, condition = self.imgs[idx], self.labels[idx], self.conditions[idx]
+
+        if self.n_channels == 3:
+            img = np.tile(img[np.newaxis, :], (3, 1, 1))
+            img = torch.tensor(img, dtype=torch.float32)
+            # img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+            img = transforms.Normalize(mean=[0.041, 0.041, 0.041], std=[0.073, 0.073, 0.073])(img)
+        else:
+            if img.ndim == 2:
+                img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
+            else:
+                img = torch.tensor(img, dtype=torch.float32)
+
+        img = self.transform(img) if self.transform is not None else img
+
+        return img, {"label": label, "condition": condition, "dataset-idx": idx}    
+
 class FolderDataset(Dataset):
     def __init__(
             self, 
@@ -1484,6 +1706,105 @@ class FolderDataset(Dataset):
         img = self.transform(img) if self.transform is not None else img
         return img, {"label": label, "dataset-idx": idx}
 
+class RestorationFolderDataset(Dataset):
+    """
+    Dataset for image restoration tasks.
+
+    The dataset assumes that images are stored in a folder structure where the source images (e.g., low-quality images)
+    are located in a specified source directory, and the target images (e.g., high-quality images) are located in a specified target directory.
+    Each image in the source directory should have a corresponding image in the target directory with the same filename.
+    """
+    def __init__(
+            self, 
+            source: str,
+            target: str,
+            transform: Callable = None, 
+            n_channels: int = 1,
+            crop_size: int = 224,
+            **kwargs
+            ) -> None:
+        self.source = source
+        self.target = target
+        self.transform = transform
+        self.n_channels = n_channels
+        self.crop_size = crop_size
+
+        files = glob.glob(os.path.join(source, "*.tif"))
+        files += glob.glob(os.path.join(source, "*.tiff"))
+        files += glob.glob(os.path.join(source, "*.png"))
+        files += glob.glob(os.path.join(source, "*.jpg"))
+
+        target_files = [f.replace(source, target) for f in files]
+        self.images = [(f, tf) for f, tf in zip(files, target_files) if os.path.exists(tf)]
+        assert len(self.images) > 0, "No matching source-target image pairs found."
+
+        self.samples = self._index_dataset()
+
+    def _index_dataset(self):
+        samples = []
+        for f, tf in tqdm(self.images):
+            image = self.read_image(f)
+            C, H, W = image.shape
+            for c in range(C):
+                for j in range(0, H - self.crop_size, self.crop_size):
+                    for i in range(0, W - self.crop_size, self.crop_size):
+                        slc = (
+                            slice(j, j + self.crop_size) if j + self.crop_size < H else slice(H - self.crop_size, H),
+                            slice(i,  i + self.crop_size) if i + self.crop_size < W else slice(W - self.crop_size, W),
+                        )
+                        samples.append({
+                            "source-image": f,
+                            "target-image": tf,
+                            "chan-idx": c,
+                            "slc": slc
+                        })
+        return samples
+
+    def read_image(self, path: str) -> np.ndarray:
+        ext = os.path.splitext(path)[-1].lower()
+        if ext in [".png", ".jpg", ".jpeg"]:
+            image = Image.open(path)
+            image = np.array(image)
+        else:
+            image = tifffile.imread(path)
+
+        # No normalization for float images; we assume they are already in [0, 1]
+        if np.issubdtype(image.dtype, np.integer):
+            image = (image - image.min()) / (image.max() - image.min())
+        if image.ndim == 2:
+            image = np.expand_dims(image, axis=0)
+        return image
+
+    def __len__(self):
+        return len(self.samples)
+    
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, dict]:
+        sample = self.samples[idx]
+
+        source = self.read_image(sample["source-image"])
+        source = source[sample["chan-idx"]]
+        source = source[sample["slc"]]
+
+        target = self.read_image(sample["target-image"])
+        target = target[sample["chan-idx"]]
+        target = target[sample["slc"]]
+
+        if self.n_channels == 3:
+            source = np.tile(source[np.newaxis, :], (3, 1, 1))
+            target = np.tile(target[np.newaxis, :], (3, 1, 1))
+
+            source = torch.tensor(source, dtype=torch.float32)
+            target = torch.tensor(target, dtype=torch.float32)
+            # img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
+        else:
+            source = torch.tensor(source[np.newaxis, :], dtype=torch.float32)
+            target = torch.tensor(target[np.newaxis, :], dtype=torch.float32)
+
+        cat = torch.cat([source, target], dim=0)
+        cat = self.transform(cat) if self.transform is not None else cat
+        source, target = cat[0:1], cat[1:2]
+
+        return source, target#, {"dataset-idx": idx}
 
 class ProteinDataset(Dataset):
     def __init__(

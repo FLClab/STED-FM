@@ -96,9 +96,19 @@ def main():
     import argparse
     parser = argparse.ArgumentParser(description="Convert MSR files to TIFF files")
     parser.add_argument("--path", type=str, default="pdk-nas", help="Path to the MSR files")
+    parser.add_argument("--dry-run", action="store_true", help="Dry run")
     args = parser.parse_args()
 
-    outdir = os.path.join(OUTPUTPATH, f"scraping-{args.path}")
+    if args.path not in DEFAULTPATHS:
+        raise ValueError(f"Path {args.path} not in {list(DEFAULTPATHS.keys())}")
+    
+    if args.dry_run:
+        import tempfile
+        OUTPUTPATH = tempfile.gettempdir()
+        print(f"Dry run mode: output path is {OUTPUTPATH}")
+        outdir = os.path.join(OUTPUTPATH, f"scraping-{args.path}-dryrun")
+    else:
+        outdir = os.path.join(OUTPUTPATH, f"scraping-{args.path}")
     os.makedirs(outdir, exist_ok=True)
 
     outdata = {}

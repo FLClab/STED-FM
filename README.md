@@ -1,4 +1,9 @@
 # STED-FM
+
+[![Github Pages](https://img.shields.io/badge/github%20pages-121013?style=for-the-badge&logo=github&logoColor=white)](https://flclab.github.io/stedfm/)
+<a href="https://colab.research.google.com/github/FLClab/STED-FM/blob/main/notebooks/stedfm_example.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
+[![DOI:10.1101/2025.06.06.656993](http://img.shields.io/badge/DOI-10.1101/2025.06.06.656993-B31B1B.svg)](https://doi.org/10.1101/2025.06.06.656993)
+
 Repository for the paper `A Self-Supervised Foundation Model for Robust and Generalizable Representation Learning in STED Microscopy`.  
 
 Visit the [website](https://flclab.github.io/stedfm/)
@@ -50,37 +55,13 @@ with torch.no_grad():
     out = model.forward_features(img) # (1, 384) --> uncomment the global_pool line to return all embeddings (1, 196, 384)
 ```
 
-## Example usage of adding a decoder to the backbone 
-```python
-from stedfm import get_pretrained_model_v2, get_decoders
-from stedfm.configuration import Configuration
+## Example usage
 
-class SegmentationConfiguration(Configuration):
-    
-    freeze_backbone: bool = True 
-    num_epochs: int = 300
-    learning_rate: float = 1e-4
+We provided an example notebook `stedfm_example.ipynb` that demonstrates how to use the STED-FM model for various tasks, including segmentation and image generation. The notebook is structured to guide you through the process of loading the model, configuring it for a specific task, and running inference on sample images.
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-backbone, cfg = get_pretrained_model_v2(
-    name="mae-lightning-small",
-    weights="MAE_SMALL_STED",
-)
+The notebook can be found in the `notebooks` folder. You can open the notebook in Google Colab.
 
-model = get_decoder(backbone, cfg).to(device)
-with torch.no_grad():
-    img = torch.randn(1, 1, 224, 224).to(device)
-    out = model(img)
-```
-
-## Download models
-
-To download the models use the following
-```bash
-mkdir -p "${HOME}/.stedfm"
-rclone copy --progress "valeria-s3:flclab-foundation-models/models/mae-small-sted.zip" "${HOME}/.stedfm"
-unzip "${HOME}/.stedfm/mae-small-sted.zip" -d "${HOME}/.stedfm"
-```
+<a href="https://colab.research.google.com/github/FLClab/STED-FM/blob/main/notebooks/stedfm_example.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 
 ## Project Structure & Experiments
 
@@ -102,5 +83,16 @@ python pretrain_lightning.py --seed 42 --model mae-lightning-small --dataset STE
 
 ## Citation
 
-
-
+```bibtex
+@article{Bilodeau2025.06.06.656993,
+	author = {Bilodeau, Anthony and Beaupr{\'e}, Fr{\'e}d{\'e}ric and Chabbert, Julia and Bellavance, Jean-Michel and Lessard, Koraly and Desch{\^e}nes, Andr{\'e}anne and Bernatchez, Renaud and De Koninck, Paul and Gagn{\'e}, Christian and Lavoie-Cardinal, Flavie},
+	title = {A Self-Supervised Foundation Model for Robust and Generalizable Representation Learning in STED Microscopy},
+	elocation-id = {2025.06.06.656993},
+	year = {2025},
+	doi = {10.1101/2025.06.06.656993},
+	publisher = {Cold Spring Harbor Laboratory},
+	URL = {https://www.biorxiv.org/content/early/2025/06/06/2025.06.06.656993},
+	eprint = {https://www.biorxiv.org/content/early/2025/06/06/2025.06.06.656993.full.pdf},
+	journal = {bioRxiv}
+}
+```

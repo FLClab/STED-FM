@@ -32,6 +32,7 @@ from eval import evaluate_segmentation
 
 from stedfm import get_decoder
 from stedfm import get_pretrained_model_v2
+from stedfm.model_builder import get_base_model
 from stedfm.utils import update_cfg, save_cfg, track_loss
 from stedfm.configuration import Configuration
 from stedfm.DEFAULTS import BASE_PATH
