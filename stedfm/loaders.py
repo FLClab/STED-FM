@@ -6,7 +6,8 @@ from torch.utils.data import DataLoader, Sampler, Dataset
 import torchvision.transforms as T
 import random
 import os
-from .DEFAULTS import BASE_PATH
+
+from stedfm.DEFAULTS import BASE_PATH
 from stedfm import datasets
 
 class BalancedSampler(Sampler):

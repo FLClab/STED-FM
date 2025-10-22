@@ -20,10 +20,42 @@ from skimage import filters
 from PIL import Image
 from zipfile import ZipFile
 
-from .DEFAULTS import BASE_PATH
+from stedfm.DEFAULTS import BASE_PATH
 # from dataset_builder import condition_dict
 
 LOCAL_CACHE = {}
+
+__all__ = [
+    "get_dataset",
+    "CreateFActinDataset",
+    "CreateMitoDataset",
+    "CreateFactinRingsFibersDataset",
+    "CreateFActinBlockGluGlyDataset",
+    "MICRANetHDF5Dataset",
+    "ResolutionDataset",
+    "OptimDataset",
+    "PeroxisomeDataset",
+    "PolymerRingsDataset",
+    "DLSIMDataset",
+    "BBBCDataset",
+    "NeuralActivityStates",
+    "FactinCaMKIIDataset",
+    "LQHQDenoisingDataset",
+    "FolderDataset",
+    "RestorationFolderDataset",
+    "ProteinDataset",
+    "CTCDataset",
+    "JUMPCPDataset",
+    "ArchiveDataset",
+    "HybridDatasetV2",
+    "HybridDataset",
+    "TarJUMPDataset",
+    "TarFLCDataset",
+    "HPADataset",
+    "ArchiveDatasetV2",
+    "ProteinImageDataset",
+    "ProteinDiffusionDataset",
+]
 
 def get_dataset(name: str, path: str, **kwargs):
     if name == "CTC":

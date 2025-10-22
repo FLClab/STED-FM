@@ -123,7 +123,7 @@ def denoise(model: torch.nn.Module, dataloader: torch.utils.data.DataLoader, dev
 if __name__ == "__main__":
 
     import argparse
-    from datasets import get_dataset
+    from stedfm.datasets.restoration import get_dataset
     from stedfm.configuration import Configuration
     from stedfm.utils import update_cfg
     from stedfm import get_decoder, get_pretrained_model_v2

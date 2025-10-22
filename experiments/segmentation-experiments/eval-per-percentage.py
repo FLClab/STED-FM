@@ -27,13 +27,11 @@ from sklearn.metrics import average_precision_score, auc, precision_recall_curve
 from matplotlib import pyplot
 
 from decoders import get_decoder
-from datasets import get_dataset
-
-import sys 
 
 from stedfm.model_builder import get_pretrained_model_v2
 from stedfm.utils import update_cfg, save_cfg, savefig
 from stedfm.configuration import Configuration
+from stedfm.datasets.segmentation import get_dataset
 
 def comptue_iou(truth: numpy.ndarray, prediction: numpy.ndarray, mask: numpy.ndarray, **kwargs) -> list:
     """

@@ -27,7 +27,6 @@ from torchinfo import summary
 from lightly.utils.scheduler import CosineWarmupScheduler
 
 # from decoders import get_decoder
-from datasets import get_dataset
 from eval import evaluate_segmentation
 
 from stedfm import get_decoder
@@ -36,6 +35,7 @@ from stedfm.model_builder import get_base_model
 from stedfm.utils import update_cfg, save_cfg, track_loss
 from stedfm.configuration import Configuration
 from stedfm.DEFAULTS import BASE_PATH
+from stedfm.datasets.segmentation import get_dataset
 
 def validation_step(model: torch.nn.Module, valid_loader: torch.utils.data.DataLoader, criterion: torch.nn.Module, epoch: int, device: torch.device, writer: SummaryWriter = None):
     is_training = model.training
