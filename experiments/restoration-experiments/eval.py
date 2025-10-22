@@ -10,7 +10,7 @@ from tqdm import tqdm
 from skimage.metrics import structural_similarity
 from torchmetrics.image import MultiScaleStructuralSimilarityIndexMeasure
 
-def compute_scores(gt_images, pred_images, dataset_name: str = None):
+def compute_scores(gt_images, pred_images, dataset_name: str = None, size: int = None):
     """
     Compute evaluation scores between ground truth and predicted images.
 
@@ -20,6 +20,20 @@ def compute_scores(gt_images, pred_images, dataset_name: str = None):
 
     :return: Dictionary of computed scores.
     """
+    if size is not None:
+        out = []
+        for j in range(0, max(1, gt_images.shape[-2]-size), size):
+            for i in range(0, max(1, gt_images.shape[-1]-size), size):
+                out.append(compute_scores(
+                    gt_images[..., j:j+size, i:i+size], 
+                    pred_images[..., j:j+size, i:i+size], 
+                    dataset_name=dataset_name))
+        scores = defaultdict(list)
+        for score in out:
+            for key, values in score.items():
+                scores[key].extend(values)
+        return scores
+    
     ms_ssim = MultiScaleStructuralSimilarityIndexMeasure(data_range=1.0, reduction='none')
     ssim = ms_ssim(pred_images, gt_images).cpu().numpy().squeeze().tolist()
 
@@ -70,6 +84,42 @@ def evaluate_denoising(model: torch.nn.Module, dataloader: torch.utils.data.Data
 
     return all_scores
 
+def denoise(model: torch.nn.Module, dataloader: torch.utils.data.DataLoader, device: torch.device, savefolder: str, dataset_name: str):
+    """
+    Evaluate the denoising performance of the model on the given dataset.
+
+    :param model: The denoising model to evaluate.
+    :param dataloader: DataLoader providing (noisy_image, clean_image) pairs.
+    :param device: The device to run the evaluation on (CPU or GPU).
+    :param savefolder: Folder to save any outputs if needed.
+    :param dataset_name: Name of the dataset being evaluated.
+
+    :return: Dictionary containing evaluation metrics (e.g., average loss).
+    """
+
+    model.eval()
+    raw, cleaned, predictions = [], [], []
+    with torch.no_grad():
+        for i, (noisy_imgs, clean_imgs) in enumerate(tqdm(dataloader, desc="Evaluating Denoising")):
+
+            if noisy_imgs.dim() == 3:
+                noisy_imgs = noisy_imgs.unsqueeze(0)
+                clean_imgs = clean_imgs.unsqueeze(0)
+
+            noisy_imgs = noisy_imgs.to(device)
+            clean_imgs = clean_imgs.to(device)
+            
+            outputs = model(noisy_imgs)
+
+            predictions.append(outputs.cpu().numpy())
+            raw.append(noisy_imgs.cpu().numpy())
+            cleaned.append(clean_imgs.cpu().numpy())
+    raw = numpy.concatenate(raw, axis=0)
+    cleaned = numpy.concatenate(cleaned, axis=0)
+    predictions = numpy.concatenate(predictions, axis=0)
+    return raw, cleaned, predictions
+
+
 if __name__ == "__main__":
 
     import argparse
@@ -90,6 +140,8 @@ if __name__ == "__main__":
                         help="Backbone model to load")
     parser.add_argument("--backbone-weights", type=str, default=None,
                         help="Backbone model to load")    
+    parser.add_argument("--save-predictions", action="store_true",
+                        help="Whether to save denoised predictions")
     parser.add_argument("--opts", nargs="+", default=[], 
                         help="Additional configuration options")
     parser.add_argument("--save-folder", type=str, default=f"{BASE_PATH}/denoising-baselines")
@@ -169,3 +221,36 @@ if __name__ == "__main__":
         mean = numpy.mean(values)
         std = numpy.std(values)
         print(f"{metric}: {mean:.4f} ± {std:.4f}")
+
+    # Optionally save predictions
+    if args.save_predictions:
+        import tifffile
+        raw, cleaned, predictions = denoise(model, test_loader, device, args.save_folder, args.dataset)
+        os.makedirs(os.path.join(args.restore_from, "predictions", args.dataset), exist_ok=True)
+        tifffile.imwrite(
+            os.path.join(
+                args.restore_from,
+                "predictions",
+                args.dataset,
+                f"{os.path.basename(os.path.normpath(args.restore_from))}_denoised_predictions.tif"
+            ),
+            predictions.astype(numpy.float32)
+        )
+        tifffile.imwrite(
+            os.path.join(
+                args.restore_from,
+                "predictions",
+                args.dataset,
+                f"{os.path.basename(os.path.normpath(args.restore_from))}_raw_images.tif"
+            ),
+            raw.astype(numpy.float32)
+        )
+        tifffile.imwrite(
+            os.path.join(
+                args.restore_from,
+                "predictions",
+                args.dataset,
+                f"{os.path.basename(os.path.normpath(args.restore_from))}_cleaned_images.tif"
+            ),
+            cleaned.astype(numpy.float32)
+        )

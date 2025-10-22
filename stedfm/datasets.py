@@ -1729,6 +1729,9 @@ class RestorationFolderDataset(Dataset):
         self.n_channels = n_channels
         self.crop_size = crop_size
 
+        self.mu = kwargs.get("mu", 0.0)
+        self.std = kwargs.get("std", 1.0)
+
         files = glob.glob(os.path.join(source, "*.tif"))
         files += glob.glob(os.path.join(source, "*.tiff"))
         files += glob.glob(os.path.join(source, "*.png"))
@@ -1742,8 +1745,10 @@ class RestorationFolderDataset(Dataset):
 
     def _index_dataset(self):
         samples = []
+        statistics = []
         for f, tf in tqdm(self.images):
             image = self.read_image(f)
+            statistics.append([image.mean(axis=(1, 2)), image.std(axis=(1, 2))])
             C, H, W = image.shape
             for c in range(C):
                 for j in range(0, H - self.crop_size, self.crop_size):
@@ -1758,6 +1763,7 @@ class RestorationFolderDataset(Dataset):
                             "chan-idx": c,
                             "slc": slc
                         })
+        statistics = np.array(statistics)
         return samples
 
     def read_image(self, path: str) -> np.ndarray:
@@ -1791,10 +1797,12 @@ class RestorationFolderDataset(Dataset):
 
         if self.n_channels == 3:
             source = np.tile(source[np.newaxis, :], (3, 1, 1))
-            target = np.tile(target[np.newaxis, :], (3, 1, 1))
+            target = np.tile(target[np.newaxis, :], (1, 1, 1))
 
             source = torch.tensor(source, dtype=torch.float32)
             target = torch.tensor(target, dtype=torch.float32)
+
+            source = transforms.Normalize(mean=self.mu, std=self.std)(source)
             # img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
         else:
             source = torch.tensor(source[np.newaxis, :], dtype=torch.float32)
@@ -1802,8 +1810,10 @@ class RestorationFolderDataset(Dataset):
 
         cat = torch.cat([source, target], dim=0)
         cat = self.transform(cat) if self.transform is not None else cat
-        source, target = cat[0:1], cat[1:2]
-
+        if self.n_channels == 3:
+            source, target = cat[0:3], cat[3:]
+        else:
+            source, target = cat[0:1], cat[1:2]
         return source, target#, {"dataset-idx": idx}
 
 class ProteinDataset(Dataset):
