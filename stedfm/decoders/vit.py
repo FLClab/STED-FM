@@ -193,10 +193,8 @@ class ViTSegmentationClassifier(torch.nn.Module):
         features = self.forward_encoder(x) 
         out = self.classification_head(features)
         out = unpatchify(out, self.patch_size, self.cfg.dataset_cfg.num_classes)
+        out = torch.sigmoid(out)
         return out
-
-
-
 
 def patchify(images: torch.Tensor, patch_size: int) -> torch.Tensor:
     """Converts a batch of input images into patches.
@@ -280,8 +278,8 @@ def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn
         print("\n===== Loading ViTSegmentationClassifier =====\n")
 
         if cfg.backbone in ["mae-lightning-tiny", "mae-lightning-small", "mae-lightning-base", "mae-lightning-large", "vit-tiny", "vit-small"]:
-            if cfg.backbone_weights is None or "MAE_SMALL_IMAGENET1K_V1" not in cfg.backbone_weights:
-                backbone = backbone.backbone.vit 
-            return ViTSegmentationClassifier(backbone=backbone, cfg=cfg)
+            # if cfg.backbone_weights is None or "MAE_SMALL_IMAGENET1K_V1" not in cfg.backbone_weights:
+            #     backbone = backbone.backbone 
+            return ViTSegmentationClassifier(backbone=backbone.backbone.vit, cfg=cfg)
         else:
             raise ValueError(f"Backbone {cfg.backbone} for decoder is not supported")
