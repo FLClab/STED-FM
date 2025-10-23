@@ -27,7 +27,6 @@ from torchinfo import summary
 from lightly.utils.scheduler import CosineWarmupScheduler
 
 # from decoders import get_decoder
-from datasets import get_dataset
 from eval import evaluate_denoising
 
 from stedfm import get_decoder
@@ -36,6 +35,7 @@ from stedfm.model_builder import get_base_model
 from stedfm.utils import update_cfg, save_cfg, track_loss
 from stedfm.configuration import Configuration
 from stedfm.DEFAULTS import BASE_PATH
+from stedfm.datasets.restoration import get_dataset
 
 def intensity_scale_(images: torch.Tensor) -> numpy.ndarray:
     """

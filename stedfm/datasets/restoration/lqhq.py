@@ -49,7 +49,7 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
         Random90DegreeRotation()
     ])
 
-    if name == "lqhq":
+    if name == "jmb-lqhq":
         path = os.path.join(BASE_PATH, "denoising-data", "lqhq")
         training_dataset = LQHQDenoisingDataset(
             tarpath=os.path.join(path, "train-dataset.tar"),
