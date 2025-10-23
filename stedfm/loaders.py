@@ -374,11 +374,14 @@ def get_lqhq_denoising_dataset(path: str, batch_size: int = 128, **kwargs):
 
     return train_loader, valid_loader, test_loader
 
-def get_bbbc026_dataset(path: str, batch_size: int = 128, **kwargs):
+def get_bbbc026_dataset(path: str, batch_size: int = 128, num_samples: int = None, **kwargs):
 
-    training_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC026-training.txt"), **kwargs)
-    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC026-validation.txt"), **kwargs)
-    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC026-testing.txt"), **kwargs)
+    training_dataset = datasets.BBBCDataset(
+        source=os.path.join(path, "BBBC026-training.txt"), 
+        num_samples=num_samples, 
+        **kwargs)
+    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC026-validation.txt"), num_samples=None, **kwargs)
+    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC026-testing.txt"), num_samples=None, **kwargs)
 
     print(f"Training size: {len(training_dataset)}")
     print(f"Validation size: {len(validation_dataset)}")
@@ -391,11 +394,14 @@ def get_bbbc026_dataset(path: str, batch_size: int = 128, **kwargs):
     return train_loader, valid_loader, test_loader
 
 
-def get_bbbc052_dataset(path: str, batch_size: int = 128, **kwargs):
+def get_bbbc052_dataset(path: str, batch_size: int = 128, num_samples: int = None, **kwargs):
     
-    training_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC052-training.txt"), **kwargs)
-    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC052-validation.txt"), **kwargs)
-    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC052-testing.txt"), **kwargs)
+    training_dataset = datasets.BBBCDataset(
+        source=os.path.join(path, "BBBC052-training.txt"), 
+        num_samples=num_samples,
+        **kwargs)
+    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC052-validation.txt"), num_samples=None, **kwargs)
+    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC052-testing.txt"), num_samples=None, **kwargs)
 
     print(f"Training size: {len(training_dataset)}")
     print(f"Validation size: {len(validation_dataset)}")
@@ -407,11 +413,14 @@ def get_bbbc052_dataset(path: str, batch_size: int = 128, **kwargs):
 
     return train_loader, valid_loader, test_loader
 
-def get_bbbc053_dataset(path: str, batch_size: int = 128, **kwargs):
+def get_bbbc053_dataset(path: str, batch_size: int = 128, num_samples: int = None, **kwargs):
 
-    training_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC053-training.txt"), **kwargs)
-    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC053-validation.txt"), **kwargs)
-    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC053-testing.txt"), **kwargs)
+    training_dataset = datasets.BBBCDataset(
+        source=os.path.join(path, "BBBC053-training.txt"), 
+        num_samples=num_samples,
+        **kwargs)
+    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC053-validation.txt"), num_samples=None, **kwargs)
+    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC053-testing.txt"), num_samples=None, **kwargs)
 
     print(f"Training size: {len(training_dataset)}")
     print(f"Validation size: {len(validation_dataset)}")

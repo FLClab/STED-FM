@@ -449,7 +449,7 @@ def main():
             num_classes=num_classes
         )
 
-        state_dict = torch.load(f"{best_model.save_dir}/{best_model.model_name}.pth", map_location="cpu")
+        state_dict = torch.load(f"{best_model.save_dir}/{best_model.model_name}.pth", map_location="cpu", weights_only=False)
         model.load_state_dict(state_dict['model_state_dict'])
         model = model.to(device)
 
