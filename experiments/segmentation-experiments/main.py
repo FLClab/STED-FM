@@ -327,9 +327,10 @@ if __name__ == "__main__":
             start_value=1.0, end_value=0.01
         )
     elif probe == "pretrained-frozen":
-        optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.999))
         scheduler = CosineWarmupScheduler(
-            optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, max_epochs=cfg.num_epochs,
+            optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, 
+            max_epochs=cfg.num_epochs,
             start_value=1.0, end_value=0.01,
             period=cfg.num_epochs//10
         )
@@ -391,7 +392,7 @@ if __name__ == "__main__":
             del X, y, pred, loss
 
             # Puts the model in evaluation mode
-            if step % int(25 * 32 / cfg.batch_size) == 0:
+            if step % int(25 * 32 / cfg.batch_size) == 0:    
                 # Validation step
                 statLossTest = validation_step(model, valid_loader, criterion, epoch, DEVICE, writer)
                 for key, func in zip(("testMean", "testMed", "testMin", "testStd"),
@@ -443,17 +444,17 @@ if __name__ == "__main__":
             
             del savedata
 
-        # # Save every 10 epochs
-        # if (epoch + 1) % 100 == 0:
-        #     savedata = {
-        #         "model" : model.state_dict(),
-        #         "optimizer" : optimizer.state_dict(),
-        #         "stats" : stats,
-        #     }
-        #     torch.save(
-        #         savedata, 
-        #         os.path.join(OUTPUT_FOLDER, f"checkpoint-{epoch + 1}.pt"))
-        #     del savedata
+        # Save every 10 epochs
+        if (epoch + 1) % 100 == 0:
+            savedata = {
+                "model" : model.state_dict(),
+                "optimizer" : optimizer.state_dict(),
+                "stats" : stats,
+            }
+            torch.save(
+                savedata, 
+                os.path.join(OUTPUT_FOLDER, f"checkpoint-{epoch + 1}.pt"))
+            del savedata
 
     print("----------------------------------------")
     print("Training is over")
@@ -478,8 +479,6 @@ if __name__ == "__main__":
         shuffle=True,  # Shuffling is important!
         num_workers=0
     )
-
-
 
     scores = evaluate_segmentation(model, test_loader, savefolder=None, device=DEVICE, dataset_name=args.dataset)
     with open(os.path.join(OUTPUT_FOLDER, "segmentation-scores.json"), "w") as file: 

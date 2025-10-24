@@ -1,6 +1,7 @@
 
 import os
 import random
+import numpy
 
 from torch import nn
 from torch.utils.data import Dataset
@@ -50,7 +51,7 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
     ])
 
     if name == "jmb-lqhq":
-        path = os.path.join(BASE_PATH, "denoising-data", "lqhq")
+        path = os.path.join(BASE_PATH, "denoising-data", "jmb-lqhq")
         training_dataset = LQHQDenoisingDataset(
             tarpath=os.path.join(path, "train-dataset.tar"),
             n_channels=cfg.in_channels, 
@@ -62,6 +63,34 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
         testing_dataset = LQHQDenoisingDataset(
             tarpath=os.path.join(path, "test-dataset.tar"), 
             n_channels=cfg.in_channels, **kwargs)
+        
+        # # Export images as tiff for visualization
+        # import tifffile
+        # os.makedirs(os.path.join(path, "exported", "train", "raw"), exist_ok=True)
+        # os.makedirs(os.path.join(path, "exported", "train", "gt"), exist_ok=True)
+
+        # os.makedirs(os.path.join(path, "exported", "test", "raw"), exist_ok=True)
+        # os.makedirs(os.path.join(path, "exported", "test", "gt"), exist_ok=True)
+
+        # stack = []
+        # for i in range(len(training_dataset)):
+        #     images, _ = training_dataset[i]
+        #     stack.append(images.numpy())
+        # for i in range(len(validation_dataset)):
+        #     images, _ = validation_dataset[i]
+        #     stack.append(images.numpy())
+        # stack = numpy.stack(stack, axis=0)
+        # tifffile.imwrite(os.path.join(path, "exported", "train", "raw", "stack.tif"), stack[:, 0, :, :])
+        # tifffile.imwrite(os.path.join(path, "exported", "train", "gt", "stack.tif"), stack[:, 1, :, :])
+
+        # stack = []
+        # for i in range(len(testing_dataset)):
+        #     images, _ = testing_dataset[i]
+        #     stack.append(images.numpy())
+        # stack = numpy.stack(stack, axis=0)
+        # tifffile.imwrite(os.path.join(path, "exported", "test", "raw", "stack.tif"), stack[:, 0, :, :])
+        # tifffile.imwrite(os.path.join(path, "exported", "test", "gt", "stack.tif"), stack[:, 1, :, :])
+
         return SplitViewsDataset(training_dataset), \
                SplitViewsDataset(validation_dataset), \
                SplitViewsDataset(testing_dataset)
