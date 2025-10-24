@@ -198,7 +198,7 @@ if __name__ == "__main__":
 
     if args.restore_from:
         # Loads checkpoint
-        checkpoint = torch.load(args.restore_from)
+        checkpoint = torch.load(args.restore_from, weights_only=False)
         OUTPUT_FOLDER = os.path.dirname(args.restore_from)
 
         # Loads previous configuration and updates it
@@ -466,7 +466,7 @@ if __name__ == "__main__":
 
     # Build the UNet model.
     model = get_decoder(backbone, cfg)
-    ckpt = torch.load(os.path.join(OUTPUT_FOLDER, "result.pt"))["model"]
+    ckpt = torch.load(os.path.join(OUTPUT_FOLDER, "result.pt"), weights_only=False)["model"]
     print("Restoring model...")
     model.load_state_dict(ckpt)
     model = model.to(DEVICE)

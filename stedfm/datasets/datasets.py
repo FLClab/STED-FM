@@ -1242,7 +1242,7 @@ class BBBCDataset(Dataset):
             # Modify class_name to remove any regex special characters for consistent labeling
             class_name = re.sub(r"[\[\]\(\)\.\*\+\?\|\^\$]", "", class_name)
 
-            self.samples[class_name] = self._get_sampled_files(files_list=files_list, num_sample=num_samples)
+            self.samples[class_name] = file_list
         
         self.original_size = original_size
 
@@ -1254,9 +1254,18 @@ class BBBCDataset(Dataset):
         self.num_classes = len(self.classes)
         self.info = self.__get_info()
 
+        samples_per_class = defaultdict(list)
+        for info in self.info:
+            samples_per_class[info["label"]].append(info)
+        for class_name, values in samples_per_class.items():
+            samples_per_class[class_name] = self._get_sampled_files(values, num_sample=num_samples)
+        self.info = []
+        for class_name, values in samples_per_class.items():
+            self.info.extend(values)
+        
         print("----------")
-        for k in self.samples.keys():
-            print(f"Class {k} samples: {len(self.samples[k])}")
+        for k in samples_per_class.keys():
+            print(f"Class {k} samples: {len(samples_per_class[k])}")
         print("----------")
 
         statistics = defaultdict(list)
@@ -1280,8 +1289,9 @@ class BBBCDataset(Dataset):
         return image
 
     def _get_sampled_files(self, files_list, num_sample):
+        rng = random.Random(42)
         if num_sample is not None:
-            return random.sample(files_list, num_sample)
+            return rng.sample(files_list, num_sample)
         else:
             return files_list
 

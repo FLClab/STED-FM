@@ -135,8 +135,8 @@ def main():
         for seed in args.seeds:
             modelname = args.model.replace("-lightning", "")
             model_path= os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
-            model_name = f"{probe}-{seed}.pth"
-            state_dict = torch.load(os.path.join(model_path, model_name), map_location="cpu")
+            model_name = f"{probe}_None_{seed}.pth"
+            state_dict = torch.load(os.path.join(model_path, model_name), map_location="cpu", weight_only=False)
             model.load_state_dict(state_dict["model_state_dict"])
 
             model = model.to(device)
