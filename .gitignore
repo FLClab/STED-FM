@@ -216,5 +216,6 @@ experiments/evaluation/results/*.pdf
 experiments/evaluation/results/
 experiments/scripts/
 experiments/segmentation-experiments/figures/results/
+experiments/segmentation-experiments/figures/results_v2/
 experiments/segmentation-experiments/scripts/
 experiments/pretrain_script.sh
