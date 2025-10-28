@@ -1,5 +1,6 @@
 import os 
 import numpy as np 
+import random
 import torch 
 from torch import nn 
 from torch.utils.data import Dataset 
@@ -7,6 +8,7 @@ from torchvision import transforms
 from typing import List, Optional, Callable, Tuple
 from stedfm.DEFAULTS import BASE_PATH
 import glob
+import tifffile
 from stedfm.configuration import Configuration
 from stedfm.datasets import RestorationFolderDataset
 
@@ -35,6 +37,7 @@ class DendriticFActinDataset(Dataset):
         self.n_channels = n_channels
         self.crop_size = crop_size
         self.transform = transform
+        print(f"Path: {path}")
         self.files = glob.glob(f"{path}/*.tif")
 
     
@@ -68,10 +71,9 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
         transforms.RandomCrop(224),
     ])
 
-    split = kwargs.get("split", "train")
-    train_path = os.path.join(BASE_PATH, "Datasets", "train")
-    valid_path = os.path.join(BASE_PATH, "Datasets", "valid")
-    test_path = os.path.join(BASE_PATH, "Datasets", "test")
+    train_path = os.path.join(BASE_PATH, "DendriticFActinDataset", "train")
+    valid_path = os.path.join(BASE_PATH, "DendriticFActinDataset", "valid")
+    test_path = os.path.join(BASE_PATH, "DendriticFActinDataset", "test")
     train_dataset = DendriticFActinDataset(train_path, transform=train_transform, **kwargs)
     valid_dataset = DendriticFActinDataset(valid_path, transform=train_transform, **kwargs)
     test_dataset = DendriticFActinDataset(test_path, transform=test_transform, **kwargs)

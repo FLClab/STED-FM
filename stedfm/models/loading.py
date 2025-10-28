@@ -76,7 +76,7 @@ def handle_url_state_dict(name: str, weights: Union[str, Enum]) -> dict:
         return state_dict
 
 def handle_str_state_dict(name: str, weights: Union[str, Enum]) -> dict:
-    state_dict = torch.load(weights, map_location="cpu")
+    state_dict = torch.load(weights, map_location="cpu", weights_only=False)
 
     return get_state_dict(name, state_dict)
 

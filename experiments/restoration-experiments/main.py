@@ -247,7 +247,7 @@ if __name__ == "__main__":
     print(cfg)
 
     # Build the UNet model.
-    model = get_decoder(backbone, cfg).to(DEVICE)
+    model = get_decoder(backbone, cfg, full_decoder=True).to(DEVICE)
     
     ckpt = checkpoint.get("model", None)
     if not ckpt is None:
@@ -294,14 +294,14 @@ if __name__ == "__main__":
     # Build a PyTorch dataloader.
     train_loader = torch.utils.data.DataLoader(
         training_dataset,  # Pass the dataset to the dataloader.
-        batch_size=cfg.batch_size,  # A large batch size helps with the learning.
+        batch_size= 64,# cfg.batch_size,  # A large batch size helps with the learning.
         shuffle=sampler is None,  # Shuffling is important!
         num_workers=4,
         sampler=sampler, drop_last=False
     )
     valid_loader = torch.utils.data.DataLoader(
         validation_dataset,  # Pass the dataset to the dataloader.
-        batch_size=cfg.batch_size,  # A large batch size helps with the learning.
+        batch_size= 64,# cfg.batch_size,  # A large batch size helps with the learning.
         shuffle=True,  # Shuffling is important!
         num_workers=4
     )
@@ -466,8 +466,8 @@ if __name__ == "__main__":
     torch.cuda.empty_cache() 
 
     # Build the UNet model.
-    model = get_decoder(backbone, cfg)
-    ckpt = torch.load(os.path.join(OUTPUT_FOLDER, "result.pt"))["model"]
+    model = get_decoder(backbone, cfg, full_decoder=True)
+    ckpt = torch.load(os.path.join(OUTPUT_FOLDER, "result.pt"), weights_only=False)["model"]
     print("Restoring model...")
     model.load_state_dict(ckpt)
     model = model.to(DEVICE)

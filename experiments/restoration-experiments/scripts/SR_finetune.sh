@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-#SBATCH --time=1:00:00
+#SBATCH --time=12:00:00
 #SBATCH --account=def-flavielc
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32Gb
@@ -16,23 +16,22 @@ export TORCH_NCCL_BLOCKING_WAIT=1 #Pytorch Lightning uses the NCCL backend for i
 
 #### PARAMETERS
 # Use this directory venv, reusable across RUNs
-module load python/3.12 scipy-stack
-module load cuda/12.6 cudnn
-source /home/frbea320/projects/def-flavielc/frbea320/phd/bin/activate
+module load python/3.10 scipy-stack
+module load cuda cudnn
+source /home/frbea320/links/projects/def-flavielc/frbea320/phd/bin/activate
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 
-
-cd /home/frbea320/projects/def-flavielc/frbea320//STED-FM/experiments/restoration-experiments
+cd ${HOME}/links/projects/def-flavielc/frbea320/STED-FM/experiments/restoration-experiments
 
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Beginning..."
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-tensorboard --logdir="/home/frbea320/scratch/denoising-baselines" --host 0.0.0.0 --load_fast false &
-python main.py --dataset "dendritic-factin" --backbone "mae-lightning-small" --backbone-weights "MAE_SMALL_STED" --opts "freeze_backbone false"
+tensorboard --logdir="/home/frbea320/links/scratch/denoising-baselines" --host 0.0.0.0 --load_fast false &
+python main.py --use-tensorboard --dataset "dendritic-factin" --backbone "mae-lightning-small" --backbone-weights "MAE_SMALL_STED" --opts "freeze_backbone false full_decoder true" --save-folder "/home/frbea320/links/scratch/SR-baselines"
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% DONE %"
