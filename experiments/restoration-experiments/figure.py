@@ -19,10 +19,10 @@ COLORS.pix2pix = "gray"
 COLORS.unet_rcan = "gray"
 
 YLIMS = {
-    "psnr" : (10, 35),
-    "msssim" : (0.5, 1.0),
-    "mse" : (0, 0.04),
-    "mae" : (0, 0.15)
+    "psnr" : (0, 40),
+    "msssim" : (0., 1.0),
+    "mse" : (0, 0.05),
+    "mae" : (0, 0.20)
 }
 
 def simple_beeswarm(y, nbins=None, maxwidth=0.8):
@@ -74,6 +74,8 @@ def get_ground_truth_images(dataset_name):
         path = os.path.join(BASE_PATH, "denoising-data", "ov-lqhq-mt-tif", "fixed_cell_microtubule_u2os_alphatubulin_star635p", "test_data", "ground_truth_image_patches")
     elif dataset_name == "ov-lqhq-live-mito":
         path = os.path.join(BASE_PATH, "denoising-data", "ov-lqhq-live-mito", "live_cell_mitochondria_u2os_tom20_halotag7_dm_sir", "test_and_training_data_1", "ground_truth_images")
+    elif dataset_name == "jmb-lqhq":
+        path = os.path.join(BASE_PATH, "denoising-data", "jmb-lqhq", "exported", "test", "gt")
     return sorted(glob.glob(os.path.join(path, "*.tif")))
 
 def get_raw_images(dataset_name, gt_images):
@@ -84,6 +86,10 @@ def get_raw_images(dataset_name, gt_images):
     elif dataset_name == "ov-lqhq-live-mito":
         raw_images = [
             gt_image.replace("ground_truth_images", "low_intensity_images") for gt_image in gt_images
+        ]
+    elif dataset_name == "jmb-lqhq":
+        raw_images = [
+            gt_image.replace(os.path.join("exported", "test", "gt"), os.path.join("exported", "test", "raw")) for gt_image in gt_images
         ]
     return raw_images
 
@@ -111,7 +117,7 @@ def get_predicted_images(method, dataset_name, gt_images):
             os.path.join(BASE_PATH, "denoising-baselines", f"{method}-{dataset_name}", "evaluation", "pred.tif")
         ]
     elif method in ["STED", "SIM", "HPA", "JUMP", "IMAGENET1K_V1"]:
-        path = os.path.join(BASE_PATH, "denoising-baselines", "mae-lightning-small-full-decoder", f"{dataset_name}", f"pretrained-frozen-MAE_SMALL_{method}-42", "predictions", dataset_name)
+        path = os.path.join(BASE_PATH, "denoising-baselines", "mae-lightning-small", f"{dataset_name}", f"pretrained-frozen-MAE_SMALL_{method}-42", "predictions", dataset_name)
         gt_images = glob.glob(os.path.join(path, "*_cleaned_images.tif"))
         predicted_images = glob.glob(os.path.join(path, "*_denoised_predictions.tif"))
     return gt_images, predicted_images
@@ -173,7 +179,7 @@ def main():
     parser = argparse.ArgumentParser(description="Plot restoration experiment results")
     parser.add_argument("--dataset", required=True, type=str,
                         help="Name of the dataset to use")
-    parser.add_argument("--encoder", required=False, type=str, default="pretrained", choices=["pretrained", "pretrained-frozen"],
+    parser.add_argument("--encoder", required=False, type=str, default="pretrained-frozen", choices=["pretrained", "pretrained-frozen"],
                         help="Restoration method to evaluate")
     args = parser.parse_args()
 
@@ -182,10 +188,10 @@ def main():
         "N2V",
         "pix2pix",
         "UNet-RCAN",
-        "IMAGENET1K_V1",
-        "JUMP",
-        "HPA",
-        "SIM",
+        # "IMAGENET1K_V1",
+        # "JUMP",
+        # "HPA",
+        # "SIM",
         "STED",
     ]
     all_scores = {}
@@ -196,6 +202,7 @@ def main():
             if not os.path.exists(path):
                 print(f"Skipping {method} on {args.dataset} due to missing scores file")
                 scores = {"psnr": [], "msssim": [], "mse": [], "mae": []}
+                continue
             else:
                 scores = json.load(open(os.path.join(BASE_PATH, "denoising-baselines", "mae-lightning-small", f"{args.dataset}", f"{args.encoder}-MAE_SMALL_{method}-42", "denoising-scores.json"), "r"))
         else:

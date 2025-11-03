@@ -15,6 +15,7 @@ from torchvision.transforms import Resize
 
 from stedfm.loaders import get_dataset as get_classification_dataset
 from stedfm.datasets import get_dataset, ArchiveDataset
+from stedfm.datasets.segmentation import get_dataset as get_segmentation_dataset
 from stedfm.DEFAULTS import BASE_PATH, COLORS, DATASETS
 from stedfm.configuration import Configuration
 from stedfm.utils import savefig
@@ -22,10 +23,6 @@ from stedfm.utils import savefig
 class DefaultConfiguration(Configuration):
     
     in_channels: int = 1
-
-import sys
-sys.path.insert(0, "../segmentation-experiments")
-from datasets import get_dataset as get_segmentation_dataset
 
 DATASETS.factin = "F-Actin"
 DATASETS.lioness = "Lioness"
@@ -115,7 +112,7 @@ def radial_profile(power_spectrum):
     tbin = numpy.bincount(r.ravel(), power_spectrum.ravel())
     nr = numpy.bincount(r.ravel())
     radialprofile = tbin / nr
-    return radialprofile
+    return radialprofile[:power_spectrum.shape[0]//2]
 
 def compute_radial_profiles(dataset, num_samples=5000, crop_size=224):
     """Compute radial profiles for a subset of images in the dataset."""
@@ -130,9 +127,9 @@ def compute_radial_profiles(dataset, num_samples=5000, crop_size=224):
 
         image = crop_center(image, crop_size=crop_size)
         power_spectrum = get_power_spectrum(image)
-        radial_prof = radial_profile(power_spectrum)
+        radial_prof = radial_profile(numpy.log10(power_spectrum))
 
-        profiles.append(numpy.log10(radial_prof))
+        profiles.append(radial_prof)
     
     return numpy.array(profiles)
 
@@ -154,6 +151,7 @@ def compare_radial_profiles(files, metric="euclidean"):
         profiles_a = numpy.load(file_a)
         profiles_b = numpy.load(file_b)
 
+        print(file_a, profiles_a.shape, file_b, profiles_b.shape)
         distance = compute_distance(profiles_a, profiles_b, metric=metric)
 
         distances[files.index(file_a), files.index(file_b)] = distance

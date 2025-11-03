@@ -1648,6 +1648,10 @@ class LQHQDenoisingDataset(Dataset):
                 data = np.load(buffer, allow_pickle=True)
                 data = {key : values for key, values in data.items()}
 
+                image = data["image"]
+                if np.isnan(image).any():
+                    continue
+
                 self.imgs.append(data["image"])
                 metadata = data["metadata"].item()
                 self.conditions.append(metadata["condition"])       
