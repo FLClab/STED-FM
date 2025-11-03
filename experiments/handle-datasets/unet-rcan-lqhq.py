@@ -40,7 +40,7 @@ def normalize(img: numpy.ndarray, channel: int=1):
     :return: Normalized image.
     """
     m, M = numpy.quantile(img, 0.0001, axis=(-2, -1), keepdims=True), numpy.quantile(img, 0.9999, axis=(-2, -1), keepdims=True)
-    img = (img - m) / (M - m)
+    img = (img - m) / (M - m + 1e-8)
     img = numpy.clip(img, 0, 1)
     img = img.astype(numpy.float32)
     return img
@@ -73,6 +73,7 @@ def add_files_to_tar(condition, filename, stack_names, split):
             gt_stack = numpy.sum(stack, axis=0)
             mask = gt_stack > threshold_otsu(gt_stack)
 
+            gt_stack = normalize(gt_stack)
             stack = normalize(stack)
 
             num_y = numpy.floor(stack.shape[-2] / CROP_SIZE)
