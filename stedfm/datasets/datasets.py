@@ -1242,7 +1242,7 @@ class BBBCDataset(Dataset):
             # Modify class_name to remove any regex special characters for consistent labeling
             class_name = re.sub(r"[\[\]\(\)\.\*\+\?\|\^\$]", "", class_name)
 
-            self.samples[class_name] = file_list
+            self.samples[class_name] = files_list
         
         self.original_size = original_size
 

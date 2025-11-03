@@ -54,9 +54,7 @@ def main():
 
     normalized_heatmap = normalized_heatmap / (np.max(performance_heatmap, axis=0, keepdims=True) + 1e-8)
     max_delta_per_column = max_delta / (np.max(performance_heatmap, axis=0) + 1e-8)
-    print(max_delta_per_column)
     normalized_heatmap = np.clip(normalized_heatmap, a_min=1-max_delta_per_column, a_max=1.0)
-    print(normalized_heatmap)
     # for col in range(D):
     #     diff = 1.0 - np.max(performance_heatmap[:, col])
     #     normalized_heatmap[:, col] += diff
@@ -69,7 +67,7 @@ def main():
     for i in range(P):
         for j in range(D):
             text = f'{performance_heatmap[i, j]:.2f}'
-            color = "black" if normalized_heatmap[i, j] < 0.95 else "white"
+            color = "black" if normalized_heatmap[i, j] < (1-max_delta) + (0.5 * max_delta) else "white"
             ax.text(j, i, text, ha='center', va='center', color=color)
     
     ax.set_xticks(np.arange(D))
