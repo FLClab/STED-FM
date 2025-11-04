@@ -156,7 +156,7 @@ def plot_features(features, labels, savename, classes=None, **kwargs):
     pca_features = pca.fit_transform(features)
 
     fig, ax = plt.subplots(figsize=(4, 4))
-    if classes is not None:
+    if classes is not None and labels.shape[-1] == 1:
         uniques = np.unique(labels)
         cmap = plt.get_cmap("rainbow", len(classes))
         for i, unique in enumerate(uniques):
@@ -164,7 +164,10 @@ def plot_features(features, labels, savename, classes=None, **kwargs):
             ax.scatter(pca_features[mask, 0], pca_features[mask, 1], color=cmap(i), label=classes[i])
         ax.legend()
     else:
-        ax.scatter(pca_features[:, 0], pca_features[:, 1], c=labels, cmap="rainbow")
+        if labels.shape[-1] > 1:
+            ax.scatter(pca_features[:, 0], pca_features[:, 1])
+        else:
+            ax.scatter(pca_features[:, 0], pca_features[:, 1], c=labels, cmap="rainbow")
     ax.set(
         ylabel="PCA-2", xlabel="PCA-1"
     )
@@ -183,10 +186,18 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
     correct, N = np.array([0] * (num_classes+1)), np.array([0] * (num_classes+1))
     all_features, all_labels = [], []
     with torch.no_grad():
-        confusion_matrix = np.zeros((num_classes, num_classes))
+        if isinstance(criterion, torch.nn.BCEWithLogitsLoss):
+            confusion_matrix = np.zeros((2, 2))
+        else:
+            confusion_matrix = np.zeros((num_classes, num_classes))
+            
         for imgs, data_dict in tqdm(valid_loader, desc="Validation...", leave=False):
+            imgs = imgs.to(device)
             labels =  data_dict['label']
-            imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
+            if isinstance(criterion, torch.nn.BCEWithLogitsLoss):
+                labels = labels.type(torch.FloatTensor).to(device)
+            else:
+                labels = labels.type(torch.LongTensor).to(device)
             predictions, features = model(imgs)
 
             loss = criterion(predictions, labels)
@@ -197,7 +208,9 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
             N = n + N
             all_features.extend(features.cpu().detach().numpy())
             all_labels.extend(labels.cpu().detach().numpy())
-        
+    
+    all_features = np.array(all_features)
+    all_labels = np.array(all_labels)
     accuracies = correct / N 
     print("********* Validation metrics **********")
     print("Epoch {} validation loss = {:.3f} ({:.3f})".format(
@@ -215,7 +228,7 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
 
     fig, ax = plt.subplots(figsize=(4, 4))
     cm = confusion_matrix / confusion_matrix.sum(axis=1, keepdims=True)
-    ax.imshow(cm, cmap="Blues")
+    ax.imshow(cm, cmap="Blues", vmin=0, vmax=1)
     ax.set(
         xlabel="Predicted", ylabel="True",
         xticks=np.arange(cm.shape[1]),
@@ -321,6 +334,10 @@ def main():
         )
 
     criterion = torch.nn.CrossEntropyLoss()
+    if args.dataset in ["hpa-classification"]:
+        # Multi-label case
+        criterion = torch.nn.BCEWithLogitsLoss()
+        
     modelname = args.model.replace("-lightning", "")
     model_path = os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
     #model_path = f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{modelname}_{SAVENAME}/{args.dataset}"
@@ -345,7 +362,6 @@ def main():
         print(f"Estimated trainable FLOPs per epoch: {trainable_flops_per_epoch:,}")
         exit()
     
-
     print(cfg)
     model.train() 
     # Training loop
@@ -377,7 +393,11 @@ def main():
 
         for imgs, data_dict in tqdm(train_loader, desc="Training...", leave=False):
             labels = data_dict['label']
-            imgs, labels = imgs.to(device), labels.type(torch.LongTensor).to(device)
+            imgs = imgs.to(device)
+            if isinstance(criterion, torch.nn.BCEWithLogitsLoss):
+                labels = labels.type(torch.FloatTensor).to(device)
+            else:
+                labels = labels.type(torch.LongTensor).to(device)
             optimizer.zero_grad()
             predictions, _ = model(imgs)
             _, preds = torch.max(predictions, 1)

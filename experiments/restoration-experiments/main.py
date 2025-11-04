@@ -141,7 +141,7 @@ if __name__ == "__main__":
                     help="Random seed")     
     parser.add_argument("--restore-from", type=str, default=None,
                     help="Model from which to restore from") 
-    parser.add_argument("--save-folder", type=str, default=f"{BASE_PATH}/denoising-baselines",
+    parser.add_argument("--save-folder", type=str, default=f"{BASE_PATH}/SR-baselines",
                     help="Model from which to restore from")     
     parser.add_argument("--dataset", required=True, type=str,
                     help="Name of the dataset to use")             
@@ -248,7 +248,15 @@ if __name__ == "__main__":
 
     # Build the UNet model.
     model = get_decoder(backbone, cfg).to(DEVICE)
-    
+
+    # Count model parameters and number of trainable parameters
+    total_params = sum(p.numel() for p in model.parameters())
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"Total parameters: {total_params}")
+    print(f"Trainable parameters: {trainable_params}")
+    print(f"Non-trainable parameters: {total_params - trainable_params}")
+
+    # Restore model from checkpoint
     ckpt = checkpoint.get("model", None)
     if not ckpt is None:
         print("Restoring model...")
@@ -482,7 +490,7 @@ if __name__ == "__main__":
     )
 
     scores = evaluate_denoising(model, test_loader, savefolder=None, device=DEVICE, dataset_name=args.dataset)
-    with open(os.path.join(OUTPUT_FOLDER, "denoising-scores.json"), "w") as file: 
+    with open(os.path.join(OUTPUT_FOLDER, "SR-scores.json"), "w") as file: 
         json.dump(scores, file, indent=4)
 
     print("----------------------------------------")

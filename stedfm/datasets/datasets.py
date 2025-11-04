@@ -19,6 +19,7 @@ import copy
 from skimage import filters
 from PIL import Image
 from zipfile import ZipFile
+import pandas
 
 from stedfm.DEFAULTS import BASE_PATH
 # from dataset_builder import condition_dict
@@ -52,6 +53,7 @@ __all__ = [
     "TarJUMPDataset",
     "TarFLCDataset",
     "HPADataset",
+    "HPAClassificationDataset",
     "ArchiveDatasetV2",
     "ProteinImageDataset",
     "ProteinDiffusionDataset",
@@ -1648,6 +1650,10 @@ class LQHQDenoisingDataset(Dataset):
                 data = np.load(buffer, allow_pickle=True)
                 data = {key : values for key, values in data.items()}
 
+                image = data["image"]
+                if np.isnan(image).any():
+                    continue
+
                 self.imgs.append(data["image"])
                 metadata = data["metadata"].item()
                 self.conditions.append(metadata["condition"])       
@@ -2674,6 +2680,69 @@ class HPADataset(ArchiveDataset):
             img = torch.tensor(img, dtype=torch.float32)  
         return img
 
+class HPAClassificationDataset(HPADataset):
+    def __init__(self, label_path, *args, **kwargs):
+        super(HPAClassificationDataset, self).__init__(*args, **kwargs)
+
+        self.label_path = label_path
+        self.class_map = {
+            "Nucleoplasm": 0,
+            "Nuclear membrane": 1,
+            "Nucleoli": 2,
+            "Nucleoli fibrillar center": 3,
+            "Nuclear speckles": 4,
+            "Nuclear bodies": 5,
+            "Endoplasmic reticulum": 6,
+            "Golgi apparatus": 7,
+            "Intermediate filaments": 8,
+            "Actin filaments": 9,
+            "Microtubules": 10,
+            "Mitotic spindle": 11,
+            "Centrosome": 12,
+            "Plasma membrane": 13,
+            "Mitochondria": 14,
+            "Aggresome": 15,
+            "Cytosol": 16,
+            "Vesicles and punctate cytosolic patterns": 17,
+            "Negative": 18
+        }
+
+        self.members, self.labels = self._make_labels()
+
+        self.classes = list(self.class_map.keys())
+        self.num_classes = len(self.class_map)
+
+        print(f"Number of samples with labels: {len(self.members)}")
+        print(f"Number of classes: {len(self.class_map)}")
+        print(f"Class distribution: {numpy.sum(self.labels, axis=0)}")
+
+    def _make_labels(self) -> Tuple[List[str], List[numpy.ndarray]]:
+
+        annotations = pandas.read_csv(self.label_path)
+        labels = []
+        members = []
+        for member in self.members:
+            image_name = os.path.splitext(member)[0]
+            image_id, channel = image_name.split("_")[-2:]
+            if channel != "green":
+                continue
+            if not (image_id in annotations["ID"].values):
+                continue
+            label_ids = annotations.loc[annotations["ID"] == image_id, "Label"].values[0].split('|')
+            label = numpy.zeros(len(self.class_map), dtype=int)
+            # Convert to one-hot encoding
+            for label_id in label_ids:
+                label[int(label_id)] = 1
+            labels.append(label)
+            members.append(member)
+
+        return members, labels
+
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+        img = super(HPAClassificationDataset, self).__getitem__(idx)
+        label = self.labels[idx]
+        label = torch.tensor(label, dtype=torch.float32)
+        return img, {'label': label}
 
 #### For the Neurodegeneration project ####
 class ArchiveDatasetV2(Dataset):

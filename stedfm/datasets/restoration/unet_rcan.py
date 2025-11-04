@@ -50,20 +50,43 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
         Random90DegreeRotation()
     ])
 
-    if name == "jmb-lqhq":
-        path = os.path.join(BASE_PATH, "denoising-data", "jmb-lqhq")
+    if name == "unet-rcan-hist" or name == "unet-rcan-tub" or name == "unet-rcan-mt":
+        path = os.path.join(BASE_PATH, "denoising-data", "unet-rcan-lqhq")
         training_dataset = LQHQDenoisingDataset(
             tarpath=os.path.join(path, "train-dataset.tar"),
             n_channels=cfg.in_channels, 
             transform=transform,
+            classes=[["histone", "tubulin", "microtubule"][["unet-rcan-hist", "unet-rcan-tub", "unet-rcan-mt"].index(name)]],
             **kwargs)
         validation_dataset = LQHQDenoisingDataset(
             tarpath=os.path.join(path, "valid-dataset.tar"), 
-            n_channels=cfg.in_channels, **kwargs)
+            n_channels=cfg.in_channels, 
+            classes=[["histone", "tubulin", "microtubule"][["unet-rcan-hist", "unet-rcan-tub", "unet-rcan-mt"].index(name)]],
+            **kwargs)
         testing_dataset = LQHQDenoisingDataset(
             tarpath=os.path.join(path, "test-dataset.tar"), 
-            n_channels=cfg.in_channels, **kwargs)
-        
+            n_channels=cfg.in_channels, 
+            classes=[["histone", "tubulin", "microtubule"][["unet-rcan-hist", "unet-rcan-tub", "unet-rcan-mt"].index(name)]],
+            **kwargs)
+    elif name == "unet-rcan":
+        path = os.path.join(BASE_PATH, "denoising-data", "unet-rcan-lqhq")
+        training_dataset = LQHQDenoisingDataset(
+            tarpath=os.path.join(path, "train-dataset.tar"),
+            n_channels=cfg.in_channels, 
+            transform=transform,
+            classes=["microtubule", "histone", "tubulin"],
+            **kwargs)
+        validation_dataset = LQHQDenoisingDataset(
+            tarpath=os.path.join(path, "valid-dataset.tar"), 
+            n_channels=cfg.in_channels, 
+            classes=["microtubule", "histone", "tubulin"],
+            **kwargs)
+        testing_dataset = LQHQDenoisingDataset(
+            tarpath=os.path.join(path, "test-dataset.tar"), 
+            n_channels=cfg.in_channels, 
+            classes=["microtubule", "histone", "tubulin"],
+            **kwargs
+        )
         # # Export images as tiff for visualization
         # import tifffile
         # os.makedirs(os.path.join(path, "exported", "train", "raw_256"), exist_ok=True)
@@ -99,9 +122,9 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
         #     tifffile.imwrite(os.path.join(path, "exported", "test", "gt_256", f"img_{i:04d}.tif"), stack[i, 1, :, :])
 
         # exit()
+    else:
+        raise NotImplementedError(f"Dataset '{name}' is not implemented.")
 
-        return SplitViewsDataset(training_dataset), \
-               SplitViewsDataset(validation_dataset), \
-               SplitViewsDataset(testing_dataset)
-
-    raise NotImplementedError(f"Dataset '{name}' is not implemented.")
+    return SplitViewsDataset(training_dataset), \
+            SplitViewsDataset(validation_dataset), \
+            SplitViewsDataset(testing_dataset)
