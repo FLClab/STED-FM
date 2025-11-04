@@ -49,10 +49,10 @@ class LinearProbe(torch.nn.Module):
 
         elif self.frozen_blocks == "0":
             print(f"--- Not freezing any parameters in {name} ---")
-        
+
         else:
-            blk_list = list(range(int(num_blocks)))
-            self._freeze_blocks(blk_list)
+            print(f" --- Parameter efficient fine-tuning of {self.frozen_blocks} blocks ---")
+            self._freeze_blocks(int(self.frozen_blocks))
 
         self.classification_head = torch.nn.Sequential(
             torch.nn.BatchNorm1d(num_features=cfg.dim, affine=False, eps=1e-6),
@@ -67,8 +67,15 @@ class LinearProbe(torch.nn.Module):
             self.backbone.train(mode)
         self.classification_head.train(mode)
 
-    def _freeze_blocks(self, blocks: Union[List, int]) -> None:
-        raise NotImplementedError("Partial fine-tuning not yet implemented.") 
+    def _freeze_blocks(self, num_blocks: int) -> None:
+        total_blocks = len(self.backbone.blocks)
+        block_list = list(range(total_blocks)) 
+        block_list = block_list[::-1][:num_blocks]
+        print(f"--- Freezing {block_list} blocks ---")
+        for block_idx in block_list:
+            for p in self.backbone.blocks[block_idx].parameters():
+                p.requires_grad = False
+
     
     def forward_features(self, x: torch.Tensor, return_patches: bool = False) -> torch.Tensor:
         if "mae" in self.name.lower():

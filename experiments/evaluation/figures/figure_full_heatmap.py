@@ -6,9 +6,8 @@ import argparse
 import sys 
 import matplotlib.pyplot as plt 
 from matplotlib import patches 
-sys.path.insert(0, "../../")
-from DEFAULTS import BASE_PATH, COLORS 
-from utils import savefig 
+from stedfm.DEFAULTS import BASE_PATH, COLORS 
+from stedfm.utils import savefig 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mae-small")
@@ -23,7 +22,10 @@ def load_file(file):
     return data 
 
 def get_data(pretraining: str, downstream: str, mode: str) -> dict:
-    files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", downstream, f"accuracy_{mode}_None_*.json"), recursive=True)
+    if pretraining in ["JUMP"]:
+        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", downstream, f"size-matched_accuracy_{mode}_None_*.json"), recursive=True)
+    else:
+        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", downstream, f"accuracy_{mode}_None_*.json"), recursive=True)
     if len(files) < 1: 
         print(f"Could not find files for mode: `{mode}` and pretraining: `{pretraining}`")
         return data
@@ -37,6 +39,7 @@ def get_data(pretraining: str, downstream: str, mode: str) -> dict:
 
 
 def main():
+    os.makedirs(os.path.join(".", "results"), exist_ok=True)
     pretraining_datasets = ["STED", "SIM", "HPA", "JUMP", "ImageNet", "from-scratch"] if args.model == "mae-small" else ["STED"]
     downstream_datasets = ["optim", "neural-activity-states", "peroxisome", "polymer-rings", "dl-sim"]
     P, D = len(pretraining_datasets), len(downstream_datasets)
@@ -69,7 +72,7 @@ def main():
     ax.set_yticklabels(pretraining_datasets)
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
     plt.colorbar(im)
-    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.mode}_full_heatmap"), extension="pdf")
+    savefig(fig, os.path.join(".", "results", f"size-matched_{args.model}_{args.mode}_full_heatmap"), extension="pdf")
 
                 
 

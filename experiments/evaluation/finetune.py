@@ -83,8 +83,6 @@ def get_save_folder() -> str:
         return "CTC"
     elif "hpa" in args.weights.lower():
         return "HPA"
-    elif "sim" in args.weights.lower():
-        return "SIM"
     elif "hybrid" in args.weights.lower():
         return "Hybrid"
     else:
@@ -248,7 +246,14 @@ def main():
     print(f"--- Running on {device} ---")
     n_channels = 3 if "imagenet" in SAVENAME.lower() else 1
 
-    probe = "linear-probe" if args.blocks == "all" else "finetuned"
+    if args.blocks == "all":
+        probe = "linear-probe"
+
+    elif args.blocks == "0":
+        probe = "finetuned"
+    else:
+        probe = f"peft_{args.blocks}-blocks"
+    
     if args.from_scratch:
         probe = "from-scratch"
         args.weights = None
@@ -449,8 +454,8 @@ def main():
             num_classes=num_classes
         )
 
-        state_dict = torch.load(f"{best_model.save_dir}/{best_model.model_name}.pth", map_location="cpu")
-        model.load_state_dict(state_dict['model_state_dict'])
+        state_dict = torch.load(f"{best_model.save_dir}/{best_model.model_name}.pth", weights_only=False,map_location="cpu")
+        model.load_state_dict(state_dict['model_state_dict'], strict=True)
         model = model.to(device)
 
         loss, acc, cm = validation_step(
