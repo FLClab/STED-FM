@@ -14,7 +14,6 @@ experiments/diffusion-experiments/**/*.pkl
 experiments/diffusion-experiments/**/*.json
 experiments/diffusion-experiments/activity-experiment/
 experiments/diffusion-experiments/resolution-experiment/distributions/
-experiments/figures/
 experiments/interpretability-experiments/TiffWrapper/
 experiments/misc-experiments/results/
 logs/
@@ -216,6 +215,7 @@ experiments/denoising-experiments/results/inferred/
 experiments/evaluation/results/*.pdf
 experiments/evaluation/results/
 experiments/scripts/
-experiments/segmentation-experiments/figures/
+experiments/segmentation-experiments/figures/results/
+experiments/segmentation-experiments/figures/results_v2/
 experiments/segmentation-experiments/scripts/
 experiments/pretrain_script.sh

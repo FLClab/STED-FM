@@ -7,6 +7,7 @@ from .lioness import get_dataset as get_lioness_dataset
 from .ov_lqhq import get_dataset as get_ov_lqhq_dataset
 from .unet_rcan import get_dataset as get_unet_rcan_dataset
 from .rcan3d_sr import get_dataset as get_3drcan_dataset
+from .dendritic_factin import get_dataset as get_dendritic_factin_dataset
 
 DATASETS = {
     "jmb-lqhq" : get_lqhq_dataset,
@@ -18,6 +19,7 @@ DATASETS = {
     "unet-rcan-mt": get_unet_rcan_dataset,
     "unet-rcan-hist": get_unet_rcan_dataset,
     "unet-rcan-tub": get_unet_rcan_dataset,
+    "dendritic-factin": get_dendritic_factin_dataset,
 }
 
 def get_dataset(name: str, cfg: dataclass, **kwargs) -> Dataset:
