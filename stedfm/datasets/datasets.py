@@ -19,11 +19,45 @@ import copy
 from skimage import filters
 from PIL import Image
 from zipfile import ZipFile
+import pandas
 
-from .DEFAULTS import BASE_PATH
+from stedfm.DEFAULTS import BASE_PATH
 # from dataset_builder import condition_dict
 
 LOCAL_CACHE = {}
+
+__all__ = [
+    "get_dataset",
+    "CreateFActinDataset",
+    "CreateMitoDataset",
+    "CreateFactinRingsFibersDataset",
+    "CreateFActinBlockGluGlyDataset",
+    "MICRANetHDF5Dataset",
+    "ResolutionDataset",
+    "OptimDataset",
+    "PeroxisomeDataset",
+    "PolymerRingsDataset",
+    "DLSIMDataset",
+    "BBBCDataset",
+    "NeuralActivityStates",
+    "FactinCaMKIIDataset",
+    "LQHQDenoisingDataset",
+    "FolderDataset",
+    "RestorationFolderDataset",
+    "ProteinDataset",
+    "CTCDataset",
+    "JUMPCPDataset",
+    "ArchiveDataset",
+    "HybridDatasetV2",
+    "HybridDataset",
+    "TarJUMPDataset",
+    "TarFLCDataset",
+    "HPADataset",
+    "HPAClassificationDataset",
+    "ArchiveDatasetV2",
+    "ProteinImageDataset",
+    "ProteinDiffusionDataset",
+]
 
 def get_dataset(name: str, path: str, **kwargs):
     if name == "CTC":
@@ -1210,7 +1244,7 @@ class BBBCDataset(Dataset):
             # Modify class_name to remove any regex special characters for consistent labeling
             class_name = re.sub(r"[\[\]\(\)\.\*\+\?\|\^\$]", "", class_name)
 
-            self.samples[class_name] = self._get_sampled_files(files_list=files_list, num_sample=num_samples)
+            self.samples[class_name] = files_list
         
         self.original_size = original_size
 
@@ -1222,9 +1256,18 @@ class BBBCDataset(Dataset):
         self.num_classes = len(self.classes)
         self.info = self.__get_info()
 
+        samples_per_class = defaultdict(list)
+        for info in self.info:
+            samples_per_class[info["label"]].append(info)
+        for class_name, values in samples_per_class.items():
+            samples_per_class[class_name] = self._get_sampled_files(values, num_sample=num_samples)
+        self.info = []
+        for class_name, values in samples_per_class.items():
+            self.info.extend(values)
+        
         print("----------")
-        for k in self.samples.keys():
-            print(f"Class {k} samples: {len(self.samples[k])}")
+        for k in samples_per_class.keys():
+            print(f"Class {k} samples: {len(samples_per_class[k])}")
         print("----------")
 
         statistics = defaultdict(list)
@@ -1248,8 +1291,9 @@ class BBBCDataset(Dataset):
         return image
 
     def _get_sampled_files(self, files_list, num_sample):
+        rng = random.Random(42)
         if num_sample is not None:
-            return random.sample(files_list, num_sample)
+            return rng.sample(files_list, num_sample)
         else:
             return files_list
 
@@ -1606,6 +1650,10 @@ class LQHQDenoisingDataset(Dataset):
                 data = np.load(buffer, allow_pickle=True)
                 data = {key : values for key, values in data.items()}
 
+                image = data["image"]
+                if np.isnan(image).any():
+                    continue
+
                 self.imgs.append(data["image"])
                 metadata = data["metadata"].item()
                 self.conditions.append(metadata["condition"])       
@@ -1729,6 +1777,9 @@ class RestorationFolderDataset(Dataset):
         self.n_channels = n_channels
         self.crop_size = crop_size
 
+        self.mu = kwargs.get("mu", 0.0)
+        self.std = kwargs.get("std", 1.0)
+
         files = glob.glob(os.path.join(source, "*.tif"))
         files += glob.glob(os.path.join(source, "*.tiff"))
         files += glob.glob(os.path.join(source, "*.png"))
@@ -1742,8 +1793,10 @@ class RestorationFolderDataset(Dataset):
 
     def _index_dataset(self):
         samples = []
+        statistics = []
         for f, tf in tqdm(self.images):
             image = self.read_image(f)
+            statistics.append([image.mean(axis=(1, 2)), image.std(axis=(1, 2))])
             C, H, W = image.shape
             for c in range(C):
                 for j in range(0, H - self.crop_size, self.crop_size):
@@ -1758,6 +1811,7 @@ class RestorationFolderDataset(Dataset):
                             "chan-idx": c,
                             "slc": slc
                         })
+        statistics = np.array(statistics)
         return samples
 
     def read_image(self, path: str) -> np.ndarray:
@@ -1791,10 +1845,12 @@ class RestorationFolderDataset(Dataset):
 
         if self.n_channels == 3:
             source = np.tile(source[np.newaxis, :], (3, 1, 1))
-            target = np.tile(target[np.newaxis, :], (3, 1, 1))
+            target = np.tile(target[np.newaxis, :], (1, 1, 1))
 
             source = torch.tensor(source, dtype=torch.float32)
             target = torch.tensor(target, dtype=torch.float32)
+
+            source = transforms.Normalize(mean=self.mu, std=self.std)(source)
             # img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
         else:
             source = torch.tensor(source[np.newaxis, :], dtype=torch.float32)
@@ -1802,8 +1858,10 @@ class RestorationFolderDataset(Dataset):
 
         cat = torch.cat([source, target], dim=0)
         cat = self.transform(cat) if self.transform is not None else cat
-        source, target = cat[0:1], cat[1:2]
-
+        if self.n_channels == 3:
+            source, target = cat[0:3], cat[3:]
+        else:
+            source, target = cat[0:1], cat[1:2]
         return source, target#, {"dataset-idx": idx}
 
 class ProteinDataset(Dataset):
@@ -2622,6 +2680,69 @@ class HPADataset(ArchiveDataset):
             img = torch.tensor(img, dtype=torch.float32)  
         return img
 
+class HPAClassificationDataset(HPADataset):
+    def __init__(self, label_path, *args, **kwargs):
+        super(HPAClassificationDataset, self).__init__(*args, **kwargs)
+
+        self.label_path = label_path
+        self.class_map = {
+            "Nucleoplasm": 0,
+            "Nuclear membrane": 1,
+            "Nucleoli": 2,
+            "Nucleoli fibrillar center": 3,
+            "Nuclear speckles": 4,
+            "Nuclear bodies": 5,
+            "Endoplasmic reticulum": 6,
+            "Golgi apparatus": 7,
+            "Intermediate filaments": 8,
+            "Actin filaments": 9,
+            "Microtubules": 10,
+            "Mitotic spindle": 11,
+            "Centrosome": 12,
+            "Plasma membrane": 13,
+            "Mitochondria": 14,
+            "Aggresome": 15,
+            "Cytosol": 16,
+            "Vesicles and punctate cytosolic patterns": 17,
+            "Negative": 18
+        }
+
+        self.members, self.labels = self._make_labels()
+
+        self.classes = list(self.class_map.keys())
+        self.num_classes = len(self.class_map)
+
+        print(f"Number of samples with labels: {len(self.members)}")
+        print(f"Number of classes: {len(self.class_map)}")
+        print(f"Class distribution: {numpy.sum(self.labels, axis=0)}")
+
+    def _make_labels(self) -> Tuple[List[str], List[numpy.ndarray]]:
+
+        annotations = pandas.read_csv(self.label_path)
+        labels = []
+        members = []
+        for member in self.members:
+            image_name = os.path.splitext(member)[0]
+            image_id, channel = image_name.split("_")[-2:]
+            if channel != "green":
+                continue
+            if not (image_id in annotations["ID"].values):
+                continue
+            label_ids = annotations.loc[annotations["ID"] == image_id, "Label"].values[0].split('|')
+            label = numpy.zeros(len(self.class_map), dtype=int)
+            # Convert to one-hot encoding
+            for label_id in label_ids:
+                label[int(label_id)] = 1
+            labels.append(label)
+            members.append(member)
+
+        return members, labels
+
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+        img = super(HPAClassificationDataset, self).__getitem__(idx)
+        label = self.labels[idx]
+        label = torch.tensor(label, dtype=torch.float32)
+        return img, {'label': label}
 
 #### For the Neurodegeneration project ####
 class ArchiveDatasetV2(Dataset):

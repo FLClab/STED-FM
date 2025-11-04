@@ -7,9 +7,8 @@ import sys
 from scipy import stats
 from matplotlib import pyplot
 
-sys.path.insert(0, "../../")
-from DEFAULTS import BASE_PATH, COLORS, MARKERS
-from utils import savefig
+from stedfm.DEFAULTS import BASE_PATH, COLORS, MARKERS
+from stedfm.utils import savefig
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mae-small",
@@ -109,7 +108,7 @@ def main():
         data = get_data(pretraining=pretraining)
         fig, ax = plot_data(pretraining, data, figax=(fig, ax))
     ax.legend()
-    savefig(fig, os.path.join(".", "results", f"test_{args.model}_{args.dataset}_{args.mode}-small-dataset-samples"), extension="pdf")
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_{args.mode}-small-dataset-samples"), extension="pdf")
 
 if __name__ == "__main__":
     main()

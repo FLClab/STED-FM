@@ -22,8 +22,8 @@ class MAEWeights:
     MAE_224_P16 = os.path.join(BASE_PATH, "baselines", "mae-small_224-p16", "checkpoint-999.pth")
 
     MAE_TINY_STED = os.path.join(BASE_PATH, "baselines", "mae-tiny_STED", "pl_checkpoint-999.pth")
-    MAE_SMALL_STED = os.path.join(BASE_PATH, "baselines", "mae-small_STED", "pl_checkpoint-999.pth")
-    # MAE_SMALL_STED = "https://s3.valeria.science/flclab-foundation-models/models/mae-small-sted.zip"
+    # MAE_SMALL_STED = os.path.join(BASE_PATH, "baselines", "mae-small_STED", "pl_checkpoint-999.pth")
+    MAE_SMALL_STED = "https://s3.valeria.science/flclab-foundation-models/models/mae-small-sted.zip"
     MAE_BASE_STED = os.path.join(BASE_PATH, "baselines", "mae-base_STED", "pl_checkpoint-999.pth")
     MAE_LARGE_STED = os.path.join(BASE_PATH, "baselines", "mae-large_STED", "pl_checkpoint-999.pth")
 
@@ -67,41 +67,29 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
         cfg.dim = 192
         cfg.batch_size = 256
         cfg.backbone = "vit-tiny"
-        vit = vit_tiny_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
-        if cfg.pretrained:
-            backbone = vit
-        else:
-            backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+        vit = vit_tiny_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained) 
+        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
     elif name == "mae-lightning-small" or name =="mae-lightning-224-p16":
         cfg.dim = 384
         cfg.batch_size = 256
         cfg.backbone = "vit-small"
         vit = vit_small_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
-        if cfg.pretrained:
-            backbone = vit
-        else:
-            backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
     elif name == "mae-lightning-base":
         cfg.dim = 768
         cfg.batch_size = 128
         cfg.backbone = "vit-base"
         vit = vit_base_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
-        if cfg.pretrained:
-            backbone = vit
-        else:
-            backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
     elif name == 'mae-lightning-large':
         cfg.dim = 1024
         cfg.batch_size = 64
         cfg.backbone = "vit-large"
         vit = vit_large_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
-        if cfg.pretrained:
-            backbone = vit
-        else:
-            backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
     elif name == "mae-lightning-64-p8":
         print("[---] Using vit-64-p8 backbone [---]")

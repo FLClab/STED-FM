@@ -1,13 +1,17 @@
 import os
+import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import List, Iterable, Callable
-from torch.utils.data import DataLoader, Sampler, Dataset
+from torch.utils.data import DataLoader, Sampler, Dataset, Subset
+import torchvision
 import torchvision.transforms as T
 import random
 import os
-from .DEFAULTS import BASE_PATH
+
+from stedfm.DEFAULTS import BASE_PATH
 from stedfm import datasets
+from stedfm.modules.transforms import RandomResizedCropMinimumForeground
 
 class BalancedSampler(Sampler):
     def __init__(self, dataset: Dataset, fewshot_pct: float = 0.01, num_classes: int = 4) -> None:
@@ -66,6 +70,58 @@ def get_CTC_dataset(transform, path: str):
     dataset = datasets.CTCDataset(h5file=path, transform=transform)
     dataloader = DataLoader(dataset=dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
     return dataloader
+
+def get_hpa_classification_dataset(
+        path: str,
+        transform: Callable,
+        batch_size: int = 256,
+        num_samples: int = None,
+):
+    
+    if isinstance(transform, type(None)):
+        transform = torchvision.transforms.Compose([
+            torchvision.transforms.ToTensor(),
+            RandomResizedCropMinimumForeground(size=224, scale=(1.0, 1.0)),
+            torchvision.transforms.RandomHorizontalFlip(),
+            torchvision.transforms.RandomVerticalFlip(),
+        ])
+
+    dataset = datasets.HPAClassificationDataset(
+        label_path=os.path.join(BASE_PATH, "evaluation-data", "hpa-labels", "train.csv"), 
+        zip_path=path, 
+        transform=transform, 
+        num_samples=num_samples)
+    
+    # Creating train, validation, test splits
+    rng = np.random.default_rng(42)
+    num_samples = len(dataset)
+    validation_testing_random_indices = rng.choice(num_samples, size=int(0.2 * num_samples), replace=False)
+    
+    training_indices = list(set(range(num_samples)) - set(validation_testing_random_indices))
+    training_dataset = Subset(dataset, training_indices)
+    training_dataset.num_classes = dataset.num_classes
+    training_dataset.classes = dataset.classes
+
+    validation_indices = rng.choice(validation_testing_random_indices, size=int(0.5 * len(validation_testing_random_indices)), replace=False)
+    validation_dataset = Subset(dataset, validation_indices)
+    validation_dataset.num_classes = dataset.num_classes
+    validation_dataset.classes = dataset.classes
+
+    testing_indices = list(set(validation_testing_random_indices) - set(validation_indices))
+    testing_dataset = Subset(dataset, testing_indices)
+    testing_dataset.num_classes = dataset.num_classes
+    testing_dataset.classes = dataset.classes
+
+    print("\n=== HPA Classification Dataset ===")
+    print(f"Training size: {len(training_dataset)}")
+    print(f"Validation size: {len(validation_dataset)}")
+    print(f"Test size: {len(testing_dataset)}\n")
+
+    train_dataloader = DataLoader(dataset=training_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    validation_dataloader = DataLoader(dataset=validation_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+    testing_dataloader = DataLoader(dataset=testing_dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=6)
+
+    return train_dataloader, validation_dataloader, testing_dataloader
 
 def get_neural_activity_states(
         path:str,
@@ -374,11 +430,14 @@ def get_lqhq_denoising_dataset(path: str, batch_size: int = 128, **kwargs):
 
     return train_loader, valid_loader, test_loader
 
-def get_bbbc026_dataset(path: str, batch_size: int = 128, **kwargs):
+def get_bbbc026_dataset(path: str, batch_size: int = 128, num_samples: int = None, **kwargs):
 
-    training_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC026-training.txt"), **kwargs)
-    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC026-validation.txt"), **kwargs)
-    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC026-testing.txt"), **kwargs)
+    training_dataset = datasets.BBBCDataset(
+        source=os.path.join(path, "BBBC026-training.txt"), 
+        num_samples=num_samples, 
+        **kwargs)
+    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC026-validation.txt"), num_samples=None, **kwargs)
+    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC026-testing.txt"), num_samples=None, **kwargs)
 
     print(f"Training size: {len(training_dataset)}")
     print(f"Validation size: {len(validation_dataset)}")
@@ -391,11 +450,14 @@ def get_bbbc026_dataset(path: str, batch_size: int = 128, **kwargs):
     return train_loader, valid_loader, test_loader
 
 
-def get_bbbc052_dataset(path: str, batch_size: int = 128, **kwargs):
+def get_bbbc052_dataset(path: str, batch_size: int = 128, num_samples: int = None, **kwargs):
     
-    training_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC052-training.txt"), **kwargs)
-    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC052-validation.txt"), **kwargs)
-    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC052-testing.txt"), **kwargs)
+    training_dataset = datasets.BBBCDataset(
+        source=os.path.join(path, "BBBC052-training.txt"), 
+        num_samples=num_samples,
+        **kwargs)
+    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC052-validation.txt"), num_samples=None, **kwargs)
+    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC052-testing.txt"), num_samples=None, **kwargs)
 
     print(f"Training size: {len(training_dataset)}")
     print(f"Validation size: {len(validation_dataset)}")
@@ -407,11 +469,14 @@ def get_bbbc052_dataset(path: str, batch_size: int = 128, **kwargs):
 
     return train_loader, valid_loader, test_loader
 
-def get_bbbc053_dataset(path: str, batch_size: int = 128, **kwargs):
+def get_bbbc053_dataset(path: str, batch_size: int = 128, num_samples: int = None, **kwargs):
 
-    training_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC053-training.txt"), **kwargs)
-    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC053-validation.txt"), **kwargs)
-    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC053-testing.txt"), **kwargs)
+    training_dataset = datasets.BBBCDataset(
+        source=os.path.join(path, "BBBC053-training.txt"), 
+        num_samples=num_samples,
+        **kwargs)
+    validation_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC053-validation.txt"), num_samples=None, **kwargs)
+    testing_dataset = datasets.BBBCDataset(source=os.path.join(path, "BBBC053-testing.txt"), num_samples=None, **kwargs)
 
     print(f"Training size: {len(training_dataset)}")
     print(f"Validation size: {len(validation_dataset)}")
@@ -533,6 +598,13 @@ def get_dataset(name, path=None, **kwargs):
             num_samples=kwargs.get("num_samples", None),
             mean=kwargs.get("mean", [0.035, 0.035, 0.035]),
             std=kwargs.get("std", [0.07, 0.07, 0.07]),
+        )
+    elif name == "hpa-classification":
+        return get_hpa_classification_dataset(
+            path=os.path.join(BASE_PATH, "ssl-data", "hpa.zip"), 
+            transform=kwargs.get("transform", None),
+            batch_size=kwargs.get("batch_size", 64),
+            num_samples=kwargs.get("num_samples", None),
         )
     else:
         raise NotImplementedError(f"`{name}` dataset is not supported.")
