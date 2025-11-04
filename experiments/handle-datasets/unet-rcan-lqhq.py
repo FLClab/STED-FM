@@ -39,7 +39,8 @@ def normalize(img: numpy.ndarray, channel: int=1):
     
     :return: Normalized image.
     """
-    m, M = numpy.quantile(img, 0.0001, axis=(-2, -1), keepdims=True), numpy.quantile(img, 0.9999, axis=(-2, -1), keepdims=True)
+    # m, M = numpy.quantile(img, 0.0001, axis=(-2, -1), keepdims=True), numpy.quantile(img, 0.9999, axis=(-2, -1), keepdims=True)
+    m, M = numpy.min(img, axis=(-2, -1), keepdims=True), numpy.max(img, axis=(-2, -1), keepdims=True)
     img = (img - m) / (M - m + 1e-8)
     img = numpy.clip(img, 0, 1)
     img = img.astype(numpy.float32)
