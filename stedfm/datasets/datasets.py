@@ -2714,9 +2714,6 @@ class HPAClassificationDataset(HPADataset):
         self.mean = kwargs.get("mean", [0.0526, 0.0526, 0.0526])
         self.std = kwargs.get("std", [0.09, 0.09, 0.09])
 
-        self.mean = kwargs.get("mean", [0.0526, 0.0526, 0.0526])
-        self.std = kwargs.get("std", [0.09, 0.09, 0.09])
-
         print(f"Number of samples with labels: {len(self.members)}")
         print(f"Number of classes: {len(self.class_map)}")
         print(f"Class distribution: {numpy.sum(self.labels, axis=0)}")
