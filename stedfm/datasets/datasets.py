@@ -2711,10 +2711,33 @@ class HPAClassificationDataset(HPADataset):
 
         self.classes = list(self.class_map.keys())
         self.num_classes = len(self.class_map)
+        self.mean = kwargs.get("mean", [0.0526, 0.0526, 0.0526])
+        self.std = kwargs.get("std", [0.09, 0.09, 0.09])
 
         print(f"Number of samples with labels: {len(self.members)}")
         print(f"Number of classes: {len(self.class_map)}")
         print(f"Class distribution: {numpy.sum(self.labels, axis=0)}")
+
+        # stats = self._get_statistics()
+        # print("Dataset statistics:")
+        # mean = numpy.mean([s["mean"] for s in stats])
+        # std = numpy.mean([s["std"] for s in stats])
+        # print(f"  Mean: {mean:0.4f}")
+        # print(f"  Std: {std:0.4f}")
+
+    def _get_statistics(self):
+        stats = []
+        for idx in range(len(self.members)):
+            data = self.get_data(idx)
+            img = data["image"]
+            img = (img - img.min()) / (img.max() - img.min())
+            stats.append({
+                "min": img.min(),
+                "max": img.max(),
+                "mean": img.mean(),
+                "std": img.std()
+            })
+        return stats
 
     def _make_labels(self) -> Tuple[List[str], List[numpy.ndarray]]:
 
