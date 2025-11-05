@@ -272,15 +272,15 @@ class Query:
         self.class_id = class_id
         self.size = size
     
-    def query(self, model, clf, cfg):
+    def query(self, model, clf, cfg, **kwargs):
         model.eval()
         if "vit" in cfg.backbone:
             model_type = "vit"
         else:
             model_type = "convnet"
-        return getattr(self, f"_query_image_{model_type}")(model, clf, cfg)   
+        return getattr(self, f"_query_image_{model_type}")(model, clf, cfg, **kwargs)
     
-    def _query_image_vit(self, model, clf, cfg):
+    def _query_image_vit(self, model, clf, cfg, **kwargs):
 
         for key, values in self.images.items():
             
@@ -309,7 +309,7 @@ class Query:
                 image = (image - m) / (M - m + 1e-6)
                 image = numpy.clip(image, 0, 1)
 
-                dataset = ImageDataset(image, label, in_channels=cfg.in_channels, size=self.size, step=int(self.size * 1.0))
+                dataset = ImageDataset(image, label, in_channels=cfg.in_channels, size=self.size, step=int(self.size * kwargs.get("step_factor", 1.0)))
                 sampler = OnTheFlySampler(dataset)
                 loader = DataLoader(dataset, batch_size=cfg.batch_size, sampler=sampler)
                 builder = PredictionBuilder(image.shape, self.size, num_classes=1)

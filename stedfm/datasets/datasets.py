@@ -2686,25 +2686,34 @@ class HPAClassificationDataset(HPADataset):
 
         self.label_path = label_path
         self.class_map = {
-            "Nucleoplasm": 0,
-            "Nuclear membrane": 1,
-            "Nucleoli": 2,
-            "Nucleoli fibrillar center": 3,
-            "Nuclear speckles": 4,
-            "Nuclear bodies": 5,
-            "Endoplasmic reticulum": 6,
-            "Golgi apparatus": 7,
-            "Intermediate filaments": 8,
-            "Actin filaments": 9,
-            "Microtubules": 10,
-            "Mitotic spindle": 11,
-            "Centrosome": 12,
-            "Plasma membrane": 13,
-            "Mitochondria": 14,
-            "Aggresome": 15,
-            "Cytosol": 16,
-            "Vesicles and punctate cytosolic patterns": 17,
-            "Negative": 18
+            "Nucleoplasm" : 0,
+            "Nuclear membrane" : 1,
+            "Nucleoli" : 2,
+            "Nucleoli fibrillar center" : 3,
+            "Nuclear speckles" : 4,
+            "Nuclear bodies" : 5,
+            "Endoplasmic reticulum" : 6,
+            "Golgi apparatus" : 7,
+            "Peroxisomes" : 8,
+            "Endosomes" : 9,
+            "Lysosomes" : 10,
+            "Intermediate filaments" : 11,
+            "Actin filaments" : 12,
+            "Focal adhesion sites" : 13,
+            "Microtubules" : 14,
+            "Microtubule ends" : 15,
+            "Cytokinetic bridge" : 16,
+            "Mitotic spindle" : 17,
+            "Microtubule organizing center" : 18,
+            "Centrosome" : 19,
+            "Lipid droplets" : 20,
+            "Plasma membrane" : 21,
+            "Cell junctions" : 22,
+            "Mitochondria" : 23,
+            "Aggresome" : 24,
+            "Cytosol" : 25,
+            "Cytoplasmic bodies" : 26,
+            "Rods & rings" : 27,
         }
 
         self.members, self.labels = self._make_labels()
@@ -2749,16 +2758,15 @@ class HPAClassificationDataset(HPADataset):
             image_id, channel = image_name.split("_")[-2:]
             if channel != "green":
                 continue
-            if not (image_id in annotations["ID"].values):
+            if not (image_id in annotations["Id"].values):
                 continue
-            label_ids = annotations.loc[annotations["ID"] == image_id, "Label"].values[0].split('|')
+            label_ids = annotations.loc[annotations["Id"] == image_id, "Target"].values[0].split(' ')
             label = numpy.zeros(len(self.class_map), dtype=int)
             # Convert to one-hot encoding
             for label_id in label_ids:
                 label[int(label_id)] = 1
             labels.append(label)
             members.append(member)
-
         return members, labels
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
