@@ -2714,6 +2714,9 @@ class HPAClassificationDataset(HPADataset):
         self.mean = kwargs.get("mean", [0.0526, 0.0526, 0.0526])
         self.std = kwargs.get("std", [0.09, 0.09, 0.09])
 
+        self.mean = kwargs.get("mean", [0.0526, 0.0526, 0.0526])
+        self.std = kwargs.get("std", [0.09, 0.09, 0.09])
+
         print(f"Number of samples with labels: {len(self.members)}")
         print(f"Number of classes: {len(self.class_map)}")
         print(f"Class distribution: {numpy.sum(self.labels, axis=0)}")
@@ -2765,6 +2768,11 @@ class HPAClassificationDataset(HPADataset):
         img = super(HPAClassificationDataset, self).__getitem__(idx)
         label = self.labels[idx]
         label = torch.tensor(label, dtype=torch.float32)
+
+        if self.in_channels == 3:
+            img = img.repeat(3, 1, 1)
+            img = transforms.Normalize(mean=self.mean, std=self.std)(img)
+
         return img, {'label': label}
 
 #### For the Neurodegeneration project ####

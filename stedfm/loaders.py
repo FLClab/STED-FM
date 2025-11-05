@@ -76,6 +76,7 @@ def get_hpa_classification_dataset(
         transform: Callable,
         batch_size: int = 256,
         num_samples: int = None,
+        **kwargs
 ):
     
     if isinstance(transform, type(None)):
@@ -90,7 +91,9 @@ def get_hpa_classification_dataset(
         label_path=os.path.join(BASE_PATH, "evaluation-data", "hpa-labels", "train.csv"), 
         zip_path=path, 
         transform=transform, 
-        num_samples=num_samples)
+        num_samples=num_samples,
+        **kwargs
+    )
     
     # Creating train, validation, test splits
     rng = np.random.default_rng(42)
@@ -603,8 +606,11 @@ def get_dataset(name, path=None, **kwargs):
         return get_hpa_classification_dataset(
             path=os.path.join(BASE_PATH, "ssl-data", "hpa.zip"), 
             transform=kwargs.get("transform", None),
+            in_channels=kwargs.pop("n_channels", 1),
             batch_size=kwargs.get("batch_size", 64),
             num_samples=kwargs.get("num_samples", None),
+            mean=kwargs.get("mean", [0.0526, 0.0526, 0.0526]),
+            std=kwargs.get("std", [0.09, 0.09, 0.09]),
         )
     else:
         raise NotImplementedError(f"`{name}` dataset is not supported.")
