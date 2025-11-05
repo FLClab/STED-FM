@@ -3,6 +3,7 @@ import os
 import numpy
 import tarfile
 import io
+import tifffile
 
 from pystackreg import StackReg
 from mureader import Reader
@@ -27,6 +28,7 @@ def register_stack(stack):
     print("Registering stack...")
     sr = StackReg(StackReg.RIGID_BODY)
     registered_stack = sr.register_transform_stack(stack, reference='first')
+    registered_stack = numpy.clip(registered_stack, 0, None)
     return registered_stack
 
 def normalize(img: numpy.ndarray, channel: int=1):
@@ -39,7 +41,7 @@ def normalize(img: numpy.ndarray, channel: int=1):
     
     :return: Normalized image.
     """
-    # m, M = numpy.quantile(img, 0.0001, axis=(-2, -1), keepdims=True), numpy.quantile(img, 0.9999, axis=(-2, -1), keepdims=True)
+    # m, M = numpy.quantile(img, 0.001, axis=(-2, -1), keepdims=True), numpy.quantile(img, 1.0, axis=(-2, -1), keepdims=True)
     m, M = numpy.min(img, axis=(-2, -1), keepdims=True), numpy.max(img, axis=(-2, -1), keepdims=True)
     img = (img - m) / (M - m + 1e-8)
     img = numpy.clip(img, 0, 1)
@@ -69,6 +71,8 @@ def add_files_to_tar(condition, filename, stack_names, split):
                 stack = stack[:, CHANNELS[condition], ...]
 
             print(f"Processing stack {i+1}/{len(stack_names)}: {stack_name} with shape {stack.shape}...")
+            stack = stack.astype(numpy.float32)
+            normalize(stack)
             stack = register_stack(stack)
 
             gt_stack = numpy.sum(stack, axis=0)
@@ -116,8 +120,8 @@ def main():
     args = parser.parse_args()
 
     groups = {
-        "microtubule": os.path.join(BASE_PATH, "denoising-data", "unet-rcan-lqhq-mt-hist", "raw", "Microtubule580-histon-2D-002.lif"),
-        "histone": os.path.join(BASE_PATH, "denoising-data", "unet-rcan-lqhq-mt-hist", "raw", "Microtubule580-histon-2D-002.lif"),
+        # "microtubule": os.path.join(BASE_PATH, "denoising-data", "unet-rcan-lqhq-mt-hist", "raw", "Microtubule580-histon-2D-002.lif"),
+        # "histone": os.path.join(BASE_PATH, "denoising-data", "unet-rcan-lqhq-mt-hist", "raw", "Microtubule580-histon-2D-002.lif"),
         "tubulin": os.path.join(BASE_PATH, "denoising-data", "unet-rcan-lqhq-tub", "raw", "Tubulin-11292021-001.lif"),
     }
 
@@ -136,8 +140,10 @@ def main():
         validation_files, testing_files = train_test_split(validation_files, test_size=0.5, random_state=42)
 
         add_files_to_tar(group, filename, training_files, "train")
-        add_files_to_tar(group, filename, validation_files, "valid")
-        add_files_to_tar(group, filename, testing_files, "test")
+        # add_files_to_tar(group, filename, validation_files, "valid")
+        # add_files_to_tar(group, filename, testing_files, "test")
+
+        exit()
 
 if __name__ == "__main__":
     main()
