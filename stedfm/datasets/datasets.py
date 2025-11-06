@@ -1660,6 +1660,7 @@ class LQHQDenoisingDataset(Dataset):
 
                 means.append(self.imgs[-1].mean(axis=(1, 2)))
                 stds.append(self.imgs[-1].std(axis=(1, 2))) 
+        
 
         self.classes = list(sorted(set(self.conditions)))
         assert all([class_name in self.classes for class_name in classes]), "Classes not found in dataset"
@@ -1667,6 +1668,18 @@ class LQHQDenoisingDataset(Dataset):
         self.num_classes = len(self.classes)
         self.labels = [self.classes.index(condition) for condition in self.conditions]
 
+        if self.num_samples is not None:
+            # Keep only a subset of samples
+            rng = np.random.default_rng(seed)
+            samples = np.random.choice(len(self.imgs), size=min(self.num_samples, len(self.imgs)), replace=False)
+
+            self.imgs = [self.imgs[s] for s in samples]
+            self.conditions = [self.conditions[s] for s in samples]
+
+            self.classes = list(sorted(set(self.conditions)))
+            self.num_classes = len(self.classes)
+            self.labels = [self.classes.index(condition) for condition in self.conditions]
+            
         if self.balance:
             self.rng = np.random.default_rng(seed)
             self.__balance_classes()
@@ -2723,6 +2736,10 @@ class HPAClassificationDataset(HPADataset):
         self.mean = kwargs.get("mean", [0.0526, 0.0526, 0.0526])
         self.std = kwargs.get("std", [0.09, 0.09, 0.09])
 
+        self.num_samples = kwargs.get("num_samples", None)
+        if self.num_samples is not None:
+            self.members, self.labels = self._sample_per_class(self.num_samples)
+
         print(f"Number of samples with labels: {len(self.members)}")
         print(f"Number of classes: {len(self.class_map)}")
         print(f"Class distribution: {numpy.sum(self.labels, axis=0)}")
@@ -2733,6 +2750,34 @@ class HPAClassificationDataset(HPADataset):
         # std = numpy.mean([s["std"] for s in stats])
         # print(f"  Mean: {mean:0.4f}")
         # print(f"  Std: {std:0.4f}")
+
+    def _sample_per_class(self, num_samples: int):
+        sampled_members = []
+        sampled_labels = []
+        class_counts = numpy.zeros(self.num_classes, dtype=int)
+
+        # Since some classes are more frequent than others, we sample starting from the least frequent ones
+        # to ensure a balanced representation across all classes.
+        class_distribution = numpy.sum(self.labels, axis=0)
+        class_distribution_sorted_indices = numpy.argsort(class_distribution)
+        for idx in class_distribution_sorted_indices:
+            number_of_samples_needed = num_samples - class_counts[idx]
+            if number_of_samples_needed <= 0:
+                continue
+
+            available_indices = numpy.where(self.labels[:, idx] == 1)[0]
+            numpy.random.shuffle(available_indices)
+            if len(available_indices) <= number_of_samples_needed:
+                selected_indices = available_indices
+            else:
+                selected_indices = available_indices[:number_of_samples_needed]
+            
+            for si in selected_indices:
+                sampled_members.append(self.members[si])
+                sampled_labels.append(self.labels[si])
+                class_counts += self.labels[si]
+
+        return sampled_members, sampled_labels
 
     def _get_statistics(self):
         stats = []
