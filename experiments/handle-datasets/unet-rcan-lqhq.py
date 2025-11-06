@@ -120,8 +120,8 @@ def main():
     args = parser.parse_args()
 
     groups = {
-        # "microtubule": os.path.join(BASE_PATH, "denoising-data", "unet-rcan-lqhq-mt-hist", "raw", "Microtubule580-histon-2D-002.lif"),
-        # "histone": os.path.join(BASE_PATH, "denoising-data", "unet-rcan-lqhq-mt-hist", "raw", "Microtubule580-histon-2D-002.lif"),
+        "microtubule": os.path.join(BASE_PATH, "denoising-data", "unet-rcan-lqhq-mt-hist", "raw", "Microtubule580-histon-2D-002.lif"),
+        "histone": os.path.join(BASE_PATH, "denoising-data", "unet-rcan-lqhq-mt-hist", "raw", "Microtubule580-histon-2D-002.lif"),
         "tubulin": os.path.join(BASE_PATH, "denoising-data", "unet-rcan-lqhq-tub", "raw", "Tubulin-11292021-001.lif"),
     }
 
@@ -140,10 +140,8 @@ def main():
         validation_files, testing_files = train_test_split(validation_files, test_size=0.5, random_state=42)
 
         add_files_to_tar(group, filename, training_files, "train")
-        # add_files_to_tar(group, filename, validation_files, "valid")
-        # add_files_to_tar(group, filename, testing_files, "test")
-
-        exit()
+        add_files_to_tar(group, filename, validation_files, "valid")
+        add_files_to_tar(group, filename, testing_files, "test")
 
 if __name__ == "__main__":
     main()
