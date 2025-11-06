@@ -22,6 +22,7 @@ logs/
 *.tif
 *.tex
 *.npz
+config.yml
 experiments/detection-experiments/**/*.pkl
 experiments/detection-experiments/application/users.json
 experiments/autonomous-experiments/**/*.pkl
