@@ -9,7 +9,7 @@ import json
 import dataclasses
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.metrics import average_precision_score
+from sklearn.metrics import average_precision_score, multilabel_confusion_matrix
 from typing import List
 
 from dataclasses import dataclass
@@ -185,25 +185,47 @@ def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4)
     correct = []
     big_n = []
     confusion_matrix = np.zeros((N, N))
-    _, preds = torch.max(preds, 1)
 
-    preds_ = preds.cpu().detach().numpy()
-    labels_ = labels.cpu().detach().numpy()
-    for p, l in zip(preds_, labels_):
-        confusion_matrix[l, p] += 1
+    if labels.shape[-1] == preds.shape[-1]:
+        confusion_matrix = np.zeros((2, 2))
 
-    assert preds.shape == labels.shape
-    c = torch.sum(preds == labels)
+        # This is for multi-label classification
+        preds = (torch.sigmoid(preds) > 0.5).float()
+        preds_ = preds.cpu().detach().numpy()
+        labels_ = labels.cpu().detach().numpy()
+        
+        cms = multilabel_confusion_matrix(labels_, preds_,)
+        confusion_matrix += np.sum(cms, axis=0)
 
-    correct.append(c.item())
-    big_n.append(preds.shape[0])
-    for n in range(N):
-        c = ((preds == labels ) * (labels == n)).float().sum().cpu().detach().numpy()
-        n = (labels==n).float().sum().cpu().detach().numpy()
-        correct.append(c)
-        big_n.append(n)
-        # temp = ( (preds == labels) * (labels == n)).float().sum() / (labels == n).float().sum()
-        # accuracies.append(temp.cpu().detach().numpy())
+        assert preds.shape == labels.shape
+        c = torch.sum(preds == labels)
+        correct.append(c.item())
+        big_n.append(preds.shape[0] * preds.shape[1])
+        for n in range(preds.shape[-1]):
+            c = ((preds[:, n] == labels[:, n]) * (labels[:, n] == 1)).float().sum().cpu().detach().numpy()
+            n = (labels[:, n] == 1).float().sum().cpu().detach().numpy()
+            correct.append(c)
+            big_n.append(n)
+    else:
+        preds = torch.argmax(preds, dim=1)
+
+        preds_ = preds.cpu().detach().numpy()
+        labels_ = labels.cpu().detach().numpy()
+        for p, l in zip(preds_, labels_):
+            confusion_matrix[l, p] += 1
+
+        assert preds.shape == labels.shape
+        c = torch.sum(preds == labels)
+
+        correct.append(c.item())
+        big_n.append(preds.shape[0])
+        for n in range(N):
+            c = ((preds == labels ) * (labels == n)).float().sum().cpu().detach().numpy()
+            n = (labels==n).float().sum().cpu().detach().numpy()
+            correct.append(c)
+            big_n.append(n)
+            # temp = ( (preds == labels) * (labels == n)).float().sum() / (labels == n).float().sum()
+            # accuracies.append(temp.cpu().detach().numpy())
     return np.array(correct), np.array(big_n), confusion_matrix
 
 def compute_mean_average_precision(preds: np.ndarray, labels: np.ndarray) -> float:

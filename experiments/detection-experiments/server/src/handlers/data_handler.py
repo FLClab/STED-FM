@@ -12,8 +12,7 @@ import sys
 sys.path.insert(0, "..")
 from classification import Query, Template
 
-sys.path.insert(0, "../..")
-from model_builder import get_pretrained_model_v2
+from stedfm import get_pretrained_model_v2
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -54,7 +53,7 @@ def train_model(clf, data, metadata):
 
     # Use the previous data to train the model; Only for warm start
     # If the data is already present in the previous data, then do not use it
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, shuffle=True)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42, shuffle=True)
     if metadata.get("warm_start", False) and model_data["X_train"] is not None:
         distances = cdist(X_train, model_data["X_train"])
         mask = numpy.invert(numpy.any(distances == 0, axis=0))

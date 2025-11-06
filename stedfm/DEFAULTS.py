@@ -7,7 +7,7 @@ if USER == "frbea320":
     BASE_PATH = "/home/frbea320/scratch"
     #BASE_PATH = "/home/f/frbea320/links/scratch" # For Tamia
 elif USER == "anbil106":
-    BASE_PATH = "/home/anbil106/scratch/projects/SSL"
+    BASE_PATH = "/home/anbil106/links/scratch/projects/SSL"
 elif USER == "anthony":
     BASE_PATH = "/home-local2/projects/SSL"
 elif USER == "frederic":
@@ -39,6 +39,7 @@ class NameMapper:
                 setattr(self, key, getattr(self, key))
         
     def __getitem__(self, key):
+        key = key.replace("-", "_")
         if not hasattr(self, key):
             for k in self.__dict__.keys():
                 if k.lower() in key.lower():

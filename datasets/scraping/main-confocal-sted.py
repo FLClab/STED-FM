@@ -227,7 +227,6 @@ def main():
         outdata = json.load(open(os.path.join(outdir, "metadata.json"), "r"))
         print(f"Loaded existing metadata with {len(outdata)} entries")
 
-    i = 0
     for msrfile in yield_msrfiles(DEFAULTPATHS[args.path], msrfiles=args.msrfiles, outdata=outdata):
 
         with Reader() as msrreader:
@@ -274,7 +273,12 @@ def main():
                         }
                     }
 
-                hashvalue = get_hash(msrfile + key)
+                to_hash = msrfile + key
+                hashvalue = get_hash(to_hash)
+                while hashvalue in outdata:
+                    to_hash += key
+                    hashvalue = get_hash(to_hash)
+
                 if isinstance(metadata[key], numpy.ndarray):
                     # Strange case where metadata is an image; happens on old files
                     metadata[key] = {
@@ -316,10 +320,7 @@ def main():
                     metadata = {"unit" : "um", "mode" : "composite"}
                 )
             
-            if (i + 1) % 100 == 0:
-                print(f"Processed {i} files")
-                json.dump(outdata, open(os.path.join(outdir, "metadata.json"), "w"), sort_keys=True, indent=2)
-            i += 1
+            json.dump(outdata, open(os.path.join(outdir, "metadata.json"), "w"), sort_keys=True, indent=2)
 
 
 if __name__ == "__main__":
