@@ -301,7 +301,7 @@ class ScoreTracker:
         self.scores.append(score)
 
 class EarlyStopper:
-    def __init__(self, patience: int, minimize: bool = False):
+    def __init__(self, patience: int, minimize: bool = True):
         self.patience = patience
         self.minimize = minimize
         self.best_score = float('inf') if minimize else float('-inf')
