@@ -65,7 +65,7 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
     elif name == "ov-lqhq-mt":
         print("Loading OV-LQHQ-MT dataset...")
         mu, std = [0.058] * 3, [0.091] * 3
-        path = os.path.join(BASE_PATH, "denoising-data", "ov-lqhq-mt", "fixed_cell_microtubule_u2os_alphatubulin_star635p")
+        path = os.path.join(BASE_PATH, "denoising-data", "ov-lqhq-mt", "fixed_cell_microtubule_u2os_alphatubulin_star635p_registered")
         training_dataset = RestorationFolderDataset(
             source=os.path.join(path, "training_data", "low_intensity_image_patches"),
             target=os.path.join(path, "training_data", "ground_truth_image_patches"),

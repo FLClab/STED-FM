@@ -2758,7 +2758,7 @@ class HPAClassificationDataset(HPADataset):
         class_counts = numpy.zeros(self.num_classes, dtype=int)
 
         # Since some classes are more frequent than others, we sample starting from the least frequent ones
-        # to ensure a balanced representation across all classes.
+        # to ensure a more balanced representation across all classes.
         class_distribution = numpy.sum(self.labels, axis=0)
         class_distribution_sorted_indices = numpy.argsort(class_distribution)
         for idx in class_distribution_sorted_indices:
