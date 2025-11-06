@@ -87,33 +87,27 @@ def get_hpa_classification_dataset(
             torchvision.transforms.RandomVerticalFlip(),
         ])
 
-    dataset = datasets.HPAClassificationDataset(
-        label_path=os.path.join(BASE_PATH, "evaluation-data", "hpa-labels", "train.csv"), 
+    training_dataset = datasets.HPAClassificationDataset(
+        label_path=os.path.join(BASE_PATH, "evaluation-data", "hpa-labels", "training-samples.csv"), 
         zip_path=path, 
         transform=transform, 
         num_samples=num_samples,
         **kwargs
     )
-    
-    # Creating train, validation, test splits
-    rng = np.random.default_rng(42)
-    num_samples = len(dataset)
-    validation_testing_random_indices = rng.choice(num_samples, size=int(0.2 * num_samples), replace=False)
-    
-    training_indices = list(set(range(num_samples)) - set(validation_testing_random_indices))
-    training_dataset = Subset(dataset, training_indices)
-    training_dataset.num_classes = dataset.num_classes
-    training_dataset.classes = dataset.classes
 
-    validation_indices = rng.choice(validation_testing_random_indices, size=int(0.5 * len(validation_testing_random_indices)), replace=False)
-    validation_dataset = Subset(dataset, validation_indices)
-    validation_dataset.num_classes = dataset.num_classes
-    validation_dataset.classes = dataset.classes
+    validation_dataset = datasets.HPAClassificationDataset(
+        label_path=os.path.join(BASE_PATH, "evaluation-data", "hpa-labels", "validation-samples.csv"), 
+        zip_path=path, 
+        transform=transform, 
+        **kwargs
+    )
 
-    testing_indices = list(set(validation_testing_random_indices) - set(validation_indices))
-    testing_dataset = Subset(dataset, testing_indices)
-    testing_dataset.num_classes = dataset.num_classes
-    testing_dataset.classes = dataset.classes
+    testing_dataset = datasets.HPAClassificationDataset(
+        label_path=os.path.join(BASE_PATH, "evaluation-data", "hpa-labels", "testing-samples.csv"), 
+        zip_path=path, 
+        transform=transform, 
+        **kwargs
+    )    
 
     print("\n=== HPA Classification Dataset ===")
     print(f"Training size: {len(training_dataset)}")

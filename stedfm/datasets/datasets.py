@@ -2730,6 +2730,7 @@ class HPAClassificationDataset(HPADataset):
         }
 
         self.members, self.labels = self._make_labels()
+        self.original_size = len(self.members)
 
         self.classes = list(self.class_map.keys())
         self.num_classes = len(self.class_map)
@@ -2812,6 +2813,7 @@ class HPAClassificationDataset(HPADataset):
                 label[int(label_id)] = 1
             labels.append(label)
             members.append(member)
+        labels = numpy.array(labels)
         return members, labels
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
