@@ -72,7 +72,7 @@ def main():
     ax.set_yticklabels(pretraining_datasets)
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
     plt.colorbar(im)
-    savefig(fig, os.path.join(".", "results", f"size-matched_{args.model}_{args.mode}_full_heatmap"), extension="pdf")
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.mode}_full_heatmap"), extension="pdf")
 
                 
 

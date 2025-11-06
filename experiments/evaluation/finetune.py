@@ -399,7 +399,7 @@ def main():
                     criterion=criterion,
                     epoch=epoch,
                     device=device,
-                    save_dir = f"{save_best_model.save_dir}/{save_best_model.model_name}",
+                    save_dir=f"{save_best_model.save_dir}/{save_best_model.model_name}",
                     classes = train_loader.dataset.classes
                 )
 
@@ -434,9 +434,9 @@ def main():
             save_dir=f"{save_best_model.save_dir}/{save_best_model.model_name}_training-curves.png"
         )
 
-        if early_stopper(val_loss):
-            print("Early stopping... Validation loss did not improve for {} steps.".format(early_stopper.patience))
-            break
+        # if early_stopper(val_loss):
+        #     print("Early stopping... Validation loss did not improve for {} steps.".format(early_stopper.patience))
+        #     break
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
 
     # Evaluates for every model that were saved

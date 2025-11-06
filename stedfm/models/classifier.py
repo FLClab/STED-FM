@@ -70,7 +70,7 @@ class LinearProbe(torch.nn.Module):
     def _freeze_blocks(self, num_blocks: int) -> None:
         total_blocks = len(self.backbone.blocks)
         block_list = list(range(total_blocks)) 
-        block_list = block_list[::-1][:num_blocks]
+        block_list = block_list[:num_blocks]
         print(f"--- Freezing {block_list} blocks ---")
         for block_idx in block_list:
             for p in self.backbone.blocks[block_idx].parameters():
