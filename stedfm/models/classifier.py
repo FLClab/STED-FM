@@ -75,8 +75,10 @@ class LinearProbe(torch.nn.Module):
             features = self.backbone.forward_features(x)
             if self.global_pool == "token":
                 out = features[:, 0, :] # class token 
+
             elif self.global_pool == "avg":
                 out = torch.mean(features[:, 1:, :], dim=1) # Average patch tokens
+
             elif self.global_pool == "patch":
                 out = features[:, 1:, :]
             else:
