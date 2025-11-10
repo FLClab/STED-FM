@@ -13,10 +13,17 @@ from stedfm.DEFAULTS import COLORS, MARKERS, BASE_PATH
 from stedfm.utils import savefig
 from eval import compute_scores
 
-COLORS.care2d = "tab:red"
-COLORS.n2v = "tab:orange"
-COLORS.pix2pix = "tab:green"
-COLORS.UNet_RCAN = "tab:purple"
+COLORS.care2d = "gray"
+COLORS.n2v = "gray"
+COLORS.pix2pix = "gray"
+COLORS.unet_rcan = "gray"
+
+YLIMS = {
+    "psnr" : (0, 40),
+    "msssim" : (0., 1.0),
+    "mse" : (0, 0.05),
+    "mae" : (0, 0.20)
+}
 
 def simple_beeswarm(y, nbins=None, maxwidth=0.8):
     """
@@ -67,7 +74,24 @@ def get_ground_truth_images(dataset_name):
         path = os.path.join(BASE_PATH, "denoising-data", "ov-lqhq-mt-tif", "fixed_cell_microtubule_u2os_alphatubulin_star635p", "test_data", "ground_truth_image_patches")
     elif dataset_name == "ov-lqhq-live-mito":
         path = os.path.join(BASE_PATH, "denoising-data", "ov-lqhq-live-mito", "live_cell_mitochondria_u2os_tom20_halotag7_dm_sir", "test_and_training_data_1", "ground_truth_images")
+    elif dataset_name == "jmb-lqhq":
+        path = os.path.join(BASE_PATH, "denoising-data", "jmb-lqhq", "exported", "test", "gt")
     return sorted(glob.glob(os.path.join(path, "*.tif")))
+
+def get_raw_images(dataset_name, gt_images):
+    if dataset_name == "ov-lqhq-mt":
+        raw_images = [
+            gt_image.replace("ground_truth_image_patches", "low_intensity_image_patches") for gt_image in gt_images
+        ]
+    elif dataset_name == "ov-lqhq-live-mito":
+        raw_images = [
+            gt_image.replace("ground_truth_images", "low_intensity_images") for gt_image in gt_images
+        ]
+    elif dataset_name == "jmb-lqhq":
+        raw_images = [
+            gt_image.replace(os.path.join("exported", "test", "gt"), os.path.join("exported", "test", "raw")) for gt_image in gt_images
+        ]
+    return raw_images
 
 def get_predicted_images(method, dataset_name, gt_images):
     if method in ["CARE2D", "N2V"]:
@@ -92,6 +116,10 @@ def get_predicted_images(method, dataset_name, gt_images):
         predicted_images = [
             os.path.join(BASE_PATH, "denoising-baselines", f"{method}-{dataset_name}", "evaluation", "pred.tif")
         ]
+    elif method in ["STED", "SIM", "HPA", "JUMP", "IMAGENET1K_V1"]:
+        path = os.path.join(BASE_PATH, "denoising-baselines", "mae-lightning-small", f"{dataset_name}", f"pretrained-frozen-MAE_SMALL_{method}-42", "predictions", dataset_name)
+        gt_images = glob.glob(os.path.join(path, "*_cleaned_images.tif"))
+        predicted_images = glob.glob(os.path.join(path, "*_denoised_predictions.tif"))
     return gt_images, predicted_images
 
 def load_images(image_paths):
@@ -125,7 +153,7 @@ def load_images(image_paths):
     images = (images - m) / (M - m + 1e-8)
     return images
 
-def plot_scores(all_scores, dataset_name):
+def plot_scores(all_scores, dataset_name, encoder=None):
     metrics = list(all_scores[list(all_scores.keys())[0]].keys())
     num_metrics = len(metrics)
 
@@ -138,10 +166,11 @@ def plot_scores(all_scores, dataset_name):
             ax.scatter(simple_beeswarm(values, maxwidth=width) + j, values, color=COLORS[method], label=method, alpha=0.7)
         ax.set_ylabel(metric)
         ax.set_xticks(range(len(all_scores)))
-        ax.set_xticklabels(list(all_scores.keys()), rotation=45)
-        ax.legend()
+        ax.set_ylim(YLIMS[metric])
+        ax.set_xticklabels(list(all_scores.keys()), rotation=45, ha="right")
+        # ax.legend()
 
-        savefig(fig, os.path.join("results", f"{dataset_name}_{metric}"))
+        savefig(fig, os.path.join("results", f"{dataset_name}_{metric}_{encoder}"))
         pyplot.close()
 
 def main():
@@ -150,6 +179,8 @@ def main():
     parser = argparse.ArgumentParser(description="Plot restoration experiment results")
     parser.add_argument("--dataset", required=True, type=str,
                         help="Name of the dataset to use")
+    parser.add_argument("--encoder", required=False, type=str, default="pretrained-frozen", choices=["pretrained", "pretrained-frozen"],
+                        help="Restoration method to evaluate")
     args = parser.parse_args()
 
     methods = [
@@ -157,13 +188,23 @@ def main():
         "N2V",
         "pix2pix",
         "UNet-RCAN",
-        "STED"
+        # "IMAGENET1K_V1",
+        # "JUMP",
+        # "HPA",
+        # "SIM",
+        "STED",
     ]
     all_scores = {}
     for method in methods:
         print(f"Evaluating {method} on {args.dataset}")
-        if method == "STED":
-            scores = json.load(open(os.path.join(BASE_PATH, "denoising-baselines", "mae-lightning-small", f"{args.dataset}", "pretrained-frozen-MAE_SMALL_STED-42", "denoising-scores.json"), "r"))
+        if method in ["STED", "SIM", "HPA", "JUMP", "IMAGENET1K_V1"]:
+            path = os.path.join(BASE_PATH, "denoising-baselines", "mae-lightning-small", f"{args.dataset}", f"{args.encoder}-MAE_SMALL_{method}-42", "denoising-scores.json")
+            if not os.path.exists(path):
+                print(f"Skipping {method} on {args.dataset} due to missing scores file")
+                scores = {"psnr": [], "msssim": [], "mse": [], "mae": []}
+                continue
+            else:
+                scores = json.load(open(os.path.join(BASE_PATH, "denoising-baselines", "mae-lightning-small", f"{args.dataset}", f"{args.encoder}-MAE_SMALL_{method}-42", "denoising-scores.json"), "r"))
         else:
             gt_images = get_ground_truth_images(args.dataset)
             gt_images, predicted_images = get_predicted_images(method, args.dataset, gt_images)
@@ -177,11 +218,11 @@ def main():
             gt_images = torch.from_numpy(gt_images).float()
             predicted_images = torch.from_numpy(predicted_images).float()
 
-            scores = compute_scores(gt_images, predicted_images, dataset_name=args.dataset)
+            scores = compute_scores(gt_images, predicted_images, dataset_name=args.dataset, size=224)
         all_scores[method] = scores
 
     if all_scores:
-        plot_scores(all_scores, args.dataset)
+        plot_scores(all_scores, args.dataset, encoder=args.encoder)
 
 if __name__ == "__main__":
     main()

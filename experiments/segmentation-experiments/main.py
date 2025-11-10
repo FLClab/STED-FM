@@ -27,7 +27,6 @@ from torchinfo import summary
 from lightly.utils.scheduler import CosineWarmupScheduler
 
 # from decoders import get_decoder
-from datasets import get_dataset
 from eval import evaluate_segmentation
 
 from stedfm import get_decoder
@@ -36,6 +35,7 @@ from stedfm.model_builder import get_base_model
 from stedfm.utils import update_cfg, save_cfg, track_loss
 from stedfm.configuration import Configuration
 from stedfm.DEFAULTS import BASE_PATH
+from stedfm.datasets.segmentation import get_dataset
 
 def validation_step(model: torch.nn.Module, valid_loader: torch.utils.data.DataLoader, criterion: torch.nn.Module, epoch: int, device: torch.device, writer: SummaryWriter = None):
     is_training = model.training
@@ -198,7 +198,7 @@ if __name__ == "__main__":
 
     if args.restore_from:
         # Loads checkpoint
-        checkpoint = torch.load(args.restore_from)
+        checkpoint = torch.load(args.restore_from, weights_only=False)
         OUTPUT_FOLDER = os.path.dirname(args.restore_from)
 
         # Loads previous configuration and updates it
@@ -327,9 +327,10 @@ if __name__ == "__main__":
             start_value=1.0, end_value=0.01
         )
     elif probe == "pretrained-frozen":
-        optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.05, betas=(0.9, 0.999))
         scheduler = CosineWarmupScheduler(
-            optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, max_epochs=cfg.num_epochs,
+            optimizer=optimizer, warmup_epochs=0.1*cfg.num_epochs, 
+            max_epochs=cfg.num_epochs,
             start_value=1.0, end_value=0.01,
             period=cfg.num_epochs//10
         )
@@ -391,7 +392,7 @@ if __name__ == "__main__":
             del X, y, pred, loss
 
             # Puts the model in evaluation mode
-            if step % int(25 * 32 / cfg.batch_size) == 0:
+            if step % int(25 * 32 / cfg.batch_size) == 0:    
                 # Validation step
                 statLossTest = validation_step(model, valid_loader, criterion, epoch, DEVICE, writer)
                 for key, func in zip(("testMean", "testMed", "testMin", "testStd"),
@@ -443,17 +444,17 @@ if __name__ == "__main__":
             
             del savedata
 
-        # # Save every 10 epochs
-        # if (epoch + 1) % 100 == 0:
-        #     savedata = {
-        #         "model" : model.state_dict(),
-        #         "optimizer" : optimizer.state_dict(),
-        #         "stats" : stats,
-        #     }
-        #     torch.save(
-        #         savedata, 
-        #         os.path.join(OUTPUT_FOLDER, f"checkpoint-{epoch + 1}.pt"))
-        #     del savedata
+        # Save every 10 epochs
+        if (epoch + 1) % 100 == 0:
+            savedata = {
+                "model" : model.state_dict(),
+                "optimizer" : optimizer.state_dict(),
+                "stats" : stats,
+            }
+            torch.save(
+                savedata, 
+                os.path.join(OUTPUT_FOLDER, f"checkpoint-{epoch + 1}.pt"))
+            del savedata
 
     print("----------------------------------------")
     print("Training is over")
@@ -465,7 +466,7 @@ if __name__ == "__main__":
 
     # Build the UNet model.
     model = get_decoder(backbone, cfg)
-    ckpt = torch.load(os.path.join(OUTPUT_FOLDER, "result.pt"))["model"]
+    ckpt = torch.load(os.path.join(OUTPUT_FOLDER, "result.pt"), weights_only=False)["model"]
     print("Restoring model...")
     model.load_state_dict(ckpt)
     model = model.to(DEVICE)
@@ -478,8 +479,6 @@ if __name__ == "__main__":
         shuffle=True,  # Shuffling is important!
         num_workers=0
     )
-
-
 
     scores = evaluate_segmentation(model, test_loader, savefolder=None, device=DEVICE, dataset_name=args.dataset)
     with open(os.path.join(OUTPUT_FOLDER, "segmentation-scores.json"), "w") as file: 

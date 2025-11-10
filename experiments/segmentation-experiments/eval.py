@@ -28,15 +28,12 @@ from skimage import measure
 from sklearn.metrics import average_precision_score, auc, precision_recall_curve, roc_auc_score
 from matplotlib import pyplot
 
-# from decoders import get_decoder
-from datasets import get_dataset
-
-import sys 
 from stedfm import get_decoder
 from stedfm.DEFAULTS import BASE_PATH
 from stedfm import get_pretrained_model_v2
 from stedfm.utils import update_cfg, save_cfg
 from stedfm.configuration import Configuration
+from stedfm.datasets.segmentation import get_dataset
 
 def get_save_folder() -> str:
     if "imagenet" in args.backbone_weights.lower():
@@ -320,7 +317,7 @@ if __name__ == "__main__":
         cfg=cfg
     )
     # Loads checkpoint
-    checkpoint = torch.load(os.path.join(args.restore_from, "result.pt"))
+    checkpoint = torch.load(os.path.join(args.restore_from, "result.pt"), weights_only=False)
     # OUTPUT_FOLDER = os.path.dirname(args.restore_from)
 
 
