@@ -62,13 +62,13 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
         validation_dataset = LQHQDenoisingDataset(
             tarpath=os.path.join(path, "valid-dataset.tar"), 
             n_channels=cfg.in_channels, 
-            num_samples=1200,
+            num_samples=100,
             classes=[["histone", "tubulin", "microtubule"][["unet-rcan-hist", "unet-rcan-tub", "unet-rcan-mt"].index(name)]],
             **kwargs)
         testing_dataset = LQHQDenoisingDataset(
             tarpath=os.path.join(path, "test-dataset.tar"), 
             n_channels=cfg.in_channels, 
-            num_samples=1200,
+            num_samples=100,
             classes=[["histone", "tubulin", "microtubule"][["unet-rcan-hist", "unet-rcan-tub", "unet-rcan-mt"].index(name)]],
             **kwargs)
     elif name == "unet-rcan":
@@ -83,13 +83,13 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
         validation_dataset = LQHQDenoisingDataset(
             tarpath=os.path.join(path, "valid-dataset.tar"), 
             n_channels=cfg.in_channels, 
-            num_samples=1200,
+            num_samples=100,
             classes=["microtubule", "histone", "tubulin"],
             **kwargs)
         testing_dataset = LQHQDenoisingDataset(
             tarpath=os.path.join(path, "test-dataset.tar"), 
             n_channels=cfg.in_channels, 
-            num_samples=1200,
+            num_samples=100,
             classes=["microtubule", "histone", "tubulin"],
             **kwargs
         )
@@ -99,39 +99,39 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
     # # Export images as tiff for visualization
     # import tifffile
     # path = os.path.join(path, name)
-    # os.makedirs(os.path.join(path, "exported", "train", "raw"), exist_ok=True)
-    # os.makedirs(os.path.join(path, "exported", "train", "gt"), exist_ok=True)
+    # os.makedirs(os.path.join(path, "exported", "train", "raw_256"), exist_ok=True)
+    # os.makedirs(os.path.join(path, "exported", "train", "gt_256"), exist_ok=True)
 
-    # os.makedirs(os.path.join(path, "exported", "test", "raw"), exist_ok=True)
-    # os.makedirs(os.path.join(path, "exported", "test", "gt"), exist_ok=True)
+    # os.makedirs(os.path.join(path, "exported", "test", "raw_256"), exist_ok=True)
+    # os.makedirs(os.path.join(path, "exported", "test", "gt_256"), exist_ok=True)
 
     # stack = []
     # for i in range(len(training_dataset)):
     #     images, _ = training_dataset[i]
-    #     # images = transforms.functional.resize(images, (256, 256), interpolation=transforms.InterpolationMode.NEAREST)
+    #     images = transforms.functional.resize(images, (256, 256), interpolation=transforms.InterpolationMode.NEAREST)
     #     stack.append(images.numpy())
     # for i in range(len(validation_dataset)):
     #     images, _ = validation_dataset[i]
-    #     # images = transforms.functional.resize(images, (256, 256), interpolation=transforms.InterpolationMode.NEAREST)
+    #     images = transforms.functional.resize(images, (256, 256), interpolation=transforms.InterpolationMode.NEAREST)
     #     stack.append(images.numpy())
     # stack = numpy.stack(stack, axis=0)
     # for i in range(stack.shape[0]):
-    #     tifffile.imwrite(os.path.join(path, "exported", "train", "raw", f"img_{i:04d}.tif"), stack[i, 0, :, :])
-    #     tifffile.imwrite(os.path.join(path, "exported", "train", "gt", f"img_{i:04d}.tif"), stack[i, 1, :, :])
-    # tifffile.imwrite(os.path.join(path, "exported", "train", "raw_stack.tif"), stack[:, 0, :, :])
-    # tifffile.imwrite(os.path.join(path, "exported", "train", "gt_stack.tif"), stack[:, 1, :, :])
+    #     tifffile.imwrite(os.path.join(path, "exported", "train", "raw_256", f"img_{i:04d}.tif"), stack[i, 0, :, :])
+    #     tifffile.imwrite(os.path.join(path, "exported", "train", "gt_256", f"img_{i:04d}.tif"), stack[i, 1, :, :])
+    # tifffile.imwrite(os.path.join(path, "exported", "train", "raw_stack_256.tif"), stack[:, 0, :, :])
+    # tifffile.imwrite(os.path.join(path, "exported", "train", "gt_stack_256.tif"), stack[:, 1, :, :])
 
     # stack = []
     # for i in range(len(testing_dataset)):
     #     images, _ = testing_dataset[i]
-    #     # images = transforms.functional.resize(images, (256, 256), interpolation=transforms.InterpolationMode.NEAREST)
+    #     images = transforms.functional.resize(images, (256, 256), interpolation=transforms.InterpolationMode.NEAREST)
     #     stack.append(images.numpy())
     # stack = numpy.stack(stack, axis=0)
     # for i in range(stack.shape[0]):
-    #     tifffile.imwrite(os.path.join(path, "exported", "test", "raw", f"img_{i:04d}.tif"), stack[i, 0, :, :])
-    #     tifffile.imwrite(os.path.join(path, "exported", "test", "gt", f"img_{i:04d}.tif"), stack[i, 1, :, :])
-    # tifffile.imwrite(os.path.join(path, "exported", "test", "raw_stack.tif"), stack[:, 0, :, :])
-    # tifffile.imwrite(os.path.join(path, "exported", "test", "gt_stack.tif"), stack[:, 1, :, :])
+    #     tifffile.imwrite(os.path.join(path, "exported", "test", "raw_256", f"img_{i:04d}.tif"), stack[i, 0, :, :])
+    #     tifffile.imwrite(os.path.join(path, "exported", "test", "gt_256", f"img_{i:04d}.tif"), stack[i, 1, :, :])
+    # tifffile.imwrite(os.path.join(path, "exported", "test", "raw_stack_256.tif"), stack[:, 0, :, :])
+    # tifffile.imwrite(os.path.join(path, "exported", "test", "gt_stack_256.tif"), stack[:, 1, :, :])
 
     # exit()
 

@@ -63,45 +63,95 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
         testing_dataset = LQHQDenoisingDataset(
             tarpath=os.path.join(path, "test-dataset.tar"), 
             n_channels=cfg.in_channels, **kwargs)
+    elif name == "kt-lqhq-vgat":
+        path = os.path.join(BASE_PATH, "denoising-data", "kt-lqhq")
+        training_dataset = LQHQDenoisingDataset(
+            tarpath=os.path.join(path, "train-dataset.tar"),
+            n_channels=cfg.in_channels, 
+            transform=transform,
+            classes=["VGAT_ATTO490LS"],
+            **kwargs)
+        validation_dataset = LQHQDenoisingDataset(
+            tarpath=os.path.join(path, "valid-dataset.tar"), 
+            classes=["VGAT_ATTO490LS"],
+            n_channels=cfg.in_channels, **kwargs)
+        testing_dataset = LQHQDenoisingDataset(
+            tarpath=os.path.join(path, "test-dataset.tar"), 
+            classes=["VGAT_ATTO490LS"],
+            n_channels=cfg.in_channels, **kwargs)
+    elif name == "kt-lqhq-gephyrin":
+        path = os.path.join(BASE_PATH, "denoising-data", "kt-lqhq")
+        training_dataset = LQHQDenoisingDataset(
+            tarpath=os.path.join(path, "train-dataset.tar"),
+            n_channels=cfg.in_channels, 
+            classes=["Gephyrin_STARRED"],
+            transform=transform,
+            **kwargs)
+        validation_dataset = LQHQDenoisingDataset(
+            tarpath=os.path.join(path, "valid-dataset.tar"), 
+            classes=["Gephyrin_STARRED"],
+            n_channels=cfg.in_channels, **kwargs)
+        testing_dataset = LQHQDenoisingDataset(
+            tarpath=os.path.join(path, "test-dataset.tar"), 
+            classes=["Gephyrin_STARRED"],
+            n_channels=cfg.in_channels, **kwargs)
+    elif name == "kt-lqhq":
+        path = os.path.join(BASE_PATH, "denoising-data", "kt-lqhq")
+        training_dataset = LQHQDenoisingDataset(
+            tarpath=os.path.join(path, "train-dataset.tar"),
+            n_channels=cfg.in_channels, 
+            classes=["VGAT_ATTO490LS", "Gephyrin_STARRED"],
+            transform=transform,
+            **kwargs)
+        validation_dataset = LQHQDenoisingDataset(
+            tarpath=os.path.join(path, "valid-dataset.tar"), 
+            classes=["VGAT_ATTO490LS", "Gephyrin_STARRED"],
+            n_channels=cfg.in_channels, **kwargs)
+        testing_dataset = LQHQDenoisingDataset(
+            tarpath=os.path.join(path, "test-dataset.tar"), 
+            classes=["VGAT_ATTO490LS", "Gephyrin_STARRED"],
+            n_channels=cfg.in_channels, **kwargs)
+    else:
+        raise NotImplementedError(f"Dataset '{name}' is not implemented.")
         
-        # # Export images as tiff for visualization
-        # import tifffile
-        # os.makedirs(os.path.join(path, "exported", "train", "raw_256"), exist_ok=True)
-        # os.makedirs(os.path.join(path, "exported", "train", "gt_256"), exist_ok=True)
+    # # Export images as tiff for visualization
+    # import tifffile
+    # os.makedirs(os.path.join(path, "exported", "train", "raw_256"), exist_ok=True)
+    # os.makedirs(os.path.join(path, "exported", "train", "gt_256"), exist_ok=True)
 
-        # os.makedirs(os.path.join(path, "exported", "test", "raw_256"), exist_ok=True)
-        # os.makedirs(os.path.join(path, "exported", "test", "gt_256"), exist_ok=True)
+    # os.makedirs(os.path.join(path, "exported", "test", "raw_256"), exist_ok=True)
+    # os.makedirs(os.path.join(path, "exported", "test", "gt_256"), exist_ok=True)
 
-        # stack = []
-        # for i in range(len(training_dataset)):
-        #     images, _ = training_dataset[i]
-        #     images = transforms.functional.resize(images, (256, 256), interpolation=transforms.InterpolationMode.NEAREST)
-        #     stack.append(images.numpy())
-        # for i in range(len(validation_dataset)):
-        #     images, _ = validation_dataset[i]
-        #     images = transforms.functional.resize(images, (256, 256), interpolation=transforms.InterpolationMode.NEAREST)
-        #     stack.append(images.numpy())
-        # stack = numpy.stack(stack, axis=0)
-        # for i in range(stack.shape[0]):
-        #     tifffile.imwrite(os.path.join(path, "exported", "train", "raw_256", f"img_{i:04d}.tif"), stack[i, 0, :, :])
-        #     tifffile.imwrite(os.path.join(path, "exported", "train", "gt_256", f"img_{i:04d}.tif"), stack[i, 1, :, :])
-        # # tifffile.imwrite(os.path.join(path, "exported", "train", "raw", "stack.tif"), stack[:, 0, :, :])
-        # # tifffile.imwrite(os.path.join(path, "exported", "train", "gt", "stack.tif"), stack[:, 1, :, :])
+    # stack = []
+    # for i in range(len(training_dataset)):
+    #     images, _ = training_dataset[i]
+    #     images = transforms.functional.resize(images, (256, 256), interpolation=transforms.InterpolationMode.NEAREST)
+    #     stack.append(images.numpy())
+    # for i in range(len(validation_dataset)):
+    #     images, _ = validation_dataset[i]
+    #     images = transforms.functional.resize(images, (256, 256), interpolation=transforms.InterpolationMode.NEAREST)
+    #     stack.append(images.numpy())
+    # stack = numpy.stack(stack, axis=0)
+    # for i in range(stack.shape[0]):
+    #     tifffile.imwrite(os.path.join(path, "exported", "train", "raw_256", f"img_{i:04d}.tif"), stack[i, 0, :, :])
+    #     tifffile.imwrite(os.path.join(path, "exported", "train", "gt_256", f"img_{i:04d}.tif"), stack[i, 1, :, :])
+    # # tifffile.imwrite(os.path.join(path, "exported", "train", "raw", "stack.tif"), stack[:, 0, :, :])
+    # # tifffile.imwrite(os.path.join(path, "exported", "train", "gt", "stack.tif"), stack[:, 1, :, :])
 
-        # stack = []
-        # for i in range(len(testing_dataset)):
-        #     images, _ = testing_dataset[i]
-        #     images = transforms.functional.resize(images, (256, 256), interpolation=transforms.InterpolationMode.NEAREST)
-        #     stack.append(images.numpy())
-        # stack = numpy.stack(stack, axis=0)
-        # for i in range(stack.shape[0]):
-        #     tifffile.imwrite(os.path.join(path, "exported", "test", "raw_256", f"img_{i:04d}.tif"), stack[i, 0, :, :])
-        #     tifffile.imwrite(os.path.join(path, "exported", "test", "gt_256", f"img_{i:04d}.tif"), stack[i, 1, :, :])
+    # stack = []
+    # for i in range(len(testing_dataset)):
+    #     images, _ = testing_dataset[i]
+    #     images = transforms.functional.resize(images, (256, 256), interpolation=transforms.InterpolationMode.NEAREST)
+    #     stack.append(images.numpy())
+    # stack = numpy.stack(stack, axis=0)
+    # for i in range(stack.shape[0]):
+    #     tifffile.imwrite(os.path.join(path, "exported", "test", "raw_256", f"img_{i:04d}.tif"), stack[i, 0, :, :])
+    #     tifffile.imwrite(os.path.join(path, "exported", "test", "gt_256", f"img_{i:04d}.tif"), stack[i, 1, :, :])
 
-        # exit()
+    # exit()
 
-        return SplitViewsDataset(training_dataset), \
-               SplitViewsDataset(validation_dataset), \
-               SplitViewsDataset(testing_dataset)
+    return SplitViewsDataset(training_dataset), \
+            SplitViewsDataset(validation_dataset), \
+            SplitViewsDataset(testing_dataset)
 
     raise NotImplementedError(f"Dataset '{name}' is not implemented.")

@@ -39,7 +39,7 @@ class NameMapper:
                 setattr(self, key, getattr(self, key))
         
     def __getitem__(self, key):
-        key = key.replace("-", "_")
+        key = key.replace("-", "_").lower()
         if not hasattr(self, key):
             for k in self.__dict__.keys():
                 if k.lower() in key.lower():

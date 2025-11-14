@@ -11,6 +11,9 @@ from .dendritic_factin import get_dataset as get_dendritic_factin_dataset
 
 DATASETS = {
     "jmb-lqhq" : get_lqhq_dataset,
+    "kt-lqhq" : get_lqhq_dataset,
+    "kt-lqhq-vgat" : get_lqhq_dataset,
+    "kt-lqhq-gephyrin" : get_lqhq_dataset,
     "lioness-lqhq": get_lioness_dataset,
     "ov-lqhq-live-mito": get_ov_lqhq_dataset,
     "ov-lqhq-mt": get_ov_lqhq_dataset,

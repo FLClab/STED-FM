@@ -211,4 +211,20 @@ def plot_p_values(p_values):
         'clip_on': False, 'square': True, 
     }
     scikit_posthocs.sign_plot(p_values, ax=ax, **heatmap_args)
+
+    xticks, yticks = ax.get_xticks(), ax.get_yticks()
+    for j in range(len(p_values)):
+        for i in range(len(p_values)):
+            if j < i:
+                text = ""
+                if p_values.iloc[i, j] < 1e-4:
+                    text = "<1e-4"
+                else:
+                    text = f"{p_values.iloc[i, j]:0.4f}"
+                ax.annotate(
+                    f"{text}", (xticks[i], yticks[j]),
+                    ha="center", va="center",
+                    fontsize=8 if len(p_values) < 4 else 6,
+                    color="white" if p_values.iloc[i, j] < 0.05 else "black"
+                )
     return fig, ax

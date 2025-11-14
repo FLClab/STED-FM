@@ -1705,6 +1705,9 @@ class LQHQDenoisingDataset(Dataset):
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, dict]:
         img, label, condition = self.imgs[idx], self.labels[idx], self.conditions[idx]
 
+        m, M = img.min(axis=(1, 2), keepdims=True), img.max(axis=(1, 2), keepdims=True)
+        img = (img - m) / (M - m + 1e-8)
+
         if self.n_channels == 3:
             img = np.tile(img[np.newaxis, :], (3, 1, 1))
             img = torch.tensor(img, dtype=torch.float32)

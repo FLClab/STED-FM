@@ -104,5 +104,6 @@ def get_dataset(name: str, cfg: Configuration, **kwargs) -> Dataset:
     #     import tifffile
     #     tifffile.imwrite(os.path.join(path, f"{name}_raw.tif"), X_samples)
     #     tifffile.imwrite(os.path.join(path, f"{name}_gt.tif"), y_samples)
+    # exit()
 
     return training_dataset, validation_dataset, testing_dataset

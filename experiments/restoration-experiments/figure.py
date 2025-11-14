@@ -11,6 +11,7 @@ from matplotlib import pyplot
 
 from stedfm.DEFAULTS import COLORS, MARKERS, BASE_PATH
 from stedfm.utils import savefig
+from stedfm.stats import resampling_stats, plot_p_values
 from eval import compute_scores
 
 COLORS.care2d = "gray"
@@ -71,11 +72,15 @@ def simple_beeswarm(y, nbins=None, maxwidth=0.8):
 
 def get_ground_truth_images(dataset_name):
     if dataset_name == "ov-lqhq-mt":
-        path = os.path.join(BASE_PATH, "denoising-data", "ov-lqhq-mt-tif", "fixed_cell_microtubule_u2os_alphatubulin_star635p", "test_data", "ground_truth_image_patches")
+        path = os.path.join(BASE_PATH, "denoising-data", "ov-lqhq-mt-tif", "fixed_cell_microtubule_u2os_alphatubulin_star635p_registered", "test_data", "ground_truth_image_patches")
     elif dataset_name == "ov-lqhq-live-mito":
         path = os.path.join(BASE_PATH, "denoising-data", "ov-lqhq-live-mito", "live_cell_mitochondria_u2os_tom20_halotag7_dm_sir", "test_and_training_data_1", "ground_truth_images")
     elif dataset_name == "jmb-lqhq":
         path = os.path.join(BASE_PATH, "denoising-data", "jmb-lqhq", "exported", "test", "gt")
+    elif dataset_name == "unet-rcan-tub":
+        path = os.path.join(BASE_PATH, "denoising-data", "unet-rcan-lqhq", "unet-rcan-tub", "exported", "test", "gt")
+    else:
+        raise ValueError(f"Unknown dataset name: {dataset_name}")
     return sorted(glob.glob(os.path.join(path, "*.tif")))
 
 def get_raw_images(dataset_name, gt_images):
@@ -87,10 +92,12 @@ def get_raw_images(dataset_name, gt_images):
         raw_images = [
             gt_image.replace("ground_truth_images", "low_intensity_images") for gt_image in gt_images
         ]
-    elif dataset_name == "jmb-lqhq":
+    elif dataset_name in ["jmb-lqhq", "unet-rcan-tub"]:
         raw_images = [
             gt_image.replace(os.path.join("exported", "test", "gt"), os.path.join("exported", "test", "raw")) for gt_image in gt_images
         ]
+    else:
+        raise ValueError(f"Unknown dataset name: {dataset_name}")
     return raw_images
 
 def get_predicted_images(method, dataset_name, gt_images):
@@ -159,18 +166,36 @@ def plot_scores(all_scores, dataset_name, encoder=None):
 
     for i, metric in enumerate(metrics):
         fig, ax = pyplot.subplots(figsize=(3, 3))
+        samples = []
         for j, (method, scores) in enumerate(all_scores.items()):
             values = scores[metric]
             width = 0.8
-            ax.boxplot(values, positions=[j], widths=width, showfliers=False)
-            ax.scatter(simple_beeswarm(values, maxwidth=width) + j, values, color=COLORS[method], label=method, alpha=0.7)
+            bplot = ax.boxplot(values, positions=[j], widths=width, showfliers=False, 
+                               patch_artist=True, 
+                               medianprops=dict(color=COLORS[method], linewidth=1), 
+                               boxprops=dict(color=COLORS[method], facecolor=COLORS[method], linewidth=1), 
+                               whiskerprops=dict(color=COLORS[method], linewidth=1), 
+                               capprops=dict(color=COLORS[method], linewidth=1))
+            # for whisker in bplot['whiskers']:
+            #     whisker.set_color(COLORS[method])
+            for patch in bplot['boxes']:
+                # patch.set_facecolor(COLORS[method])
+                patch.set_alpha(0.5)
+            # ax.scatter(simple_beeswarm(values, maxwidth=width) + j, values, color=COLORS[method], label=method, alpha=0.7)
+            samples.append(values)
         ax.set_ylabel(metric)
         ax.set_xticks(range(len(all_scores)))
         ax.set_ylim(YLIMS[metric])
         ax.set_xticklabels(list(all_scores.keys()), rotation=45, ha="right")
         # ax.legend()
 
+
         savefig(fig, os.path.join("results", f"{dataset_name}_{metric}_{encoder}"))
+        pyplot.close()
+        
+        p_values, F_p_value = resampling_stats(samples, list(all_scores.keys()))
+        fig, ax = plot_p_values(p_values)
+        savefig(fig, os.path.join("results", f"{dataset_name}_{metric}_{encoder}_stats"))
         pyplot.close()
 
 def main():
