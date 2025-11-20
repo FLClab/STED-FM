@@ -188,7 +188,7 @@ def plot_distance_distribution(distances_to_boundary: dict):
     ax.set_xlabel("Distance")
     ax.set_ylabel("Frequency")
     ax.legend()
-    fig.savefig(f"./{args.boundary}-experiment/{args.channel}/distributions/{args.weights}-{args.boundary}-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
+    fig.savefig(f"./{args.boundary}-experiment/{args.channel}/distributions/test-{args.weights}-{args.boundary}-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
 def load_distance_distribution() -> np.ndarray:
@@ -351,10 +351,10 @@ def main():
             for i, idx in tqdm(enumerate(indices), total=N):
                 img, metadata = dataset[idx]
                 temp_img = img.squeeze().detach().cpu().numpy()
-                mask = detect_spots(temp_img)
-                fg_intensity = np.mean(temp_img[mask])
-                if fg_intensity < 0.15:
-                    continue
+                # mask = detect_spots(temp_img)
+                # fg_intensity = np.mean(temp_img[mask])
+                # if fg_intensity < 0.15:
+                #     continue
                 img = img.to(DEVICE)
                 div, dpi = metadata["label"], metadata["dpi"]
                 if "5" in div and args.young_dpi in dpi:
