@@ -312,6 +312,10 @@ def main():
         if num_epochs > 1000:
             num_epochs = 1000
         print(f"--- Training with {args.num_per_class} samples per class for {num_epochs} epochs ---")
+
+    if args.dataset in ["hpa-classification"]:
+        num_epochs = num_epochs * 10  # More epochs for HPA due to multi-label nature
+        print(f"--- Training for {num_epochs} epochs due to multi-label nature of HPA dataset ---")
     warmup_epochs = 0.1 * num_epochs
     if probe == "from-scratch":
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
@@ -320,9 +324,14 @@ def main():
             start_value=1.0, end_value=0.01
         )
     elif probe == "linear-probe":
-        optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+        optimizer = torch.optim.SGD(
+            model.parameters(), 
+            lr=1e-2 if args.dataset in ["hpa-classification"] else 1e-3,
+        )
         scheduler = CosineWarmupScheduler(
-            optimizer=optimizer, warmup_epochs=warmup_epochs, max_epochs=num_epochs,
+            optimizer=optimizer, 
+            warmup_epochs=warmup_epochs, 
+            max_epochs=num_epochs,
             start_value=1.0, end_value=0.01,
             period=num_epochs//10
         )
@@ -406,33 +415,35 @@ def main():
             optimizer.step()
             loss_meter.update(loss.item())
 
-            if (epoch < warmup_epochs and step % 10 == 0) or (step % 100 == 0):
-            # if (step % 100 == 0):                
-                v_loss, v_acc, v_cm = validation_step(
-                    model=model,
-                    valid_loader=valid_loader,
-                    criterion=criterion,
-                    epoch=epoch,
-                    device=device,
-                    save_dir = f"{save_best_model.save_dir}/{save_best_model.model_name}",
-                    classes = train_loader.dataset.classes
-                )
-
-                # Do not save best model if in a dry run
-                if not args.dry_run:
-                    save_best_model(
-                        v_loss,
-                        epoch=epoch,
+            # Wait until some epochs have passed to start validating
+            if args.dataset in [] and epoch > warmup_epochs:
+                if (epoch < warmup_epochs and step % 10 == 0) or (step % 100 == 0):
+                # if (step % 100 == 0):                
+                    v_loss, v_acc, v_cm = validation_step(
                         model=model,
-                        optimizer=optimizer,
-                        criterion=criterion
-                    )
-                    save_best_model_accuracy(
-                        v_acc, epoch=epoch, model=model, optimizer=optimizer, criterion=criterion
+                        valid_loader=valid_loader,
+                        criterion=criterion,
+                        epoch=epoch,
+                        device=device,
+                        save_dir = f"{save_best_model.save_dir}/{save_best_model.model_name}",
+                        classes = train_loader.dataset.classes
                     )
 
-                val_loss.update(step, v_loss)
-                val_acc.update(step, v_acc)
+                    # Do not save best model if in a dry run
+                    if not args.dry_run:
+                        save_best_model(
+                            v_loss,
+                            epoch=epoch,
+                            model=model,
+                            optimizer=optimizer,
+                            criterion=criterion
+                        )
+                        save_best_model_accuracy(
+                            v_acc, epoch=epoch, model=model, optimizer=optimizer, criterion=criterion
+                        )
+
+                    val_loss.update(step, v_loss)
+                    val_acc.update(step, v_acc)
 
             step += 1
 
@@ -449,9 +460,9 @@ def main():
             save_dir=f"{save_best_model.save_dir}/{save_best_model.model_name}_training-curves.png"
         )
 
-        if early_stopper(val_loss):
-            print("Early stopping... Validation loss did not improve for {} steps.".format(early_stopper.patience))
-            break
+        # if epoch > 0 and early_stopper(val_loss):
+        #     print("Early stopping... Validation loss did not improve for {} steps.".format(early_stopper.patience))
+        #     break
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
 
     # Evaluates for every model that were saved

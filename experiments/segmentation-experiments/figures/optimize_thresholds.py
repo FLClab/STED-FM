@@ -13,9 +13,8 @@ import argparse
 import glob
 import matplotlib.pyplot as plt
 from skimage import measure
-import sys 
-sys.path.insert(0, "../")
-from datasets import get_dataset
+
+from stedfm.datasets import get_segmentation_dataset as get_dataset
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mae-lightning-small")
@@ -284,6 +283,15 @@ def main():
         cfg.backbone_weights = weights 
         model = get_decoder(backbone, cfg)
 
+        print("========================================")
+        print(f"Optimizing thresholds for weights: {weights}")
+        print(f"Mode: {args.mode}")
+        print(f"Dataset: {args.dataset}")
+        print(f"Backbone weights: {weights}")
+        print(f"Length of validation set: {len(valid_dataset)}")
+        print(f"Length of test set: {len(test_dataset)}")
+        print("========================================")
+
         if weights is None:
             model_paths = glob.glob(f"{BASE_PATH}/segmentation-baselines/{args.model}/{args.dataset}/from-scratch-*/result.pt", recursive=True)
             model_paths = [p for p in model_paths if "labels" not in p]
@@ -328,6 +336,9 @@ def main():
             max_f1 = np.max(mean)
             max_threshold = THRESHOLDS[np.argmax(mean)]
             temp_thresholds.append(max_threshold)
+
+        print("Optimized thresholds:")
+        print(temp_thresholds)
 
         ### Compute all metrics with thresholds optimized against F1 score on the validation set
         weight_f1 = defaultdict(list)
@@ -378,6 +389,8 @@ def main():
                         if temp_precision != -1:
                             precision_ch_scores.append(temp_precision)
 
+                    if len(f1_ch_scores) == 0:
+                        continue
                     f1_score = np.mean(f1_ch_scores)
                     weight_f1[p].append(f1_score) 
 
