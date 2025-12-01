@@ -253,6 +253,13 @@ def main():
     THRESHOLDS = np.linspace(0.01, 0.99, 100) 
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+    print("========================================")
+    print("Using device:", DEVICE)
+    print(f"Model: {args.model}")
+    print(f"Dataset: {args.dataset}")
+    print(f"Mode: {args.mode}")
+    print("========================================")
+
     backbone_weights = [None, "MAE_SMALL_IMAGENET1K_V1", "MAE_SMALL_JUMP", "MAE_SMALL_HPA", "MAE_SMALL_SIM", "MAE_SMALL_STED"]
 
     best_thresholds = {key: None for key in backbone_weights}

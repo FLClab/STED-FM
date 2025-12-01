@@ -35,7 +35,11 @@ def load_file(file):
 def get_data(pretraining="STED"):
     data = {}
     for sample in args.samples:
-        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"accuracy_{args.mode}_{sample}_*.json"), recursive=True)
+        if pretraining == "from-scratch":
+            files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_from-scratch", args.dataset, f"accuracy_from-scratch_{sample}_*.json"), recursive=True)
+        else:
+            files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"accuracy_{args.mode}_{sample}_*.json"), recursive=True)
+        
         if len(files) < 1:
             print(f"Could not find files for sample: `{sample}` and pretraining: `{pretraining}`")
             continue
@@ -52,7 +56,10 @@ def get_data(pretraining="STED"):
 
 def get_full_data(mode=args.mode, pretraining="STED"):
     data = {}
-    files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"accuracy_{mode}_None_*.json"), recursive=True)
+    if pretraining == "from-scratch":
+        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_from-scratch", args.dataset, f"accuracy_from-scratch_None_*.json"), recursive=True)
+    else:
+        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"accuracy_{mode}_None_*.json"), recursive=True)
     if len(files) < 1: 
         print(f"Could not find files for mode: `{mode}` and pretraining: `{pretraining}`")
         return data
@@ -105,7 +112,7 @@ def plot_data(pretraining, data, figax=None):
 def main():
 
     fig, ax = pyplot.subplots(figsize=(4,3))
-    for pretraining in ["STED", "SIM", "HPA", "JUMP", "ImageNet"]:
+    for pretraining in ["STED", "SIM", "HPA", "JUMP", "ImageNet", "from-scratch"]:
         data = get_data(pretraining=pretraining)
         fig, ax = plot_data(pretraining, data, figax=(fig, ax))
     ax.legend()
@@ -113,7 +120,7 @@ def main():
 
     # Statistics
     samples, labels = [], []
-    for pretraining in ["STED", "SIM", "HPA", "JUMP", "ImageNet"]:
+    for pretraining in ["STED", "SIM", "HPA", "JUMP", "ImageNet", "from-scratch"]:
         data = get_data(pretraining=pretraining)
         data = {key: [item[args.metric] for item in values] for key, values in data.items()}
         samples.extend(data.values())
