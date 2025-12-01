@@ -28,29 +28,6 @@ from stedfm.utils import SaveBestModel, AverageMeter, ScoreTracker, EarlyStopper
 
 # plt.style.use("dark_background")
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--seed", type=int, default=42)
-parser.add_argument("--dataset", type=str, default='synaptic-proteins')
-parser.add_argument("--model", type=str, default='mae-lightning-small')
-parser.add_argument("--weights", type=str, default=None)
-parser.add_argument("--global-pool", type=str, default='avg')
-parser.add_argument("--blocks", type=str, default="all") # linear-probing by default
-parser.add_argument("--from-scratch", action="store_true", 
-                    help="Activates the `from-scratch` training mode")
-parser.add_argument("--track-epochs", action="store_true")
-parser.add_argument("--num-per-class", type=int, default=None)
-parser.add_argument("--overwrite", action="store_true", help="Overwrite the training of previous model")
-parser.add_argument("--opts", nargs="+", default=[], 
-                    help="Additional configuration options")    
-parser.add_argument("--dry-run", action="store_true")
-parser.add_argument("--flops", action="store_true")
-args = parser.parse_args()
-
-# Assert args.opts is a multiple of 2
-if len(args.opts) == 1:
-    args.opts = args.opts[0].split(" ")
-assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
-
 def measure_flops(model: torch.nn.Module, sample_input: torch.Tensor) -> Tuple[float, float]:
     flops = FlopCountAnalysis(model, sample_input)
     total_flops = flops.total()
@@ -244,8 +221,31 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
 
 
 def main():
-    set_seeds()
-    SAVENAME = get_save_folder()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--dataset", type=str, default='synaptic-proteins')
+    parser.add_argument("--model", type=str, default='mae-lightning-small')
+    parser.add_argument("--weights", type=str, default=None)
+    parser.add_argument("--global-pool", type=str, default='avg')
+    parser.add_argument("--blocks", type=str, default="all") # linear-probing by default
+    parser.add_argument("--from-scratch", action="store_true", 
+                        help="Activates the `from-scratch` training mode")
+    parser.add_argument("--track-epochs", action="store_true")
+    parser.add_argument("--num-per-class", type=int, default=None)
+    parser.add_argument("--overwrite", action="store_true", help="Overwrite the training of previous model")
+    parser.add_argument("--opts", nargs="+", default=[], 
+                        help="Additional configuration options")    
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--flops", action="store_true")
+    args = parser.parse_args()
+
+    # Assert args.opts is a multiple of 2
+    if len(args.opts) == 1:
+        args.opts = args.opts[0].split(" ")
+    assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
+
+    set_seeds(args)
+    SAVENAME = get_save_folder(args)
     train_loader, _, _ = get_dataset(
         name=args.dataset, training=True
     )
