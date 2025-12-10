@@ -9,6 +9,8 @@ from tqdm import tqdm
 from typing import Union
 from attribute_datasets import LowHighResolutionDataset
 import sys
+import os
+from scipy.spatial.distance import cdist
 from banditopt.objectives import Resolution 
 import glob
 from stedfm.DEFAULTS import BASE_PATH, COLORS, MARKERS
@@ -23,7 +25,7 @@ parser.add_argument("--num-samples", type=int, default=12)
 parser.add_argument("--ckpt-path", type=str, default="/home-local/Frederic/baselines/DiffusionModels/latent-guidance")
 parser.add_argument("--figure", action="store_true")
 parser.add_argument("--sanity-check", action="store_true")
-parser.add_argument("--n-steps", type=int, default=6)
+parser.add_argument("--n-steps", type=int, default=5)
 args = parser.parse_args()
 
 
@@ -63,22 +65,31 @@ def linear_interpolate(latent_code,
                        end_distance=4.0,
                        steps=8):
     assert (latent_code.shape[0] == 1 and boundary.shape[0] == 1 and
-          len(boundary.shape) == 2 and
-          boundary.shape[1] == latent_code.shape[-1])
+            len(boundary.shape) == 2 and
+            boundary.shape[1] == latent_code.shape[-1])
 
-    img_distance = latent_code.dot(boundary.T) + intercept
-    end_distance = end_distance - img_distance
-    linspace = np.linspace(start_distance, end_distance, steps)[1:]
-    # linspace = np.linspace(img_distance, end_distance, steps)
+
+
+    img_distance = (latent_code.dot(boundary.T) + intercept) * norm
+    print(f"Image distance to boundary: {img_distance[0][0]}")
+    # print(f"Start distance: {start_distance}")
+    # print(f"End distance: {end_distance}") 
+
+    # start_distance = start_distance * norm 
+    # end_distance = end_distance * norm 
+    # print(f"Start distance: {start_distance}")
+    # print(f"End distance: {end_distance}") 
+    # end_distance = end_distance - img_distance
+    linspace = np.linspace(start_distance, end_distance, steps)
+
     if len(latent_code.shape) == 2:
-        # linspace = linspace - (latent_code.dot(boundary.T) + intercept)
-        linspace = linspace.reshape(-1, 1).astype(np.float32)
-        return latent_code + linspace * boundary * norm, linspace, img_distance[0][0]
-    if len(latent_code.shape) == 3:
-        linspace = linspace.reshape(-1, 1, 1).astype(np.float32)
-        return latent_code + linspace * boundary.reshape(1, 1, -1), linspace
-    raise ValueError(f'Input `latent_code` should be with shape '
-                    f'[1, latent_space_dim] but {latent_code.shape} was received.')
+        linspace = linspace - ((latent_code.dot(boundary.T)) + intercept)
+        # linspace = linspace / norm
+        linspace = linspace.reshape(-1, 1).astype(np.float32) 
+        latent_codes = latent_code + linspace * boundary 
+        distances = latent_codes.dot(boundary.T) + intercept 
+        distances = distances.flatten()
+        return latent_codes, distances, img_distance[0][0]
 
 def load_boundary() -> np.ndarray:
     print(f"--- Loading boundary trained from {args.weights} embeddings ---")
@@ -100,7 +111,7 @@ def save_examples(samples, distances, resolutions, index):
        if s.shape[0] == 3:
            s = s[0]
        axs[i].imshow(s, cmap="hot")# , vmin=0.0, vmax=1.0)
-       axs[i].set_title(f"Distance: {d:.2f}\nRes: {r:.2f}")
+       axs[i].set_title(f"d: {d:.2f}\nRes: {r:.2f}")
        axs[i].axis("off")
    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.1, hspace=0.1)
    fig.savefig(f"./{args.boundary}-experiment/examples/{args.weights}-image_{index}.pdf", dpi=1200, bbox_inches="tight")
@@ -246,12 +257,19 @@ def cumulative_regret() -> None:
 def load_distance_distribution(weight: str = args.weights) -> np.ndarray:
     data = np.load(f"./{args.boundary}-experiment/distributions/{weight}-resolution-distance_distribution.npz")
     scores = data["key2"]
-    avg, std = np.mean(scores), np.std(scores)
-    min_distance, max_distance = 0, np.max(scores)
+    # avg, std = np.mean(scores), np.std(scores)
+    # min_distance, max_distance = 0, np.max(scores)
     # max_distance = max_distance * 2 if "imagenet" not in args.weights.lower() else max_distance
+    min_distance = np.mean(data["key1"])
+    max_distance = np.mean(data["key2"])
     return min_distance, max_distance
 
 def main():
+    os.makedirs(f"./{args.boundary}-experiment/examples", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/examples/raw", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/examples/raw-tif", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/correlation", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/distributions", exist_ok=True)
     if args.figure:
         plot_results()
         cumulative_regret()
@@ -295,7 +313,7 @@ def main():
                 torch_img = img.clone().unsqueeze(0).to(DEVICE)
                 latent_code = latent_encoder.forward_features(torch_img)
                 numpy_code = latent_code.detach().cpu().numpy()
-                d = numpy_code.dot(boundary.T) + intercept
+                d = (numpy_code.dot(boundary.T) + intercept) * norm
                 d = d[0][0]
                 key = "low" if label == 0 else "high"
                 distances_to_boundary[key].append(d)
@@ -310,7 +328,7 @@ def main():
         boundary, intercept, norm = load_boundary()
         channels = 3 if "imagenet" in args.weights.lower() else 1
         distance_min, distance_max = load_distance_distribution()
-        print(f"--- Moving from 0.0 to {distance_max} ---")
+        print(f"--- Moving from {distance_min} to {distance_max} ---")
         latent_encoder, model_config = get_pretrained_model_v2(
             name=args.latent_encoder,
             weights=args.weights,
@@ -357,8 +375,8 @@ def main():
         np.random.shuffle(indices)
         counter = 0
 
-        all_resolutions = np.zeros((args.num_samples, args.n_steps+1))
-        all_distances = np.zeros((args.num_samples, args.n_steps+1))
+        all_resolutions = np.zeros((args.num_samples, args.n_steps+2))
+        all_distances = np.zeros((args.num_samples, args.n_steps+2))
         original_resolutions = []
 
         with torch.no_grad():
@@ -395,11 +413,18 @@ def main():
                 samples = [original]
                 # distances.append(0.0)
 
-                lerped_codes, d, img_distance = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=0.0, end_distance=distance_max, steps=args.n_steps + 1)
+                lerped_codes, d, img_distance = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=distance_min, end_distance=distance_max, steps=args.n_steps + 1)
 
                 distances.append(img_distance)
+                print(f"Distances: {d}")
+
+                start_code = lerped_codes[0][np.newaxis, ...]
+                end_code = lerped_codes[-1][np.newaxis, ...]
+                distance_traveled = cdist(start_code, end_code, metric="euclidean")[0][0]
+                print(f"Total distance traveled: {distance_traveled:.2f}")
 
                 for c, code in enumerate(lerped_codes):
+                    print(f"current distance: {d[c]}")
                     lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
                     lerped_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=lerped_code, progress=True)
                     lerped_sample = denormalize(lerped_sample)
@@ -410,7 +435,7 @@ def main():
                     # print(d[c][0])
                     # print(d[c][0].shape)
                     # print(img_distance + d[c][0])
-                    distances.append(img_distance + d[c][0])
+                    distances.append(d[c])
 
                 resolutions = np.array(resolutions)
                 distances = np.array(distances)

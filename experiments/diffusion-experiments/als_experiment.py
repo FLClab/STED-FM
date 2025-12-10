@@ -178,17 +178,19 @@ def plot_distance_distribution(distances_to_boundary: dict):
     np.savez(f"./{args.boundary}-experiment/{args.channel}/distributions/{args.weights}-{args.boundary}-distance_distribution.npz", **distances_to_boundary)
     fig = plt.figure()
     ax = fig.add_subplot(111)
+    
+    data1 = [item * -1 for item in distances_to_boundary[key1]]
+    data2 = [item * -1 for item in distances_to_boundary[key2]]
+    m = min(min(data1), min(data2))
+    M = max(max(data1), max(data2))
 
-    m = min(min(distances_to_boundary[key1]), min(distances_to_boundary[key2]))
-    M = max(max(distances_to_boundary[key1]), max(distances_to_boundary[key2]))
-
-    ax.hist(distances_to_boundary["old"], bins=np.linspace(m, M, 50), alpha=0.5, color='fuchsia', label="old")
-    ax.hist(distances_to_boundary["young"], bins=np.linspace(m, M, 50), alpha=0.5, color='dodgerblue', label="young")
+    ax.hist(data1, bins=np.linspace(m, M, 50), alpha=0.5, color='fuchsia', label="old")
+    ax.hist(data2, bins=np.linspace(m, M, 50), alpha=0.5, color='dodgerblue', label="young")
     ax.axvline(0.0, color='black', linestyle='--', label="Decision boundary")
     ax.set_xlabel("Distance")
     ax.set_ylabel("Frequency")
     ax.legend()
-    fig.savefig(f"./{args.boundary}-experiment/{args.channel}/distributions/test-{args.weights}-{args.boundary}-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
+    fig.savefig(f"./{args.boundary}-experiment/{args.channel}/distributions/{args.weights}-{args.boundary}-distance_distribution.pdf", dpi=1200, bbox_inches="tight")
     plt.close(fig)
 
 def load_distance_distribution() -> np.ndarray:
@@ -439,7 +441,7 @@ def main():
         diffusion_model.load_state_dict(ckpt["state_dict"])
         diffusion_model.to(DEVICE)
         dataset = ALSDataset(
-            tarpath=f"/home-local/Frederic/Datasets/ALS/catalogs/PLKO-262-{args.channel}-test.tar",
+            tarpath=f"/home-local/Frederic/Datasets/ALS/catalogs/PLKO-262-{args.channel}-valid.tar",
         )
         N = len(dataset)
         indices = np.arange(N)

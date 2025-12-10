@@ -10,7 +10,7 @@ args = parser.parse_args()
 
 if __name__=="__main__":
     pretraining_datasets = ["STED", "SIM", "HPA", "JUMP", "ImageNet"]
-    data = np.load(f"./results/{args.metric}_image_retrieval_results.npz")
+    data = np.load(f"./results/test_{args.metric}_image_retrieval_results.npz")
     performance_heatmap = data["performance_heatmap"]
     max_per_dataset = np.max(performance_heatmap, axis=0)
 
@@ -38,12 +38,12 @@ if __name__=="__main__":
 
     for i in range(results.shape[0]):
         for j in range(results.shape[1]):
-            ax.scatter([results[i, j]], [i], color=COLORS[pretraining_datasets[i]], edgecolor="black", marker="o")
+            ax.scatter([results[i, j]], [i], color=COLORS[pretraining_datasets[i]], edgecolor="black", marker="o", alph)
 
     ax.set_xlabel(f"{args.metric}* - {args.metric}")
     ax.set_ylabel("Pretraining dataset")
     ax.set_yticks(np.arange(len(avg_scores)))
     if args.mode == "raw":
         ax.set_xlim([0.6, 1.0])
-    fig.savefig(f"./results/test2_{args.metric}_{args.mode}_image_retrieval.pdf", bbox_inches='tight', dpi=1200)
+    fig.savefig(f"./results_v2/test_{args.metric}_{args.mode}_image_retrieval.pdf", bbox_inches='tight', dpi=1200)
     plt.close(fig)
