@@ -3,6 +3,7 @@ import os
 import numpy
 import tarfile
 import io
+import tifffile
 
 from pystackreg import StackReg
 from mureader import Reader
@@ -27,6 +28,7 @@ def register_stack(stack):
     print("Registering stack...")
     sr = StackReg(StackReg.RIGID_BODY)
     registered_stack = sr.register_transform_stack(stack, reference='first')
+    registered_stack = numpy.clip(registered_stack, 0, None)
     return registered_stack
 
 def normalize(img: numpy.ndarray, channel: int=1):
@@ -39,7 +41,7 @@ def normalize(img: numpy.ndarray, channel: int=1):
     
     :return: Normalized image.
     """
-    # m, M = numpy.quantile(img, 0.0001, axis=(-2, -1), keepdims=True), numpy.quantile(img, 0.9999, axis=(-2, -1), keepdims=True)
+    # m, M = numpy.quantile(img, 0.001, axis=(-2, -1), keepdims=True), numpy.quantile(img, 1.0, axis=(-2, -1), keepdims=True)
     m, M = numpy.min(img, axis=(-2, -1), keepdims=True), numpy.max(img, axis=(-2, -1), keepdims=True)
     img = (img - m) / (M - m + 1e-8)
     img = numpy.clip(img, 0, 1)
@@ -69,6 +71,8 @@ def add_files_to_tar(condition, filename, stack_names, split):
                 stack = stack[:, CHANNELS[condition], ...]
 
             print(f"Processing stack {i+1}/{len(stack_names)}: {stack_name} with shape {stack.shape}...")
+            stack = stack.astype(numpy.float32)
+            normalize(stack)
             stack = register_stack(stack)
 
             gt_stack = numpy.sum(stack, axis=0)

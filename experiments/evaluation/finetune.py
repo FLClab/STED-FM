@@ -28,29 +28,6 @@ from stedfm.utils import SaveBestModel, AverageMeter, ScoreTracker, EarlyStopper
 
 # plt.style.use("dark_background")
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--seed", type=int, default=42)
-parser.add_argument("--dataset", type=str, default='synaptic-proteins')
-parser.add_argument("--model", type=str, default='mae-lightning-small')
-parser.add_argument("--weights", type=str, default=None)
-parser.add_argument("--global-pool", type=str, default='avg')
-parser.add_argument("--blocks", type=str, default="all") # linear-probing by default
-parser.add_argument("--from-scratch", action="store_true", 
-                    help="Activates the `from-scratch` training mode")
-parser.add_argument("--track-epochs", action="store_true")
-parser.add_argument("--num-per-class", type=int, default=None)
-parser.add_argument("--overwrite", action="store_true", help="Overwrite the training of previous model")
-parser.add_argument("--opts", nargs="+", default=[], 
-                    help="Additional configuration options")    
-parser.add_argument("--dry-run", action="store_true")
-parser.add_argument("--flops", action="store_true")
-args = parser.parse_args()
-
-# Assert args.opts is a multiple of 2
-if len(args.opts) == 1:
-    args.opts = args.opts[0].split(" ")
-assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
-
 def measure_flops(model: torch.nn.Module, sample_input: torch.Tensor) -> Tuple[float, float]:
     flops = FlopCountAnalysis(model, sample_input)
     total_flops = flops.total()
@@ -244,8 +221,31 @@ def validation_step(model, valid_loader, criterion, epoch, device, save_dir=None
 
 
 def main():
-    set_seeds()
-    SAVENAME = get_save_folder()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--dataset", type=str, default='synaptic-proteins')
+    parser.add_argument("--model", type=str, default='mae-lightning-small')
+    parser.add_argument("--weights", type=str, default=None)
+    parser.add_argument("--global-pool", type=str, default='avg')
+    parser.add_argument("--blocks", type=str, default="all") # linear-probing by default
+    parser.add_argument("--from-scratch", action="store_true", 
+                        help="Activates the `from-scratch` training mode")
+    parser.add_argument("--track-epochs", action="store_true")
+    parser.add_argument("--num-per-class", type=int, default=None)
+    parser.add_argument("--overwrite", action="store_true", help="Overwrite the training of previous model")
+    parser.add_argument("--opts", nargs="+", default=[], 
+                        help="Additional configuration options")    
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--flops", action="store_true")
+    args = parser.parse_args()
+
+    # Assert args.opts is a multiple of 2
+    if len(args.opts) == 1:
+        args.opts = args.opts[0].split(" ")
+    assert len(args.opts) % 2 == 0, "opts must be a multiple of 2"
+
+    set_seeds(args)
+    SAVENAME = get_save_folder(args)
     train_loader, _, _ = get_dataset(
         name=args.dataset, training=True
     )
@@ -312,6 +312,10 @@ def main():
         if num_epochs > 1000:
             num_epochs = 1000
         print(f"--- Training with {args.num_per_class} samples per class for {num_epochs} epochs ---")
+
+    if args.dataset in ["hpa-classification"]:
+        num_epochs = num_epochs * 10  # More epochs for HPA due to multi-label nature
+        print(f"--- Training for {num_epochs} epochs due to multi-label nature of HPA dataset ---")
     warmup_epochs = 0.1 * num_epochs
     if probe == "from-scratch":
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
@@ -320,9 +324,14 @@ def main():
             start_value=1.0, end_value=0.01
         )
     elif probe == "linear-probe":
-        optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+        optimizer = torch.optim.SGD(
+            model.parameters(), 
+            lr=1e-2 if args.dataset in ["hpa-classification"] else 1e-3,
+        )
         scheduler = CosineWarmupScheduler(
-            optimizer=optimizer, warmup_epochs=warmup_epochs, max_epochs=num_epochs,
+            optimizer=optimizer, 
+            warmup_epochs=warmup_epochs, 
+            max_epochs=num_epochs,
             start_value=1.0, end_value=0.01,
             period=num_epochs//10
         )
@@ -406,33 +415,35 @@ def main():
             optimizer.step()
             loss_meter.update(loss.item())
 
-            if (epoch < warmup_epochs and step % 10 == 0) or (step % 100 == 0):
-            # if (step % 100 == 0):                
-                v_loss, v_acc, v_cm = validation_step(
-                    model=model,
-                    valid_loader=valid_loader,
-                    criterion=criterion,
-                    epoch=epoch,
-                    device=device,
-                    save_dir = f"{save_best_model.save_dir}/{save_best_model.model_name}",
-                    classes = train_loader.dataset.classes
-                )
-
-                # Do not save best model if in a dry run
-                if not args.dry_run:
-                    save_best_model(
-                        v_loss,
-                        epoch=epoch,
+            # Wait until some epochs have passed to start validating
+            if args.dataset in [] and epoch > warmup_epochs:
+                if (epoch < warmup_epochs and step % 10 == 0) or (step % 100 == 0):
+                # if (step % 100 == 0):                
+                    v_loss, v_acc, v_cm = validation_step(
                         model=model,
-                        optimizer=optimizer,
-                        criterion=criterion
-                    )
-                    save_best_model_accuracy(
-                        v_acc, epoch=epoch, model=model, optimizer=optimizer, criterion=criterion
+                        valid_loader=valid_loader,
+                        criterion=criterion,
+                        epoch=epoch,
+                        device=device,
+                        save_dir = f"{save_best_model.save_dir}/{save_best_model.model_name}",
+                        classes = train_loader.dataset.classes
                     )
 
-                val_loss.update(step, v_loss)
-                val_acc.update(step, v_acc)
+                    # Do not save best model if in a dry run
+                    if not args.dry_run:
+                        save_best_model(
+                            v_loss,
+                            epoch=epoch,
+                            model=model,
+                            optimizer=optimizer,
+                            criterion=criterion
+                        )
+                        save_best_model_accuracy(
+                            v_acc, epoch=epoch, model=model, optimizer=optimizer, criterion=criterion
+                        )
+
+                    val_loss.update(step, v_loss)
+                    val_acc.update(step, v_acc)
 
             step += 1
 
@@ -449,9 +460,9 @@ def main():
             save_dir=f"{save_best_model.save_dir}/{save_best_model.model_name}_training-curves.png"
         )
 
-        if early_stopper(val_loss):
-            print("Early stopping... Validation loss did not improve for {} steps.".format(early_stopper.patience))
-            break
+        # if epoch > 0 and early_stopper(val_loss):
+        #     print("Early stopping... Validation loss did not improve for {} steps.".format(early_stopper.patience))
+        #     break
         # knn_sanity_check(model=model, loader=test_loader, device=device, savename=SAVENAME, epoch=epoch+1)
 
     # Evaluates for every model that were saved

@@ -36,13 +36,10 @@ import sys
 # sys.path.insert(0, "../segmentation-experiments")
 # from datasets import get_dataset
 
-sys.path.insert(0, "..")
-
-from DEFAULTS import BASE_PATH
-from datasets import get_dataset
-from model_builder import get_base_model, get_pretrained_model_v2
-from utils import update_cfg, save_cfg
-from configuration import Configuration
+from stedfm.datasets import get_dataset
+from stedfm.DEFAULTS import BASE_PATH
+from stedfm import get_pretrained_model_v2
+from stedfm.utils import update_cfg
 
 from template import Template, Query, sample_topk
 

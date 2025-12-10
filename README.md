@@ -65,12 +65,14 @@ The notebook can be found in the `notebooks` folder. You can open the notebook i
 
 ## Project Structure & Experiments
 
-The training of STED-FM is done through the `pretrain_lightning.py` script. 
+The training of STED-FM is done through the `pretrain_lightning.py` script. This script is available in the `experiments` folder. The pre-training uses the [PyTorch Lightning](https://www.pytorchlightning.ai/) framework for easier multi-GPU training and experiment management.
+
 The repository is mostly split in sub-folders of the `experiments` folder, corresponding to the various families of tasks that were performed by the model in the paper. A separate README is provided for every set of experiments.
 - The unsupervised experiments (recursive clustering, image retrieval) are in the `clustering-experiments` sub-folder.
 - The supervised classification fine-tuning experiments as well as KNN classification experiment are in the `evaluation` sub-folder. 
 - The supervised segmentation experiments as well as the patch retrieval experiment can be found in the `segmentation-experiments` sub-folder. 
 - The image generation and latent attribute manipulation experiments are in the `diffusion-experiments` sub-folder.
+- The image restoration experiments (denoising and super-resolution) are in the `restoration-experiments` sub-folder.
 - The code for extracting attention maps from STED-FM is in the `interpretability-experiments` sub-folder.
 - The code for performing user studies on the various tasks are in the `user-study` sub-folder.
 

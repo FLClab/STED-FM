@@ -96,7 +96,6 @@ class HDF5Dataset(Dataset):
                   A `torch.tensor` of the label
         """
         group_name, k, j, i = self.samples[index]
-
         if self.use_cache:
             image_crop = self.cache[group_name]["data"][k, j : j + self.size, i : i + self.size]
             label_crop = self.cache[group_name]["label"][k, :, j : j + self.size, i : i + self.size]

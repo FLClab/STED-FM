@@ -180,9 +180,9 @@ if __name__ == "__main__":
         backbone, cfg = get_base_model(args.backbone)
 
     # Loads dataset and dataset-specific configuration
-    cache_manager = Manager()
-    cache_system = cache_manager.dict()
-    training_dataset, validation_dataset, testing_dataset = get_dataset(name=args.dataset, cfg=cfg, cache_system=cache_system)
+    # cache_manager = Manager()
+    # cache_system = cache_manager.dict()
+    training_dataset, validation_dataset, testing_dataset = get_dataset(name=args.dataset, cfg=cfg, cache_system=None)
 
     # Updates configuration with additional options; performs inplace
     cfg.args = args
@@ -237,6 +237,7 @@ if __name__ == "__main__":
         OUTPUT_FOLDER = os.path.join(args.save_folder, "debug")
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
+    writer = None
     if args.use_tensorboard:
         writer = SummaryWriter(os.path.join(OUTPUT_FOLDER, "logs"))
     # Save and print configuration

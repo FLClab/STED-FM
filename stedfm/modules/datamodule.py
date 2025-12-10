@@ -11,6 +11,9 @@ import torch.distributed
 from stedfm.datasets import get_dataset
 
 class MultiprocessingDistributedSampler(torch.utils.data.DistributedSampler):
+    """
+    A custom Distributed Sampler that works with multiprocessing.
+    """
     def __init__(self, *args, **kwargs):
         super(MultiprocessingDistributedSampler, self).__init__(*args, **kwargs)
         self.num_repeats = 1
