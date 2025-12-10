@@ -25,6 +25,13 @@ def set_seeds(seed: int):
     random.seed(seed)
 
 def get_number_of_classes(dataset: str):
+    """
+    Utilitary function to get the number of classes for a given dataset
+
+    :param dataset: A `str` of the dataset name
+
+    :returns : An `int` of the number of classes
+    """
     if dataset == "neural-activity-states":
         return 4
     elif dataset == "optim":
@@ -180,7 +187,16 @@ def apply_alpha(c, alpha):
     newc[-1] = alpha
     return mimic_white_alpha(newc)
 
-def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4) -> list:
+def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Computes the N-ary accuracy for predictions and labels
+    
+    :param preds: A `torch.Tensor` of predictions
+    :param labels: A `torch.Tensor` of true labels
+    :param N: An `int` representing the number of classes
+    
+    :returns : A tuple of three `np.ndarray`s: correct predictions, total samples, confusion matrix
+    """
     # accuracies = []
     correct = []
     big_n = []
@@ -228,7 +244,15 @@ def compute_Nary_accuracy(preds: torch.Tensor, labels: torch.Tensor, N: int = 4)
             # accuracies.append(temp.cpu().detach().numpy())
     return np.array(correct), np.array(big_n), confusion_matrix
 
-def compute_mean_average_precision(preds: np.ndarray, labels: np.ndarray) -> float:
+def compute_mean_average_precision(preds: torch.Tensor, labels: torch.Tensor) -> np.ndarray:
+    """
+    Computes the mean average precision for predictions and labels
+    
+    :param preds: A `torch.Tensor` of predictions
+    :param labels: A `torch.Tensor` of true labels
+
+    :returns : A `np.ndarray` of mean average precision for each class
+    """
     y_score = preds.permute(1, 0, 2, 3).cpu().detach().numpy()
     y_true = labels.permute(1, 0, 2, 3).cpu().detach().numpy()
     assert y_score.shape == y_true.shape
@@ -239,8 +263,17 @@ def compute_mean_average_precision(preds: np.ndarray, labels: np.ndarray) -> flo
         mAP.append(c_mAP)
     return np.array(mAP)
 
-
 def track_loss(train_loss: list, val_loss: list, val_acc: list, lrates: list, save_dir: str) -> None:
+    """
+    Utilitary function to track the loss and accuracy over epochs. It simply plots the
+    training and validation loss as well as the learning rate schedule.
+
+    :param train_loss: A `list` of training losses
+    :param val_loss: A `list` of validation losses
+    :param val_acc: A `list` of validation accuracies
+    :param lrates: A `list` of learning rates
+    :param save_dir: A `str` of the directory to save the plot
+    """
     # fig, axs = plt.subplots(2, 1, sharex=True)
     # x = np.arange(0, len(train_loss), 1)
     # ax1 = axs[0].twinx()
@@ -261,8 +294,14 @@ def track_loss(train_loss: list, val_loss: list, val_acc: list, lrates: list, sa
     fig.savefig(f"{save_dir}")
     plt.close(fig)
     
-
 class SaveBestModel:
+    """
+    Class to save the best model during training based on validation loss
+
+    :param save_dir: A `str` of the directory to save the model
+    :param model_name: A `str` of the model name
+    :param maximize: A `bool` indicating whether to maximize or minimize the metric
+    """
     def __init__(self, save_dir: str, model_name: str, maximize: bool = False):
 
         self.maximize = maximize
@@ -275,6 +314,9 @@ class SaveBestModel:
         self.save_dir = save_dir
 
     def __call__(self, current_val: float, epoch: int, model, optimizer, criterion):
+        """
+        If the current validation loss is better than the best one, save the model
+        """
         if self.maximize:
             new_best = current_val > self.best_val
         else:
@@ -292,15 +334,31 @@ class SaveBestModel:
                 }, '{}/{}.pth'.format(self.save_dir, self.model_name))
             
 class ScoreTracker:
+    """
+    Simple class to track scores over time. This class privdes the 
+    `update` method to add new (step, score) pairs.
+    """
     def __init__(self):
         self.steps = []
         self.scores = []
     
-    def update(self, step, score):
+    def update(self, step: int, score: float) -> None:
+        """
+        Updates the tracker with a new (step, score) pair
+
+        :param step: An `int` of the current step
+        :param score: A `float` of the current score
+        """
         self.steps.append(step)
         self.scores.append(score)
 
 class EarlyStopper:
+    """
+    Class to perform early stopping based on a patience value.
+
+    :param patience: An `int` of the patience value
+    :param minimize: A `bool` indicating whether to minimize or maximize the score
+    """
     def __init__(self, patience: int, minimize: bool = True):
         self.patience = patience
         self.minimize = minimize
@@ -308,7 +366,14 @@ class EarlyStopper:
         self.best_step = 0
         self.stop = False
     
-    def __call__(self, score_tracker: ScoreTracker):
+    def __call__(self, score_tracker: ScoreTracker) -> bool:
+        """
+        Checks if early stopping should be performed
+
+        :param score_tracker: A `ScoreTracker` object containing the scores
+
+        :returns : A `bool` indicating whether to stop training
+        """
         if self.minimize:
             new_best = score_tracker.scores[-1] < self.best_score
         else:
@@ -323,6 +388,16 @@ class EarlyStopper:
         return self.stop
 
 def track_loss_steps(train_loss: ScoreTracker, val_loss: ScoreTracker, val_acc: ScoreTracker, lrates: ScoreTracker, save_dir: str) -> None:
+    """
+    Utiliary function to track the loss and accuracy over steps. It simply plots the
+    training and validation loss as well as the learning rate schedule.
+
+    :param train_loss: A `ScoreTracker` of training losses
+    :param val_loss: A `ScoreTracker` of validation losses
+    :param val_acc: A `ScoreTracker` of validation accuracies
+    :param lrates: A `ScoreTracker` of learning rates
+    :param save_dir: A `str` of the directory to save the plot
+    """
     fig, axs = plt.subplots(2, 1, sharex=True)
     ax1 = axs[0].twinx()
     ax2 = axs[0].twinx()
@@ -340,8 +415,9 @@ def track_loss_steps(train_loss: ScoreTracker, val_loss: ScoreTracker, val_acc: 
     plt.close(fig)    
 
 class AverageMeter:
-    """Computes and stores the average and current value"""
-
+    """
+    Computes and stores the average and current value
+    """
     def __init__(self):
         self.reset()
 
@@ -352,6 +428,12 @@ class AverageMeter:
         self.count = 0
 
     def update(self, val, n=1):
+        """
+        Updates the meter with a new value
+
+        :param val: A `float` or `int` of the new value
+        :param n: An `int` of the number of occurrences of the new value
+        """
         self.val = val
         self.sum += val * n
         self.count += n

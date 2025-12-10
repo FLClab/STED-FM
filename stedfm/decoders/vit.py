@@ -259,12 +259,15 @@ def unpatchify(
 
 def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn.Module:
     """
-    Creates a `ViTDecoder` instance
+    Creates a decoder model based on the provided backbone and configuration.
+
+    The decoder can be either a full ViT decoder or a segmentation classifier, depending on the configuration.
+    The function checks the `full_decoder` flag in the configuration or keyword arguments to determine which decoder to create.
 
     :param backbone: A `torch.nn.Module` instance
     :param cfg: A `dataclass` instance
 
-    :returns : A `ViTDecoder` instance
+    :returns : A `torch.nn.Module` instance representing the decoder model.
     """
     full_decoder = kwargs.get("full_decoder", False) or cfg.get("full_decoder", False)
     if full_decoder:

@@ -33,6 +33,9 @@ else:
 # }
 
 class NameMapper:
+    """
+    Base class for mapping names to values with flexible key access.
+    """
     def __init__(self):
         if hasattr(self, "__annotations__"):
             for key, value in self.__annotations__.items():

@@ -12,11 +12,28 @@ from .models.loading import get_weights
 from .DEFAULTS import BASE_PATH
 
 def get_base_model(name: str, **kwargs):
+    """
+    Utility function to get a base model and its configuration
+
+    :param name: A `str` of the model name
+    :param kwargs: Additional keyword arguments for the model builder
+
+    :returns : A `torch.nn.Module` model and its `Configuration`
+    """
     model, cfg = get_model(name, **kwargs)
     return model, cfg
 
+def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool = False, **kwargs):
+    """
+    Utility function to get a pretrained model and its configuration from name and weights
 
-def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool = False, path: str = None, **kwargs):
+    :param name: A `str` of the model name
+    :param weights: A `str` of the weights to load
+    :param as_classifier: A `bool` whether to return a classifier with a linear probe on top
+    :param kwargs: Additional keyword arguments for the model builder
+
+    :returns : A `torch.nn.Module` model and its `Configuration`
+    """
     if name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "vit-small", "mae-lightning-tiny", "mae-lightning-small", 'mae-lightning-base', 'mae-lightning-large', 'mae-lightning-64-p8', "mae-lightning-224-p16"]:
         if "in_channels" not in kwargs:
             kwargs["in_channels"] = 3 if (weights is not None and "imagenet" in weights.lower()) else 1
@@ -53,6 +70,15 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
         raise NotImplementedError(f"Model {name} not implemented yet.")
     
 def get_classifier_v3(name: str, dataset: str, pretraining: str, **kwargs):
+    """
+    Utility function to get a classifier model with a linear probe on top. This is kept
+    in the codebase for backward compatibility of some experiments. It allows loading
+    a pretrained model with it's linear probe weights.
+
+    We recommend not using this function anymore.
+    The same functionality can be achieved by using `get_pretrained_model_v2` with
+    `as_classifier=True` and then loading the weights manually.
+    """
     if "supervised" in name.lower() and "mae" in name.lower():
         modelname = name.replace("supervised-", "")
         backbone, cfg = get_base_model(modelname, **kwargs)
@@ -91,37 +117,3 @@ def get_classifier_v3(name: str, dataset: str, pretraining: str, **kwargs):
         return model, cfg
     else:
         raise NotImplementedError(f"Cannot yet add a linear probe to `{name}`.")
-
-def get_classifier_v2(name: str, weights: str, task: str, path: str = None, dataset: str = None, **kwargs):
-    if name in ['vit-small', 'vit-base']:
-        model, cfg = get_base_model(name, **kwargs)
-        state_dict = get_weights(name, weights)
-        model.load_state_dict(state_dict, strict=False)
-        return model
-        
-    elif name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "mae", "mae-small"]:
-        backbone, cfg = get_base_model(name, **kwargs)
-        model = LinearProbe(
-            backbone=backbone,
-            name=name,
-            num_classes=4,
-            num_blocks=kwargs['blocks'] # no need to be specific about num_blocks for already trained classifiers
-        )
-        if path is not None:
-            if "imagenet" in weights.lower():
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{name}_ImageNet/{dataset}/{task}_{path}_model.pth")
-            elif "ctc" in weights.lower():
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{name}_CTC/{dataset}/{task}_{path}_model.pth")
-            elif "sted" in weights.lower():
-                checkpoint = torch.load(f"/home/frbea320/projects/def-flavielc/frbea320/flc-dataset/experiments/Datasets/FLCDataset/baselines/{name}_STED/{dataset}/{task}_{path}_model.pth")
-            else:
-                raise NotImplementedError
-            model.load_state_dict(checkpoint['model_state_dict'])
-            return model, cfg
-        else:
-            state_dict = get_weights(name, weights)
-            model.load_state_dict(state_dict, strict=True) # Loads the linear probe by default
-
-    else:
-        raise NotImplementedError(f"Model {name} not implemented as a classifier yet.")
-

@@ -3,6 +3,13 @@ import argparse
 from typing import Any
 
 class Configuration:
+    """
+    Configuration class for managing settings and parameters.
+
+    This class allows for easy saving, loading, and manipulation of configuration
+    parameters. It supports nested configurations and can be serialized to and from
+    JSON files.
+    """
     def __init__(self):
         
         # On the first call, we initialize the dictionary with the default values
@@ -12,11 +19,19 @@ class Configuration:
                 setattr(self, key, getattr(self, key))
 
     def save(self, path: str) -> None:
+        """
+        Save the configuration to a JSON file.
+
+        :param path: Path to the JSON file where the configuration will be saved.
+        """
         import json
         with open(path, "w") as f:
             json.dump(self.to_dict(), f, indent=4)
 
     def to_dict(self) -> dict:
+        """
+        Convert the configuration to a dictionary.
+        """
         out = {}
         for key, value in self.__dict__.items():
             if isinstance(value, Configuration):
@@ -28,6 +43,11 @@ class Configuration:
         return out
 
     def from_dict(self, d) -> None:
+        """
+        Load the configuration from a dictionary.
+
+        :param d: Dictionary containing configuration parameters.
+        """
         for k, v in d.items():
             if isinstance(v, dict):
                 setattr(self, k, Configuration().from_dict(v))
@@ -37,6 +57,17 @@ class Configuration:
 
     @classmethod
     def from_json(cls, path: str) -> None:
+        """
+        Load the configuration from a JSON file.
+
+        Usage:
+        cfg = Configuration.from_json("config.json")
+
+        :param path: Path to the JSON file containing configuration parameters.
+
+        :return: An instance of the Configuration class populated with the parameters
+                    from the JSON file.
+        """
 
         import json
         with open(path, "r") as f:

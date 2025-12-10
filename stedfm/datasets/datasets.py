@@ -60,6 +60,15 @@ __all__ = [
 ]
 
 def get_dataset(name: str, path: str, **kwargs):
+    """
+    Factory method to get the dataset based on the name.
+
+    :param name: The name of the dataset.
+    :param path: The path to the dataset.
+    :param kwargs: Additional keyword arguments for dataset initialization.
+    
+    :returns: An instance of the requested dataset.
+    """
     if name == "CTC":
         dataset = CTCDataset(path, **kwargs)
     elif name == "JUMP":

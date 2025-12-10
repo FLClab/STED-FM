@@ -25,15 +25,15 @@ MODELS = {
     "convnext-base" : ConvNextWeights,
     "convnext-large": ConvNextWeights,
     'vit-small': None,
-    'mae-tiny': MAEWeights,
     'mae': MAEWeights, # mae defaults to mae-small
+    'mae-tiny': MAEWeights,
     'mae-small': MAEWeights,
+    'mae-base': MAEWeights,
+    'mae-large': MAEWeights,
     'mae-lightning-tiny': MAEWeights,
     'mae-lightning-small': MAEWeights,
     'mae-lightning-base': MAEWeights,
     'mae-lightning-large': MAEWeights,
-    'mae-base': MAEWeights,
-    'mae-large': MAEWeights,
     "mae-lightning-64-p8": MAEWeights,
     "mae-64-p8": MAEWeights,
     "mae-lightning-224-p16": MAEWeights,
@@ -41,6 +41,14 @@ MODELS = {
 }
 
 def get_state_dict(name: str, state_dict: dict) -> dict:
+    """
+    Extracts the state_dict from a loaded checkpoint based on the model name.
+
+    :param name: The name of the model.
+    :param state_dict: The loaded checkpoint containing the state_dict.
+
+    :returns: A state_dict containing the model weights.
+    """
     if "mae" in name.lower():
         return state_dict["state_dict"] 
     
@@ -63,6 +71,13 @@ def get_state_dict(name: str, state_dict: dict) -> dict:
         raise NotImplementedError(f"Weights not supported.")
 
 def handle_url_state_dict(name: str, weights: Union[str, Enum]) -> dict:
+    """
+    Loads weights from a URL. This is specific to torchvision models.
+
+    :param name: The name of the model.
+    :param weights: The Enum containing the URL of the weights.
+    :returns: A state_dict containing the model weights.
+    """
     if "mae" in name.lower():
         state_dict = load_state_dict_from_url(weights.url, map_location="cpu")
         return state_dict
@@ -76,11 +91,27 @@ def handle_url_state_dict(name: str, weights: Union[str, Enum]) -> dict:
         return state_dict
 
 def handle_str_state_dict(name: str, weights: Union[str, Enum]) -> dict:
+    """
+    Loads weights from a local file.
+
+    :param name: The name of the model.
+    :param weights: The path to the local file containing the weights.
+
+    :returns: A state_dict containing the model weights.
+    """
     state_dict = torch.load(weights, map_location="cpu")
 
     return get_state_dict(name, state_dict)
 
 def handle_url_zip_state_dict(name: str, weights: str) -> dict:
+    """
+    Loads weights from a URL pointing to a zip file.
+
+    :param name: The name of the model.
+    :param weights: The URL of the zip file containing the weights.
+
+    :returns: A state_dict containing the model weights.
+    """
 
     url = weights
 
@@ -113,6 +144,14 @@ def handle_url_zip_state_dict(name: str, weights: str) -> dict:
     return get_state_dict(name, state_dict)
 
 def load_weights(name: str, weights: Union[str, Enum, None]) -> dict:
+    """
+    Loads weights for a given model name.
+
+    :param name: The name of the model.
+    :param weights: The weights to load (can be a URL, local path, or None).
+
+    :returns: A state_dict containing the model weights.
+    """
     if isinstance(weights, Enum):
         print(f"--- {name} | Pretrained Image-Net ---\n")
         state_dict = handle_url_state_dict(name, weights=weights)
@@ -138,6 +177,14 @@ def load_weights(name: str, weights: Union[str, Enum, None]) -> dict:
         raise NotImplementedError("Weights not implemented yet.")
 
 def get_weights(name : str, weights: Union[str, None]) -> torch.nn.Module:
+    """
+    Loads weights for a given model name.
+
+    :param name: The name of the model.
+    :param weights: The weights to load (can be a URL, local path, or None).
+
+    :returns: A state_dict containing the model weights.
+    """
     if weights is None:
         return None
     if not name in MODELS:

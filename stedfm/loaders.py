@@ -14,6 +14,13 @@ from stedfm import datasets
 from stedfm.modules.transforms import RandomResizedCropMinimumForeground
 
 class BalancedSampler(Sampler):
+    """
+    Creates a balanced sampler that samples a fixed percentage of data from each class in the dataset.
+
+    :param dataset: The dataset to sample from.
+    :param fewshot_pct: The percentage of the dataset to sample.
+    :param num_classes: The number of classes in the dataset.
+    """
     def __init__(self, dataset: Dataset, fewshot_pct: float = 0.01, num_classes: int = 4) -> None:
         self.dataset = dataset
         self.fewshot_pct = fewshot_pct
@@ -36,30 +43,11 @@ class BalancedSampler(Sampler):
         random.shuffle(ids)
         print(np.unique(np.array(self.dataset.labels)[ids], return_counts=True))
         return iter(ids)
-    
-class UltraSmallSampler(Sampler):
-    def __init__(self, dataset: Dataset, num_per_class: int = 400, num_classes: int = 4) -> None:
-        self.dataset = dataset
-        self.dataset_size = num_per_class * num_classes 
-        self.indices = []
-        for i in range(num_classes):
-            inds = np.argwhere(np.array(self.dataset.labels) == i)
-            inds = np.random.choice(inds.ravel(), size=num_per_class, replace=True)
-            self.indices.append(inds)
-
-    def __len__(self) -> int:
-        return self.dataset_size
-    
-    def __iter__(self) -> Iterable:
-        ids = np.concatenate([ids.ravel() for ids in self.indices]).astype(np.int64)
-        random.shuffle(ids)
-        return iter(ids)
 
 def get_JUMP_dataset(transform: Callable, path: str):
     dataset = datasets.TarJUMPDataset(tar_path=path, transform=transform)
     dataloader = DataLoader(dataset=dataset, batch_size=256, shuffle=True, drop_last=False, num_workers=6)
     return dataloader
-
 
 def get_STED_dataset(transform, path: str):
     dataset = datasets.TarFLCDataset(tar_path=path, transform=transform)
@@ -486,6 +474,15 @@ def get_bbbc053_dataset(path: str, batch_size: int = 128, num_samples: int = Non
     return train_loader, valid_loader, test_loader
 
 def get_dataset(name, path=None, **kwargs):
+    """
+    Factory function to get datasets by name.
+
+    :param name: Name of the dataset to load.
+    :param path: Optional path to the dataset.
+    :param kwargs: Additional keyword arguments to pass to the dataset loader.
+
+    :return: DataLoader for the specified dataset.
+    """
     if name == "optim":
         return get_optim_dataset(
             path=os.path.join(BASE_PATH, "evaluation-data", "optim-data"), 

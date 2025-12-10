@@ -17,6 +17,13 @@ random.seed(42)
 numpy.random.seed(42)
 
 class Combinations:
+    """
+    Creates all the combinations of r samples from the provided list of samples
+
+    :param samples: A `list` of samples
+    :param r: An `int` of the number of combinations
+    :param possible_combinations: (Optional) A `list` of possible combinations to use
+    """
     def __init__(self, samples, r=2, possible_combinations=[]):
         self.samples = samples
         if possible_combinations:
@@ -29,7 +36,6 @@ class Combinations:
         return self
 
     def __next__(self):
-
         if self.current >= len(self.possible_combinations):
             raise StopIteration
         self.current += 1
@@ -41,6 +47,7 @@ class Combinations:
 def permute(samples, group_indexes):
     """
     Permutes a raveled sampled array and returns the new smaples
+
     :param samples: A `numpy.ndarray` with shape (N, )
     :param group_indexes: A `list` of group indexes
     :returns : A `numpy.ndarray` of the permuted samples
@@ -48,10 +55,15 @@ def permute(samples, group_indexes):
     numpy.random.shuffle(samples)
     return [samples[index] for index in group_indexes]
 
-def resampling_F(samples, raveled_samples, group_indexes, permutations=10000):
+def resampling_F(samples: list, raveled_samples: list, group_indexes: list, permutations: int =10000):
     """
-    Computes the F statistics using a resampling of samples
-    :param samples: A `list` of sample
+    Computes the F statistics using a resampling of samples. The p-value is computed
+    by comparing the ground truth F-statistic to the F-statistics obtained by permuting
+    the samples.
+
+    :param samples: A `list` of samples
+    :param raveled_samples: A `numpy.ndarray` of the raveled samples
+    :param group_indexes: A `list` of group indexes
     :param permutations: The number of permutations to test
     """
     gt_fstat, _ = stats.f_oneway(*samples)
@@ -64,31 +76,31 @@ def resampling_F(samples, raveled_samples, group_indexes, permutations=10000):
     p_value = numpy.sum(p_fstat >= gt_fstat, axis=0) / permutations
     return p_value
 
-def resampling_stats(samples, labels, raveled_samples=None, group_indexes=None, permutations=10000, show_ci=False,
-                        bin_edges=None, possible_combinations=[]):
+def resampling_stats(samples : list[numpy.ndarray], labels : list[str], permutations : int =10000, show_ci: bool =False, possible_combinations: list =[]):
     """
-    Computes the pair-wise comparisons of each sample in the list using a resampling
-    statistical test
+    This function computes the resampling statistical test for multiple samples. It first
+    computes a resampling ANOVA F-test to determine if there is any significant difference
+    between the samples. If there is, it then computes pair-wise resampling t-tests between
+    each sample.
     
-    :param samples: A `list` of sample
-    :param raveled_samples: A `list` of all available samples
-    :param group_indexes: A `list` of associated groups 
-    :param labels: A `list` of label 
+    :param samples: A `list` of samples
+    :param labels: A `list` of labels for each group of samples
     :param permutations: An `int` of the number of permutations to do 
     :param show_ci: Wheter to plot the condifence interval 
 
-    :returns : A `list` of p-values for each comparisons
+    :returns : A `pandas.DataFrame` of p-values for each pair of samples
+               A `float` of the F-statistic p-value if more than 2 samples are provided
+               A `dict` of plot information if `show_ci` is True
     """
     # Make sure that the samples are numpy arrays
     samples = [numpy.array(sample) for sample in samples]
 
-    if isinstance(raveled_samples, type(None)):
-        raveled_samples, group_indexes = [], []
-        current_count = 0
-        for i, samp in enumerate(samples):
-            raveled_samples.extend(samp)
-            group_indexes.append(current_count + numpy.arange(len(samp)))
-            current_count += len(samp)
+    raveled_samples, group_indexes = [], []
+    current_count = 0
+    for i, samp in enumerate(samples):
+        raveled_samples.extend(samp)
+        group_indexes.append(current_count + numpy.arange(len(samp)))
+        current_count += len(samp)
 
     raveled_samples = numpy.array(raveled_samples)
         
@@ -150,11 +162,13 @@ def resampling_stats(samples, labels, raveled_samples=None, group_indexes=None, 
 
             plot_info[key]["current_count"] += 1
 
+    if show_ci:
+        return p_values, F_p_value, plot_info
     return p_values, F_p_value
 
 def create_latex_table(pvalues, scores, formatted_labels, output_file=None, group_name=None):
     """
-    Creates a latex table by using pandas as a backend 
+    Utility function to create a latex table from p-values
     
     :param pvalues: A list of pvalues 
     :param scores: A list of all scores 
@@ -202,7 +216,14 @@ def create_latex_table(pvalues, scores, formatted_labels, output_file=None, grou
                           escape=False)
     return out
 
-def plot_p_values(p_values):
+def plot_p_values(p_values : pandas.DataFrame):
+    """
+    Utility function to plot p-values heatmap
+
+    :param p_values: A `pandas.DataFrame` of p-values
+
+    :returns : A `matplotlib.figure.Figure` and `matplotlib.axes.Axes` containing the plot
+    """
     if p_values.shape[0] < 5:
         fig, ax = pyplot.subplots(figsize=(3,3))
     else:
