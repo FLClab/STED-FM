@@ -60,6 +60,15 @@ __all__ = [
 ]
 
 def get_dataset(name: str, path: str, **kwargs):
+    """
+    Factory method to get the dataset based on the name.
+
+    :param name: The name of the dataset.
+    :param path: The path to the dataset.
+    :param kwargs: Additional keyword arguments for dataset initialization.
+    
+    :returns: An instance of the requested dataset.
+    """
     if name == "CTC":
         dataset = CTCDataset(path, **kwargs)
     elif name == "JUMP":
@@ -158,7 +167,7 @@ def get_dataset(name: str, path: str, **kwargs):
     # This allows to load any folder dataset containing tiff files
     elif os.path.isdir(name):
         dataset = FolderDataset(
-            os.path.join(BASE_PATH),
+            name,
             **kwargs
         )
     elif name == "synaptic-proteins":
@@ -1660,6 +1669,7 @@ class LQHQDenoisingDataset(Dataset):
 
                 means.append(self.imgs[-1].mean(axis=(1, 2)))
                 stds.append(self.imgs[-1].std(axis=(1, 2))) 
+        
 
         self.classes = list(sorted(set(self.conditions)))
         assert all([class_name in self.classes for class_name in classes]), "Classes not found in dataset"
@@ -1667,6 +1677,18 @@ class LQHQDenoisingDataset(Dataset):
         self.num_classes = len(self.classes)
         self.labels = [self.classes.index(condition) for condition in self.conditions]
 
+        if self.num_samples is not None:
+            # Keep only a subset of samples
+            rng = np.random.default_rng(seed)
+            samples = np.random.choice(len(self.imgs), size=min(self.num_samples, len(self.imgs)), replace=False)
+
+            self.imgs = [self.imgs[s] for s in samples]
+            self.conditions = [self.conditions[s] for s in samples]
+
+            self.classes = list(sorted(set(self.conditions)))
+            self.num_classes = len(self.classes)
+            self.labels = [self.classes.index(condition) for condition in self.conditions]
+            
         if self.balance:
             self.rng = np.random.default_rng(seed)
             self.__balance_classes()
@@ -1691,6 +1713,9 @@ class LQHQDenoisingDataset(Dataset):
     
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, dict]:
         img, label, condition = self.imgs[idx], self.labels[idx], self.conditions[idx]
+
+        m, M = img.min(axis=(1, 2), keepdims=True), img.max(axis=(1, 2), keepdims=True)
+        img = (img - m) / (M - m + 1e-8)
 
         if self.n_channels == 3:
             img = np.tile(img[np.newaxis, :], (3, 1, 1))
@@ -2686,35 +2711,100 @@ class HPAClassificationDataset(HPADataset):
 
         self.label_path = label_path
         self.class_map = {
-            "Nucleoplasm": 0,
-            "Nuclear membrane": 1,
-            "Nucleoli": 2,
-            "Nucleoli fibrillar center": 3,
-            "Nuclear speckles": 4,
-            "Nuclear bodies": 5,
-            "Endoplasmic reticulum": 6,
-            "Golgi apparatus": 7,
-            "Intermediate filaments": 8,
-            "Actin filaments": 9,
-            "Microtubules": 10,
-            "Mitotic spindle": 11,
-            "Centrosome": 12,
-            "Plasma membrane": 13,
-            "Mitochondria": 14,
-            "Aggresome": 15,
-            "Cytosol": 16,
-            "Vesicles and punctate cytosolic patterns": 17,
-            "Negative": 18
+            "Nucleoplasm" : 0,
+            "Nuclear membrane" : 1,
+            "Nucleoli" : 2,
+            "Nucleoli fibrillar center" : 3,
+            "Nuclear speckles" : 4,
+            "Nuclear bodies" : 5,
+            "Endoplasmic reticulum" : 6,
+            "Golgi apparatus" : 7,
+            "Peroxisomes" : 8,
+            "Endosomes" : 9,
+            "Lysosomes" : 10,
+            "Intermediate filaments" : 11,
+            "Actin filaments" : 12,
+            "Focal adhesion sites" : 13,
+            "Microtubules" : 14,
+            "Microtubule ends" : 15,
+            "Cytokinetic bridge" : 16,
+            "Mitotic spindle" : 17,
+            "Microtubule organizing center" : 18,
+            "Centrosome" : 19,
+            "Lipid droplets" : 20,
+            "Plasma membrane" : 21,
+            "Cell junctions" : 22,
+            "Mitochondria" : 23,
+            "Aggresome" : 24,
+            "Cytosol" : 25,
+            "Cytoplasmic bodies" : 26,
+            "Rods & rings" : 27,
         }
 
         self.members, self.labels = self._make_labels()
+        self.original_size = len(self.members)
 
         self.classes = list(self.class_map.keys())
         self.num_classes = len(self.class_map)
+        self.mean = kwargs.get("mean", [0.0526, 0.0526, 0.0526])
+        self.std = kwargs.get("std", [0.09, 0.09, 0.09])
+
+        self.num_samples = kwargs.get("num_samples", None)
+        if self.num_samples is not None:
+            self.members, self.labels = self._sample_per_class(self.num_samples)
 
         print(f"Number of samples with labels: {len(self.members)}")
         print(f"Number of classes: {len(self.class_map)}")
         print(f"Class distribution: {numpy.sum(self.labels, axis=0)}")
+
+        # stats = self._get_statistics()
+        # print("Dataset statistics:")
+        # mean = numpy.mean([s["mean"] for s in stats])
+        # std = numpy.mean([s["std"] for s in stats])
+        # print(f"  Mean: {mean:0.4f}")
+        # print(f"  Std: {std:0.4f}")
+
+    def _sample_per_class(self, num_samples: int):
+        sampled_members = []
+        sampled_labels = []
+        class_counts = numpy.zeros(self.num_classes, dtype=int)
+
+        # Since some classes are more frequent than others, we sample starting from the least frequent ones
+        # to ensure a more balanced representation across all classes.
+        class_distribution = numpy.sum(self.labels, axis=0)
+        class_distribution_sorted_indices = numpy.argsort(class_distribution)
+        for idx in class_distribution_sorted_indices:
+            number_of_samples_needed = num_samples - class_counts[idx]
+            if number_of_samples_needed <= 0:
+                continue
+
+            available_indices = numpy.where(self.labels[:, idx] == 1)[0]
+            numpy.random.shuffle(available_indices)
+            if len(available_indices) <= number_of_samples_needed:
+                selected_indices = available_indices
+            else:
+                selected_indices = available_indices[:number_of_samples_needed]
+            
+            for si in selected_indices:
+                sampled_members.append(self.members[si])
+                sampled_labels.append(self.labels[si])
+                class_counts += self.labels[si]
+
+        return sampled_members, sampled_labels
+
+    def _get_statistics(self):
+        stats = []
+        for idx in range(len(self.members)):
+            data = self.get_data(idx)
+            img = data["image"]
+            img = (img - img.min()) / (img.max() - img.min())
+            stats.append({
+                "min": img.min(),
+                "max": img.max(),
+                "mean": img.mean(),
+                "std": img.std()
+            })
+        return stats
 
     def _make_labels(self) -> Tuple[List[str], List[numpy.ndarray]]:
 
@@ -2726,22 +2816,27 @@ class HPAClassificationDataset(HPADataset):
             image_id, channel = image_name.split("_")[-2:]
             if channel != "green":
                 continue
-            if not (image_id in annotations["ID"].values):
+            if not (image_id in annotations["Id"].values):
                 continue
-            label_ids = annotations.loc[annotations["ID"] == image_id, "Label"].values[0].split('|')
+            label_ids = annotations.loc[annotations["Id"] == image_id, "Target"].values[0].split(' ')
             label = numpy.zeros(len(self.class_map), dtype=int)
             # Convert to one-hot encoding
             for label_id in label_ids:
                 label[int(label_id)] = 1
             labels.append(label)
             members.append(member)
-
+        labels = numpy.array(labels)
         return members, labels
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
         img = super(HPAClassificationDataset, self).__getitem__(idx)
         label = self.labels[idx]
         label = torch.tensor(label, dtype=torch.float32)
+
+        if self.in_channels == 3:
+            img = img.repeat(3, 1, 1)
+            img = transforms.Normalize(mean=self.mean, std=self.std)(img)
+
         return img, {'label': label}
 
 #### For the Neurodegeneration project ####

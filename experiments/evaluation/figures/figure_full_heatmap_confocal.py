@@ -12,7 +12,7 @@ from stedfm.utils import savefig
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mae-small")
-parser.add_argument("--mode", type=str, default="linear-probe")
+parser.add_argument("--mode", type=str, default="linear-probe", choices=["linear-probe", "finetuned"])
 parser.add_argument("--metric", type=str, default="acc")
 args = parser.parse_args() 
 
@@ -38,7 +38,7 @@ def get_data(pretraining: str, downstream: str, mode: str) -> dict:
 
 def main():
     pretraining_datasets = ["STED", "SIM", "HPA", "JUMP", "ImageNet", "from-scratch"] if args.model == "mae-small" else ["STED"]
-    downstream_datasets = ["bbbc026", "bbbc052", "bbbc053"]
+    downstream_datasets = ["bbbc026", "bbbc052", "bbbc053", "hpa-classification"]
     P, D = len(pretraining_datasets), len(downstream_datasets)
 
     performance_heatmap = np.zeros((P, D))

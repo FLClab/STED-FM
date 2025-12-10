@@ -69,8 +69,17 @@ def load_dataset(balance=True) -> torch.utils.data.Dataset:
         )        
     elif args.dataset == "resolution":
         path = os.path.join(BASE_PATH, "evaluation-data/low-high-quality")
+        split = args.split
+        if args.split == "train":
+            split = "training"
+        elif args.split == "valid":
+            split = "validation"
+        elif args.split == "test":
+            split = "testing"
+        h5path = f"{path}/{split}.hdf5"
+
         dataset = LowHighResolutionDataset(
-            h5path=f"{path}/{args.split}.hdf5",
+            h5path=h5path,
             num_samples=None,
             transform=None,
             n_channels=3 if "imagenet" in args.weights.lower() else 1,
@@ -144,7 +153,7 @@ def load_dataset(balance=True) -> torch.utils.data.Dataset:
         )            
     elif args.dataset == "als":
         dataset = ALSDataset(
-            tarpath=f"/home-local/Frederic/Datasets/ALS/ALS_JM_Fred_unmixed/PLKO-262-{args.channel}-{args.split}.tar",
+            tarpath=f"{BASE_PATH}/Datasets/ALS/ALS_JM_Fred_unmixed/PLKO-262-{args.channel}-{args.split}.tar",
         )
     else:
         raise ValueError(f"Dataset {args.dataset} not found")

@@ -17,6 +17,16 @@ class ClassificationHead(torch.nn.Module):
         return self.classfication_head(x)
 
 class LinearProbe(torch.nn.Module):
+    """
+    Creates a linear probe on top of a given backbone model.
+
+    :param backbone: The backbone model to use for feature extraction.
+    :param name: The name of the backbone model.
+    :param cfg: Configuration dictionary containing model parameters.
+    :param num_classes: The number of output classes for classification.
+    :param global_pool: The type of global pooling to use ('avg', 'token', or 'patch').
+    :param num_blocks: The number of blocks to freeze in the backbone model ('all', '0', or an integer).
+    """
     def __init__(
         self,
         backbone: torch.nn.Module,

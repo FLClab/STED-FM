@@ -543,7 +543,14 @@ def main():
                 samples = [original]
 
 
-                lerped_codes, d, image_distance = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=distance_min, end_distance=distance_max, steps=args.n_steps+1)
+                lerped_codes, d, image_distance = linear_interpolate(
+                    latent_code=numpy_code, 
+                    boundary=boundary, 
+                    intercept=intercept, 
+                    norm=norm, 
+                    start_distance=distance_min, 
+                    end_distance=distance_max, 
+                    steps=args.n_steps+1)
                 distances.append(image_distance)
                 print(d)
 

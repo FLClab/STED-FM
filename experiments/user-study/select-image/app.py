@@ -32,6 +32,7 @@ class User:
         self.name = name
 
 DATASET = "attention-maps-finetuned"
+DATASET = "FActinDendriticDataset"
 os.makedirs(os.path.join("data", DATASET), exist_ok=True)
 
 if DATASET in ["attention-maps", "attention-maps-finetuned-25samples", "attention-maps-finetuned"]:
@@ -88,6 +89,28 @@ elif DATASET == "preference-study":
         #     image.replace("templates", "candidates").replace(basename, f"{image_id}_{basename}")
         #     for image_id in IMAGE_IDS
         # ])
+elif DATASET == "FActinDendriticDataset":
+    IMAGE_IDS = [
+        "ddim",
+        "draft",
+        "pix2pix"
+    ]
+    # Dummy data for images
+    template_images = glob.glob(os.path.join("static", DATASET, "templates", "*.png"))
+    template_images = [os.path.relpath(path, "static") for path in template_images]
+    random.seed(42)
+    random.shuffle(template_images)
+
+    candidate_images = []
+    for image in template_images:
+        basename = os.path.basename(image)
+
+        to_append = [
+            image.replace("templates", "candidates").replace(basename, f"{image_id}_{basename}")
+            for image_id in IMAGE_IDS
+        ]
+        if any([os.path.isfile(os.path.join("static", path)) for path in to_append]):
+            candidate_images.append(to_append)
 
 # Shuffle the candidate images
 print("Number of images: ", len(candidate_images))

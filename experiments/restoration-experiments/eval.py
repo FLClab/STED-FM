@@ -189,7 +189,7 @@ if __name__ == "__main__":
         cfg=cfg
     )
     # Loads checkpoint
-    checkpoint = torch.load(os.path.join(args.restore_from, "result.pt"))
+    checkpoint = torch.load(os.path.join(args.restore_from, "result.pt"), map_location=device)
     print(cfg)
 
     # Build the UNet model.

@@ -16,17 +16,22 @@ experiments/diffusion-experiments/activity-experiment/
 experiments/diffusion-experiments/resolution-experiment/distributions/
 experiments/interpretability-experiments/TiffWrapper/
 experiments/misc-experiments/results/
+experiments/detection-experiments/notebooks/*.csv
 logs/
 *.pdf
 *.png
 *.tif
 *.tex
 *.npz
+*.bckp
+config.yml
 experiments/detection-experiments/**/*.pkl
 experiments/detection-experiments/application/users.json
 experiments/autonomous-experiments/**/*.pkl
 experiments/user-study/**/*.pkl
+experiments/user-study/**/*.tmppkl
 experiments/diffusion-experiments/quality-experiment/
+*launch*.sh
 
 # DS_Store files
 *.DS_Store
