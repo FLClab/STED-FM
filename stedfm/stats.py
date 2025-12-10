@@ -12,6 +12,7 @@ from tqdm.auto import tqdm
 from matplotlib import pyplot
 from scipy import stats
 from collections import defaultdict
+from typing import List
 
 random.seed(42)
 numpy.random.seed(42)
@@ -76,7 +77,7 @@ def resampling_F(samples: list, raveled_samples: list, group_indexes: list, perm
     p_value = numpy.sum(p_fstat >= gt_fstat, axis=0) / permutations
     return p_value
 
-def resampling_stats(samples : list[numpy.ndarray], labels : list[str], permutations : int =10000, show_ci: bool =False, possible_combinations: list =[]):
+def resampling_stats(samples : List[numpy.ndarray], labels : List[str], permutations : int =10000, show_ci: bool =False, possible_combinations: list =[]):
     """
     This function computes the resampling statistical test for multiple samples. It first
     computes a resampling ANOVA F-test to determine if there is any significant difference

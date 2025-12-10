@@ -3,6 +3,7 @@ import os, glob
 import json
 import tifffile
 
+from typing import List
 from collections import defaultdict
 from tqdm.auto import tqdm 
 
@@ -23,7 +24,7 @@ def merge_by_metadata(metadata: dict) -> dict:
         out[(channel, h, w)].append(value)
     return out
 
-def assert_different_images(images: list[str]) -> list[str]:
+def assert_different_images(images: List[str]) -> List[str]:
     """
     Ensures the images are different
 

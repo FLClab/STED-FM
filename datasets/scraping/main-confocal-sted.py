@@ -9,7 +9,7 @@ import numpy
 import json
 import re
 
-from typing import Generator
+from typing import Generator, List
 from tqdm.auto import tqdm
 
 # import sys
@@ -29,7 +29,7 @@ MIN_IMAGE_SIZE = 224
 def get_hash(string:str):
     return hashlib.sha256(string.encode("utf-8")).hexdigest()
 
-def get_msrfiles(path: str) -> list[str]:
+def get_msrfiles(path: str) -> List[str]:
     """
     Gets the list of MSR files from the path.
     """
@@ -154,7 +154,7 @@ def filter_image_only(image: dict) -> dict:
             if isinstance(value, numpy.ndarray)
     }
 
-def get_merged_stack(key: str, confocal_key: str, keys: list[str], image: dict) -> numpy.ndarray:
+def get_merged_stack(key: str, confocal_key: str, keys: List[str], image: dict) -> numpy.ndarray:
     index = keys.index(confocal_key)
     confocal_key = list(image.keys())[index] # Retrieves the original key
     if not image[key].shape == image[confocal_key].shape:

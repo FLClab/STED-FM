@@ -8,6 +8,8 @@ import hashlib
 import numpy
 import json
 
+from typing import List
+
 import sys
 sys.path.insert(0, "../..")
 from utils.msrreader import MSRReader
@@ -23,7 +25,7 @@ MIN_IMAGE_SIZE = 224
 def get_hash(string:str):
     return hashlib.sha256(string.encode("utf-8")).hexdigest()
 
-def get_msrfiles(path: str) -> list[str]:
+def get_msrfiles(path: str) -> List[str]:
     """
     Gets the list of MSR files from the path.
     """

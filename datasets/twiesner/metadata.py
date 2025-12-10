@@ -2,6 +2,8 @@
 import json
 import os, subprocess
 
+from typing import List
+
 CONVERSION = {
     "bassoon" : "Basson",
     "homer" : "Homer",
@@ -10,7 +12,7 @@ CONVERSION = {
     "psd95" : "PSD95"
 }
 
-def get_files(src : str) -> list[dict]:
+def get_files(src : str) -> List[dict]:
     """
     Copies files from path
 
@@ -29,7 +31,7 @@ def get_files(src : str) -> list[dict]:
     print("[----] Done!")
     return output
 
-def get_protein_images(files : list[dict], protein : str) -> list[dict]:
+def get_protein_images(files : List[dict], protein : str) -> List[dict]:
     """
     Gets the files of a protein
     """
