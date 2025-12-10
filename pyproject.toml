@@ -31,7 +31,8 @@ dependencies = [
     "torchsummary",
     "torchinfo",
     "tqdm",
-    "typing-extensions"
+    "typing-extensions",
+    "scikit-posthocs"
 ]
 requires-python = ">=3.8"
 authors = [

@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm 
 import argparse 
 import sys 
+import json
+
+from finetune import validation_step
 
 from stedfm.DEFAULTS import BASE_PATH
 from stedfm.model_builder import get_pretrained_model_v2
@@ -21,6 +24,7 @@ parser.add_argument("--pretraining", type=str, default="STED")
 parser.add_argument("--probe", type=str, default="linear-probe", choices=["linear-probe", "finetuned"])
 parser.add_argument("--from-scratch", action="store_true", default=False)
 parser.add_argument("--dataset", type=str, default="synaptic-proteins")
+parser.add_argument("--num-samples", nargs="+", default=[None])
 parser.add_argument("--seeds", nargs="+", default=[])
 parser.add_argument("--opts", nargs="+", default=[], 
                     help="Additional configuration options")    
@@ -46,6 +50,8 @@ def get_save_folder() -> str:
         return "CTC"
     elif "hpa" in args.weights.lower():
         return "HPA"
+    elif "sim" in args.weights.lower():
+        return "SIM"
     else:
         raise NotImplementedError("The requested weights do not exist.")
 
@@ -128,38 +134,77 @@ def main():
         num_samples=None # not used when only loading test dataset
     )
 
+    criterion = torch.nn.CrossEntropyLoss()
+    if args.dataset in ["hpa-classification"]:
+        # Multi-label case
+        criterion = torch.nn.BCEWithLogitsLoss()    
 
-    # Load state dict
+    print(f"--- Evaluating {args.model} pretrained with {args.pretraining} ---")
     if len(args.seeds) > 0:
-        accuracies = []
-        for seed in args.seeds:
-            modelname = args.model.replace("-lightning", "")
-            model_path= os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
-            model_name = f"{probe}_None_{seed}.pth"
-            state_dict = torch.load(os.path.join(model_path, model_name), map_location="cpu", weight_only=False)
-            model.load_state_dict(state_dict["model_state_dict"])
+        for num_samples in args.num_samples:
+            for seed in args.seeds:
+                modelname = args.model.replace("-lightning", "")
+                model_path= os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
+                model_name = f"{probe}_{num_samples}_{seed}.pth"
+                state_dict = torch.load(os.path.join(model_path, model_name), map_location="cpu", weights_only=False)
+                model.load_state_dict(state_dict["model_state_dict"])
+                model = model.to(device)
+                
+                loss, acc, cm = validation_step(
+                    model=model,
+                    valid_loader=test_loader,
+                    criterion=criterion,
+                    epoch=-1,
+                    device=device,
+                )
 
-            model = model.to(device)
-            acc = evaluate(model=model, loader=test_loader, device=device, probe=probe)
-            accuracies.append(acc)
-        print("=====================================")
-        print(f"Multiple repetitions with seeds: {args.seeds}")
-        print(f"Model: {args.model}")
-        print(f"Probe: {probe}")
-        print(f"Dataset: {args.dataset}")
-        print(f"Accuracies: {accuracies}")
-        print(f"Mean accuracy: {np.mean(accuracies) * 100:0.2f}")
-        print(f"Std accuracy: {np.std(accuracies) * 100:0.2f}")
-        print("=====================================")
-    else:        
-        modelname = args.model.replace("-lightning", "")
-        model_path= os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
-        model_name = f"{probe}.pth"
-        state_dict = torch.load(os.path.join(model_path, model_name), map_location="cpu")
-        model.load_state_dict(state_dict["model_state_dict"])
+                with open(f"{model_path}/accuracy_{probe}_{num_samples}_{seed}.json", "w") as file:
+                    json.dump({
+                        "loss" : float(loss),
+                        "acc" : float(acc),
+                        "cm" : cm.tolist()
+                    }, file, indent=4, sort_keys=True)
+                print("=====================================")
+                print(f"Seed: {seed}")
+                print(f"Model: {args.model}")
+                print(f"Probe: {probe}")
+                print(f"Num. Samples: {num_samples}")
+                print(f"Dataset: {args.dataset}")
+                print(f"Testing loss: {loss}")
+                print(f"Testing accuracy: {acc * 100:0.2f}")
+                print("=====================================")
 
-        model = model.to(device)
-        evaluate(model=model, loader=test_loader, device=device, probe=probe)
+#     # Load state dict
+#     if len(args.seeds) > 0:
+#         accuracies = []
+#         for seed in args.seeds:
+#             modelname = args.model.replace("-lightning", "")
+#             model_path= os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
+#             model_name = f"{probe}_None_{seed}.pth"
+#             state_dict = torch.load(os.path.join(model_path, model_name), map_location="cpu", weight_only=False)
+#             model.load_state_dict(state_dict["model_state_dict"])
+
+#             model = model.to(device)
+#             acc = evaluate(model=model, loader=test_loader, device=device, probe=probe)
+#             accuracies.append(acc)
+#         print("=====================================")
+#         print(f"Multiple repetitions with seeds: {args.seeds}")
+#         print(f"Model: {args.model}")
+#         print(f"Probe: {probe}")
+#         print(f"Dataset: {args.dataset}")
+#         print(f"Accuracies: {accuracies}")
+#         print(f"Mean accuracy: {np.mean(accuracies) * 100:0.2f}")
+#         print(f"Std accuracy: {np.std(accuracies) * 100:0.2f}")
+#         print("=====================================")
+#     else:        
+#         modelname = args.model.replace("-lightning", "")
+#         model_path= os.path.join(BASE_PATH, "baselines", f"{modelname}_{SAVENAME}", args.dataset)
+#         model_name = f"{probe}.pth"
+#         state_dict = torch.load(os.path.join(model_path, model_name), map_location="cpu")
+#         model.load_state_dict(state_dict["model_state_dict"])
+
+#         model = model.to(device)
+#         evaluate(model=model, loader=test_loader, device=device, probe=probe)
     
 
 if __name__=="__main__":

@@ -9,11 +9,12 @@ from matplotlib import pyplot
 
 from stedfm.DEFAULTS import BASE_PATH, COLORS, MARKERS
 from stedfm.utils import savefig
+from stedfm.stats import resampling_stats, plot_p_values
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--model", type=str, 
+parser.add_argument("--model", type=str, required=True,
                     help="Name of the model")
-parser.add_argument("--dataset", type=str, 
+parser.add_argument("--dataset", type=str, required=True,
                     help="Name of the dataset")
 parser.add_argument("--best-model", type=str, default=None, 
                     help="Which model to keep")
@@ -37,14 +38,13 @@ def load_file(file):
 def get_data(pretraining="STED"):
     data = {}
     for sample in args.samples:
-        if args.mode == "from-scratch":
-            files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{args.mode}*-{sample}%-labels*", f"segmentation-scores.json"), recursive=True)
+        if args.mode == "from-scratch" or pretraining == "from-scratch":
+            files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"from-scratch*-{sample}%-labels*", f"segmentation-scores.json"), recursive=True)
         else:
             if args.sampling_mode == "samples":
                 files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{args.mode}*_{pretraining.upper()}*-{sample}-samples*", f"segmentation-scores.json"), recursive=True)
             else:
                 files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{args.mode}*_{pretraining.upper()}*-{sample}%-labels*", f"segmentation-scores.json"), recursive=True)
-
 
         if args.mode == "pretrained":
             # remove files that contains samples
@@ -64,8 +64,8 @@ def get_data(pretraining="STED"):
 
 def get_full_data(mode=args.mode, pretraining="STED"):
     data = {}
-    if mode == "from-scratch":
-        files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{mode}*", f"segmentation-scores.json"), recursive=True)
+    if mode == "from-scratch" or pretraining == "from-scratch":
+        files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"from-scratch*", f"segmentation-scores.json"), recursive=True)
     else:
         files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", args.dataset, f"{mode}*_{pretraining.upper()}*", f"segmentation-scores.json"), recursive=True)
         files = [f for f in files if "labels" not in f]
@@ -141,6 +141,8 @@ def main():
 
     fig, ax = pyplot.subplots(figsize=(4,3))
     pretrainings = ["STED", "SIM", "HPA", "JUMP", "ImageNet"]
+    if args.mode in ["from-scratch", "pretrained"]:
+        pretrainings += ["from-scratch"]
     
     for i, pretraining in enumerate(pretrainings):
         data = get_data(pretraining=pretraining)
@@ -149,16 +151,40 @@ def main():
     if args.sampling_mode == "samples":
         xticklabels=list(args.samples) + ["Full"]
     else:
-        xticklabels = [str(item) + "%" for item in args.samples] + ["100%"]
-        
+        xticklabels = [str(item) + "%" for item in args.samples] + ["100%"]  
     ax.set(
         ylabel=args.metric,
         # ylim=(0, 1),
         xticks=[float(s) for s in args.samples] + [200 if args.sampling_mode == "samples" else 100],
         xticklabels=xticklabels
     )
-
     savefig(fig, os.path.join(".", "results", f"{args.sampling_mode}-{args.model}_{args.dataset}_{args.mode}_small-dataset"), extension="pdf")
+
+    # Statistics
+    samples, labels = [], []
+    for pretraining in pretrainings:
+        data = get_data(pretraining=pretraining)
+        out = {}
+        for key, values in data.items():
+            values = [item[args.metric] for item in values]
+            values_masked = numpy.ma.masked_equal(values, -1)
+            out[key] = numpy.ma.mean(values_masked, axis=(1, 2)).compressed()
+        data = out
+        samples.extend(data.values())
+        labels.extend([f"{pretraining}-{key}" for key in data.keys()])
+
+        full_dataset_results = get_full_data(pretraining=pretraining)
+        full_dataset_results = [item[args.metric] for item in full_dataset_results[args.mode]]
+        values_masked = numpy.ma.masked_equal(full_dataset_results, -1)
+        full_dataset_results = numpy.ma.mean(values_masked, axis=(1,2)).compressed()
+        samples.append(full_dataset_results)
+        labels.append(f"{pretraining}-Full")
+        
+    p_values, F_p_value = resampling_stats(samples, labels)
+    print("ANOVA p-value:", F_p_value)
+    fig, ax = plot_p_values(p_values)
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_{args.mode}-small-dataset-stats"), extension="pdf")
+
 
 if __name__ == "__main__":
     main()

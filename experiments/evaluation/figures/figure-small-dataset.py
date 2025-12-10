@@ -9,6 +9,7 @@ from matplotlib import pyplot
 
 from stedfm.DEFAULTS import BASE_PATH, COLORS, MARKERS
 from stedfm.utils import savefig
+from stedfm.stats import resampling_stats, plot_p_values
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mae-small",
@@ -21,7 +22,7 @@ parser.add_argument("--metric", default="acc", type=str,
                     help="Name of the metric to access from the saved file")
 parser.add_argument("--samples", nargs="+", type=str, default=None,
                     help="Number of samples to plot")
-parser.add_argument("--mode", type=str, default="linear-probe")
+parser.add_argument("--mode", type=str, default="linear-probe", choices=["linear-probe", "finetuned"])
 args = parser.parse_args()
 
 print(args)
@@ -34,7 +35,11 @@ def load_file(file):
 def get_data(pretraining="STED"):
     data = {}
     for sample in args.samples:
-        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"accuracy_{args.mode}_{sample}_*.json"), recursive=True)
+        if pretraining == "from-scratch":
+            files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_from-scratch", args.dataset, f"accuracy_from-scratch_{sample}_*.json"), recursive=True)
+        else:
+            files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"accuracy_{args.mode}_{sample}_*.json"), recursive=True)
+        
         if len(files) < 1:
             print(f"Could not find files for sample: `{sample}` and pretraining: `{pretraining}`")
             continue
@@ -51,7 +56,10 @@ def get_data(pretraining="STED"):
 
 def get_full_data(mode=args.mode, pretraining="STED"):
     data = {}
-    files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"accuracy_{mode}_None_*.json"), recursive=True)
+    if pretraining == "from-scratch":
+        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_from-scratch", args.dataset, f"accuracy_from-scratch_None_*.json"), recursive=True)
+    else:
+        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", args.dataset, f"accuracy_{mode}_None_*.json"), recursive=True)
     if len(files) < 1: 
         print(f"Could not find files for mode: `{mode}` and pretraining: `{pretraining}`")
         return data
@@ -104,11 +112,29 @@ def plot_data(pretraining, data, figax=None):
 def main():
 
     fig, ax = pyplot.subplots(figsize=(4,3))
-    for pretraining in ["STED", "SIM", "HPA", "JUMP", "ImageNet"]:
+    for pretraining in ["STED", "SIM", "HPA", "JUMP", "ImageNet", "from-scratch"]:
         data = get_data(pretraining=pretraining)
         fig, ax = plot_data(pretraining, data, figax=(fig, ax))
     ax.legend()
     savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_{args.mode}-small-dataset-samples"), extension="pdf")
+
+    # Statistics
+    samples, labels = [], []
+    for pretraining in ["STED", "SIM", "HPA", "JUMP", "ImageNet", "from-scratch"]:
+        data = get_data(pretraining=pretraining)
+        data = {key: [item[args.metric] for item in values] for key, values in data.items()}
+        samples.extend(data.values())
+        labels.extend([f"{pretraining}-{key}" for key in data.keys()])
+
+        full_dataset_results = get_full_data(pretraining=pretraining)
+        full_dataset_results = [item[args.metric] for item in full_dataset_results[args.mode]]
+        samples.append(full_dataset_results)
+        labels.append(f"{pretraining}-Full")
+    
+    p_values, F_p_value = resampling_stats(samples, labels)
+    print("ANOVA p-value:", F_p_value)
+    fig, ax = plot_p_values(p_values)
+    savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_{args.mode}-small-dataset-stats"), extension="pdf")
 
 if __name__ == "__main__":
     main()

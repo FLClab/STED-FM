@@ -203,8 +203,11 @@ def create_latex_table(pvalues, scores, formatted_labels, output_file=None, grou
     return out
 
 def plot_p_values(p_values):
+    if p_values.shape[0] < 5:
+        fig, ax = pyplot.subplots(figsize=(3,3))
+    else:
+        fig, ax = pyplot.subplots(figsize=(8,8))
 
-    fig, ax = pyplot.subplots(figsize=(3,3))
     cmap = ['1', '#aaaaaa',  '#08306b',  '#4292c6', '#c6dbef']
     heatmap_args = {
         'cmap': cmap, 'linewidths': 1.0, 'linecolor': '0.', 
@@ -224,7 +227,7 @@ def plot_p_values(p_values):
                 ax.annotate(
                     f"{text}", (xticks[i], yticks[j]),
                     ha="center", va="center",
-                    fontsize=8 if len(p_values) < 4 else 6,
+                    fontsize=8 if len(p_values) < 5 else 4,
                     color="white" if p_values.iloc[i, j] < 0.05 else "black"
                 )
     return fig, ax
