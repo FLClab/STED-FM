@@ -129,7 +129,7 @@ class RandomNumberOfSamplesSampler(Sampler):
 class SegmentationConfiguration(Configuration):
     
     freeze_backbone: bool = True
-    num_epochs: int = 100
+    num_epochs: int = 300
     learning_rate: float = 1e-4
     full_decoder: bool = True
 

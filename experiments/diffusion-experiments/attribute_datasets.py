@@ -409,9 +409,6 @@ class ALSDataset(Dataset):
         img = self.transform(img) if self.transform is not None else img
         return img, {"label": div, "dataset-idx": idx, "batch": batch, "dpi": dpi, "protein": "PSD95", "min_value": min_value, "max_value": max_value}
 
-        
-
-
     def __del__(self):
         """
         Close the ZipFile file handles on exit.

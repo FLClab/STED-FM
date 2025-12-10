@@ -283,3 +283,22 @@ def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn
             return ViTSegmentationClassifier(backbone=backbone.backbone.vit, cfg=cfg)
         else:
             raise ValueError(f"Backbone {cfg.backbone} for decoder is not supported")
+        
+if __name__ == "__main__":
+
+    from stedfm import get_pretrained_model_v2
+    from stedfm.configuration import Configuration
+
+    datset_cfg = Configuration()
+    datset_cfg.num_classes = 1
+
+    model, cfg = get_pretrained_model_v2(
+        name="mae-lightning-small",
+    )
+    cfg.dataset_cfg = datset_cfg
+    
+    segmentation_model = get_decoder(model, cfg, full_decoder=True)
+
+    x = torch.randn(1, 1, 224, 224)
+    y = segmentation_model(x)
+    print(x.shape, '->', y.shape)  # (1, 1, 224, 224) -> (1, 1, 224, 224)

@@ -77,6 +77,10 @@ def get_ground_truth_images(dataset_name):
         path = os.path.join(BASE_PATH, "denoising-data", "ov-lqhq-live-mito", "live_cell_mitochondria_u2os_tom20_halotag7_dm_sir", "test_and_training_data_1", "ground_truth_images")
     elif dataset_name == "jmb-lqhq":
         path = os.path.join(BASE_PATH, "denoising-data", "jmb-lqhq", "exported", "test", "gt")
+    elif dataset_name in ["kt-lqhq-gephyrin", "kt-lqhq", "kt-lqhq-vgat"]:
+        path = os.path.join(BASE_PATH, "denoising-data", "kt-lqhq", dataset_name, "exported", "test", "gt")
+    elif dataset_name in ["kt-sr-vgat"]:
+        path = os.path.join(BASE_PATH, "super-resolution-data", "kt-super-resolution", dataset_name, "exported", "test", "gt")
     elif dataset_name == "unet-rcan-tub":
         path = os.path.join(BASE_PATH, "denoising-data", "unet-rcan-lqhq", "unet-rcan-tub", "exported", "test", "gt")
     else:
@@ -92,7 +96,7 @@ def get_raw_images(dataset_name, gt_images):
         raw_images = [
             gt_image.replace("ground_truth_images", "low_intensity_images") for gt_image in gt_images
         ]
-    elif dataset_name in ["jmb-lqhq", "unet-rcan-tub"]:
+    elif dataset_name in ["jmb-lqhq", "unet-rcan-tub", "kt-lqhq-gephyrin", "kt-lqhq-vgat", "kt-lqhq", "kt-sr-vgat"]:
         raw_images = [
             gt_image.replace(os.path.join("exported", "test", "gt"), os.path.join("exported", "test", "raw")) for gt_image in gt_images
         ]
@@ -239,12 +243,22 @@ def main():
             if gt_images is None or predicted_images is None:
                 print(f"Skipping {method} on {args.dataset} due to missing images")
                 continue
+            if len(gt_images) != len(predicted_images):
+                print(f"Skipping {method} on {args.dataset} due to mismatched number of images")
+                continue
 
             gt_images = torch.from_numpy(gt_images).float()
             predicted_images = torch.from_numpy(predicted_images).float()
 
             scores = compute_scores(gt_images, predicted_images, dataset_name=args.dataset, size=224)
         all_scores[method] = scores
+
+    print("Scores:")
+    for method, scores in all_scores.items():
+        print(f"Method: {method}")
+        for metric, values in scores.items():
+            mean_value = numpy.median(values)
+            print(f"  {metric}: {mean_value:.4f}")
 
     if all_scores:
         plot_scores(all_scores, args.dataset, encoder=args.encoder)

@@ -17,21 +17,13 @@
             <h2>Candidate Images</h2>
             <form action="{{ url_for('choose') }}" method="POST">
                 <div class="candidates-row">
-                    <div class="candidate">
-                        <button type="submit" name="selected_image" value="{{ candidate_images[0] }}"><img src="{{ url_for('static', filename=candidate_images[0]) }}" alt="Candidate 1"></button>
-                    </div>
-                    <div class="candidate">
-                        <button type="submit" name="selected_image" value="{{ candidate_images[1] }}"><img src="{{ url_for('static', filename=candidate_images[1]) }}" alt="Candidate 2"></button>
-                    </div>
-                    <div class="candidate">
-                        <button type="submit" name="selected_image" value="{{ candidate_images[2] }}"><img src="{{ url_for('static', filename=candidate_images[2]) }}" alt="Candidate 3"></button>
-                    </div>
-                    <div class="candidate">
-                        <button type="submit" name="selected_image" value="{{ candidate_images[3] }}"><img src="{{ url_for('static', filename=candidate_images[3]) }}" alt="Candidate 4"></button>
-                    </div>
-                    <div class="candidate">
-                        <button type="submit" name="selected_image" value="{{ candidate_images[4] }}"><img src="{{ url_for('static', filename=candidate_images[4]) }}" alt="Candidate 5"></button>
-                    </div>
+                    {% for img in candidate_images %}
+                        <div class="candidate">
+                            <button type="submit" name="selected_image" value="{{ img }}">
+                                <img src="{{ url_for('static', filename=img) }}" alt="Candidate {{ loop.index }}">
+                            </button>
+                        </div>
+                    {% endfor %}
                 </div>
             </form>
         </div>

@@ -54,6 +54,16 @@ def main():
     print(f"Confusion matrix: \n{confusion_matrix(valid_labels, val_prediction)}")
     boundary = clf.coef_.reshape(1, latent_dim).astype(np.float32)
     norm = np.linalg.norm(boundary)
+    print(f"Boundary norm: {norm}")
+
+    # Average distances from the boundary for each class
+    for class_label in np.unique(train_labels):
+        class_indices = np.where(train_labels == class_label)[0]
+        class_embeddings = train_embeddings[class_indices]
+        distances = class_embeddings @ boundary.T + clf.intercept_
+        avg_distance = np.mean(distances)
+        print(f"Average distance from boundary for class {class_label}: {avg_distance}")
+
     intercept = clf.intercept_ / norm
     boundary = boundary / norm
 

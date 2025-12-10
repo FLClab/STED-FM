@@ -1,5 +1,7 @@
 
+import glob
 import numpy
+import os
 from matplotlib import pyplot
 from matplotlib.patches import Rectangle
 
@@ -26,6 +28,7 @@ DATASETS.synaptic_semantic_segmentation = "SPZ"
 DATASETS.hpa_classification = "HPAC"
 DATASETS.ov_lqhq_mt = "OV-LQHQ-MT"
 
+# Linear-probe scores
 scores = {
     "STED" : {
         "SO" : 0.96,
@@ -33,10 +36,10 @@ scores = {
         "Px" : 0.67,
         "PR" : 0.88,
         "DL-SIM" : 0.95,
-        "BBBC026" : 0.88,
-        "BBBC052" : 0.86,
-        "BBBC053" : 0.81,
-        "HPA" : 0.92,
+        "BBBC026" : 0.93,
+        "BBBC052" : 0.85,
+        "BBBC053" : 0.85,
+        "HPA" : 0.0972,
         "F-Actin" : 0.65,
         "SPZ" : 0.83, 
         "FP" : 0.45,
@@ -50,10 +53,10 @@ scores = {
         "Px" : 0.64,
         "PR" : 0.86,
         "DL-SIM" : 0.97,
-        "BBBC026" : 0.84,
-        "BBBC052" : 0.78,
-        "BBBC053" : 0.79,     
-        "HPA" : 0.92,   
+        "BBBC026" : 0.88,
+        "BBBC052" : 0.89,
+        "BBBC053" : 0.80,     
+        "HPA" : 0.0622,   
         "F-Actin" : 0.58,
         "SPZ" : 0.80, 
         "FP" : 0.40,
@@ -67,10 +70,10 @@ scores = {
         "Px" : 0.65,
         "PR" : 0.84,
         "DL-SIM" : 0.91,
-        "BBBC026" : 0.87,
-        "BBBC052" : 0.78,
-        "BBBC053" : 0.77,
-        "HPA" : 0.93,        
+        "BBBC026" : 0.92,
+        "BBBC052" : 0.88,
+        "BBBC053" : 0.80,
+        "HPA" : 0.1125,        
         "F-Actin" : 0.61,
         "SPZ" : 0.80, 
         "FP" : 0.42,
@@ -84,10 +87,10 @@ scores = {
         "Px" : 0.61,
         "PR" : 0.85,
         "DL-SIM" : 0.94,
-        "BBBC026" : 0.91,
-        "BBBC052" : 0.76,
-        "BBBC053" : 0.80,    
-        "HPA" : 0.93,    
+        "BBBC026" : 0.94,
+        "BBBC052" : 0.86,
+        "BBBC053" : 0.81,    
+        "HPA" : 0.0671,    
         "F-Actin" : 0.59,
         "SPZ" : 0.80, 
         "FP" : 0.43,
@@ -101,10 +104,10 @@ scores = {
         "Px" : 0.56,
         "PR" : 0.88,
         "DL-SIM" : 0.95,
-        "BBBC026" : 0.90,
-        "BBBC052" : 0.79,
-        "BBBC053" : 0.80,   
-        "HPA" : 0.93,     
+        "BBBC026" : 0.71,
+        "BBBC052" : 0.70,
+        "BBBC053" : 0.57,   
+        "HPA" : 0.0340,     
         "F-Actin" : 0.56,
         "SPZ" : 0.65, 
         "FP" : 0.28,
@@ -115,33 +118,34 @@ scores = {
 }
 
 USER_DEFINED_CATEGORIES = {
-    "STED" : "same-STED",
-    "SO" : "same-STED",
-    "NAS" : "same-STED",
-    "F-Actin" : "same-STED",
-    "SPZ" : "same-STED",
-    "Px" : "diff-STED",
-    "PR" : "diff-STED",
-    "FP" : "diff-STED",
-    "Lioness" : "diff-STED",
-    "OV-LQHQ-MT" : "diff-STED",
-    "SIM" : "non-STED",
-    "HPA" : "non-STED",
-    "JUMP" : "non-STED",
-    "DL-SIM" : "non-STED",
-    "BBBC026" : "non-STED",
-    "BBBC052" : "non-STED",
-    "BBBC053" : "non-STED",
-    "LCN" : "non-STED",
-    "DeepD3" : "non-STED",
-    "ImageNet" : "Natural"
+    "STED" : "ID-STED",
+    "SO" : "ID-STED",
+    "NAS" : "ID-STED",
+    "F-Actin" : "ID-STED",
+    "SPZ" : "ID-STED",
+    "Px" : "OOD-STED",
+    "PR" : "OOD-STED",
+    "FP" : "OOD-STED",
+    "Lioness" : "OOD-STED",
+    "OV-LQHQ-MT" : "OOD-STED",
+    "SIM" : "OOD-MIC",
+    "HPA" : "OOD-MIC",
+    "HPA-Classification" : "OOD-MIC",
+    "JUMP" : "OOD-MIC",
+    "DL-SIM" : "OOD-MIC",
+    "BBBC026" : "OOD-MIC",
+    "BBBC052" : "OOD-MIC",
+    "BBBC053" : "OOD-MIC",
+    "LCN" : "OOD-MIC",
+    "DeepD3" : "OOD-MIC",
+    "ImageNet" : "OOD-NAT"
 }
 COLORS.dl_sim = 'gray'
 COLORS.default = 'gray'
-COLORS.same_sted = '#CC503E'
-COLORS.diff_sted = "#F4B8E1"
-COLORS.non_sted = "#628395"
-COLORS.natural = '#DBAD6A'
+COLORS.id_sted = '#CC503E'
+COLORS.ood_sted = "#F4B8E1"
+COLORS.ood_mic = "#628395"
+COLORS.ood_nat = '#DBAD6A'
 
 def plot_distance_decay(distances, names, savename='radial_profile_decay'):
     fig, ax = pyplot.subplots(figsize=(3,3))
@@ -184,40 +188,40 @@ def plot_distance_matrices(distance_matrices, names, savename='distance_matrix')
             dataset_idx = names.index(dataset)
 
             distance = distances[idx, dataset_idx]
-            distance_per_group["same-STED"].append({
+            distance_per_group["ID-STED"].append({
                 "dataset" : dataset,
                 "distance" : distance
             })
         
-        distances_ = distance_per_group["same-STED"]
+        distances_ = distance_per_group["ID-STED"]
         local_sorted_names = numpy.argsort([d["distance"] for d in distances_])
         sorted_names.extend([distances_[i]["dataset"] for i in local_sorted_names])
         
-        for dataset in ["Px", "PR", "FP", "Lioness", "OV-LQHQ-MT"]:
+        for dataset in ["Px", "PR", "FP", "Lioness"]:
             idx = names.index(pretraining)
             dataset_idx = names.index(dataset)
 
             distance = distances[idx, dataset_idx]
-            distance_per_group["diff-STED"].append({
+            distance_per_group["OOD-STED"].append({
                 "dataset" : dataset,
                 "distance" : distance
             })
 
-        distances_ = distance_per_group["diff-STED"]
+        distances_ = distance_per_group["OOD-STED"]
         local_sorted_names = numpy.argsort([d["distance"] for d in distances_])
         sorted_names.extend([distances_[i]["dataset"] for i in local_sorted_names])
 
-        for dataset in ["HPA", "JUMP", "DL-SIM", "BBBC026", "BBBC052", "BBBC053", "LCN", "DeepD3"]:
+        for dataset in ["HPA", "JUMP", "SIM", "DL-SIM", "BBBC026", "BBBC052", "BBBC053", "HPA", "LCN", "DeepD3"]:
             idx = names.index(pretraining)
             dataset_idx = names.index(dataset)
 
             distance = distances[idx, dataset_idx]
-            distance_per_group["non-STED"].append({
+            distance_per_group["OOD-MIC"].append({
                 "dataset" : dataset,
                 "distance" : distance
             })
         
-        distances_ = distance_per_group["non-STED"]
+        distances_ = distance_per_group["OOD-MIC"]
         local_sorted_names = numpy.argsort([d["distance"] for d in distances_])
         sorted_names.extend([distances_[i]["dataset"] for i in local_sorted_names])
         
@@ -226,32 +230,44 @@ def plot_distance_matrices(distance_matrices, names, savename='distance_matrix')
             dataset_idx = names.index(dataset)
 
             distance = distances[idx, dataset_idx]
-            distance_per_group["natural"].append({
+            distance_per_group["OOD-NAT"].append({
                 "dataset" : dataset,
                 "distance" : distance
             })
 
-        distances_ = distance_per_group["natural"]
+        distances_ = distance_per_group["OOD-NAT"]
         local_sorted_names = numpy.argsort([d["distance"] for d in distances_])
         sorted_names.extend([distances_[i]["dataset"] for i in local_sorted_names])
 
         sorted_dataset_indices = [names.index(name) for name in sorted_names]
         distances = distances[numpy.ix_(sorted_dataset_indices, sorted_dataset_indices)]
+
+        mask = numpy.triu(numpy.ones_like(distances, dtype=bool), k=1)
+        distance_masked = numpy.ma.array(distances, mask=mask)
+
         fig, ax = pyplot.subplots(figsize=(6,6))
-        im = ax.imshow(distances, cmap='RdPu')
+        im = ax.imshow(distance_masked, cmap='RdPu')
 
         delta = 0.5
-        patch = Rectangle((0 - delta,0 - delta), len(distance_per_group["same-STED"]), len(distance_per_group["same-STED"]), fill=False, edgecolor='black', linewidth=2)
+        patch = Rectangle((0 - delta,0 - delta), len(distance_per_group["ID-STED"]), len(distance_per_group["ID-STED"]), fill=False, edgecolor='black', linewidth=2)
         ax.add_patch(patch)
 
-        patch = Rectangle((len(distance_per_group["same-STED"]) - delta, len(distance_per_group["same-STED"]) - delta), len(distance_per_group["diff-STED"]), len(distance_per_group["diff-STED"]), fill=False, edgecolor='black', linewidth=2)
+        patch = Rectangle((len(distance_per_group["ID-STED"]) - delta, len(distance_per_group["ID-STED"]) - delta), len(distance_per_group["OOD-STED"]), len(distance_per_group["OOD-STED"]), fill=False, edgecolor='black', linewidth=2)
         ax.add_patch(patch)
 
-        patch = Rectangle((len(distance_per_group["same-STED"]) + len(distance_per_group["diff-STED"]) - delta, len(distance_per_group["same-STED"]) + len(distance_per_group["diff-STED"]) - delta), len(distance_per_group["non-STED"]), len(distance_per_group["non-STED"]), fill=False, edgecolor='black', linewidth=2)
+        patch = Rectangle((len(distance_per_group["ID-STED"]) + len(distance_per_group["OOD-STED"]) - delta, len(distance_per_group["ID-STED"]) + len(distance_per_group["OOD-STED"]) - delta), len(distance_per_group["OOD-MIC"]), len(distance_per_group["OOD-MIC"]), fill=False, edgecolor='black', linewidth=2)
         ax.add_patch(patch)
 
-        patch = Rectangle((len(distance_per_group["same-STED"]) + len(distance_per_group["diff-STED"]) + len(distance_per_group["non-STED"]) - delta, len(distance_per_group["same-STED"]) + len(distance_per_group["diff-STED"]) + len(distance_per_group["non-STED"]) - delta), len(distance_per_group["natural"]), len(distance_per_group["natural"]), fill=False, edgecolor='black', linewidth=2)
+        patch = Rectangle((len(distance_per_group["ID-STED"]) + len(distance_per_group["OOD-STED"]) + len(distance_per_group["OOD-MIC"]) - delta, len(distance_per_group["ID-STED"]) + len(distance_per_group["OOD-STED"]) + len(distance_per_group["OOD-MIC"]) - delta), len(distance_per_group["OOD-NAT"]), len(distance_per_group["OOD-NAT"]), fill=False, edgecolor='black', linewidth=2)
         ax.add_patch(patch)
+
+        for name in ["STED", "SIM", "HPA", "JUMP", "ImageNet"]:
+            idx = sorted_names.index(name)
+            ax.annotate(distances[idx, idx].round(2), (idx, idx), fontsize=6, alpha=1.0,
+                        horizontalalignment='center', verticalalignment='center', 
+                        color='black')
+            # ax.text(idx, -1, name, rotation=90, va='bottom', ha='center', fontsize=8, weight='bold', color=COLORS[name])
+            # ax.text(-1, idx, name, va='center', ha='right', fontsize=8, weight='bold', color=COLORS[name])
 
         ax.set_xticks(numpy.arange(len(sorted_names)))
         ax.set_yticks(numpy.arange(len(sorted_names)))
@@ -275,8 +291,8 @@ def plot_distance_matrices(distance_matrices, names, savename='distance_matrix')
             distances[sorted_names.index(pretraining)].min() - 0.05, 
             distances[sorted_names.index(pretraining)].max() + 0.05)
         ax.set_ylabel("Distance")
-        ax.set_xticks(["same-STED", "diff-STED", "non-STED", "natural"])
-        ax.set_xticklabels(["STED", "Other STED", "Non-STED", "Natural"], rotation=45, ha='right')
+        ax.set_xticks(["ID-STED", "OOD-STED", "OOD-MIC", "OOD-NAT"])
+        ax.set_xticklabels(["STED", "Other STED", "OOD-MIC", "OOD-NAT"], rotation=45, ha='right')
         fig.savefig(f"figures/image-similarity/{savename}_groups_{distance_matrix_idx}.pdf", dpi=300, bbox_inches='tight')
         pyplot.close(fig)    
 
@@ -297,11 +313,48 @@ def plot_mds(distances, names, colors=None, savename='mds'):
     fig.savefig(f"figures/image-similarity/{savename}.pdf", dpi=300, bbox_inches='tight')
     pyplot.close(fig)
 
+def load_files(paths):
+    names, files = [], []
+    for path in paths:
+        names.append(DATASETS[os.path.splitext(os.path.basename(path))[0]])
+        files.append(numpy.load(path))
+    return names, files
+
+def plot_perimetric_complexity(names, pcs, savename='perimetric_complexity_distribution'):
+    pretrainings = ["STED", "SIM", "HPA", "JUMP", "ImageNet"]
+    fig, ax = pyplot.subplots(figsize=(3,3))
+    xs, ys = [], []
+    for pretraining in pretrainings:
+        performances = [scores[pretraining][dataset] for dataset in names]
+        ax.scatter(pcs, performances, label=pretraining, color=COLORS[pretraining])
+
+        xs.extend(pcs)
+        ys.extend(performances)
+
+    for name, pc in zip(names, pcs):
+        ax.annotate(name, (pc, 0.), fontsize=8, alpha=1.0,
+                    rotation=90,
+                    horizontalalignment='center', verticalalignment='bottom', 
+                    color='gray', weight='bold')
+
+    pearson_corr = pearsonr(xs, ys)
+    print(f"Pearson correlation: {pearson_corr}")
+    ax.annotate(f"$R$ = {pearson_corr.statistic:.2f}\n$p$ = {pearson_corr.pvalue:.2e}", (0.98, 0.98), fontsize=8, alpha=1.0,
+                xycoords='axes fraction',
+                horizontalalignment='right', verticalalignment='top', 
+                color='black')
+
+    ax.set_xlabel("Perimetric Complexity")
+    ax.set_ylabel("Performance")
+    ax.set(ylim=(0, 1))
+    fig.savefig(f"figures/image-similarity/{savename}.pdf", dpi=300, bbox_inches='tight')
+    pyplot.close(fig)
+
 def main():
     
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--measure", type=str, default="radial-profile", choices=["radial-profile", "fractal-dimension"])
+    parser.add_argument("--measure", type=str, default="radial-profile", choices=["radial-profile", "fractal-dimension", "fractal-dimension-annotations", "perimetric-complexity", "kl-divergence"], help="Image similarity measure to analyze.")
     args = parser.parse_args()
 
     if args.measure == "radial-profile":
@@ -310,6 +363,22 @@ def main():
     elif args.measure == "fractal-dimension":
         distances = numpy.load("results/fractal_dimension_distances.npz")["distances"]
         names = numpy.load("results/fractal_dimension_distances.npz")["names"].tolist()
+    elif args.measure == "fractal-dimension-annotations":
+        pass 
+        return
+    elif args.measure == "kl-divergence":
+        distances = numpy.load("results/radial_profile_distances_kl-divergence.npz")["distances"]
+        names = numpy.load("results/radial_profile_distances_kl-divergence.npz")["names"].tolist()
+    elif args.measure == "perimetric-complexity":
+        names, pcs = load_files([
+            "results/perimetric-complexity/factin.npy",
+            "results/perimetric-complexity/lioness.npy",
+            "results/perimetric-complexity/footprocess.npy",
+            "results/perimetric-complexity/synaptic-semantic-segmentation.npy",
+        ])
+        pcs = [numpy.mean(pc) for pc in pcs]
+        plot_perimetric_complexity(names, pcs, savename='perimetric_complexity_distribution')
+        return
     else:
         raise NotImplementedError(f"`{args.measure}` is not a valid option.")
     
@@ -415,8 +484,8 @@ def main():
     print(pearson_corr.pvalue)
 
     ax.text(0.02, 0.02, f"Overall $R$ = {pearson_corr.statistic:.2f}", transform=ax.transAxes)
-    ax.set_xlabel("Distance")
-    ax.set_ylabel("Score")
+    ax.set_xlabel("Standardized Distance")
+    ax.set_ylabel("Standardized Score")
     ax.set(ylim=(-2.5, 2.5), xlim=(-2.5, 2.5))
     # ax.set(ylim=(0, 1.1))
     fig.savefig(f"figures/image-similarity/distance-vs-score_classification_overall_{args.measure}.pdf", dpi=300, bbox_inches='tight')
@@ -480,10 +549,20 @@ def main():
     ax.set(
         xlabel="Distance",
         ylabel="Score",
-        ylim=(0.5, 1.05),
-        xlim=(0, 1.1)
+        # ylim=(0.5, 1.05),
+        # xlim=(0, 0.5)
     )
+    
+    polyfit = numpy.polyfit(all_xs, all_ys, deg=1)
+    xfit = numpy.linspace(min(all_xs), max(all_xs), 100)
+    yfit = numpy.polyval(polyfit, xfit)
+    ax.plot(xfit, yfit, color='silver', linestyle='--')
+
     pearson_corr = pearsonr(all_xs, all_ys)
+
+    print("---")
+    print("Overall correlation stats (resampling):")
+    print(f"Pearson correlation: R = {pearson_corr.statistic:.4f}, p-value = {pearson_corr.pvalue:.4f}")
 
     sampled_pearson_corr = []
     for _ in range(1000):
@@ -562,6 +641,10 @@ def main():
     savefig(fig, f"figures/image-similarity/distance-vs-score_std_correlation_{args.measure}")
     pyplot.close(fig)
 
+    print("----")
+    print("Intra-distance vs score std dev correlation:")
+
+
     # Plots dataset intra-distance vs std in scores
     fig, ax = pyplot.subplots(figsize=(3,3))
     xs = []
@@ -575,7 +658,8 @@ def main():
             distance = distances[idx, dataset_idx]
             score = scores[pretraining][dataset]
 
-            score = score / normalization_per_dataset[dataset]["y"][1]
+            # score = score / normalization_per_dataset[dataset]["y"][1]
+            score = (score - normalization_per_dataset[dataset]["y"][2]) / normalization_per_dataset[dataset]["y"][3]
             xy.append((distance, score))
 
         x = distances[idx, idx]
@@ -585,32 +669,51 @@ def main():
         # lower_bound = q1 - 1.5 * iqr
         # upper_bound = q3 + 1.5 * iqr
         # ys_ = [y for y in ys_ if (y >= lower_bound) and (y <= upper_bound)]
-        y = numpy.std([y for x, y in xy])
-        xs.append(x)
-        ys.append(y)
+        # y = numpy.std([y for x, y in xy])
+        # xs.append(x)
+        # ys.append(y)
+
+        xs.extend([x] * len(xy))
+        ys.extend([y for x, y in xy])
+
+        x = [x] * len(xy)
+        y = [y for x, y in xy]
         ax.scatter(x, y, c=COLORS[pretraining])
     ax.set(
         xlabel="Intra-Distance",
-        ylabel="Score Std Dev"
+        ylabel="Standardized Score",
+        ylim=(-2.5, 2.5)
     )
+    
+    # Linear fit and correlation
+    polyfit = numpy.polyfit(xs, ys, deg=1)
+    delta = max(xs) - min(xs)
+    xfit = numpy.linspace(min(xs) - delta * 0.1, max(xs) + delta * 0.1, 100)
+    yfit = numpy.polyval(polyfit, xfit)
+    ax.plot(xfit, yfit, color='silver', linestyle='--')
+
     pearson_corr = pearsonr(xs, ys)
-    print(f"(intra-distance vs score std) Pearson correlation p-value: {pearson_corr.pvalue:.4f}")
+    print(f"(intra-distance vs standardized score) Pearson correlation: {pearson_corr.statistic:.4f}")
+    print(f"(intra-distance vs standardized score) Pearson correlation p-value: {pearson_corr.pvalue:.4f}")
     ax.text(0.02, 0.02, f"$R$ = {pearson_corr.statistic:.2f}", transform=ax.transAxes)
+
     savefig(fig, f"figures/image-similarity/intra-distance-vs-score-std_correlation_{args.measure}")
     pyplot.close(fig)
 
+    print("----")
+    print("Intra-distance vs score std dev correlation:")
+
     # Lets perform a statistical test to ensure that the correlations are significant
-    intra_distances = numpy.diagonal(distances)
     samples = []
     numpy.random.seed(42)
     for _ in range(10000):
-        choices_xs = numpy.random.choice(intra_distances, size=len(xs), replace=True)
-        choices_ys = numpy.random.choice(intra_distances, size=len(ys), replace=True)
-        sampled_pearson_corr = pearsonr(choices_xs, choices_ys)
+        # This shuffles the ys values to create a null distribution
+        choices_ys = numpy.random.choice(ys, size=len(ys), replace=False)
+        sampled_pearson_corr = pearsonr(xs, choices_ys)
         samples.append(sampled_pearson_corr.statistic)
-
     samples = numpy.array(samples)
-    print(f"p-value for intra-distance vs score std correlation: {1 - (samples >= pearson_corr.statistic).sum() / len(samples):.4f}")
+    print(f"Pearson correlation for intra-distance vs score std: {numpy.mean(samples):.4f} ± {numpy.std(samples):.4f}")
+    print(f"p-value for intra-distance vs score std correlation: {1 - (samples <= pearson_corr.statistic).sum() / len(samples):.4f}")
 
     fig, ax = pyplot.subplots(figsize=(3,3))
     ax.hist(samples, bins=20, color='gray', alpha=0.7)

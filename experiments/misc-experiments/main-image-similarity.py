@@ -14,7 +14,7 @@ from PIL import Image
 from torchvision.transforms import Resize
 from tqdm.auto import tqdm
 from scipy import ndimage
-from skimage import feature
+from skimage import feature, measure
 
 from tiffwrapper import make_composite
 
@@ -84,9 +84,11 @@ class ImageNetDataset(ArchiveDataset):
 
 def crop_center(image, crop_size):
     """Crop the center of a 2D image."""
-    y, x = image.shape
+    y, x = image.shape[-2], image.shape[-1]
     startx = x//2 - (crop_size//2)
-    starty = y//2 - (crop_size//2)    
+    starty = y//2 - (crop_size//2)
+    if image.ndim == 3:
+        return image[:, starty:starty+crop_size, startx:startx+crop_size]
     return image[starty:starty+crop_size, startx:startx+crop_size]
 
 def hamming_window(size):
@@ -177,6 +179,13 @@ def compute_distance(profiles_a, profiles_b, metric="euclidean", k=0):
         log_profiles_a = numpy.log10(profiles_a + 1e-8)
         log_profiles_b = numpy.log10(profiles_b + 1e-8)
         distances = cdist(log_profiles_a[:, 1:], log_profiles_b[:, 1:], metric='correlation')
+
+    elif metric == "kl-divergence":
+        # This uses the Jensen-Shannon divergence as a symmetric version of KL divergence
+        distances = cdist(profiles_a[:, 1:] + 1e-8, profiles_b[:, 1:] + 1e-8, metric='jensenshannon')
+        if numpy.isnan(distances).any():
+            print("NaN values found in KL divergence distance matrix.")
+            distances = numpy.nan_to_num(distances, nan=numpy.nanmean(distances))
     else:
         distances = cdist(profiles_a[:, 1:], profiles_b[:, 1:], metric=metric)
 
@@ -332,7 +341,25 @@ def plot_mds(distances, labels, savename='radial_profile_mds'):
     ax.set_axis_off()
     savefig(fig, f"./figures/image-similarity/{savename}")
 
-def compute_fractal_dimensions(dataset, num_samples=5000, crop_size=224):
+def box_counting(binary_image, crop_size=224):
+    # Box-counting method
+    sizes = 2**numpy.arange(1, int(numpy.log2(crop_size))+1)
+    counts = []
+    for size in sizes:
+        S = numpy.add.reduceat(
+            numpy.add.reduceat(binary_image, numpy.arange(0, binary_image.shape[0], size), axis=0),
+            numpy.arange(0, binary_image.shape[1], size), axis=1)
+        counts.append(numpy.sum(S > 0)) # Count non-empty boxes
+    counts = numpy.array(counts)
+
+    # Linear fit in log-log space
+    log_sizes = numpy.log(1 / sizes)
+    log_counts = numpy.log(counts + 1e-8)  # Avoid log(0)
+    coeffs = numpy.polyfit(log_sizes, log_counts, 1)
+    fd = coeffs[0]
+    return fd
+
+def compute_fractal_dimensions(dataset, num_samples=5000, crop_size=224, image_idx=0):
     """Compute fractal dimensions for a subset of images in the dataset."""
     numpy.random.seed(42)
     indices = numpy.random.choice(len(dataset), size=min(num_samples, len(dataset)), replace=False)
@@ -340,16 +367,20 @@ def compute_fractal_dimensions(dataset, num_samples=5000, crop_size=224):
     for idx in indices:
         image = dataset[idx]
         if isinstance(image, (list, tuple)):
-            image = image[0]
+            image = image[image_idx]
         image = image.numpy().squeeze()
 
         image = crop_center(image, crop_size=crop_size)
 
-        sobel_h = ndimage.sobel(image, 0)  # horizontal gradient
-        sobel_v = ndimage.sobel(image, 1)  # vertical gradient
-        magnitude = numpy.sqrt(sobel_h**2 + sobel_v**2)
-        threshold = numpy.percentile(magnitude, 75)
-        binary_image = magnitude > threshold
+        if image_idx == 0:
+            sobel_h = ndimage.sobel(image, 0)  # horizontal gradient
+            sobel_v = ndimage.sobel(image, 1)  # vertical gradient
+            magnitude = numpy.sqrt(sobel_h**2 + sobel_v**2)
+            threshold = numpy.percentile(magnitude, 75)
+            binary_image = magnitude > threshold
+        else:
+            # This corresponds to annotations which are already binary
+            binary_image = image
 
         # fig, ax = pyplot.subplots()
         # composite = make_composite(numpy.stack([image, binary_image.astype(numpy.float32)]), luts=['gray', 'green'], ranges=[(0, 1), (0, 2)])
@@ -358,21 +389,14 @@ def compute_fractal_dimensions(dataset, num_samples=5000, crop_size=224):
         # savefig(fig, f"./figures/image-similarity/fractal_dimension_{idx}", dpi=300)
         # pyplot.close(fig)
 
-        # Box-counting method
-        sizes = 2**numpy.arange(1, int(numpy.log2(crop_size))+1)
-        counts = []
-        for size in sizes:
-            S = numpy.add.reduceat(
-                numpy.add.reduceat(binary_image, numpy.arange(0, binary_image.shape[0], size), axis=0),
-                numpy.arange(0, binary_image.shape[1], size), axis=1)
-            counts.append(numpy.sum(S > 0)) # Count non-empty boxes
-        counts = numpy.array(counts)
-
-        # Linear fit in log-log space
-        log_sizes = numpy.log(1 / sizes)
-        log_counts = numpy.log(counts + 1e-8)  # Avoid log(0)
-        coeffs = numpy.polyfit(log_sizes, log_counts, 1)
-        fd = coeffs[0]
+        if image_idx == 0:
+            fd = box_counting(binary_image, crop_size=crop_size)
+        else:
+            fds_ = []
+            for binary_image_ in binary_image:
+                fd_ = box_counting(binary_image_, crop_size=crop_size)
+                fds_.append(fd_)
+            fd = numpy.mean(fds_)
         fds.append(fd)
 
         # fig, ax = pyplot.subplots()
@@ -446,6 +470,60 @@ def compute_sift_features(dataset, num_samples=5000, crop_size=224):
 
     return fisher_vector
 
+def perimetric_complexity(binary_image):
+    label = measure.label(binary_image>0)
+    regions = measure.regionprops(label)
+    pcs = []
+    for region in regions:
+        perimeter = region.perimeter
+        area = region.area
+        pc = perimeter**2 / (4 * numpy.pi * area + 1e-8)
+        pcs.append(pc)
+    if len(pcs) == 0:
+        return None
+    return numpy.mean(pcs)
+
+def compute_perimetric_complexity(dataset, num_samples=5000, crop_size=224, image_idx=0, combine_labels=False):
+    numpy.random.seed(42)
+    indices = numpy.random.choice(len(dataset), size=min(num_samples, len(dataset)), replace=False)
+    pcs = []
+    for idx in indices:
+        image = dataset[idx]
+        if isinstance(image, (list, tuple)):
+            image = image[image_idx]
+        image = image.numpy().squeeze()
+
+        image = crop_center(image, crop_size=crop_size)
+
+        if image_idx == 0:
+            sobel_h = ndimage.sobel(image, 0)  # horizontal gradient
+            sobel_v = ndimage.sobel(image, 1)  # vertical gradient
+            magnitude = numpy.sqrt(sobel_h**2 + sobel_v**2)
+            threshold = numpy.percentile(magnitude, 75)
+            binary_image = magnitude > threshold
+        else:
+            # This corresponds to annotations which are already binary
+            binary_image = image
+        
+        if combine_labels and image_idx != 0:
+            binary_image = numpy.clip(binary_image[0] - binary_image[1], 0, 1).astype(bool)  # Combine all labels into one binary mask
+            binary_image = binary_image[numpy.newaxis]
+
+        # Compute perimeter and area
+        if image_idx == 0:
+            pc = perimetric_complexity(binary_image, convert_to_label=False)
+        else:
+            pcs_ = []
+            for binary_image_ in binary_image:
+                pc_ = perimetric_complexity(binary_image_)
+                if pc_ is not None:
+                    pcs_.append(pc_)
+            if len(pcs_) == 0:
+                continue
+            pc = numpy.mean(pcs_)
+        pcs.append(pc)
+    return pcs
+
 def main():
 
     import argparse
@@ -454,8 +532,8 @@ def main():
     parser.add_argument("--dataset-path", type=str, default=f"{BASE_PATH}/ssl-data/")
     parser.add_argument("--num-samples", type=int, default=5000)
     parser.add_argument("--crop-size", type=int, default=224)
-    parser.add_argument("--metric", type=str, default="npsdd", choices=["euclidean", "cosine", "correlation", "npsdd", "npsdd-structure-size", "loglog-slope"])
-    parser.add_argument("--measure", type=str, default="radial-profile", choices=["all", "radial-profile", "fractal-dimension", "SIFT-features"])
+    parser.add_argument("--metric", type=str, default="npsdd", choices=["euclidean", "cosine", "correlation", "npsdd", "npsdd-structure-size", "loglog-slope", "kl-divergence"])
+    parser.add_argument("--measure", type=str, default="radial-profile", choices=["all", "radial-profile", "fractal-dimension", "SIFT-features", "fractal-dimension-annotations", "perimetric-complexity"])
     parser.add_argument("--plot", action='store_true', help="Whether to plot example images and spectra.")
     args = parser.parse_args()
 
@@ -481,7 +559,7 @@ def main():
             "results/radial_profiles/synaptic-semantic-segmentation.npy",
             "results/radial_profiles/lcn.npy",
             "results/radial_profiles/deepd3.npy",
-            "results/radial_profiles/ov-lqhq-mt.npy",
+            # "results/radial_profiles/ov-lqhq-mt.npy",
         ]
         names = [os.path.basename(f).replace(".npy", "") for f in files]
         names = [DATASETS[name] for name in names]
@@ -489,7 +567,7 @@ def main():
         plot_radial_profiles_same_graph(files[:5], names[:5])
 
         distances = compare_radial_profiles(files, names, metric=args.metric)
-        numpy.savez("results/radial_profile_distances.npz", distances=distances, names=names)
+        numpy.savez(f"results/radial_profile_distances_{args.metric}.npz", distances=distances, names=names)
         plot_distance_heatmap(distances, names)
         plot_graphs(distances, names)
         plot_mds(distances, names)
@@ -515,7 +593,7 @@ def main():
             "results/fractal-dimensions/synaptic-semantic-segmentation.npy",
             "results/fractal-dimensions/lcn.npy",
             "results/fractal-dimensions/deepd3.npy",
-            "results/fractal-dimensions/ov-lqhq-mt.npy",
+            # "results/fractal-dimensions/ov-lqhq-mt.npy",
         ]
         names = [os.path.basename(f).replace(".npy", "") for f in files]
         names = [DATASETS[name] for name in names]        
@@ -554,7 +632,7 @@ def main():
         )
     
     # Classification datasets
-    elif args.dataset in ["optim", "neural-activity-states", "peroxisome", "polymer-rings", "dl-sim", "bbbc026", "bbbc052", "bbbc053"]:
+    elif args.dataset in ["optim", "neural-activity-states", "peroxisome", "polymer-rings", "dl-sim", "bbbc026", "bbbc052", "bbbc053", "hpa-classification"]:
         loader, _, _ = get_classification_dataset(
             name=args.dataset,
             cfg=DefaultConfiguration(),
@@ -585,6 +663,20 @@ def main():
         os.makedirs("results/fractal-dimensions", exist_ok=True)
         numpy.save(f"results/fractal-dimensions/{args.dataset}.npy", fds)
         print(f"Mean Fractal Dimension: {fds.mean():.4f} ± {fds.std():.4f}")
+    if args.measure == "all" or args.measure == "fractal-dimension-annotations":
+        fds = compute_fractal_dimensions(dataset, image_idx=1)
+        fds = numpy.array(fds)
+        os.makedirs("results/fractal-dimensions", exist_ok=True)
+        numpy.save(f"results/fractal-dimensions/{args.dataset}_annotations.npy", fds)
+        print(f"Mean Fractal Dimension: {fds.mean():.4f} ± {fds.std():.4f}")
+    if args.measure == "perimetric-complexity":
+        print(f"Computing Perimetric Complexity for dataset: {args.dataset}")
+        pcs = compute_perimetric_complexity(dataset, image_idx=1, combine_labels=args.dataset == "lioness")
+        pcs = numpy.array(pcs)
+        os.makedirs("results/perimetric-complexity", exist_ok=True)
+        numpy.save(f"results/perimetric-complexity/{args.dataset}.npy", pcs)
+        print(f"Mean Perimetric Complexity: {pcs.mean():.4f} ± {pcs.std():.4f}")
+
     # if args.measure == "all" or args.measure == "SIFT-features":
     #     fisher_vector = compute_sift_features(dataset, num_samples=args.num_samples, crop_size=args.crop_size)
     #     os.makedirs("results/sift-features", exist_ok=True)
