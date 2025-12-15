@@ -224,3 +224,4 @@ experiments/segmentation-experiments/figures/results/
 experiments/segmentation-experiments/figures/results_v2/
 experiments/segmentation-experiments/scripts/
 experiments/pretrain_script.sh
+experiments/diffusion-experiments/als-experiment/old_PSD95/

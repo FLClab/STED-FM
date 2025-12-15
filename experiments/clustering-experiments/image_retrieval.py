@@ -21,7 +21,7 @@ def main():
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {DEVICE} ---")
     pretraining_datasets = ["MAE_SMALL_STED", "MAE_SMALL_SIM", "MAE_SMALL_HPA", "MAE_SMALL_JUMP", "MAE_SMALL_IMAGENET1K_V1"]
-    downstream_datasets = ["optim", "neural-activity-states", "peroxisome", "polymer-rings", "dl-sim"]
+    downstream_datasets = ["optim", "neural-activity-states", "peroxisome", "polymer-rings"]# , "dl-sim"]
     P, D = len(pretraining_datasets), len(downstream_datasets)
     performance_heatmap = np.zeros((P, D))
     for i, weights in enumerate(pretraining_datasets):
@@ -124,7 +124,7 @@ def main():
         normalized_heatmap[:, col] += diff
     
 
-    np.savez(f"./results/{args.metric}_image_retrieval_results.npz", performance_heatmap=performance_heatmap, normalized_heatmap=normalized_heatmap)
+    np.savez(f"./results_v2/{args.metric}_image_retrieval_results.npz", performance_heatmap=performance_heatmap, normalized_heatmap=normalized_heatmap)
     fig = plt.figure()
     ax = fig.add_subplot(111)
     im = ax.imshow(normalized_heatmap, cmap="RdPu")

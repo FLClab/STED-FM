@@ -17,13 +17,12 @@
             <h2>Candidate Images</h2>
             <form action="{{ url_for('choose') }}" method="POST">
                 <div class="candidates-row">
-                    {% for img in candidate_images %}
-                        <div class="candidate">
-                            <button type="submit" name="selected_image" value="{{ img }}">
-                                <img src="{{ url_for('static', filename=img) }}" alt="Candidate {{ loop.index }}">
-                            </button>
-                        </div>
-                    {% endfor %}
+                    <div class="candidate">
+                        <button type="submit" name="selected_image" value="{{ candidate_images[0] }}"><img src="{{ url_for('static', filename=candidate_images[0]) }}" alt="Candidate 1"></button>
+                    </div>
+                    <div class="candidate">
+                        <button type="submit" name="selected_image" value="{{ candidate_images[1] }}"><img src="{{ url_for('static', filename=candidate_images[1]) }}" alt="Candidate 2"></button>
+                    </div>
                 </div>
             </form>
         </div>

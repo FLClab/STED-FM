@@ -36,7 +36,7 @@ parser.add_argument("--ckpt-path", type=str, default=f"{BASE_PATH}/baselines/Dif
 parser.add_argument("--figure", action="store_true")
 parser.add_argument("--sanity-check", action="store_true")
 parser.add_argument("--seed", type=int, default=42)
-parser.add_argument("--direction", type=str, default="young")
+parser.add_argument("--direction", type=str, default="old")
 parser.add_argument("--n-steps", type=int, default=5)
 parser.add_argument("--channel", type=str, default="PSD95")
 parser.add_argument("--young-dpi", type=str, default="7")
@@ -57,21 +57,28 @@ def linear_interpolate(latent_code,
             len(boundary.shape) == 2 and
             boundary.shape[1] == latent_code.shape[-1])
 
-    img_distance = latent_code.dot(boundary.T) + intercept 
-    # start_distance = start_distance - img_distance
+
+
+    img_distance = (latent_code.dot(boundary.T) + intercept) * norm
+    print(f"Image distance to boundary: {img_distance[0][0]}")
+    # print(f"Start distance: {start_distance}")
+    # print(f"End distance: {end_distance}") 
+
+    # start_distance = start_distance * norm 
+    # end_distance = end_distance * norm 
+    # print(f"Start distance: {start_distance}")
+    # print(f"End distance: {end_distance}") 
     # end_distance = end_distance - img_distance
-    print(start_distance, end_distance)
-    linspace = np.linspace(start_distance, end_distance, steps)# [1:]
+    linspace = np.linspace(start_distance, end_distance, steps)
+
     if len(latent_code.shape) == 2:
-        # linspace = linspace - ((latent_code.dot(boundary.T)) + intercept)
-        linspace = linspace.reshape(-1, 1).astype(np.float32)
-        print(linspace.shape)
-        return latent_code + linspace * boundary * norm, linspace, img_distance[0][0]
-    if len(latent_code.shape) == 3:
-        linspace = linspace.reshape(-1, 1, 1).astype(np.float32)
-        return latent_code + linspace * boundary.reshape(1, 1, -1), linspace
-    raise ValueError(f'Input `latent_code` should be with shape '
-                    f'[1, latent_space_dim] but {latent_code.shape} was received.')
+        linspace = linspace - ((latent_code.dot(boundary.T)) + intercept)
+        # linspace = linspace / norm
+        linspace = linspace.reshape(-1, 1).astype(np.float32) 
+        latent_codes = latent_code + linspace * boundary 
+        distances = latent_codes.dot(boundary.T) + intercept 
+        distances = distances.flatten()
+        return latent_codes, distances, img_distance[0][0]
 
 def load_svm():
     with open(f"./{args.boundary}-experiment/boundaries/{args.weights}_{args.boundary}_svm_{args.channel}.pkl", "rb") as f:
@@ -171,12 +178,14 @@ def plot_distance_distribution(distances_to_boundary: dict):
     np.savez(f"./{args.boundary}-experiment/{args.channel}/distributions/{args.weights}-{args.boundary}-distance_distribution.npz", **distances_to_boundary)
     fig = plt.figure()
     ax = fig.add_subplot(111)
+    
+    data1 = [item * -1 for item in distances_to_boundary[key1]]
+    data2 = [item * -1 for item in distances_to_boundary[key2]]
+    m = min(min(data1), min(data2))
+    M = max(max(data1), max(data2))
 
-    m = min(min(distances_to_boundary[key1]), min(distances_to_boundary[key2]))
-    M = max(max(distances_to_boundary[key1]), max(distances_to_boundary[key2]))
-
-    ax.hist(distances_to_boundary["old"], bins=np.linspace(m, M, 50), alpha=0.5, color='fuchsia', label="old")
-    ax.hist(distances_to_boundary["young"], bins=np.linspace(m, M, 50), alpha=0.5, color='dodgerblue', label="young")
+    ax.hist(data1, bins=np.linspace(m, M, 50), alpha=0.5, color='fuchsia', label="old")
+    ax.hist(data2, bins=np.linspace(m, M, 50), alpha=0.5, color='dodgerblue', label="young")
     ax.axvline(0.0, color='black', linestyle='--', label="Decision boundary")
     ax.set_xlabel("Distance")
     ax.set_ylabel("Frequency")
@@ -305,6 +314,13 @@ def plot_results() -> None:
 
 
 def main():
+    os.makedirs(f"./{args.boundary}-experiment/{args.channel}/results", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/{args.channel}/features", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/{args.channel}/examples", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/{args.channel}/examples/raw", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/{args.channel}/examples/raw-tif", exist_ok=True)
+    os.makedirs(f"./{args.boundary}-experiment/{args.channel}/distributions", exist_ok=True)
+
     set_seeds(args.seed)
     if args.figure:
         plot_results()
@@ -325,7 +341,7 @@ def main():
         latent_encoder.to(DEVICE)
         latent_encoder.eval()
         dataset = ALSDataset(
-            tarpath=f"/home-local/Frederic/Datasets/ALS/ALS_JM_Fred_unmixed/PLKO-262-{args.channel}-train.tar",
+            tarpath=f"/home-local/Frederic/Datasets/ALS/catalogs/PLKO-262-{args.channel}-train.tar",
         ) 
         N = len(dataset)
         indices = np.arange(N)
@@ -337,10 +353,10 @@ def main():
             for i, idx in tqdm(enumerate(indices), total=N):
                 img, metadata = dataset[idx]
                 temp_img = img.squeeze().detach().cpu().numpy()
-                mask = detect_spots(temp_img)
-                fg_intensity = np.mean(temp_img[mask])
-                if fg_intensity < 0.15:
-                    continue
+                # mask = detect_spots(temp_img)
+                # fg_intensity = np.mean(temp_img[mask])
+                # if fg_intensity < 0.15:
+                #     continue
                 img = img.to(DEVICE)
                 div, dpi = metadata["label"], metadata["dpi"]
                 if "5" in div and args.young_dpi in dpi:
@@ -362,7 +378,7 @@ def main():
                 latent_code = latent_encoder.forward_features(torch_img)
                 numpy_code = latent_code.detach().cpu().numpy()
 
-                d = numpy_code.dot(boundary.T) + intercept
+                d = (numpy_code.dot(boundary.T) + intercept) * norm
                 d = d[0][0] 
 
                 mean_features = mean_features.reshape(1, -1) 
@@ -425,7 +441,7 @@ def main():
         diffusion_model.load_state_dict(ckpt["state_dict"])
         diffusion_model.to(DEVICE)
         dataset = ALSDataset(
-            tarpath=f"/home-local/Frederic/Datasets/ALS/ALS_JM_Fred_unmixed/PLKO-262-{args.channel}-test.tar",
+            tarpath=f"/home-local/Frederic/Datasets/ALS/catalogs/PLKO-262-{args.channel}-valid.tar",
         )
         N = len(dataset)
         indices = np.arange(N)
@@ -482,7 +498,7 @@ def main():
             features.append(original_features)
 
             seed_offset = hash(args.direction) % (2**32-1)
-            set_seeds(args.seed + i + seed_offset)                        
+            set_seeds(int(args.seed + i + seed_offset))                        
 
             latent_code = diffusion_model.latent_encoder.forward_features(img)
             numpy_code = latent_code.detach().cpu().numpy() 
@@ -493,8 +509,14 @@ def main():
 
             lerped_codes, d, img_distance = linear_interpolate(latent_code=numpy_code, boundary=boundary, intercept=intercept, norm=norm, start_distance=distance_min, end_distance=distance_max, steps=args.n_steps + 1)
             distances.append(img_distance)
+            print(f"Distances: {d}")
 
+            start_code = lerped_codes[0][np.newaxis, ...]
+            end_code = lerped_codes[-1][np.newaxis, ...]
+            distance_traveled = cdist(start_code, end_code, metric="euclidean")[0][0]
+            print(f"Total distance traveled: {distance_traveled:.2f}")
             for c, code in enumerate(lerped_codes):
+                print(f"current distance: {d[c]}")
                 lerped_code = torch.tensor(code, dtype=torch.float32).unsqueeze(0).to(DEVICE)
                 lerped_sample = diffusion_model.p_sample_loop(shape=(img.shape[0], 1, img.shape[2], img.shape[3]), cond=lerped_code, progress=True)
                 lerped_sample_numpy = lerped_sample.squeeze().detach().cpu().numpy()
@@ -505,14 +527,14 @@ def main():
                 all_features[c+1] = lerped_sample_mean_features
                 features.append(lerped_sample_features)
                 # distances.append(img_distance + d[c][0])
-                distances.append(d[c][0])
+                distances.append(d[c])
                 rprops.append(lerped_rprops)
          
 
             distances = np.array(distances)
             counter += 1
 
-            plot_features(features=all_features, distances=distances, index=counter)
+            # plot_features(features=all_features, distances=distances, index=counter)
             save_examples(samples, distances, counter)
             save_raw_images(samples, distances, counter)
 
