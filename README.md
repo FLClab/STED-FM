@@ -75,6 +75,7 @@ The repository is mostly split in sub-folders of the `experiments` folder, corre
 - The image restoration experiments (denoising and super-resolution) are in the `restoration-experiments` sub-folder.
 - The code for extracting attention maps from STED-FM is in the `interpretability-experiments` sub-folder.
 - The code for performing user studies on the various tasks are in the `user-study` sub-folder.
+- The code related to the algorithmic super-resolution experiment using the DRaFT framework is in this [separate repository](https://github.com/FLClab/DRAFT).
 
 ## Documentation
 Below is an example command for pre-training the ViT-S architecture with the large-scale STED dataset, which results in STED-FM. Note that this will probably be infeasibly long with a single GPU.
