@@ -8,7 +8,7 @@ import hashlib
 import numpy
 import json
 
-from typing import List
+from typing import List, String
 
 import sys
 sys.path.insert(0, "../..")
@@ -22,16 +22,16 @@ DEFAULTPATHS = {
 OUTPUTPATH = "/home-local2/projects/FLCDataset"
 MIN_IMAGE_SIZE = 224
 
-def get_hash(string:str):
+def get_hash(string:String) -> String:
     return hashlib.sha256(string.encode("utf-8")).hexdigest()
 
-def get_msrfiles(path: str) -> List[str]:
+def get_msrfiles(path: String) -> List[String]:
     """
     Gets the list of MSR files from the path.
     """
     return glob.glob(os.path.join(path, "**/*.msr"), recursive=True)
 
-def yield_msrfiles(path: str) -> str:
+def yield_msrfiles(path: String) -> String:
     """
     Yields the list of MSR files from the path.
 

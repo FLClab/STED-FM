@@ -77,7 +77,28 @@ def resampling_F(samples: list, raveled_samples: list, group_indexes: list, perm
     p_value = numpy.sum(p_fstat >= gt_fstat, axis=0) / permutations
     return p_value
 
-def resampling_stats(samples : List[numpy.ndarray], labels : List[str], permutations : int =10000, show_ci: bool =False, possible_combinations: list =[]):
+def resampling_H(samples: list, raveled_samples: list, group_indexes: list, permutations: int =10000):
+    """
+    Computes the H statistics using a resampling of samples. The p-value is computed
+    by comparing the ground truth H-statistic to the H-statistics obtained by permuting
+    the samples.
+
+    :param samples: A `list` of samples
+    :param raveled_samples: A `numpy.ndarray` of the raveled samples
+    :param group_indexes: A `list` of group indexes
+    :param permutations: The number of permutations to test
+    """
+    gt_hstat, _ = stats.kruskal(*samples)
+    p_hstat = []
+    for _ in range(permutations):
+        tmp_samples = permute(raveled_samples, group_indexes)
+        statistic, _  = stats.kruskal(*tmp_samples)
+        p_hstat.append(statistic)
+    p_hstat = numpy.array(p_hstat)
+    p_value = numpy.sum(p_hstat >= gt_hstat, axis=0) / permutations
+    return p_value
+
+def resampling_stats(samples : List[numpy.ndarray], labels : List[str], permutations : int =10000, show_ci: bool =False, possible_combinations: list =[], sampling_func=numpy.mean):
     """
     This function computes the resampling statistical test for multiple samples. It first
     computes a resampling ANOVA F-test to determine if there is any significant difference
@@ -110,7 +131,10 @@ def resampling_stats(samples : List[numpy.ndarray], labels : List[str], permutat
     # Resampled anova
     F_p_value = None
     if len(samples) > 2:
-        F_p_value = resampling_F(samples, raveled_samples, group_indexes, permutations=permutations)
+        if sampling_func == numpy.mean:
+            F_p_value = resampling_F(samples, raveled_samples, group_indexes, permutations=permutations)
+        else:
+            F_p_value = resampling_H(samples, raveled_samples, group_indexes, permutations=permutations)
         if numpy.all(F_p_value > 0.05):
             print("Resampling F (pvalue : {})".format(F_p_value))
             return p_values, F_p_value
@@ -134,12 +158,12 @@ def resampling_stats(samples : List[numpy.ndarray], labels : List[str], permutat
                                                                     Combinations(labels, r=2, possible_combinations=possible_combinations))):
         # if i % 9 == 0:
         #     treatments = []
-        gt_abs_diff = numpy.abs(numpy.mean(sample1, axis=0) - numpy.mean(sample2, axis=0))
+        gt_abs_diff = numpy.abs(sampling_func(sample1, axis=0) - sampling_func(sample2, axis=0))
         concatenated = numpy.concatenate((sample1, sample2), axis=0)
         p_abs_diff = []
         for _ in range(permutations):
             numpy.random.shuffle(concatenated)
-            p_abs_diff.append(numpy.abs(numpy.mean(concatenated[:len(sample1)], axis=0) - numpy.mean(concatenated[len(sample1):], axis=0)))
+            p_abs_diff.append(numpy.abs(sampling_func(concatenated[:len(sample1)], axis=0) - sampling_func(concatenated[len(sample1):], axis=0)))
         p_abs_diff = numpy.array(p_abs_diff)
         p_value = numpy.sum(p_abs_diff >= gt_abs_diff, axis=0) / permutations
 

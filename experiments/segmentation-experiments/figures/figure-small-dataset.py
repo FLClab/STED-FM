@@ -4,6 +4,7 @@ import os, glob
 import json
 import argparse
 import sys
+import pandas
 from scipy import stats
 from matplotlib import pyplot
 
@@ -31,9 +32,13 @@ print(args)
 
 
 def load_file(file):
-    with open(file, "r") as handle:
-        data = json.load(handle)
-    return data
+    try:
+        with open(file, "r") as handle:
+            data = json.load(handle)
+        return data
+    except Exception as e:
+        print(f"Error loading file {file}: {e}")
+        return {}
 
 def get_data(pretraining="STED"):
     data = {}
@@ -55,10 +60,20 @@ def get_data(pretraining="STED"):
             return data
         if len(files) != 5:
             print(f"Could not find all files for mode: `{args.mode}`, sample `{sample}` and pretraining: `{pretraining}` ({len(files)}/5)")
+
+            required_seeds = set([42, 43, 44, 45, 46])
+            found_seeds = set()
+            for file in files:
+                basename = os.path.dirname(file)
+                found_seeds.add(int(basename.split("-")[-1]))
+            missing_seeds = required_seeds - found_seeds
+            print(f"  Missing seeds: {missing_seeds}")
   
         scores = []
         for file in files:
-            scores.append(load_file(file))
+            d = load_file(file)
+            if d:
+                scores.append(d)
         data[sample] = scores
     return data
 
@@ -80,10 +95,19 @@ def get_full_data(mode=args.mode, pretraining="STED"):
     files = list(filter(lambda x: "samples" not in x, files))
     files = list(filter(lambda x: "labels" not in x, files))
     if len(files) < 1: 
-        print(f"Could not find files for mode: `{mode}` and pretraining: `{pretraining}` ({len(files)}/5)")
+        print(f"Could not find files for full data mode: `{mode}` and pretraining: `{pretraining}` ({len(files)}/5)")
         return data
     if len(files) != 5:
-        print(f"Could not find all files for mode: `{mode}` and pretraining: `{pretraining}` ({len(files)}/5)")
+        print(f"Could not find all files for full data mode: `{mode}` and pretraining: `{pretraining}` ({len(files)}/5)")
+
+        required_seeds = set([42, 43, 44, 45, 46])
+        found_seeds = set()
+        for file in files:
+            basename = os.path.dirname(file)
+            found_seeds.add(int(basename.split("-")[-1]))
+        missing_seeds = required_seeds - found_seeds
+        print(f"  Missing seeds: {missing_seeds}")
+        
     scores = []
     for file in files:
         scores.append(load_file(file))
@@ -112,6 +136,8 @@ def plot_data(pretraining, data, figax=None, **kwargs):
         values_masked = numpy.ma.masked_equal(values, -1)
 
         mean, std = numpy.ma.mean(values_masked, axis=1), numpy.ma.std(values_masked, axis=1)
+
+        # print(numpy.mean(mean), numpy.ma.mean(values_masked, axis=(1, 2)))
 
         sem = stats.sem(values_masked, axis=1)
         errs.append(numpy.mean(sem))
@@ -145,6 +171,7 @@ def main():
         pretrainings += ["from-scratch"]
     
     for i, pretraining in enumerate(pretrainings):
+        print(f"Processing pretraining: {pretraining}")
         data = get_data(pretraining=pretraining)
         fig, ax = plot_data(pretraining, data, figax=(fig, ax))
 
@@ -168,7 +195,7 @@ def main():
         for key, values in data.items():
             values = [item[args.metric] for item in values]
             values_masked = numpy.ma.masked_equal(values, -1)
-            out[key] = numpy.ma.mean(values_masked, axis=(1, 2)).compressed()
+            out[key] = numpy.ma.mean(values_masked, axis=1).mean(axis=1)
         data = out
         samples.extend(data.values())
         labels.extend([f"{pretraining}-{key}" for key in data.keys()])
@@ -176,12 +203,18 @@ def main():
         full_dataset_results = get_full_data(pretraining=pretraining)
         full_dataset_results = [item[args.metric] for item in full_dataset_results[args.mode]]
         values_masked = numpy.ma.masked_equal(full_dataset_results, -1)
-        full_dataset_results = numpy.ma.mean(values_masked, axis=(1,2)).compressed()
+        full_dataset_results = numpy.ma.mean(values_masked, axis=1).mean(axis=1)
         samples.append(full_dataset_results)
         labels.append(f"{pretraining}-Full")
+    
+    # print(samples, labels)
+    df = pandas.DataFrame(samples, index=labels)
+    os.makedirs(os.path.join(".", "results", "raw-outputs"), exist_ok=True)
+    df.to_csv(os.path.join(".", "results", "raw-outputs", f"{args.model}_{args.dataset}_{args.mode}-small-dataset.csv"))
         
     p_values, F_p_value = resampling_stats(samples, labels)
-    print("ANOVA p-value:", F_p_value)
+    p_values.to_csv(os.path.join(".", "results", "raw-outputs", f"{args.model}_{args.dataset}_{args.mode}_F{F_p_value:0.4f}-small-dataset-stats.csv"))
+    # print("ANOVA p-value:", F_p_value)
     fig, ax = plot_p_values(p_values)
     savefig(fig, os.path.join(".", "results", f"{args.model}_{args.dataset}_{args.mode}-small-dataset-stats"), extension="pdf")
 

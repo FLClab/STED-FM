@@ -1757,6 +1757,13 @@ class FolderDataset(Dataset):
             files = list(filter(lambda x: "annotations" not in os.path.basename(x), files))
             self.images[class_name] = list(sorted(files))
 
+        self.cache = {}
+        print("Caching images into memory...")
+        for key, values in self.images.items():
+            for v in values:
+                self.cache[f"{key}-{v}"] = tifffile.imread(v)
+        print("Caching completed.")
+
     def __len__(self):
         return sum([len(lst) for lst in list(self.images.values())])
     
@@ -1764,17 +1771,31 @@ class FolderDataset(Dataset):
         idx = idx % self.__len__()
         for key, values in self.images.items():
             if idx < len(values):
-                img = tifffile.imread(values[idx])
+                if f"{key}-{values[idx]}" in self.cache:
+                    img = self.cache[f"{key}-{values[idx]}"]
+                else:
+                    img = tifffile.imread(values[idx])
                 label = self.classes.index(key)
                 break
             idx -= len(values)
         
+        # Random 512x512 crop
+        H, W = img.shape[-2], img.shape[-1]
+        top = np.random.randint(0, H - 512) if H > 512 else 0
+        left = np.random.randint(0, W - 512) if W > 512 else 0
+        if img.ndim == 3:
+            img = img[:, top:top + 512, left:left + 512]
+        else:
+            img = img[top:top + 512, left:left + 512]
+
         if self.n_channels == 3:
             img = np.tile(img[np.newaxis, :], (3, 1, 1))
             img = torch.tensor(img, dtype=torch.float32)
             img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
         else:
-            img = torch.tensor(img[np.newaxis, :], dtype=torch.float32)
+            if img.ndim == 2:
+                img = img[np.newaxis]
+            img = torch.tensor(img, dtype=torch.float32)
         
         img = self.transform(img) if self.transform is not None else img
         return img, {"label": label, "dataset-idx": idx}
@@ -1804,6 +1825,7 @@ class RestorationFolderDataset(Dataset):
 
         self.mu = kwargs.get("mu", 0.0)
         self.std = kwargs.get("std", 1.0)
+        self.use_foreground = kwargs.get("use_foreground", False)
 
         files = glob.glob(os.path.join(source, "*.tif"))
         files += glob.glob(os.path.join(source, "*.tiff"))
@@ -1823,6 +1845,10 @@ class RestorationFolderDataset(Dataset):
             image = self.read_image(f)
             statistics.append([image.mean(axis=(1, 2)), image.std(axis=(1, 2))])
             C, H, W = image.shape
+
+            threshold = filters.threshold_otsu(image[0])
+            foreground = image > threshold
+
             for c in range(C):
                 for j in range(0, H - self.crop_size, self.crop_size):
                     for i in range(0, W - self.crop_size, self.crop_size):
@@ -1830,12 +1856,21 @@ class RestorationFolderDataset(Dataset):
                             slice(j, j + self.crop_size) if j + self.crop_size < H else slice(H - self.crop_size, H),
                             slice(i,  i + self.crop_size) if i + self.crop_size < W else slice(W - self.crop_size, W),
                         )
-                        samples.append({
-                            "source-image": f,
-                            "target-image": tf,
-                            "chan-idx": c,
-                            "slc": slc
-                        })
+                        if self.use_foreground:
+                            if foreground[slc].sum() > 0.1 * self.crop_size * self.crop_size:
+                                samples.append({
+                                    "source-image": f,
+                                    "target-image": tf,
+                                    "chan-idx": c,
+                                    "slc": slc
+                                })
+                        else:
+                            samples.append({
+                                "source-image": f,
+                                "target-image": tf,
+                                "chan-idx": c,
+                                "slc": slc
+                            })
         statistics = np.array(statistics)
         return samples
 
@@ -2148,6 +2183,10 @@ class ArchiveDataset(Dataset):
             raise NotImplementedError(f"Archive type `{ext}` is not implemented. The only supported archives are: {self.READERS.keys()}")
         self.archive_reader = self.READERS[ext]
 
+        # Ensures that the file exists
+        if not os.path.exists(self.archive_path):
+            raise FileNotFoundError(f"The archive file `{self.archive_path}` does not exist.")
+
         # Instantiates the archive object
         worker = get_worker_info()
         worker = worker.id if worker else None
@@ -2250,8 +2289,9 @@ class ArchiveDataset(Dataset):
         """
         Close the ZipFile file handles on exit.
         """
-        for o in self.archive_obj.values():
-            o.close()
+        if hasattr(self, 'archive_obj'):
+            for o in self.archive_obj.values():
+                o.close()
             
     def __getstate__(self) -> dict:
         """
@@ -2575,6 +2615,16 @@ class TarFLCDataset(ArchiveDataset):
         #     print(metadata)
         
         img = img / 255.
+
+        # Channels are stored in first dimension, but transforms expect them last
+        if img.ndim == 3:
+            center_y = img.shape[1] // 2
+            center_x = img.shape[2] // 2
+            crop_size = min(img.shape[1], img.shape[2]) // 2
+            crop_size = min(crop_size, 256)
+            img = img[:, center_y - crop_size:center_y + crop_size, center_x - crop_size:center_x + crop_size]
+            img = img[[0]]
+            img = np.transpose(img, (1, 2, 0))
 
         if self.transform is not None:
             # This assumes that there is a conversion to torch Tensor in the given transform

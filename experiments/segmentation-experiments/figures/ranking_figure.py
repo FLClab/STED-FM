@@ -14,18 +14,15 @@ from stedfm.utils import savefig
 from stedfm.stats import resampling_stats, plot_p_values
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--model", type=str, default="mae-small")
-parser.add_argument("--mode", type=str, default="linear-probe", choices=["linear-probe", "finetuned"])
+parser.add_argument("--model", type=str, default="mae-lightning-small")
+parser.add_argument("--mode", type=str, default="pretrained-frozen", choices=["pretrained-frozen", "pretrained"],
+                    help="Number of samples to plot")      
 parser.add_argument("--domain", type=str, default="STED", choices=["STED", "MIC"])
-parser.add_argument("--metric", type=str, default="acc")
+parser.add_argument("--metric", type=str, default="aupr")
+parser.add_argument("--sampling-mode", type=str, default="labels")
 args = parser.parse_args()
 
-
-def load_file(file):
-    with open(file, "r") as handle:
-        data = json.load(handle)
-    return data 
-
+print(args)
 
 def get_metric_from_dict(data_dict, metric):
     if metric not in data_dict:
@@ -36,14 +33,30 @@ def get_metric_from_dict(data_dict, metric):
             raise ValueError(f"Metric `{metric}` not found in data dictionary.")
     return data_dict[metric]
 
-def get_data(pretraining="STED", sample="10", dataset="optim", mode=args.mode):
-    if pretraining == "from-scratch":
-        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_from-scratch", dataset, f"accuracy_from-scratch_{sample}_*.json"), recursive=True)
+def load_file(file):
+    with open(file, "r") as handle:
+        data = json.load(handle)
+    return data
+
+def get_data(pretraining="STED", dataset="factin", sample="10", mode=args.mode):
+
+    if args.mode == "from-scratch" or pretraining == "from-scratch":
+        files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", dataset, f"from-scratch*-{sample}%-labels*", f"segmentation-scores.json"), recursive=True)
     else:
-        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", dataset, f"accuracy_{mode}_{sample}_*.json"), recursive=True)
-    
+        if args.sampling_mode == "samples":
+            files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", dataset, f"{mode}*_{pretraining.upper()}*-{sample}-samples*", f"segmentation-scores.json"), recursive=True)
+        else:
+            files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", dataset, f"{mode}*_{pretraining.upper()}*-{sample}%-labels*", f"segmentation-scores.json"), recursive=True)
+
+    if mode == "pretrained":
+        # remove files that contains samples
+        files = list(filter(lambda x: "frozen" not in x, files))  
+    # remove files that contains samples
+    if len(files) < 1: 
+        print(f"Could not find files for mode: `{mode}`, sample `{sample}` and pretraining: `{pretraining}` ({len(files)}/5)")
+        return []
     if len(files) != 5:
-        print(f"Could not find all files for sample: `{sample}` and pretraining: `{pretraining} ({len(files)}/5)")
+        print(f"Could not find all files for mode: `{mode}`, sample `{sample}` and pretraining: `{pretraining}` ({len(files)}/5)")
 
         required_seeds = set([42, 43, 44, 45, 46])
         found_seeds = set()
@@ -53,22 +66,31 @@ def get_data(pretraining="STED", sample="10", dataset="optim", mode=args.mode):
         missing_seeds = required_seeds - found_seeds
         print(f"  Missing seeds: {missing_seeds}")
 
-    if len(files) > 5:
-        print(f"Found more than 5 files for sample: `{sample}` and pretraining: `{pretraining} ({len(files)}/5)")
-        exit()
     scores = []
     for file in files:
         scores.append(load_file(file))
     return scores
 
-def get_full_data(pretraining="STED", sample="10", dataset="optim", mode=args.mode):
-    if pretraining == "from-scratch":
-        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_from-scratch", dataset, f"accuracy_from-scratch_None_*.json"), recursive=True)
+def get_full_data(mode=args.mode, pretraining="STED", dataset="factin"):
+    data = {}
+    if mode == "from-scratch" or pretraining == "from-scratch":
+        files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", dataset, f"from-scratch*", f"segmentation-scores.json"), recursive=True)
     else:
-        files = glob.glob(os.path.join(BASE_PATH, "baselines", f"{args.model}_{pretraining}", dataset, f"accuracy_{mode}_None_*.json"), recursive=True)
+        files = glob.glob(os.path.join(BASE_PATH, "segmentation-baselines", f"{args.model}", dataset, f"{mode}*_{pretraining.upper()}*", f"segmentation-scores.json"), recursive=True)
+        files = [f for f in files if "labels" not in f]
+        if mode == "pretrained":
+            files = [f for f in files if "frozen" not in f]
+
+    if mode == "pretrained":
+        # remove files that contains samples
+        files = list(filter(lambda x: "frozen" not in x, files))    
+        
+    # remove files that contains samples
+    files = list(filter(lambda x: "samples" not in x, files))
+    files = list(filter(lambda x: "labels" not in x, files))
     if len(files) < 1: 
-        print(f"Could not find files for full data mode: `{mode}` and pretraining: `{pretraining}`")
-        return []
+        print(f"Could not find files for full data mode: `{mode}` and pretraining: `{pretraining}` ({len(files)}/5)")
+        return data
     if len(files) != 5:
         print(f"Could not find all files for full data mode: `{mode}` and pretraining: `{pretraining}` ({len(files)}/5)")
 
@@ -79,7 +101,7 @@ def get_full_data(pretraining="STED", sample="10", dataset="optim", mode=args.mo
             found_seeds.add(int(basename.split("-")[-1]))
         missing_seeds = required_seeds - found_seeds
         print(f"  Missing seeds: {missing_seeds}")
-            
+        
     scores = []
     for file in files:
         scores.append(load_file(file))
@@ -114,10 +136,10 @@ def plot_rankings(rankings: dict):
 
             
     ax.set(
-        ylabel="$acc^* - acc$",
+        ylabel="$AUPR^* - AUPR$",
         xticks=np.arange(5) + width * len(rankings.keys()) / 2 - 0.5 * width,
-        xticklabels=["10", "25", "50", "100", "Full"],
-        ylim=(0, 0.40)
+        xticklabels=["1", "10", "25", "50", "100"],
+        ylim=(0, 0.25),
     )
     # ax.legend(
     #     handles=[
@@ -129,21 +151,20 @@ def plot_rankings(rankings: dict):
 
 
 def main():
-    sample_size = ["10", "25", "50", "100", "Full"]
+    sample_size = ["1", "10", "25", "50", "100"]
     if args.domain.lower() == "sted":
-        downstream_datasets = ["optim", "neural-activity-states", "peroxisome", "polymer-rings"]
+        downstream_datasets = ["factin", "synaptic-semantic-segmentation", "footprocess", "lioness"]
     else:
-        downstream_datasets = ["dl-sim", "bbbc026", "bbbc052", "bbbc053", "hpa-classification"]
+        downstream_datasets = ["lcn", "deepd3"]
 
     downstream_datasets = [
-        "optim", "neural-activity-states", "peroxisome", "polymer-rings",
-        "dl-sim", "bbbc026", "bbbc052", "bbbc053", "hpa-classification"
+        "factin", "synaptic-semantic-segmentation", "footprocess", "lioness", "lcn", "deepd3"
     ]
 
-    if args.mode == "linear-probe":
-        pretraining_datasets = ["ImageNet", "JUMP", "HPA", "SIM", "STED"]
-    else:
+    if args.mode == "pretrained":
         pretraining_datasets = ["from-scratch", "ImageNet", "JUMP", "HPA", "SIM", "STED"]
+    else:
+        pretraining_datasets = ["ImageNet", "JUMP", "HPA", "SIM", "STED"]
 
     rankings = {
         pretraining: {
@@ -155,7 +176,7 @@ def main():
         for j, downstream in enumerate(downstream_datasets):
             all_scores = []
             for k, pretraining in enumerate(pretraining_datasets):
-                if sample == "Full":
+                if sample == "100":
                     scores = get_full_data(pretraining=pretraining, dataset=downstream, mode=args.mode)
                 else:
                     scores = get_data(sample=sample, pretraining=pretraining, dataset=downstream, mode=args.mode)
@@ -177,12 +198,8 @@ def main():
             print("-----------------\n")
             for p in range(len(pretraining_datasets)):
                 rankings[pretraining_datasets[p]][sample].append(delta_scores[p])
-
-    # for pretraining in rankings.keys():
-    #     rankings[pretraining]["100"].pop(2) # remove the peroxisome - 100 samples case
     
     from scipy.stats import kruskal
-    import pandas
 
     for sample in sample_size:
         print(f"--- Sample size: {sample} ---")
@@ -193,26 +210,33 @@ def main():
             samples.append(data)
             labels.append(f"{pretraining}-{sample}")
 
-        H_stat, p_value = kruskal(*samples,)
-        print(f"Kruskal-Wallis H-statistic: {H_stat}, p-value: {p_value}")
-        if p_value < 0.05:
+        H_stat, H_p_value = kruskal(*samples,)
+        print(f"Kruskal-Wallis H-statistic: {H_stat}, p-value: {H_p_value}")
+        p_values = np.ones((len(samples), len(samples)))  # Initialize p-values matrix
+        if H_p_value < 0.05:
             print("  Significant differences found among groups.")
-            p_values = np.ones((len(samples), len(samples)))
             for i in range(len(samples)):
                 for j in range(i + 1, len(samples)):
-                    from scipy.stats import ks_2samp, mannwhitneyu
+                    from scipy.stats import ks_2samp, mannwhitneyu, wilcoxon
+                    # stat, p = ks_2samp(samples[i], samples[j])
+                    # stat, p = wilcoxon(samples[i], samples[j], alternative='greater')
                     stat, p = mannwhitneyu(samples[i], samples[j], alternative='greater')
                     # print(f"  Mann-Whitney U test between {labels[i]} and {labels[j]}: U-statistic={stat}, p-value={p}")
                     p_values[i, j] = p
                     p_values[j, i] = p
-            p_values = pandas.DataFrame(p_values, index=labels, columns=labels)
-            print("Pairwise Mann-Whitney U test p-values:")
-            print(p_values)
-            print("\n")
         else:
             print("  No significant differences found among groups.")
 
-        p_values.to_csv(os.path.join(".", "results", "raw-outputs", f"{args.model}_{args.domain}_{args.mode}_H{p_value:0.4e}_ranking_stats_sample-{sample}.csv"))
+        import pandas
+        p_values = pandas.DataFrame(p_values, index=labels, columns=labels)
+        print("Pairwise Mann-Whitney U test p-values:")
+        print(p_values)
+        print("\n")
+        p_values.to_csv(os.path.join(".", "results", "raw-outputs", f"{args.model}_{args.domain}_{args.mode}_H{H_p_value:0.4e}_ranking_stats_sample-{sample}.csv"))
+
+        # p_values, F_p_values = resampling_stats(samples, labels, sampling_func=np.median)
+        # print(p_values)
+        # print(F_p_values)
 
     plot_rankings(rankings)
 

@@ -1,7 +1,5 @@
 MODELS=(
-    "resnet18"
-    "resnet50"
-    "resnet101"
+    "mae-small"
 )
 DATASET=(
     "optim"
@@ -9,16 +7,20 @@ DATASET=(
     "peroxisome"
     "polymer-rings"
     "dl-sim"
+    "bbbc026"
+    "bbbc052"
+    "bbbc053"
+    "hpa-classification"
 )
-for dataset in ${DATASET[@]};
-do
-    python table-linear-probe-finetuned.py --dataset $dataset
-done
 for model in ${MODELS[@]};
 do
     for dataset in ${DATASET[@]};
-    do
-        python figure-linear-probe-finetuned.py --model $model --dataset $dataset
-        # python figure-small-dataset.py --model $model --dataset $dataset --samples 10 25 50 100 250 500
+    do  
+        metric="acc"
+        if [ "$dataset" == "hpa-classification" ]; then
+            metric="f1"
+        fi
+        python figure-small-dataset.py --model $model --dataset $dataset --samples 10 25 50 100 --mode linear-probe --metric $metric
+        python figure-small-dataset.py --model $model --dataset $dataset --samples 10 25 50 100 --mode finetuned --metric $metric
     done
 done

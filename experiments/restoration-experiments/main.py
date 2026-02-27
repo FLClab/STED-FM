@@ -185,7 +185,11 @@ if __name__ == "__main__":
     # Loads dataset and dataset-specific configuration
     cache_manager = Manager()
     cache_system = cache_manager.dict()
-    training_dataset, validation_dataset, testing_dataset = get_dataset(name=args.dataset, cfg=cfg, cache_system=cache_system)
+    try:
+        training_dataset, validation_dataset, testing_dataset = get_dataset(name=args.dataset, cfg=cfg, cache_system=cache_system)
+    except NotImplementedError:
+        from stedfm.datasets import get_inpainting_dataset
+        training_dataset, validation_dataset, testing_dataset = get_inpainting_dataset(name=args.dataset, cfg=cfg, cache_system=cache_system)
 
     # Updates configuration with additional options; performs inplace
     cfg.args = args
