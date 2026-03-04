@@ -38,14 +38,14 @@ class LinearProbe(torch.nn.Module):
     ) -> None:
         super().__init__()
 
-        if "mae" in name.lower():
+        if "mae" in name.lower() or "dinov2" in name.lower():
             try:  # ViT case with none-ImageNet weights
                 # print("--- ViT case with none-ImageNet weights or from scratch ---")
-                self.backbone = backbone.backbone.vit 
+                self.backbone = backbone.backbone.vit
             except: # ViT case with ImageNet weights
                 # print("--- ViT case with ImageNet weights ---")
-                self.backbone = backbone 
-        else: # CNN case 
+                self.backbone = backbone
+        else: # CNN case
             self.backbone = backbone
         self.name = name 
         self.num_classes = num_classes 
@@ -81,7 +81,7 @@ class LinearProbe(torch.nn.Module):
         raise NotImplementedError("Partial fine-tuning not yet implemented.") 
     
     def forward_features(self, x: torch.Tensor, return_patches: bool = False) -> torch.Tensor:
-        if "mae" in self.name.lower():
+        if "mae" in self.name.lower() or "dinov2" in self.name.lower():
             features = self.backbone.forward_features(x)
             if self.global_pool == "token":
                 out = features[:, 0, :] # class token 

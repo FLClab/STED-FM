@@ -7,6 +7,7 @@ from .convnext import get_backbone as get_convnext_backbone
 from .naive import get_backbone as get_naive_backbone
 from .vit import get_backbone as get_vit_backbone
 from .lightly_mae import get_backbone as get_mae_backbone
+from .dinov2 import get_backbone as get_dinov2_backbone
 
 MODELS = {
     "resnet18" : get_resnet_backbone,
@@ -24,6 +25,10 @@ MODELS = {
     "mae-lightning-large": get_mae_backbone,
     "mae-lightning-64-p8": get_mae_backbone,
     "mae-lightning-224-p16": get_mae_backbone,
+    "dinov2-lightning-tiny": get_dinov2_backbone,
+    "dinov2-lightning-small": get_dinov2_backbone,
+    "dinov2-lightning-base": get_dinov2_backbone,
+    "dinov2-lightning-large": get_dinov2_backbone,
 }
 
 def get_model(name : str, **kwargs) -> torch.nn.Module:

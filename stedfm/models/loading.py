@@ -12,6 +12,7 @@ from .resnet import ResNetWeights
 from .micranet import MICRANetWeights
 from .convnext import ConvNextWeights
 from .lightly_mae import MAEWeights
+from .dinov2 import DINOv2Weights
 
 from stedfm.DEFAULTS import BASE_PATH
 
@@ -38,6 +39,10 @@ MODELS = {
     "mae-64-p8": MAEWeights,
     "mae-lightning-224-p16": MAEWeights,
     "mae-224-p16": MAEWeights,
+    'dinov2-lightning-tiny': DINOv2Weights,
+    'dinov2-lightning-small': DINOv2Weights,
+    'dinov2-lightning-base': DINOv2Weights,
+    'dinov2-lightning-large': DINOv2Weights,
 }
 
 def get_state_dict(name: str, state_dict: dict) -> dict:
@@ -49,8 +54,11 @@ def get_state_dict(name: str, state_dict: dict) -> dict:
 
     :returns: A state_dict containing the model weights.
     """
+    if "dinov2" in name.lower():
+        return state_dict["state_dict"]
+
     if "mae" in name.lower():
-        return state_dict["state_dict"] 
+        return state_dict["state_dict"]
     
     elif "micranet" in name.lower():
         return state_dict["state_dict"]["backbone"]

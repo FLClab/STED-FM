@@ -23,7 +23,11 @@ MODELS = {
     "vit-tiny": get_vit_decoder,
     "vit-small": get_vit_decoder,
     "vit-base": get_vit_decoder,
-    "vit-large": get_vit_decoder
+    "vit-large": get_vit_decoder,
+    "dinov2-lightning-tiny": get_vit_decoder,
+    "dinov2-lightning-small": get_vit_decoder,
+    "dinov2-lightning-base": get_vit_decoder,
+    "dinov2-lightning-large": get_vit_decoder,
 }
 
 def get_decoder(backbone: torch.nn.Module, cfg: dataclass, **kwargs) -> torch.nn.Module:

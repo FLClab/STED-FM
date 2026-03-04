@@ -34,7 +34,7 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
 
     :returns : A `torch.nn.Module` model and its `Configuration`
     """
-    if name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "vit-small", "mae-lightning-tiny", "mae-lightning-small", 'mae-lightning-base', 'mae-lightning-large', 'mae-lightning-64-p8', "mae-lightning-224-p16"]:
+    if name in ["resnet18", "resnet50", "resnet101", "micranet", "convnext-tiny", "convnext-small", "convnext-base", "vit-small", "mae-lightning-tiny", "mae-lightning-small", 'mae-lightning-base', 'mae-lightning-large', 'mae-lightning-64-p8', "mae-lightning-224-p16", "dinov2-lightning-tiny", "dinov2-lightning-small", "dinov2-lightning-base", "dinov2-lightning-large"]:
         if "in_channels" not in kwargs:
             kwargs["in_channels"] = 3 if (weights is not None and "imagenet" in weights.lower()) else 1
         backbone, cfg = get_base_model(name, **kwargs)
