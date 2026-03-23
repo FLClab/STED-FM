@@ -73,10 +73,16 @@ def get_dataset(name: str, path: str, **kwargs):
         dataset = CTCDataset(path, **kwargs)
     elif name == "JUMP":
         dataset = TarJUMPDataset(path, **kwargs)
-    elif name == "STED": 
-        dataset = TarFLCDataset(path, **kwargs)
-    elif name == "SIM": 
-        dataset = TarFLCDataset(path, **kwargs)        
+    elif name == "STED":
+        if str(path).endswith(".zip"):
+            dataset = ZipFLCDataset(path, **kwargs)
+        else:
+            dataset = TarFLCDataset(path, **kwargs)
+    elif name == "SIM":
+        if str(path).endswith(".zip"):
+            dataset = ZipFLCDataset(path, **kwargs)
+        else:
+            dataset = TarFLCDataset(path, **kwargs)
     elif name == "Hybrid":
         dataset = HybridDataset(
             **kwargs # hpa_path, sim_path, sted_path have been handled in the datamodule
@@ -2617,6 +2623,69 @@ def ensure_values(obj):
             # Converts None values to list of strings
             obj[key] = "None"
     return obj
+
+class ZipFLCDataset(ArchiveDataset):
+    """
+    Dataset class for loading and processing image data from a ZipFile object.
+    Drop-in replacement for TarFLCDataset when the archive is a .zip file.
+    """
+    def __init__(self, zip_path: str,
+                 use_cache: bool = False,
+                 max_cache_size: int = 16e9,
+                 in_channels: int = 1,
+                 transform: Any = None,
+                 cache_system=None,
+                 return_metadata: bool = False,
+                 world_size: int = 1,
+                 rank: int = 0,
+                 debug: bool = False,
+                 *args, **kwargs) -> None:
+        self.in_channels = in_channels
+        self.return_metadata = return_metadata
+        self.debug = debug
+        super(ZipFLCDataset, self).__init__(
+            zip_path,
+            use_cache=use_cache,
+            max_cache_size=max_cache_size,
+            transform=transform,
+            cache_system=cache_system,
+            world_size=world_size,
+            rank=rank
+        )
+
+    def get_members(self):
+        members = self.get_reader().infolist()
+        if self.debug:
+            members = members[:5000]
+        return list(sorted(members, key=lambda m: m.filename))
+
+    def get_item_from_archive(self, member):
+        buffer = io.BytesIO()
+        buffer.write(self.get_reader().open(member).read())
+        buffer.seek(0)
+        data = np.load(buffer, allow_pickle=True)
+        return {key: values for key, values in data.items()}
+
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        data = self.get_data(idx)
+        img = data["image"]
+        metadata = data["metadata"].item()
+        img = img / 255.
+        if self.transform is not None:
+            img = self.transform(img)
+            img = to_float(img)
+        else:
+            if img.ndim == 2:
+                img = img[np.newaxis]
+            img = torch.tensor(img, dtype=torch.float32)
+            if self.in_channels == 3:
+                img = img.repeat(3, 1, 1)
+                img = transforms.Normalize(mean=[0.06957887037697921, 0.06957887037697921, 0.06957887037697921], std=[0.1254630260057964, 0.1254630260057964, 0.1254630260057964])(img)
+        if self.return_metadata:
+            metadata = ensure_values(metadata)
+            return img, metadata
+        return img
+
 
 class HPADataset(ArchiveDataset):
     """

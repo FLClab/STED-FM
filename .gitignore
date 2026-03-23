@@ -1,5 +1,6 @@
 experiments/clustering-experiments/recursive-clustering-experiment/
 experiments/lightning_logs/
+lightning_logs/
 experiments/clustering-experiments/results/
 experiments/diffusion-experiments/resolution-experiment/correlation/
 experiments/diffusion-experiments/resolution-experiment/

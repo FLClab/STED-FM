@@ -18,6 +18,8 @@ elif USER == "chaos":
     BASE_PATH = "/home/chaos/Desktop/stage"
 elif USER == "malan612":
     BASE_PATH = "/home/malan612/scratch"
+elif USER == "mathis":
+    BASE_PATH = "/home-local/mathis/STED-FM"
 else:
     # raise ValueError("Please set the correct path for the user. Path can be modified in `flc-dataset/experiments/DEFAULTS.py`")
     BASE_PATH = os.path.expanduser("~")
