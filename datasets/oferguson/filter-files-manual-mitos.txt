@@ -1,8 +1,0 @@
-# Exclude tiffs that are within MASK and CROPS folders
-- MASKS/**
-- CROPS/**
-# Include all tiffs
-+ *.tif
-+ *.tiff
-# Exclude everything else
-- *

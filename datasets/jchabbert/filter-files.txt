@@ -1,4 +1,0 @@
-# Include all msr
-+ *.msr
-# Exclude everything else
-- *
