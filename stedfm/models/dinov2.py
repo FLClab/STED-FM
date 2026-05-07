@@ -202,6 +202,10 @@ class DINOv2(LightningModule):
         self.teacher_head.load_state_dict(self.student_head.state_dict())
         deactivate_requires_grad(self.teacher_head)
 
+        # DDP stashes AccumulateGrad references across iterations (known behavior with
+        # student-teacher architectures). The stream mismatch is intentional.
+        torch.autograd.graph.set_warn_on_accumulate_grad_stream_mismatch(False)
+
         # Losses
         self.dino_loss = DINOLoss(
             output_dim=projection_output_dim,

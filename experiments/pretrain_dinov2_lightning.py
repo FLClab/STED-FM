@@ -3,7 +3,7 @@ import os
 import argparse
 from lightning.pytorch import Trainer, seed_everything
 from lightning.pytorch.callbacks import ModelCheckpoint
-from lightning.pytorch.loggers import TensorBoardLogger
+from lightning.pytorch.loggers import TensorBoardLogger, CSVLogger
 
 from stedfm.model_builder import get_base_model
 from stedfm.DEFAULTS import BASE_PATH
@@ -31,6 +31,8 @@ parser.add_argument("--opts", nargs="+", default=[],
                     help="Additional configuration options")
 parser.add_argument("--dry-run", action="store_true",
                     help="Activates dryrun")
+parser.add_argument("--max-epochs", type=int, default=1000,
+                    help="Nombre d'epochs d'entraînement")
 args = parser.parse_args()
 
 # Assert args.opts is a multiple of 2
@@ -71,7 +73,9 @@ if __name__=="__main__":
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
     print(f"--- Loaded model {args.model} successfully ---")
 
-    logger = TensorBoardLogger(OUTPUT_FOLDER) if args.use_tensorboard else None
+    loggers = [CSVLogger(OUTPUT_FOLDER)]
+    if args.use_tensorboard:
+        loggers.append(TensorBoardLogger(OUTPUT_FOLDER))
 
     # DINOv2 uses multi-crop: 2 global (224) + 6 local (96) views
     dinov2_transform = DINOTransform(
@@ -102,14 +106,14 @@ if __name__=="__main__":
     datamodule = MultiprocessingDataModule(args, cfg, transform=dinov2_transform, debug=args.dry_run)
 
     trainer = Trainer(
-        max_epochs=1000,
+        max_epochs=args.max_epochs,
         devices='auto',
         accelerator='gpu',
         num_nodes=int(os.environ.get("SLURM_NNODES", 1)),
         strategy='ddp_find_unused_parameters_true',
         sync_batchnorm=True,
         use_distributed_sampler=False,
-        logger=logger,
+        logger=loggers,
         callbacks=callbacks
     )
 

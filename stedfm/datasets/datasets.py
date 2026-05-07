@@ -1,4 +1,5 @@
-import tarfile 
+import tarfile
+import pickle
 import numpy
 import numpy as np
 import io
@@ -2538,8 +2539,20 @@ class TarFLCDataset(ArchiveDataset):
     def get_members(self):
         if self.debug:
             members = [self.get_reader().next() for _ in range(5000)]
-            return list(sorted(members, key=lambda m: m.name))   
-        return list(sorted(self.get_reader().getmembers(), key=lambda m: m.name))       
+            return list(sorted(members, key=lambda m: m.name))
+        cache_path = self.archive_path + ".members.pkl"
+        if os.path.exists(cache_path):
+            with open(cache_path, "rb") as f:
+                return pickle.load(f)
+        members = list(sorted(self.get_reader().getmembers(), key=lambda m: m.name))
+        try:
+            tmp_path = cache_path + ".tmp"
+            with open(tmp_path, "wb") as f:
+                pickle.dump(members, f)
+            os.replace(tmp_path, cache_path)
+        except Exception:
+            pass
+        return members
 
     def get_item_from_archive(self, member: tarfile.TarInfo):
         """
