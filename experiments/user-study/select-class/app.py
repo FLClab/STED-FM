@@ -33,18 +33,43 @@ class User:
 
 
 # Dummy data for images
-CLASS_ID = "class-guidance"
-template_images = glob.glob(os.path.join("static", CLASS_ID, "templates", "*.png"))
-template_images += glob.glob(os.path.join("static", CLASS_ID, "candidates", "*.png"))
-CLASS_ID = "latent-guidance"
-template_images += glob.glob(os.path.join("static", CLASS_ID, "candidates", "*.png"))
-template_images = [os.path.relpath(path, "static") for path in template_images]
-random.seed(42)
-random.shuffle(template_images)
+experiment = "draft-ddim-v2"
+os.makedirs(os.path.join("data", experiment), exist_ok=True)
+if experiment == "class-guidance-and-latent-guidance":
+    CLASS_ID = "class-guidance"
+    template_images = glob.glob(os.path.join("static", CLASS_ID, "templates", "*.png"))
+    template_images += glob.glob(os.path.join("static", CLASS_ID, "candidates", "*.png"))
+    CLASS_ID = "latent-guidance"
+    template_images += glob.glob(os.path.join("static", CLASS_ID, "candidates", "*.png"))
+    template_images = [os.path.relpath(path, "static") for path in template_images]
+    random.seed(42)
+    random.shuffle(template_images)
 
-candidate_classes = [
-    "PSD95", "Tubulin", "F-Actin", "Other", "Unclassifiable"
-]
+    candidate_classes = [
+        "PSD95", "Tubulin", "F-Actin", "Other", "Unclassifiable"
+    ]
+elif experiment == "draft-ddim":
+    template_images = glob.glob(os.path.join("static", "draft-ddim", "*.png"))
+    template_images = [os.path.relpath(path, "static") for path in template_images]
+    random.seed(42)
+    random.shuffle(template_images)
+
+    candidate_classes = [
+        "Odd", "Blurry", "Accurate", "Artefact", "No rings but relevant"
+    ]
+
+elif experiment == "draft-ddim-v2":
+    template_images = glob.glob(os.path.join("static", "draft-ddim-v2", "*.png"))
+    template_images = [os.path.relpath(path, "static") for path in template_images]
+    random.seed(42)
+    random.shuffle(template_images)
+
+    candidate_classes = [
+        "Rings", "Other structures", "Nothing"
+    ]    
+
+print(f"Found {len(template_images)} template images.")
+print(f"Classes: {candidate_classes}")
 
 @app.before_request
 def get_globals():
@@ -57,10 +82,10 @@ def get_globals():
         current_idx = 0
         user_choices = {}
     else:
-        if os.path.isfile(os.path.join("data", f"{username}.pkl")):
+        if os.path.isfile(os.path.join("data", experiment, f"{username}.pkl")):
             logger.log(logging.INFO, f"Found data for `{username}`")
             try:
-                with open(os.path.join("data", f"{username}.pkl"), "rb") as f:
+                with open(os.path.join("data", experiment, f"{username}.pkl"), "rb") as f:
                     data = pickle.load(f)
                     user = data["user"]
                     current_idx = data["current_idx"]
@@ -92,7 +117,7 @@ def save_globals(response):
             "user_choices": user_choices
         }
         logger.log(logging.INFO, f"[{user.name}] Saving data: {data['current_idx']}")
-        with open(os.path.join("data", f"{user.name}.pkl"), "wb") as f:
+        with open(os.path.join("data", experiment, f"{user.name}.pkl"), "wb") as f:
             pickle.dump(data, f)
 
     return response
@@ -131,9 +156,9 @@ def login():
     
     session['user'] = user.name
 
-    if os.path.isfile(os.path.join("data", f"{user.name}.pkl")):
+    if os.path.isfile(os.path.join("data", experiment, f"{user.name}.pkl")):
         logger.log(logging.INFO, "Loading data for user: {}".format(user.name))
-        with open(os.path.join("data", f"{user.name}.pkl"), "rb") as f:
+        with open(os.path.join("data", experiment, f"{user.name}.pkl"), "rb") as f:
             data = pickle.load(f)
             user = data["user"]
             current_idx = data["current_idx"]
@@ -199,4 +224,4 @@ def logout():
 
 if __name__ == '__main__':
     
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5001)

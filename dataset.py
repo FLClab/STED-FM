@@ -351,6 +351,8 @@ def main():
     OUTPATH = "/home-local2/projects/FLCDataset/20240718-dataset-full-images.tar"
     OUTPATH = "/home-local2/projects/FLCDataset/20250522-dataset-crops.tar"
     # OUTPATH = "/home-local2/projects/FLCDataset/tmp.tar"
+
+    OUTPATH = "/home-local2/projects/FLCDataset/STED-FM-dataset.tar"
     CROP_SIZE = 224
     MINIMUM_FOREGROUND = 0.001
 
@@ -363,14 +365,18 @@ def main():
     parser.add_argument("--overwrite", action="store_true", help="Overwrites the tar file")
     parser.add_argument("--saveastiff", action="store_true", help="Saves as tiff")
     parser.add_argument("--raw", action="store_true", help="Uses raw images")
+    parser.add_argument("--full-images", action="store_true", help="Saves full images instead of crops")
     args = parser.parse_args()
 
+    if args.full_images:
+        OUTPATH = OUTPATH.replace(".tar", "-full-images.tar")
     if args.saveastiff:
         OUTPATH = OUTPATH.replace(".tar", "-tiff.tar")
     if args.raw:
         OUTPATH = OUTPATH.replace(".tar", "-raw.tar")
 
     metadata = json.load(open("./datasets/scraping/metadata-updated.json", "r"))
+    print(len(metadata))
 
     if args.overwrite:
         with tarfile.open(OUTPATH, "w") as tf:
@@ -432,70 +438,91 @@ def main():
                 if image.min() != 0:
                     image = image - image.min()
 
-            ################################
-            # Using complete images
-            ################################
+            if args.full_images:
+                ################################
+                # Using complete images
+                ################################
+                
+                buffer = io.BytesIO()
+                name = f'{info["image-id"]}'
+                if args.saveastiff:
+                    name += ".tif"
+                    unit = info['msr-metadata']['PhysicalSizeXUnit']
+                    resolution = (1/info['msr-metadata']['PhysicalSizeX'], 1/info['msr-metadata']['PhysicalSizeY'])
+                    if unit in ("m"):
+                        unit = "um"
+                        resolution = (resolution[0] * 1e-6, resolution[1] * 1e-6) 
+                    elif unit in ("µm", "um", "micrometer", "micrometers"):
+                        unit = "um"
+                        pass
+                    elif unit in ("nm", "nanometer", "nanometers"):
+                        unit = "um"
+                        resolution = (resolution[0] / 1000, resolution[1] / 1000)
+                    else:
+                        unit = None
+                    tifffile.imwrite(buffer, image, imagej=True, 
+                                    resolution=resolution, metadata={"unit" : unit})
+                else:
+                    numpy.savez(buffer, image=image, metadata=info)
+                buffer.seek(0)                
+
+                tarinfo = tarfile.TarInfo(name=name)
+                tarinfo.size = len(buffer.getbuffer())
+                tf.addfile(tarinfo=tarinfo, fileobj=buffer)   
+                total_crops += 1
+                if total_crops % 100 == 0:
+                    logging.info(f"{total_crops=}")   
             
-            # buffer = io.BytesIO()
-            # numpy.savez(buffer, image=image, metadata=info)
-            # buffer.seek(0)
+            else:
+                ################################
+                # Using crops 
+                ################################                  
 
-            # tarinfo = tarfile.TarInfo(name=f'{info["image-id"]}')
-            # tarinfo.size = len(buffer.getbuffer())
-            # tf.addfile(tarinfo=tarinfo, fileobj=buffer)   
-            # total_crops += 1
-            # if total_crops % 100 == 0:
-            #     logging.info(f"{total_crops=}")   
+                # Calculates foreground from Otsu
+                threshold = filters.threshold_otsu(image_uint8)
+                foreground = image_uint8 > threshold
 
-            ################################
-            # Using crops 
-            ################################                  
+                for j in range(0, image.shape[-2], CROP_SIZE):
+                    for i in range(0, image.shape[-1], CROP_SIZE):
+                        # NOTE. This generates the edge crops on right/bottom
+                        slc = (
+                            slice(j, j + CROP_SIZE) if j + CROP_SIZE < image.shape[-2] else slice(image.shape[-2] - CROP_SIZE, image.shape[-2]),
+                            slice(i,  i + CROP_SIZE) if i + CROP_SIZE < image.shape[-1] else slice(image.shape[-1] - CROP_SIZE, image.shape[-1]),
+                        )
+                        foreground_crop = foreground[slc]
+                        if foreground_crop.sum() > MINIMUM_FOREGROUND * CROP_SIZE ** 2:
+                            image_crop = image[slc]
 
-            # Calculates foreground from Otsu
-            threshold = filters.threshold_otsu(image_uint8)
-            foreground = image_uint8 > threshold
-
-            for j in range(0, image.shape[-2], CROP_SIZE):
-                for i in range(0, image.shape[-1], CROP_SIZE):
-                    # NOTE. This generates the edge crops on right/bottom
-                    slc = (
-                        slice(j, j + CROP_SIZE) if j + CROP_SIZE < image.shape[-2] else slice(image.shape[-2] - CROP_SIZE, image.shape[-2]),
-                        slice(i,  i + CROP_SIZE) if i + CROP_SIZE < image.shape[-1] else slice(image.shape[-1] - CROP_SIZE, image.shape[-1]),
-                    )
-                    foreground_crop = foreground[slc]
-                    if foreground_crop.sum() > MINIMUM_FOREGROUND * CROP_SIZE ** 2:
-                        image_crop = image[slc]
-
-                        buffer = io.BytesIO()
-                        name = f'{info["image-id"]}-{j}-{i}'
-                        if args.saveastiff:
-                            name += ".tif"
-                            unit = info['msr-metadata']['PhysicalSizeXUnit']
-                            resolution = (1/info['msr-metadata']['PhysicalSizeX'], 1/info['msr-metadata']['PhysicalSizeY'])
-                            if unit in ("m"):
-                                unit = "um"
-                                resolution = (resolution[0] * 1e-6, resolution[1] * 1e-6) 
-                            elif unit in ("µm", "um", "micrometer", "micrometers"):
-                                unit = "um"
-                                pass
-                            elif unit in ("nm", "nanometer", "nanometers"):
-                                unit = "um"
-                                resolution = (resolution[0] / 1000, resolution[1] / 1000)
+                            buffer = io.BytesIO()
+                            name = f'{info["image-id"]}-{j}-{i}'
+                            if args.saveastiff:
+                                name += ".tif"
+                                unit = info['msr-metadata']['PhysicalSizeXUnit']
+                                resolution = (1/info['msr-metadata']['PhysicalSizeX'], 1/info['msr-metadata']['PhysicalSizeY'])
+                                if unit in ("m"):
+                                    unit = "um"
+                                    resolution = (resolution[0] * 1e-6, resolution[1] * 1e-6) 
+                                elif unit in ("µm", "um", "micrometer", "micrometers"):
+                                    unit = "um"
+                                    pass
+                                elif unit in ("nm", "nanometer", "nanometers"):
+                                    unit = "um"
+                                    resolution = (resolution[0] / 1000, resolution[1] / 1000)
+                                else:
+                                    unit = None
+                                tifffile.imwrite(buffer, image_crop, imagej=True, 
+                                                resolution=resolution, metadata={"unit" : unit})
                             else:
-                                unit = None
-                            tifffile.imwrite(buffer, image_crop, imagej=True, 
-                                             resolution=resolution, metadata={"unit" : unit})
-                        else:
-                            numpy.savez(buffer, image=image_crop, metadata=info)
-                        buffer.seek(0)
+                                numpy.savez(buffer, image=image_crop, metadata=info)
+                            buffer.seek(0)
 
-                        tarinfo = tarfile.TarInfo(name=name)
-                        tarinfo.size = len(buffer.getbuffer())
-                        tf.addfile(tarinfo=tarinfo, fileobj=buffer)    
-                        total_crops += 1
-                        if total_crops % 1000 == 0:
-                            logging.info(f"{total_crops=}")       
-    print(f"Total crops: {total_crops}")
+                            tarinfo = tarfile.TarInfo(name=name)
+                            tarinfo.size = len(buffer.getbuffer())
+                            tf.addfile(tarinfo=tarinfo, fileobj=buffer)    
+                            total_crops += 1
+                            if total_crops % 1000 == 0:
+                                logging.info(f"{total_crops=}")       
+    print(f"Total items: {total_crops}")
    
 if __name__ == "__main__":
     

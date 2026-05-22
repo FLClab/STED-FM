@@ -169,11 +169,15 @@ def main():
 
     fig, ax = pyplot.subplots(figsize=(3, 3))
     samples = []
+    highlights = ["Antoine O"]
+    highlights = []
     for i in range(all_values.shape[1]):
         mean = numpy.mean(all_values[:, i])
         std = numpy.std(all_values[:, i])
         xs = simple_beeswarm(all_values[:, i], maxwidth=0.3)
-        ax.scatter(i + xs, all_values[:, i], facecolor="none", edgecolor="black", zorder=100)
+        print(per_user_scores.keys())
+        edgecolor = ["black" if os.path.basename(user).split(".")[0] not in highlights else "silver" for user in per_user_scores.keys()]
+        ax.scatter(i + xs, all_values[:, i], facecolor="none", edgecolor=edgecolor, zorder=100)
         ax.bar(i, mean, yerr=std, width=0.8, label=CLASSES[i], align="center", color=COLORS[CLASSES[i]])
 
         samples.append(all_values[:, i])
@@ -190,15 +194,17 @@ def main():
         print(f"{c}: mean={numpy.mean(sample):.4f}, std={numpy.std(sample):.4f}")
 
     from scipy.stats import kruskal, mannwhitneyu
+
+    print(f"Samples: {[len(s) for s in samples]}")
     print("Kruskal-Wallis H-test")
     hstat, pvalue = kruskal(*samples)
-    print(f"H-statistic: {hstat:.4f}, p-value: {pvalue:.4f}")
+    print(f"H-statistic: {hstat:.4f}, p-value: {pvalue:.4e}")
 
     print("Mann-Whitney U test")
     for i in range(len(samples)-1):
         for j in range(i + 1, len(samples)):
             ustat, pvalue = mannwhitneyu(samples[i], samples[j])
-            print(f"{CLASSES[i]} vs {CLASSES[j]}: U-statistic: {ustat:.4f}, p-value: {pvalue:.4f}")
+            print(f"{CLASSES[i]} vs {CLASSES[j]}: U-statistic: {ustat:.4e}, p-value: {pvalue:.4e}")
 
     # from stedfm.stats import resampling_stats
     # print("Resampling test")

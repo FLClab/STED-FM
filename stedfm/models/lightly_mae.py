@@ -76,6 +76,21 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
         cfg.backbone = "vit-small"
         vit = vit_small_patch16_224(in_chans=cfg.in_channels, pretrained=cfg.pretrained)
         backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+    
+    elif name == "mae-mcms-lightning-small" or name == "mae-mcms-lightning-224-p16":
+        cfg.dim = 384
+        cfg.batch_size = 256
+        cfg.backbone = "vit-small"
+        vit = MCMSVisionTransformer(
+            img_size=224,
+            patch_size=16,
+            embed_dim=cfg.dim,
+            in_chans=3,
+            dynamic_img_size=True,
+            depth=12,
+            num_heads=6
+        )
+        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
     elif name == "mae-lightning-base":
         cfg.dim = 768
@@ -110,6 +125,14 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
     else:
         raise NotImplementedError(f"`{name}` not implemented")
     return backbone, cfg
+
+class MCMSVisionTransformer(VisionTransformer):
+    """
+    Multi-Channel and Multi-Scale Vision Transformer for STED-FM images. The architecture is based on the standard Vision Transformer, 
+    but with modifications to handle multi-channel and multi-scale inputs.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 class MAE(LightningModule):

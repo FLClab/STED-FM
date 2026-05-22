@@ -1,0 +1,2 @@
+stdbuf -oL find /home/anthony/valeria-s3 \( -type f \( -iname "*.msr" -o -iname "*.obf" \) -print \) > msr-obf-files.txt
+stdbuf -oL find /home/anthony/mnt -type d -name "#snapshot" -prune -o \( -type f \( -iname "*.msr" -o -iname "*.obf" \) -print \) > msr-obf-files.txt
