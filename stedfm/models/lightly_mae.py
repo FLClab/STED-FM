@@ -2,6 +2,7 @@ import torch
 import os
 import lightly.models.utils
 from timm.models.vision_transformer import vit_small_patch16_224, vit_tiny_patch16_224, vit_base_patch16_224, vit_large_patch16_224, VisionTransformer
+from timm.layers.patch_embed import PatchEmbed
 import lightly.models.utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 from lightning.pytorch.core import LightningModule
@@ -9,6 +10,8 @@ from lightning.pytorch.core import LightningModule
 from dataclasses import dataclass
 from stedfm.DEFAULTS import BASE_PATH
 from stedfm.configuration import Configuration
+
+from instanseg.utils.models.ChannelInvariantNet import ChannelInvariantNet
 
 class MAEWeights:
     # IMAGENET pretraining in timm refers to a model pretrained on ImageNet21K and finetuned on ImageNet1K
@@ -81,16 +84,17 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
         cfg.dim = 384
         cfg.batch_size = 256
         cfg.backbone = "vit-small"
-        vit = MCMSVisionTransformer(
+        vit = VisionTransformer(
             img_size=224,
             patch_size=16,
             embed_dim=cfg.dim,
             in_chans=3,
             dynamic_img_size=True,
             depth=12,
-            num_heads=6
+            num_heads=6,
+            embed_layer=MCMSPatchEmbed,
         )
-        backbone = MAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+        backbone = MCMSMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
 
     elif name == "mae-lightning-base":
         cfg.dim = 768
@@ -134,6 +138,27 @@ class MCMSVisionTransformer(VisionTransformer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.channel_invariant_net = ChannelInvariantNet()
+
+    def forward_features(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+        x = self.channel_invariant_net(x)
+        return super().forward_features(x, *args, **kwargs)
+    
+    def forward_intermediates(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+        x = self.channel_invariant_net(x)
+        return super().forward_intermediates(x, *args, **kwargs)
+
+class MCMSPatchEmbed(PatchEmbed):
+    """
+    Patch embedding module for the MCMSVisionTransformer. This module is responsible for converting the input image into a sequence of patch embeddings, while also handling multi-channel and multi-scale inputs.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.channel_invariant_net = ChannelInvariantNet()
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.channel_invariant_net(x)
+        return super().forward(x)
 
 class MAE(LightningModule):
     def __init__(self, vit, in_channels, mask_ratio: float = 0.75) -> None:
@@ -193,5 +218,33 @@ class MAE(LightningModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
         return [optimizer], [scheduler]
 
+class MCMSMAE(MAE):
+    def __init__(self, vit, in_channels, mask_ratio: float = 0.75, proj_type: str = "max") -> None:
+        super().__init__(vit=vit, in_channels=1, mask_ratio=mask_ratio)
+        self.proj_type = proj_type
 
-        
+    def training_step(self, batch, batch_idx):
+        images = batch 
+        batch_size = images.shape[0]
+        idx_keep, idx_mask = lightly.models.utils.random_token_mask(
+            size=(batch_size, self.sequence_length),
+            mask_ratio=self.mask_ratio,
+            device=images.device
+        )
+        x_encoded = self.forward_encoder(x=images, idx_keep=idx_keep)
+        x_pred = self.forward_decoder(x=x_encoded, idx_keep=idx_keep, idx_mask=idx_mask)
+
+        # Max projection across channels for target generation
+        if self.proj_type == "max":
+            max_proj_images = torch.max(images, dim=1, keepdim=True)[0]
+        elif self.proj_type == "mean":
+            max_proj_images = torch.mean(images, dim=1, keepdim=True)
+        else:
+            max_proj_images = images
+        patches = lightly.models.utils.patchify(max_proj_images, self.patch_size)
+        target = lightly.models.utils.get_at_index(patches, idx_mask-1)
+        loss = self.criterion(x_pred, target)
+        self.log("Loss/mean", loss, on_epoch=True, sync_dist=True)
+        self.log("Loss/min", loss, on_epoch=True, reduce_fx=torch.min, sync_dist=True)
+        self.log("Loss/max", loss, on_epoch=True, reduce_fx=torch.max, sync_dist=True)
+        return loss

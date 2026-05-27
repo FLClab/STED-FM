@@ -12,7 +12,7 @@ from lightning.pytorch.core import LightningModule
 from lightning.pytorch.callbacks import ModelCheckpoint 
 from lightning.pytorch.loggers import TensorBoardLogger
 from tqdm import tqdm 
-from stedfm.model_builder import get_base_model 
+from stedfm.model_builder import get_base_model, get_pretrained_model_v2
 # from torchinfo import summary 
 
 from stedfm.DEFAULTS import BASE_PATH
@@ -62,7 +62,6 @@ if __name__=="__main__":
     seed_everything(args.seed, workers=True)
     print(args)
     model, cfg = get_base_model(name=args.model)
-
 
     cfg.datamodule = DataModuleConfig()
     cfg.args = args
