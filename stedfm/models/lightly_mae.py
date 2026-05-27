@@ -28,16 +28,19 @@ class MAEWeights:
     MAE_LARGE_STED = os.path.join(BASE_PATH, "baselines", "mae-large_STED", "pl_checkpoint-999.pth")
 
     MAE_TINY_JUMP = os.path.join(BASE_PATH, "baselines", "mae-tiny_JUMP", "pl_checkpoint-999.pth")
-    MAE_SMALL_JUMP = os.path.join(BASE_PATH, "baselines", "mae-small_JUMP", "checkpoint-999.pth")
+    # MAE_SMALL_JUMP = os.path.join(BASE_PATH, "baselines", "mae-small_JUMP", "checkpoint-999.pth")
+    MAE_SMALL_JUMP = "https://s3.valeria.science/flclab-foundation-models/models/mae-small-jump.zip"
     MAE_BASE_JUMP = os.path.join(BASE_PATH, "baselines", "mae-base_JUMP", "pl_checkpoint-999.pth")
     MAE_LARGE_JUMP = os.path.join(BASE_PATH, "baselines", "mae-large_JUMP", "pl_checkpoint-999.pth")
 
     MAE_TINY_HPA = os.path.join(BASE_PATH, "baselines", "mae-tiny_HPA", "pl_checkpoint-999.pth")
-    MAE_SMALL_HPA = os.path.join(BASE_PATH, "baselines", "mae-small_HPA", "pl_checkpoint-999.pth")
+    # MAE_SMALL_HPA = os.path.join(BASE_PATH, "baselines", "mae-small_HPA", "pl_checkpoint-999.pth")
+    MAE_SMALL_HPA = "https://s3.valeria.science/flclab-foundation-models/models/mae-small-hpa.zip"
     MAE_BASE_HPA = os.path.join(BASE_PATH, "baselines", "mae-base_HPA", "pl_checkpoint-999.pth")
     MAE_LARGE_HPA = os.path.join(BASE_PATH, "baselines", "mae-large_HPA", "pl_checkpoint-999.pth")
 
-    MAE_SMALL_SIM = os.path.join(BASE_PATH, "baselines", "mae-small_SIM", "checkpoint-999.pth")
+    # MAE_SMALL_SIM = os.path.join(BASE_PATH, "baselines", "mae-small_SIM", "checkpoint-999.pth")
+    MAE_SMALL_SIM = "https://s3.valeria.science/flclab-foundation-models/models/mae-small-sim.zip"
 
     MAE_SMALL_HYBRID = os.path.join(BASE_PATH, "baselines", "mae-small_Hybrid", "checkpoint-999.pth")
 
