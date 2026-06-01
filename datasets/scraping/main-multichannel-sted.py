@@ -9,6 +9,7 @@ import hashlib
 import numpy
 import json
 import re
+import logging
 
 from typing import Generator, List
 from collections import defaultdict
@@ -20,6 +21,9 @@ from tqdm.auto import tqdm
 
 # import mureader
 # from mureader import Reader
+
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG, filename="output2.log", filemode="w")
+logger = logging.getLogger(__name__)
 
 from neurofmdb.parsers.base_parser import get_parser_for_file
 
@@ -243,7 +247,7 @@ def main():
     if args.dry_run:
         import tempfile
         OUTPUTPATH = tempfile.gettempdir()
-        print(f"Dry run mode: output path is {OUTPUTPATH}")
+        logger.info(f"Dry run mode: output path is {OUTPUTPATH}")
         outdir = os.path.join(OUTPUTPATH, f"scraping-multichannel-sted-dryrun")
     else:
         outdir = os.path.join(OUTPUTPATH, f"scraping-multichannel-sted")
@@ -257,7 +261,7 @@ def main():
     
     if args.overwrite:
         if os.path.isdir(outdir):
-            print(f"Overwriting existing directory {outdir}")
+            logger.info(f"Overwriting existing directory {outdir}")
             import shutil
             shutil.rmtree(outdir)
     os.makedirs(outdir, exist_ok=True)
@@ -266,7 +270,7 @@ def main():
     outdata = {}
     if os.path.isfile(os.path.join(outdir, "metadata.json")) and not args.overwrite:
         outdata = json.load(open(os.path.join(outdir, "metadata.json"), "r"))
-        print(f"Loaded existing metadata with {len(outdata)} entries")
+        logger.info(f"Loaded existing metadata with {len(outdata)} entries")
 
     msrfiles = []
     for msrfile in args.msrfiles:
@@ -279,53 +283,95 @@ def main():
         seen_msrfiles.add(msrfile)
 
     i = 0
-    for msrfile in yield_msrfiles(msrfiles=msrfiles, outdata=outdata):
+    start_idx = 4860
+    for current_file_idx, msrfile in enumerate(yield_msrfiles(msrfiles=msrfiles[start_idx:], outdata=outdata)):
         
+        if current_file_idx % 10 == 0:
+            logger.info(f"Processing file {current_file_idx + start_idx + 1}/{len(msrfiles) if msrfiles else 'unknown'}: {msrfile}")
+
         try:
 
             if msrfile in seen_msrfiles:
-                print(f"Skipping {msrfile} as it has already been processed")
+                logger.info(f"Skipping {msrfile} as it has already been processed")
                 continue
 
-            # print(f"Processing {msrfile}")
+            # logger.info(f"Processing {msrfile}")
 
-            parser = get_parser_for_file(msrfile)
+            possibly_cached_file = msrfile.replace(
+                os.path.join(os.path.expanduser("~"), "valeria-s3"),
+                "/home-local2/tmp"
+            )
+            if os.path.isfile(possibly_cached_file):
+                logger.info(f"Using cached file for {msrfile}")
+                parser = get_parser_for_file(possibly_cached_file)
+            else:
+                parser = get_parser_for_file(msrfile)
             result = parser.parse()
 
             image = result["data"]
             metadata = result["other-metadata"]
-            # print(metadata.keys())
+            # logger.info(metadata.keys())
             if "to_be_merged_keys" in result:
                 for keys in result["to_be_merged_keys"]:
                     joined_keys = "/".join(keys)
                     metadata[joined_keys] = [metadata[key] for key in keys]
 
-            # print("Original image keys:", list(image.keys()))
+            # logger.info("Original image keys:", list(image.keys()))
+
+            initial_keys = list(image.keys())
+            logger.debug(f"Initial channels in {msrfile}: {initial_keys}")
 
             # Ensure all images are numpy arrays
             image = filter_image_only(image)
+            if len(image) == 0:
+                logger.info(f"No valid images found in {msrfile}, skipping")
+                logger.info(f"\tInitial channels: {initial_keys}")
+                logger.info(f"\tCurrent channels: {list(image.keys())}")
+                continue
+            logger.debug(f"Channels after filtering non-array values: {list(image.keys())}")
+            logger.debug(f"Shapes of channels in {msrfile}:)")
+            for key, value in image.items():
+                logger.debug(f"\t{key}: {value.shape}")
 
             # Filter image size
             image = filter_image_size(image)
+            if len(image) == 0:
+                logger.info(f"No valid images found in {msrfile} after size filtering, skipping")
+                logger.info(f"\tInitial channels: {initial_keys}")
+                logger.info(f"\tCurrent channels: {list(image.keys())}")
+                continue
+            logger.debug(f"Channels after size filtering: {list(image.keys())}")
 
             # Remove overview
             image = filter_image_channel(image, msrfile)
+            if len(image) == 0:
+                logger.info(f"No valid channels found in {msrfile} after filtering, skipping")
+                logger.info(f"\tInitial channels: {initial_keys}")
+                logger.info(f"\tCurrent channels: {list(image.keys())}")
+                continue
+            logger.debug(f"Channels after overview filtering: {list(image.keys())}")
 
             # Keeps only sted images
             image = filter_sted_channels(image, msrfile)
+            if len(image) == 0:
+                logger.info(f"No STED channels found in {msrfile}, skipping")
+                logger.info(f"\tInitial channels: {initial_keys}")
+                logger.info(f"\tCurrent channels: {list(image.keys())}")
+                continue
+            logger.debug(f"Channels after STED filtering: {list(image.keys())}")
 
             # Removes the trailing part of the keys
             image = filter_image_keys(image, msrfile)
 
-            # print("Filtered image keys:", list(image.keys()))
+            # logger.info("Filtered image keys:", list(image.keys()))
             # for key, value in image.items():
-            #     print(f"{key}: {value.shape}")
+            #     logger.info(f"{key}: {value.shape}")
 
             metadata = handle_metadata(image, metadata, msrfile)
 
             for key, value in image.items():
                 if key not in metadata:
-                    print(f"Key {key} not found in metadata, creating default metadata")
+                    logger.info(f"Key {key} not found in metadata, creating default metadata")
                     metadata[key] = {
                         "Pixels" : {
                             "SizeX" : int(value.shape[-1]),
@@ -373,7 +419,7 @@ def main():
                 elif metadata_["Pixels"]["PhysicalSizeXUnit"] == "m":
                     scale_ = 1e+6
                 else:
-                    print(f"Unknown unit {metadata_['Pixels']['PhysicalSizeXUnit']}, assuming µm")
+                    logger.info(f"Unknown unit {metadata_['Pixels']['PhysicalSizeXUnit']}, assuming µm")
 
                 outdata[hashvalue] = {
                     "image-id" : msrfile,
@@ -396,7 +442,7 @@ def main():
                 json.dump(outdata, open(os.path.join(outdir, "metadata.json"), "w"), sort_keys=True, indent=2)
 
         except Exception as err:
-            print(f"Error processing {msrfile}: {err}")
+            logger.error(f"Error processing {msrfile}: {err}")
             continue
     
     json.dump(outdata, open(os.path.join(outdir, "metadata.json"), "w"), sort_keys=True, indent=2)

@@ -1,6 +1,7 @@
 import torch
 import os
 import lightly.models.utils
+from torch import nn
 from timm.models.vision_transformer import vit_small_patch16_224, vit_tiny_patch16_224, vit_base_patch16_224, vit_large_patch16_224, VisionTransformer
 from timm.layers.patch_embed import PatchEmbed
 import lightly.models.utils
@@ -88,13 +89,13 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
             img_size=224,
             patch_size=16,
             embed_dim=cfg.dim,
-            in_chans=3,
+            in_chans=1,
             dynamic_img_size=True,
             depth=12,
             num_heads=6,
-            embed_layer=MCMSPatchEmbed,
         )
-        backbone = MCMSMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio)
+        backbone = MCMSMAE(vit=vit, in_channels=cfg.in_channels, mask_ratio=cfg.mask_ratio,
+                           pretrained_model_name="mae-lightning-small", pretrained_weights="MAE_SMALL_STED")
 
     elif name == "mae-lightning-base":
         cfg.dim = 768
@@ -150,7 +151,7 @@ class MCMSVisionTransformer(VisionTransformer):
 
 class MCMSPatchEmbed(PatchEmbed):
     """
-    Patch embedding module for the MCMSVisionTransformer. This module is responsible for converting the input image into a sequence of patch embeddings, while also handling multi-channel and multi-scale inputs.
+    Patch embedding module for the MCMSVisionTransformer.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -218,32 +219,139 @@ class MAE(LightningModule):
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
         return [optimizer], [scheduler]
 
+class CrossAttentionFusion(nn.Module):
+    def __init__(self, embed_dim, num_heads=8):
+        super().__init__()
+        self.num_heads = num_heads
+        self.head_dim = embed_dim // num_heads
+        self.scale = self.head_dim ** -0.5
+
+        # Projection layers for Q, K, V
+        self.q_proj = nn.Linear(embed_dim, embed_dim)
+        self.k_proj = nn.Linear(embed_dim, embed_dim)
+        self.v_proj = nn.Linear(embed_dim, embed_dim)
+        self.out_proj = nn.Linear(embed_dim, embed_dim)
+
+    def forward(self, anchor_tokens, other_channels_list):
+        """
+        anchor_tokens: Shape [B, 197, embed_dim] (Channel 1)
+        other_channels_list: List of Tensors, each [B, 197, embed_dim] (Channels 2, 3, ... N)
+        """
+        B, N_tokens, C = anchor_tokens.shape
+        
+        # 1. Concatenate all non-anchor channels along the token (sequence) dimension
+        # Resulting shape: [B, 197 * (N-1), embed_dim]
+        kv_context = torch.cat(other_channels_list, dim=1) 
+        
+        # 2. Project to Q, K, V matrices
+        Q = self.q_proj(anchor_tokens)  # [B, 197, C]
+        K = self.k_proj(kv_context)     # [B, 197 * (N-1), C]
+        V = self.v_proj(kv_context)     # [B, 197 * (N-1), C]
+
+        # 3. Reshape for Multi-Head Attention
+        Q = Q.reshape(B, N_tokens, self.num_heads, self.head_dim).permute(0, 2, 1, 3)
+        K = K.reshape(B, -1, self.num_heads, self.head_dim).permute(0, 2, 1, 3)
+        V = V.reshape(B, -1, self.num_heads, self.head_dim).permute(0, 2, 1, 3)
+
+        # 4. Compute Scaled Dot-Product Attention
+        # Attention map shape: [B, num_heads, 197, 197 * (N-1)]
+        attn = (Q @ K.transpose(-2, -1)) * self.scale
+        attn = attn.softmax(dim=-1)
+
+        # 5. Aggregate Values and project back
+        out = (attn @ V).permute(0, 2, 1, 3).reshape(B, N_tokens, C)
+        return self.out_proj(out) + anchor_tokens  # Residual connection
+
+class SymmetricCrossAttentionFusion(nn.Module):
+    def __init__(self, embed_dim, num_heads=8):
+        super().__init__()
+        self.cross_attn = CrossAttentionFusion(embed_dim, num_heads) # Reuse the previous block
+
+    def forward(self, channel_tokens_list):
+        """
+        channel_tokens_list: List of N tensors, each of shape [B, 197, embed_dim]
+        """
+        N_channels = len(channel_tokens_list)
+        fused_outputs = []
+
+        # Loop through every channel, making each one the "Anchor" exactly once
+        for i in range(N_channels):
+            query_channel = channel_tokens_list[i]
+            
+            # Gather all OTHER channels to form the Key/Value context pool
+            context_channels = [
+                channel_tokens_list[j] for j in range(N_channels) if j != i
+            ]
+            
+            # Compute cross-attention for this specific channel's perspective
+            updated_channel_tokens = self.cross_attn(query_channel, context_channels)
+            fused_outputs.append(updated_channel_tokens)
+
+        # Merge the symmetrically updated tokens. 
+        # Average them together (Keeps the shape at [B, 197, embed_dim])
+        # average_fused_tokens = torch.stack(fused_outputs, dim=0).mean(dim=0)
+        
+        return fused_outputs  # Return the list of updated tokens for each channel (each [B, 197, embed_dim])
+
 class MCMSMAE(MAE):
-    def __init__(self, vit, in_channels, mask_ratio: float = 0.75, proj_type: str = "max") -> None:
+    def __init__(self, vit, in_channels, mask_ratio: float = 0.75, 
+                 pretrained_model_name: str = "mae-lightning-small", 
+                 pretrained_weights: str = "MAE_SMALL_STED") -> None:
+
+        # vit should be pretrained
+        from stedfm.models.loading import get_weights
+        state_dict = get_weights(pretrained_model_name, pretrained_weights)
+        # Only keep the vit weights from the state dict and load them into the vit backbone
+        state_dict = {k.replace("backbone.vit.", ""): v for k, v in state_dict.items() if "backbone.vit" in k}
+        vit.load_state_dict(state_dict, strict=True)
+
         super().__init__(vit=vit, in_channels=1, mask_ratio=mask_ratio)
-        self.proj_type = proj_type
+
+        # Freeze the backbone if specified
+        for param in self.backbone.parameters():
+            param.requires_grad = False
+
+        self.fusion_module = SymmetricCrossAttentionFusion(embed_dim=vit.embed_dim, num_heads=6)
 
     def training_step(self, batch, batch_idx):
         images = batch 
         batch_size = images.shape[0]
-        idx_keep, idx_mask = lightly.models.utils.random_token_mask(
-            size=(batch_size, self.sequence_length),
-            mask_ratio=self.mask_ratio,
-            device=images.device
-        )
-        x_encoded = self.forward_encoder(x=images, idx_keep=idx_keep)
-        x_pred = self.forward_decoder(x=x_encoded, idx_keep=idx_keep, idx_mask=idx_mask)
+        channels = images.shape[1]
 
-        # Max projection across channels for target generation
-        if self.proj_type == "max":
-            max_proj_images = torch.max(images, dim=1, keepdim=True)[0]
-        elif self.proj_type == "mean":
-            max_proj_images = torch.mean(images, dim=1, keepdim=True)
+        # Encode each channel separately
+        channel_tokens, channel_idx_keeps, channel_idx_masks = [], [], []
+        for chan_idx in range(channels):
+            idx_keep, idx_mask = lightly.models.utils.random_token_mask(
+                size=(batch_size, self.sequence_length),
+                mask_ratio=self.mask_ratio,
+                device=images.device
+            )
+            x_encoded = self.forward_encoder(x=images[:, chan_idx:chan_idx+1], idx_keep=idx_keep)
+
+            channel_tokens.append(x_encoded)
+            channel_idx_keeps.append(idx_keep)
+            channel_idx_masks.append(idx_mask)
+
+        # Perform Symmetric Cross-Attention fusion of tokens from different channels (this is done within the backbone)
+        if channels > 1:
+            fused_channel_tokens = self.fusion_module(channel_tokens)
         else:
-            max_proj_images = images
-        patches = lightly.models.utils.patchify(max_proj_images, self.patch_size)
-        target = lightly.models.utils.get_at_index(patches, idx_mask-1)
-        loss = self.criterion(x_pred, target)
+            fused_channel_tokens = channel_tokens
+
+        # Decode each channel separately using the fused tokens
+        loss = 0
+        for chan_idx in range(channels):
+            x_encoded = fused_channel_tokens[chan_idx]
+            idx_keep = channel_idx_keeps[chan_idx]
+            idx_mask = channel_idx_masks[chan_idx]
+
+            x_pred = self.forward_decoder(x=x_encoded, idx_keep=idx_keep, idx_mask=idx_mask)
+
+            patches = lightly.models.utils.patchify(images[:, chan_idx:chan_idx+1], self.patch_size)
+            target = lightly.models.utils.get_at_index(patches, idx_mask-1)
+            channel_loss = self.criterion(x_pred, target)
+            loss += channel_loss
+        
         self.log("Loss/mean", loss, on_epoch=True, sync_dist=True)
         self.log("Loss/min", loss, on_epoch=True, reduce_fx=torch.min, sync_dist=True)
         self.log("Loss/max", loss, on_epoch=True, reduce_fx=torch.max, sync_dist=True)
