@@ -35,6 +35,7 @@ MODELS = {
     'mae-lightning-base': MAEWeights,
     'mae-lightning-large': MAEWeights,
     "mae-lightning-64-p8": MAEWeights,
+    "mae-mcms-lightning-small": MAEWeights,
     "mae-64-p8": MAEWeights,
     "mae-lightning-224-p16": MAEWeights,
     "mae-224-p16": MAEWeights,

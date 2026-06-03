@@ -51,16 +51,19 @@ def get_pretrained_model_v2(name: str, weights: str = None, as_classifier: bool 
             print(f"--- Loaded model {name} with ImageNet weights ---")
      
         if as_classifier:
+            print(f"--- Adding linear probe on top of {name} ---")
             num_blocks = kwargs.get("blocks", "all")
             if num_blocks == "all":
                 cfg.freeze_backbone = True
-            model = LinearProbe(
+            cls_type = kwargs.get("classifier_type", LinearProbe)
+            model = cls_type(
                 backbone=backbone,
                 name=name,
                 num_classes=kwargs.get("num_classes", 4),
                 cfg=cfg,
                 num_blocks=num_blocks,
-                global_pool=kwargs.get("global_pool", "avg")
+                global_pool=kwargs.get("global_pool", "avg"),
+                channel_token_pool=kwargs.get("channel_token_pool", "avg")
             )
             print(f"--- Added linear probe to {num_blocks} frozen blocks ---")
             return model, cfg

@@ -754,9 +754,15 @@ class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
         h, w = self.size
         image_height, image_width = img.size()[1], img.size()[2]
         if h >= image_height and w >= image_width:
-            if self.return_bbox:
-                return img, (0, 0, image_height, image_width)
-            return img
+        #     if self.return_bbox:
+        #         return img, (0, 0, image_height, image_width)
+        #     return img
+        
+        # if image_height < h or image_width < w:
+        #     print("Image size is smaller than the desired crop size. Image size is: ", img.size())
+        #     # If the image is smaller than the desired crop size, we pad the image with zeros
+            padding = [0, 0, max(0, w - image_width), max(0, h - image_height)]
+            img = F.pad(img, padding)
                 
         for n in range(self.max_tries):
             i, j, h, w = self.get_params(img, self.scale, self.ratio)

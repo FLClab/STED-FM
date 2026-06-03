@@ -136,6 +136,10 @@ class MultiprocessingDataModule(LightningDataModule):
         print("===============================")
 
         sampler = MultiprocessingDistributedSampler(self.dataset, shuffle=self.cfg.datamodule.shuffle)
+        if self.dataset_name in ["MCSTED"]:
+            collate_fn = multichannel_collate_fn
+        else:
+            collate_fn = default_collate
         loader = torch.utils.data.DataLoader(
             self.dataset, 
             batch_size = self.cfg.batch_size,
@@ -144,5 +148,25 @@ class MultiprocessingDataModule(LightningDataModule):
             pin_memory=True,
             persistent_workers=True,
             drop_last=True,
+            collate_fn=collate_fn
         )
         return loader
+    
+def multichannel_collate_fn(batch):
+    elem = batch[0]
+    if isinstance(elem, torch.Tensor):
+        # Since the images can have different sizes, we cannot stack them into a single tensor. We return a list of tensors instead.
+        # Optionally, we could merge images with the same size into a single tensor
+        batched_per_num_channels = {}
+        for item in batch:
+            num_channels = item.shape[0]
+            if num_channels not in batched_per_num_channels:
+                batched_per_num_channels[num_channels] = []
+            batched_per_num_channels[num_channels].append(item)
+        batch = []
+        for num_channels, items in batched_per_num_channels.items():
+            images = torch.stack([item for item in items], dim=0)
+            batch.append(images)
+        return batch
+    else:
+        return default_collate(batch)

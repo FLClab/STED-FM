@@ -8,11 +8,13 @@ import lightly.models.utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 from lightning.pytorch.core import LightningModule
 
+from torch.utils.tensorboard import SummaryWriter
+
 from dataclasses import dataclass
 from stedfm.DEFAULTS import BASE_PATH
 from stedfm.configuration import Configuration
 
-from instanseg.utils.models.ChannelInvariantNet import ChannelInvariantNet
+# from instanseg.utils.models.ChannelInvariantNet import ChannelInvariantNet
 
 class MAEWeights:
     # IMAGENET pretraining in timm refers to a model pretrained on ImageNet21K and finetuned on ImageNet1K
@@ -44,6 +46,8 @@ class MAEWeights:
     MAE_SMALL_SIM = os.path.join(BASE_PATH, "baselines", "mae-small_SIM", "checkpoint-999.pth")
 
     MAE_SMALL_HYBRID = os.path.join(BASE_PATH, "baselines", "mae-small_Hybrid", "checkpoint-999.pth")
+
+    MAE_MCMS_SMALL_STED = os.path.join(BASE_PATH, "baselines", "mae-mcms-small_STED", "current_model.pth")
 
 class MAEConfiguration(Configuration):
 
@@ -298,6 +302,10 @@ class MCMSMAE(MAE):
                  pretrained_model_name: str = "mae-lightning-small", 
                  pretrained_weights: str = "MAE_SMALL_STED") -> None:
 
+        super().__init__(vit=vit, in_channels=1, mask_ratio=mask_ratio)
+
+        # This needs to be done after the super().__init__ call, as the MAE constructor initializes the backbone and decoder based on the provided vit, 
+        # so we need to load the pretrained weights into the vit before it is used to initialize the backbone and decoder
         # vit should be pretrained
         from stedfm.models.loading import get_weights
         state_dict = get_weights(pretrained_model_name, pretrained_weights)
@@ -305,16 +313,20 @@ class MCMSMAE(MAE):
         state_dict = {k.replace("backbone.vit.", ""): v for k, v in state_dict.items() if "backbone.vit" in k}
         vit.load_state_dict(state_dict, strict=True)
 
-        super().__init__(vit=vit, in_channels=1, mask_ratio=mask_ratio)
+        # Ensure the backbone vit is updated
+        self.backbone.vit = vit
 
         # Freeze the backbone if specified
         for param in self.backbone.parameters():
             param.requires_grad = False
 
+        # Create a pixel-size embedding layer
+        # self.pixel_size_embed = nn.Linear(1, vit.embed_dim)
+
+        # Create the fusion module for multi-channel token fusion (this is done within the backbone after the ViT encoder)
         self.fusion_module = SymmetricCrossAttentionFusion(embed_dim=vit.embed_dim, num_heads=6)
 
-    def training_step(self, batch, batch_idx):
-        images = batch 
+    def forward_batch(self, images):
         batch_size = images.shape[0]
         channels = images.shape[1]
 
@@ -338,6 +350,12 @@ class MCMSMAE(MAE):
         else:
             fused_channel_tokens = channel_tokens
 
+        return fused_channel_tokens, channel_idx_keeps, channel_idx_masks
+
+    def decode_batch(self, images, fused_channel_tokens, channel_idx_keeps, channel_idx_masks):
+        channels = len(fused_channel_tokens)
+        batch_size = fused_channel_tokens[0].shape[0]
+
         # Decode each channel separately using the fused tokens
         loss = 0
         for chan_idx in range(channels):
@@ -350,9 +368,70 @@ class MCMSMAE(MAE):
             patches = lightly.models.utils.patchify(images[:, chan_idx:chan_idx+1], self.patch_size)
             target = lightly.models.utils.get_at_index(patches, idx_mask-1)
             channel_loss = self.criterion(x_pred, target)
-            loss += channel_loss
+            loss += channel_loss            
+
+        return loss
+
+    def forward_features(self, x: torch.Tensor) -> torch.Tensor:
+
+        if isinstance(x, list):
+            raise NotImplementedError("Batch inference with list of tensors not implemented yet, the model expects a single tensor of shape [B, C, H, W]")
+
+        batch_size = x.shape[0]
+        channels = x.shape[1]
+
+        # Encode each channel separately
+        channel_tokens = []
+        for chan_idx in range(channels):
+            # Ensures we are calling the ViT encoder without masking during inference, as we want to extract features from the entire image
+            x_encoded = self.backbone.vit.forward_features(x[:, chan_idx:chan_idx+1]) # Don't apply masking during inference
+
+            channel_tokens.append(x_encoded)
+
+        # Perform Symmetric Cross-Attention fusion of tokens from different channels (this is done within the backbone)
+        if channels > 1:
+            fused_channel_tokens = self.fusion_module(channel_tokens)
+        else:
+            fused_channel_tokens = channel_tokens
         
-        self.log("Loss/mean", loss, on_epoch=True, sync_dist=True)
-        self.log("Loss/min", loss, on_epoch=True, reduce_fx=torch.min, sync_dist=True)
-        self.log("Loss/max", loss, on_epoch=True, reduce_fx=torch.max, sync_dist=True)
+        features = torch.mean(torch.stack(fused_channel_tokens, dim=0), dim=0) # Average the fused tokens across channels to get a single representation (shape [B, 197, embed_dim])
+        return features
+    
+    def training_step(self, batch, batch_idx):
+        # TODO: Batch should include some metadata such as the pixel sizes of the images, which can be used to condition the model. For now, we will ignore this and assume all images have the same pixel size.
+        images = batch
+
+        if isinstance(images, list):
+            # If images is a list, then we encode each item from the list separately
+            loss = 0
+            batch_size = len(images)
+            for batch_idx in range(batch_size):
+                
+                item = images[batch_idx]
+
+                # Ensure item has shape [B, C, H, W] where B=1
+                if item.dim() == 3:
+                    item = item.unsqueeze(0)
+                channels = item.shape[1]
+
+                # Encode each channel separately
+                fused_channel_tokens, channel_idx_keeps, channel_idx_masks = self.forward_batch(item)
+                
+                batch_loss = self.decode_batch(item, fused_channel_tokens, channel_idx_keeps, channel_idx_masks)
+                loss += batch_loss
+        else:
+
+            # Encode each channel separately
+            fused_channel_tokens, channel_idx_keeps, channel_idx_masks = self.forward_batch(images)
+            loss = self.decode_batch(images, fused_channel_tokens, channel_idx_keeps, channel_idx_masks)
+            
+        self.log("Loss/mean", loss, on_epoch=True, sync_dist=True, batch_size=len(images))
+        self.log("Loss/min", loss, on_epoch=True, reduce_fx=torch.min, sync_dist=True, batch_size=len(images))
+        self.log("Loss/max", loss, on_epoch=True, reduce_fx=torch.max, sync_dist=True, batch_size=len(images))
+
+        # # Logging images
+        # writer = self.logger.experiment
+        # if (batch_idx == 0) and (self.current_epoch % 10 == 0) and isinstance(writer, SummaryWriter):
+        #     writer.add_images("Images/view0", images[:1], self.current_epoch, dataformats="NCHW")
+
         return loss

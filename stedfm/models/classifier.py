@@ -1,5 +1,9 @@
 import torch
-from typing import List, Union
+from typing import List, Union, Optional
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 class ClassificationHead(torch.nn.Module):
     def __init__(
@@ -34,11 +38,13 @@ class LinearProbe(torch.nn.Module):
         cfg: dict,
         num_classes: int = 4, 
         global_pool: str = "avg",
-        num_blocks: str = "all",
+        num_blocks: Literal["all", "0"] = "all",
     ) -> None:
         super().__init__()
 
-        if "mae" in name.lower():
+        if "mcms" in name.lower():
+            self.backbone = backbone
+        elif "mae" in name.lower():
             try:  # ViT case with none-ImageNet weights
                 # print("--- ViT case with none-ImageNet weights or from scratch ---")
                 self.backbone = backbone.backbone.vit 
@@ -106,6 +112,68 @@ class LinearProbe(torch.nn.Module):
         out = self.classification_head(features)
         return out, features
 
+class MetaLinearProbe(LinearProbe):
+    """
+    Creates a meta linear probe on top of a given backbone model.
+    For single channel models, this meta linear probe simply predicts
+    each channel independently and pools the predictions across channels.
+    For multichannel models, this meta linear probe simply extracts the 
+    features as it is designed to be used in the model.
+
+    :param backbone: The backbone model to use for feature extraction.
+    :param name: The name of the backbone model.
+    :param cfg: Configuration dictionary containing model parameters.
+    :param num_classes: The number of output classes for classification.
+    :param global_pool: The type of global pooling to use ('avg', 'token', or 'patch').
+    :param num_blocks: The number of blocks to freeze in the backbone model ('all', '0', or an integer).
+    :param channel_token_pool: The type of pooling to use for channel tokens ('avg' or 'cat').
+    """
+    def __init__(
+        self,
+        backbone: torch.nn.Module,
+        name: str, 
+        cfg: dict,
+        num_classes: int = 4, 
+        global_pool: Literal["avg", "token", "patch"] = "avg",
+        num_blocks: Literal["all", "0"] = "all",
+        channel_token_pool: Literal["avg", "cat"] = "avg"
+    ) -> None:
+        super().__init__(
+            backbone=backbone, 
+            name=name,
+            cfg=cfg,
+            num_classes=num_classes,
+            global_pool=global_pool,
+            num_blocks=num_blocks)
+
+        self.channel_token_pool = channel_token_pool
+    
+    def forward_features(self, x: torch.Tensor, return_patches: bool = False) -> torch.Tensor:
+        if "mcms" in self.name.lower():
+            # This is a multichannel model, so we simply return the features as is.
+            return super().forward_features(x, return_patches=return_patches)
+        else:
+            # We need to predict each channel independently and pool the predictions across channels.
+            batch_size, num_channels, H, W = x.shape
+            x = x.view(batch_size * num_channels, 1, H, W) # Treat each channel as a separate image
+            out = super().forward_features(x, return_patches=return_patches)
+            if return_patches:
+                features, patch_features = out 
+                features = features.view(batch_size, num_channels, -1)
+                patch_features = patch_features.view(batch_size, num_channels, patch_features.shape[1], patch_features.shape[2])
+            else:
+                features = out.view(batch_size, num_channels, -1)
+            
+            if self.channel_token_pool == "avg":
+                features = features.view(batch_size, num_channels, -1).mean(dim=1) # Average across channels
+            elif self.channel_token_pool == "cat":
+                features = features.view(batch_size, num_channels, -1).reshape(batch_size, -1) # Concatenate across channels
+            else:
+                raise NotImplementedError(f"Invalid `{self.channel_token_pool}` pooling function.")
+            
+            if return_patches:
+                return features, patch_features
+            return features
 
 class OldLinearProbe(torch.nn.Module):
     def __init__(

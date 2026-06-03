@@ -108,26 +108,7 @@ if __name__=="__main__":
     checkpoint_callback.FILE_EXTENSION = ".pth"
     callbacks = [last_model_callback, checkpoint_callback]
 
-    if args.dry_run:
-        class MyDataset():
-            def __init__(self):
-                pass
-
-            def __len__(self):
-                return 1000
-        
-            def __getitem__(self, idx):
-                import random
-                ch = random.choice([1, 2, 3, 4])
-                ch = 2
-                return torch.randn(ch, 448, 448)
-        
-        def collate_variable_channel_size_fn(batch):
-            return batch
-        datamodule = torch.utils.data.DataLoader(MyDataset(), batch_size=16, num_workers=4)
-
-    else:
-        datamodule = MultiprocessingDataModule(args, cfg, transform=MAETransform, debug=args.dry_run)
+    datamodule = MultiprocessingDataModule(args, cfg, transform=MAETransform, debug=args.dry_run)
 
     trainer = Trainer(
         max_epochs=1000,

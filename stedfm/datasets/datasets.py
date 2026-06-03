@@ -75,6 +75,8 @@ def get_dataset(name: str, path: str, **kwargs):
         dataset = TarJUMPDataset(path, **kwargs)
     elif name == "STED": 
         dataset = TarFLCDataset(path, **kwargs)
+    elif name == "MCSTED":
+        dataset = TarFLCDataset(path, **kwargs)
     elif name == "SIM": 
         dataset = TarFLCDataset(path, **kwargs)        
     elif name == "Hybrid":
@@ -1762,6 +1764,7 @@ class FolderDataset(Dataset):
 
         if self.classes is None:
             self.classes = [item for item in os.listdir(source) if os.path.isdir(os.path.join(source, item))]
+            print("Detected classes: ", self.classes)
         self.classes = list(sorted(self.classes))
 
         self.images = {}
@@ -1793,20 +1796,22 @@ class FolderDataset(Dataset):
                 break
             idx -= len(values)
         
-        # Random 512x512 crop
-        H, W = img.shape[-2], img.shape[-1]
-        top = np.random.randint(0, H - 512) if H > 512 else 0
-        left = np.random.randint(0, W - 512) if W > 512 else 0
-        if img.ndim == 3:
-            img = img[:, top:top + 512, left:left + 512]
-        else:
-            img = img[top:top + 512, left:left + 512]
+        # # Random 512x512 crop
+        # H, W = img.shape[-2], img.shape[-1]
+        # top = np.random.randint(0, H - 512) if H > 512 else 0
+        # left = np.random.randint(0, W - 512) if W > 512 else 0
+        # if img.ndim == 3:
+        #     img = img[:, top:top + 512, left:left + 512]
+        # else:
+        #     img = img[top:top + 512, left:left + 512]
 
         if self.n_channels == 3:
             img = np.tile(img[np.newaxis, :], (3, 1, 1))
             img = torch.tensor(img, dtype=torch.float32)
             img = transforms.Normalize(mean=[0.0695771782959453, 0.0695771782959453, 0.0695771782959453], std=[0.12546228631005282, 0.12546228631005282, 0.12546228631005282])(img)
         else:
+            m, M = numpy.min(img, axis=(-2, -1), keepdims=True), numpy.max(img, axis=(-2, -1), keepdims=True)
+            img = (img - m) / (M - m + 1e-8)
             if img.ndim == 2:
                 img = img[np.newaxis]
             img = torch.tensor(img, dtype=torch.float32)
@@ -2632,12 +2637,12 @@ class TarFLCDataset(ArchiveDataset):
 
         # Channels are stored in first dimension, but transforms expect them last
         if img.ndim == 3:
-            center_y = img.shape[1] // 2
-            center_x = img.shape[2] // 2
-            crop_size = min(img.shape[1], img.shape[2]) // 2
-            crop_size = min(crop_size, 256)
-            img = img[:, center_y - crop_size:center_y + crop_size, center_x - crop_size:center_x + crop_size]
-            img = img[[0]]
+            # center_y = img.shape[1] // 2
+            # center_x = img.shape[2] // 2
+            # crop_size = min(img.shape[1], img.shape[2]) // 2
+            # crop_size = min(crop_size, 256)
+            # img = img[:, center_y - crop_size:center_y + crop_size, center_x - crop_size:center_x + crop_size]
+            # img = img[[0]]
             img = np.transpose(img, (1, 2, 0))
 
         if self.transform is not None:
