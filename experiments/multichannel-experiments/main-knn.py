@@ -40,7 +40,7 @@ def plot_PCA(args, samples: numpy.ndarray, labels: numpy.ndarray, classes: Optio
             pca_features[mask, 0], pca_features[mask, 1], 
             color=cmap(i), 
             label=labels[i] if classes is None else classes[i], 
-            alpha=0.5 if "Control" in classes[i] else 1.0
+            alpha=0.5 if classes is not None and "Control" in classes[i] else 1.0
         )
       
     ax.set(
@@ -52,13 +52,42 @@ def plot_PCA(args, samples: numpy.ndarray, labels: numpy.ndarray, classes: Optio
     fig.savefig(f"./results/knn-pca/pca_{args.dataset}_{args.weights}.pdf", bbox_inches="tight")
     pyplot.close()
 
+def plot_umap(args, samples: numpy.ndarray, labels: numpy.ndarray, classes: Optional[List[str]] = None) -> None:
+    import umap
+    reducer = umap.UMAP(random_state=42)
+    umap_features = reducer.fit_transform(samples)
+
+    fig, ax = pyplot.subplots(figsize=(5, 5))
+
+    uniques = numpy.unique(labels) 
+    cmap = pyplot.get_cmap("nice-prism", len(uniques))
+    for i, unique in enumerate(uniques):
+        mask = labels == unique
+        ax.scatter(
+            umap_features[mask, 0], umap_features[mask, 1], 
+            color=cmap(i), 
+            label=labels[i] if classes is None else classes[i], 
+            alpha=0.5 if classes is not None and "Control" in classes[i] else 1.0
+        )
+      
+    ax.set(
+        ylabel="UMAP-2", xlabel="UMAP-1",
+        xticks=[], yticks=[]
+    )
+    ax.legend()
+    os.makedirs("./results/knn-umap", exist_ok=True)
+    fig.savefig(f"./results/knn-umap/umap_{args.dataset}_{args.weights}.pdf", bbox_inches="tight")
+    pyplot.close()
+
 def extract_features(args, model: torch.nn.Module, loader: DataLoader, device: torch.device):
     samples, ground_truth = [], []
     with torch.no_grad():
         for x, data_dict in tqdm(loader, desc="Extracting features..."):
             labels = data_dict['label']
             x, labels = x.to(device), labels.to(device)
-            if "mae" in args.model.lower():
+            if "mcms" in args.model.lower():
+                features = model.forward_features(x, pixel_size=data_dict.get("pixel-size", None))
+            elif "mae" in args.model.lower():
                 features = model.forward_features(x)
             elif "convnext" in args.model.lower():
                 features = model(x).flatten(start_dim=1)
@@ -74,7 +103,6 @@ def extract_features(args, model: torch.nn.Module, loader: DataLoader, device: t
     return samples, ground_truth
                 
 def knn_predict(args, model: torch.nn.Module, valid_loader: DataLoader, test_loader: DataLoader, device:torch.device, savename:str) -> None:
-
     valid_samples, valid_ground_truth = extract_features(args=args, model=model, loader=valid_loader, device=device)
     test_samples, test_ground_truth = extract_features(args=args, model=model, loader=test_loader, device=device)
 
@@ -82,6 +110,11 @@ def knn_predict(args, model: torch.nn.Module, valid_loader: DataLoader, test_loa
         merged_samples = numpy.concatenate([valid_samples, test_samples], axis=0)
         merged_labels = numpy.concatenate([valid_ground_truth, test_ground_truth], axis=0)
         plot_PCA(args=args, samples=merged_samples, labels=merged_labels, classes=test_loader.dataset.classes)
+
+    if args.umap:
+        merged_samples = numpy.concatenate([valid_samples, test_samples], axis=0)
+        merged_labels = numpy.concatenate([valid_ground_truth, test_ground_truth], axis=0)
+        plot_umap(args=args, samples=merged_samples, labels=merged_labels, classes=test_loader.dataset.classes)
 
     pdistances = cdist(valid_samples, test_samples, metric="cosine").T
     neighbor_indices = numpy.argsort(pdistances, axis=1)
@@ -128,6 +161,7 @@ def main():
     parser.add_argument("--weights", type=str, default="MAE_MCMS_SMALL_STED")
     parser.add_argument("--global-pool", type=str, default="avg")
     parser.add_argument("--pca", action="store_true")
+    parser.add_argument("--umap", action="store_true")
     parser.add_argument("--n-neighbors", type=int, default=11)
     args = parser.parse_args()
 

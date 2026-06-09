@@ -1775,11 +1775,12 @@ class FolderDataset(Dataset):
             self.images[class_name] = list(sorted(files))
 
         self.cache = {}
-        print("Caching images into memory...")
-        for key, values in self.images.items():
-            for v in values:
-                self.cache[f"{key}-{v}"] = tifffile.imread(v)
-        print("Caching completed.")
+        if kwargs.get("cache", False):
+            print("Caching images into memory...")
+            for key, values in self.images.items():
+                for v in values:
+                    self.cache[f"{key}-{v}"] = tifffile.imread(v)
+            print("Caching completed.")
 
     def __len__(self):
         return sum([len(lst) for lst in list(self.images.values())])
@@ -1792,6 +1793,13 @@ class FolderDataset(Dataset):
                     img = self.cache[f"{key}-{values[idx]}"]
                 else:
                     img = tifffile.imread(values[idx])
+                
+                # Read pixel size from tiff
+                with tifffile.TiffFile(values[idx]) as tif:
+                    resolution = tif.pages[0].tags.get("XResolution")
+                    if resolution is not None:
+                        resolution = resolution.value
+                        resolution = 1.0 / (resolution[0] / resolution[1])
                 label = self.classes.index(key)
                 break
             idx -= len(values)
@@ -1817,7 +1825,7 @@ class FolderDataset(Dataset):
             img = torch.tensor(img, dtype=torch.float32)
         
         img = self.transform(img) if self.transform is not None else img
-        return img, {"label": label, "dataset-idx": idx}
+        return img, {"label": label, "dataset-idx": idx, "pixel-size": resolution}
 
 class RestorationFolderDataset(Dataset):
     """
@@ -2611,6 +2619,9 @@ class TarFLCDataset(ArchiveDataset):
         data = {key : values for key, values in data.items()}
 
         return data
+    
+    def set_transforms(self, transform):
+        self.transform = transform
         
     def __getitem__(self, idx: int) -> torch.Tensor:
         """
@@ -2659,6 +2670,7 @@ class TarFLCDataset(ArchiveDataset):
 
         if self.return_metadata:
             # Ensures all keys are not None
+            metadata["msr-metadata"] = filter_msr_metadata(metadata["msr-metadata"])
             metadata = ensure_values(metadata)
             return img, metadata
         return img # and whatever other metadata we like
@@ -2686,6 +2698,29 @@ def ensure_values(obj):
             # Converts None values to list of strings
             obj[key] = "None"
     return obj
+
+def filter_msr_metadata(metadata):
+    """
+    Filters the metadata to only include the relevant keys for the MSR task.
+    """
+    if not isinstance(metadata, list):
+        metadata = [metadata]
+    metadata = metadata[0]
+    out = {}
+    pixel_size = metadata.get("Pixels", {}).get("PhysicalSizeX", None)
+    pixel_size_unit = metadata.get("Pixels", {}).get("PhysicalSizeXUnit", None)
+    if pixel_size is not None and pixel_size_unit is not None:
+        pixel_size = float(pixel_size)
+        if pixel_size_unit == "nm":
+            pixel_size = pixel_size / 1000.
+        elif pixel_size_unit == "um":
+            pixel_size = pixel_size
+        elif pixel_size_unit == "mm":
+            pixel_size = pixel_size * 1000.
+        elif pixel_size_unit == "m":
+            pixel_size = pixel_size * 1e6
+    out["pixel_size"] = pixel_size
+    return out
 
 class HPADataset(ArchiveDataset):
     """

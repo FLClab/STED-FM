@@ -39,6 +39,7 @@ class LinearProbe(torch.nn.Module):
         num_classes: int = 4, 
         global_pool: str = "avg",
         num_blocks: Literal["all", "0"] = "all",
+        **kwargs
     ) -> None:
         super().__init__()
 
@@ -86,9 +87,9 @@ class LinearProbe(torch.nn.Module):
     def _freeze_blocks(self, blocks: Union[List, int]) -> None:
         raise NotImplementedError("Partial fine-tuning not yet implemented.") 
     
-    def forward_features(self, x: torch.Tensor, return_patches: bool = False) -> torch.Tensor:
+    def forward_features(self, x: torch.Tensor, return_patches: bool = False, **kwargs) -> torch.Tensor:
         if "mae" in self.name.lower():
-            features = self.backbone.forward_features(x)
+            features = self.backbone.forward_features(x, **kwargs)
             if self.global_pool == "token":
                 out = features[:, 0, :] # class token 
 
@@ -136,7 +137,8 @@ class MetaLinearProbe(LinearProbe):
         num_classes: int = 4, 
         global_pool: Literal["avg", "token", "patch"] = "avg",
         num_blocks: Literal["all", "0"] = "all",
-        channel_token_pool: Literal["avg", "cat"] = "avg"
+        channel_token_pool: Literal["avg", "cat"] = "avg",
+        **kwargs
     ) -> None:
         super().__init__(
             backbone=backbone, 
@@ -148,10 +150,10 @@ class MetaLinearProbe(LinearProbe):
 
         self.channel_token_pool = channel_token_pool
     
-    def forward_features(self, x: torch.Tensor, return_patches: bool = False) -> torch.Tensor:
+    def forward_features(self, x: torch.Tensor, return_patches: bool = False, **kwargs) -> torch.Tensor:
         if "mcms" in self.name.lower():
             # This is a multichannel model, so we simply return the features as is.
-            return super().forward_features(x, return_patches=return_patches)
+            return super().forward_features(x, return_patches=return_patches, **kwargs)
         else:
             # We need to predict each channel independently and pool the predictions across channels.
             batch_size, num_channels, H, W = x.shape

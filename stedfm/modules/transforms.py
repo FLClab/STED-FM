@@ -761,7 +761,7 @@ class RandomResizedCropMinimumForeground(T.RandomResizedCrop):
         # if image_height < h or image_width < w:
         #     print("Image size is smaller than the desired crop size. Image size is: ", img.size())
         #     # If the image is smaller than the desired crop size, we pad the image with zeros
-            padding = [0, 0, max(0, w - image_width), max(0, h - image_height)]
+            padding = [0, max(0, w - image_width), 0, max(0, h - image_height)]
             img = F.pad(img, padding)
                 
         for n in range(self.max_tries):
@@ -876,3 +876,79 @@ class GaussianNoise(torch.nn.Module):
 
     def __repr__(self):
         return self.__class__.__name__ + '(mean={0}, std={1})'.format(self.mu, self.std)
+    
+class Random90DegreeRotation(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.degrees = [0, 90, 180, 270]
+
+    def forward(self, img):
+        angle = random.choice(self.degrees)
+        return T.functional.rotate(img, angle)   
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(degrees={self.degrees})"
+
+class CropToDivisible(torch.nn.Module):
+    def __init__(self, divisor: int = 16):
+        super().__init__()
+        self.divisor = divisor
+
+    def forward(self, img):
+        H, W = img.shape[-2], img.shape[-1]
+        new_H = (H // self.divisor) * self.divisor
+        new_W = (W // self.divisor) * self.divisor
+        if img.ndim == 3:
+            img = img[:, :new_H, :new_W]
+        else:
+            img = img[:new_H, :new_W]
+        return img
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(divisor={self.divisor})"
+
+class CenterCrop(torch.nn.Module):
+    def __init__(self, output_size: int = 224):
+        super().__init__()
+        self.output_size = output_size
+
+    def forward(self, img):
+        H, W = img.shape[-2], img.shape[-1]
+        top = (H - self.output_size) // 2
+        left = (W - self.output_size) // 2
+        if img.ndim == 3:
+            img = img[:, top:top+self.output_size, left:left+self.output_size]
+        else:
+            img = img[top:top+self.output_size, left:left+self.output_size]
+        return img
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(output_size={self.output_size})"
+
+class MinMaxNormalize(torch.nn.Module):
+    def __init__(self, eps: float = 1e-6):
+        super().__init__()
+        self.eps = eps
+
+    def forward(self, img):
+        min_val = torch.amin(img, dim=(-2, -1), keepdim=True)
+        max_val = torch.amax(img, dim=(-2, -1), keepdim=True)
+        normalized = (img - min_val) / (max_val - min_val + self.eps)
+        return normalized
+    
+    def __repr__(self):
+        return f"{self.__class__.__name__}(eps={self.eps})"
+    
+class SwapChannels(torch.nn.Module):
+    def __init__(self, p: float = 0.5):
+        super().__init__()
+        self.p = p
+
+    def forward(self, img):
+        if random.random() < self.p:
+            new_order = torch.randperm(img.shape[0])
+            img = img[new_order]
+        return img
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(p={self.p})"

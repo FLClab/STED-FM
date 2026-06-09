@@ -153,3 +153,16 @@ class NTXentLossWithClasses(NTXentLoss):
         loss = self.cross_entropy(logits, labels)
 
         return loss
+
+class FourierLoss(nn.Module):
+    def __init__(self, *args, **kwargs):
+        super(FourierLoss, self).__init__()
+
+    def forward(self, pred: torch.Tensor, target: torch.Tensor):
+        pred_fft = torch.fft.fft2(pred)
+        target_fft = torch.fft.fft2(target)
+        loss = torch.mean(torch.abs(pred_fft - target_fft))
+        return loss
+    
+def kl_loss(mu, logvar):
+    return -0.5 * (1 + logvar - mu.pow(2) - logvar.exp()).mean()

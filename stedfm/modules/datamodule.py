@@ -131,9 +131,10 @@ class MultiprocessingDataModule(LightningDataModule):
         else:
             num_workers = self.cfg.datamodule.num_workers
         
-        print("===============================")
-        print("Num Workers: ", num_workers)
-        print("===============================")
+        if self.trainer.current_epoch == 0:
+            print("===============================")
+            print("Num Workers: ", num_workers)
+            print("===============================")
 
         sampler = MultiprocessingDistributedSampler(self.dataset, shuffle=self.cfg.datamodule.shuffle)
         if self.dataset_name in ["MCSTED"]:
@@ -145,7 +146,7 @@ class MultiprocessingDataModule(LightningDataModule):
             batch_size = self.cfg.batch_size,
             sampler = sampler,
             num_workers=int(num_workers),
-            pin_memory=True,
+            pin_memory=True if self.trainer.reload_dataloaders_every_n_epochs == 0 else False, # Pin memory only if we are not reloading dataloaders every epoch (since reloading dataloaders every epoch with pin_memory=True seems to cause issues with multiprocessing)
             persistent_workers=True,
             drop_last=True,
             collate_fn=collate_fn
@@ -154,7 +155,21 @@ class MultiprocessingDataModule(LightningDataModule):
     
 def multichannel_collate_fn(batch):
     elem = batch[0]
-    if isinstance(elem, torch.Tensor):
+    if isinstance(elem, tuple) and isinstance(elem[0], torch.Tensor):
+        # If the element is a tuple, we assume it is of the form (image, metadata) and we collate the images and return the metadata as a list
+        batched_per_num_channels = {}
+        for item in batch:
+            num_channels = item[0].shape[0]
+            if num_channels not in batched_per_num_channels:
+                batched_per_num_channels[num_channels] = []
+            batched_per_num_channels[num_channels].append(item)
+        batch = []
+        for num_channels, items in batched_per_num_channels.items():
+            images = torch.stack([item[0] for item in items], dim=0)
+            metadata = [item[1] for item in items]
+            batch.append((images, metadata))
+        return batch
+    elif isinstance(elem, torch.Tensor):
         # Since the images can have different sizes, we cannot stack them into a single tensor. We return a list of tensors instead.
         # Optionally, we could merge images with the same size into a single tensor
         batched_per_num_channels = {}

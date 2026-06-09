@@ -50,8 +50,12 @@ def update_cfg(cfg: dataclass, opts: List[str]) -> dataclass:
         key, value = opts[i], opts[i + 1]
         if len(key.split(".")) > 1:
             key, subkey = key.split(".")
+            if not hasattr(cfg, key):
+                continue
             update_cfg(getattr(cfg, key), [subkey, value])
         else:
+            if not hasattr(cfg, key):
+                continue
             if type(getattr(cfg, key)) == bool:
                 # Special case for boolean values
                 setattr(cfg, key, value in ("True", "true", "1"))
