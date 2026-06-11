@@ -57,7 +57,7 @@ if __name__=="__main__":
 
     seed_everything(args.seed, workers=True)
     print(args)
-    model, cfg = get_base_model(name=args.model)
+    model, cfg = get_base_model(name=args.model, opts=args.opts)
 
     cfg.datamodule = DataModuleConfig()
     cfg.args = args
