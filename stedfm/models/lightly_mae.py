@@ -57,7 +57,7 @@ class MAEWeights:
 
     MAE_MCMS_SMALL_STED = os.path.join(BASE_PATH, "baselines", "mae-mcms-small_STED", "image-scale-finetuning", "current_model.pth")
     MAE_MCMS_SMALL_STED = os.path.join(BASE_PATH, "baselines", "mae-mcms-small_STED", "current_model.pth")
-    MAE_MCS_TOKEN_SMALL_STED = os.path.join(BASE_PATH, "baselines", "mae-mcs-token-small_STED", "checkpoint-999.pth")
+    MAE_MCMS_TOKEN_SMALL_STED = os.path.join(BASE_PATH, "baselines", "mae-mcms-token-small_STED", "current_model.pth")
 
 class MAEConfiguration(Configuration):
 
@@ -117,7 +117,7 @@ def get_backbone(name: str, **kwargs) -> torch.nn.Module:
                            pretrained_weights="MAE_SMALL_STED",
                            freeze_backbone=cfg.freeze_backbone)
     
-    elif name == "mae-mcs-token-lightning-small":
+    elif name == "mae-mcms-token-lightning-small":
         cfg.dim = 384
         cfg.batch_size = 256
         cfg.backbone = "vit-small"

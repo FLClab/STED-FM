@@ -47,7 +47,7 @@ def get_dataset(name: str, cfg: Configuration, **kwargs):
     ])
     transform = transforms.Compose([
         QuantileNormalize(quantile=0.999),
-        CenterCrop(output_size=224),
+        CenterCrop(output_size=896),
         CropToDivisible(divisor=16),
     ])    
     testing_transform = transforms.Compose([
@@ -62,7 +62,7 @@ def get_dataset(name: str, cfg: Configuration, **kwargs):
             source=os.path.join(BASE_PATH, "evaluation-data", "pysoda"),
             n_channels=cfg.in_channels,
             transform=transform,
-            classes=None, # Returns all classes found in the source folder
+            classes=kwargs.pop("classes", None), # Returns all classes found in the source folder
             **kwargs
         )
 
