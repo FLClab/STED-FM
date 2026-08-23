@@ -3,6 +3,8 @@
 [![Github Pages](https://img.shields.io/badge/github%20pages-121013?style=for-the-badge&logo=github&logoColor=white)](https://flclab.github.io/stedfm/)
 <a href="https://colab.research.google.com/github/FLClab/STED-FM/blob/main/notebooks/stedfm_example.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 [![DOI:10.1101/2025.06.06.656993](http://img.shields.io/badge/DOI-10.1101/2025.06.06.656993-B31B1B.svg)](https://doi.org/10.1101/2025.06.06.656993)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21897672.svg)](https://doi.org/10.5281/zenodo.21897672)
+
 
 Repository for the paper `A Self-Supervised Foundation Model for Robust and Generalizable Representation Learning in STED Microscopy`.  
 

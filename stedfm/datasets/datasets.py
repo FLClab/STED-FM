@@ -862,7 +862,7 @@ class PeroxisomeDataset(Dataset):
             files = file.readlines()
             files = [os.path.join(BASE_PATH, file.strip()[1:]) for file in files]
         for i, class_name in enumerate(self.classes):
-            files_list = [f for f in files if class_name in f]
+            files_list = [f for f in files if self._matches_class(f, class_name)]
             original_size += len(files_list)
             self.samples[class_name] = self._get_sampled_files(files_list=files_list, num_sample=num_samples)
 
@@ -880,6 +880,20 @@ class PeroxisomeDataset(Dataset):
             print(f"Class {k} samples: {len(self.samples[k])}")
         print("----------")
         self.info = self.__get_info()
+
+    @staticmethod
+    def _matches_class(path: str, class_name: str) -> bool:
+        """True if ``path`` belongs to growth condition ``class_name``.
+
+        Matches the condition as a *whole* folder token, not a bare substring:
+        each image lives under ``.../<condition>_<replicate>/Nxxx.tiff`` (e.g.
+        ``16hMeOH_1_Duplo``). A naive ``class_name in path`` check is wrong here
+        because ``"6hMeOH"`` is a substring of ``"16hMeOH"``, which would assign
+        every 16hMeOH image to the 6hMeOH class as well (double-counted, with a
+        conflicting label).
+        """
+        folder = os.path.basename(os.path.dirname(path))
+        return folder == class_name or folder.startswith(class_name + "_")
 
     def __balance_classes(self) -> None:
         np.random.seed(42)
