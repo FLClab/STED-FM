@@ -9,6 +9,7 @@ from sklearn.metrics import roc_auc_score, average_precision_score
 from stedfm.DEFAULTS import BASE_PATH 
 from stedfm.loaders import get_dataset 
 from stedfm import get_pretrained_model_v2 
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mae-lightning-small")
@@ -18,6 +19,8 @@ parser.add_argument("--metric", type=str, default="auc", choices=["auc", "aupr"]
 args = parser.parse_args()
 
 def main():
+    OUTPATH = "./results"
+    os.makedirs(OUTPATH, exist_ok=True)
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"--- Running on {DEVICE} ---")
     pretraining_datasets = ["MAE_SMALL_STED", "MAE_SMALL_SIM", "MAE_SMALL_HPA", "MAE_SMALL_JUMP", "MAE_SMALL_IMAGENET1K_V1"]
@@ -124,7 +127,7 @@ def main():
         normalized_heatmap[:, col] += diff
     
 
-    np.savez(f"./results_v2/{args.metric}_image_retrieval_results.npz", performance_heatmap=performance_heatmap, normalized_heatmap=normalized_heatmap)
+    np.savez(f"{OUTPATH}/{args.metric}_image_retrieval_results.npz", performance_heatmap=performance_heatmap, normalized_heatmap=normalized_heatmap)
     fig = plt.figure()
     ax = fig.add_subplot(111)
     im = ax.imshow(normalized_heatmap, cmap="RdPu")
@@ -141,7 +144,7 @@ def main():
     ax.set_yticklabels(pretraining_datasets)
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
     plt.colorbar(im)
-    fig.savefig(f"./results/{args.metric}_image_retrieval_results.pdf", bbox_inches='tight', dpi=1200)
+    fig.savefig(f"{OUTPATH}/{args.metric}_image_retrieval_results.pdf", bbox_inches='tight', dpi=1200)
     plt.close(fig)
 
 if __name__=="__main__":
