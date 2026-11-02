@@ -7,9 +7,8 @@ import argparse
 from tqdm import tqdm
 from matplotlib import patches
 import sys 
-sys.path.insert(0, "../../")
-from DEFAULTS import BASE_PATH, COLORS, MARKERS 
-from utils import savefig 
+from stedfm.DEFAULTS import BASE_PATH, COLORS, MARKERS 
+from stedfm.utils import savefig 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mae-small")
@@ -79,7 +78,7 @@ def plot_rankings(rankings: dict):
 
 def main():
     sample_size = ["10", "25", "50", "100"]
-    downstream_datasets = ["optim", "neural-activity-states", "peroxisome", "polymer-rings", "dl-sim"]
+    downstream_datasets = ["optim", "neural-activity-states", "peroxisome", "polymer-rings"]#, "dl-sim"]
     pretraining_datasets = ["from-scratch","ImageNet", "JUMP", "HPA", "SIM", "STED"]
 
     rankings = {

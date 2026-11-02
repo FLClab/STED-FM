@@ -7,7 +7,7 @@ if USER == "frbea320":
     BASE_PATH = "/home/frbea320/scratch"
     #BASE_PATH = "/home/f/frbea320/links/scratch" # For Tamia
 elif USER == "fredbeaupre":
-    BASE_PATH = "/Users/fredbeaupre/PhD/GitRepos/Neurodegeneration"
+    BASE_PATH = "/Users/fredbeaupre/PhD/GitRepos"
 elif USER == "anbil106":
     BASE_PATH = "/home/anbil106/links/scratch/projects/SSL"
 elif USER == "anthony":
